@@ -1,0 +1,88 @@
+DIGEST a8d64aae57d240d7235ad0750b492b42
+FCRIS.cannon.CannonMainI
+R15:18 CRIS.common.CRIS <> <> lib
+R36:45 CRIS.imp.ImpPrelude <> <> lib
+R63:74 CRIS.cannon.CannonHeader <> <> lib
+mod 110:114 <> MainI
+sec 125:129 MainI MainI
+var  178:179 MainI.MainI Σ
+R183:185 CRIS.iris_system.iprop <> GRA class
+var 201:208 MainI.MainI num_fire
+R211:213 Coq.Init.Datatypes <> nat ind
+def 230:235 MainI scopes
+R240:240 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R247:247 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+def 262:272 MainI main_repeat
+R279:281 Coq.Init.Datatypes <> nat ind
+binder 275:275 <> n:4
+R286:290 ITree.Core.ITreeDefinition <> itree corec
+R298:301 Coq.Init.Datatypes <> unit ind
+R292:296 CRIS.common.Events <> pmodE def
+R316:316 CRIS.cannon.CannonMainI <> n:4 var
+R334:336 ITree.Core.ITreeDefinition <> Ret abbrev
+R338:339 Coq.Init.Datatypes <> tt constr
+R347:347 Coq.Init.Datatypes <> S constr
+R361:361 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R363:365 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R367:370 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R409:417 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R371:376 CRIS.common.Events <> ccallU def
+R400:403 Coq.Init.Datatypes <> list ind
+R405:407 CRIS.imp.ImpPrelude <> val ind
+R395:396 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R378:392 CRIS.cannon.CannonHeader CannonName fire def
+R366:366 Coq.Numbers.BinNums <> Z ind
+binder 362:362 <> r:7
+binder 362:362 <> r:8
+R453:462 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R418:424 ITree.Core.Subevent <> trigger abbrev
+R428:429 CRIS.common.Events <> IO constr
+R433:436 ITree.Basics.Basics <> void abbrev
+R449:451 CRIS.lib.Any <> :::x_'↑' not
+R446:446 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R448:448 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R447:447 CRIS.cannon.CannonMainI <> r:7 var
+R463:473 CRIS.cannon.CannonMainI <> main_repeat:5 def
+def 501:504 MainI main
+R516:520 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R508:511 Coq.Init.Datatypes <> list ind
+R513:515 CRIS.imp.ImpPrelude <> val ind
+R521:525 ITree.Core.ITreeDefinition <> itree corec
+R533:536 Coq.Init.Datatypes <> unit ind
+R527:531 CRIS.common.Events <> pmodE def
+R545:547 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R549:550 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R551:561 CRIS.cannon.CannonMainI MainI main_repeat def
+R563:570 CRIS.cannon.CannonMainI <> MainI.MainI.num_fire var
+def 587:592 MainI fnsems
+R601:601 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R639:639 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R602:602 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R616:617 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R638:638 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R603:615 CRIS.cannon.CannonHeader MainName main def
+R618:618 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R625:626 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R637:637 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R619:624 CRIS.cannon.CannonMainI MainI scopes def
+R627:631 CRIS.common.Events <> cfunU def
+R633:636 CRIS.cannon.CannonMainI MainI main def
+def 666:668 MainI Mod
+R672:677 CRIS.modules.PMod PMod t rec
+R689:699 CRIS.modules.PMod PMod scopes proj
+R689:699 CRIS.modules.PMod PMod scopes proj
+R689:699 CRIS.modules.PMod PMod scopes proj
+R716:726 CRIS.modules.PMod PMod fnsems proj
+R716:726 CRIS.modules.PMod PMod fnsems proj
+R743:757 CRIS.modules.PMod PMod initial_st proj
+R743:757 CRIS.modules.PMod PMod initial_st proj
+R704:709 CRIS.cannon.CannonMainI MainI scopes def
+R731:736 CRIS.cannon.CannonMainI MainI fnsems def
+R762:763 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+def 865:865 MainI t
+R870:881 CRIS.lib.Coqlib Seal sealing defax
+R889:900 CRIS.modules.PMod PMod to_hmod def
+R902:904 CRIS.cannon.CannonMainI MainI Mod def
+R883:886 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R912:916 CRIS.cannon.CannonMainI MainI.MainI <> sec
+R923:927 CRIS.cannon.CannonMainI MainI <> mod

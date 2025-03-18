@@ -1,0 +1,37 @@
+DIGEST 1847440d0aeb748b5bda6402378d4f60
+FCRIS.repeat.AddHeader
+R15:18 CRIS.common.CRIS <> <> lib
+R36:45 CRIS.imp.ImpPrelude <> <> lib
+mod 56:62 <> AddName
+def 78:79 AddName mn
+def 105:106 AddName fn
+R117:122 Coq.Strings.String <> string ind
+binder 109:114 <> method:1
+R134:138 stdpp.strings <> ::stdpp_scope:x_'+:+'_x not
+R132:133 CRIS.repeat.AddHeader AddName mn def
+R142:146 stdpp.strings <> ::stdpp_scope:x_'+:+'_x not
+R147:152 CRIS.repeat.AddHeader <> method:1 var
+def 169:172 AddName succ
+R177:178 CRIS.repeat.AddHeader AddName fn def
+def 201:203 AddName add
+R208:209 CRIS.repeat.AddHeader AddName fn def
+R222:228 CRIS.repeat.AddHeader AddName <> mod
+mod 239:245 <> AddGEnv
+def 259:259 AddGEnv t
+R263:268 CRIS.common.GEnv GEnv t def
+R275:275 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R299:304 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R327:327 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R276:276 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R289:290 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R298:298 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R277:288 CRIS.repeat.AddHeader AddName succ def
+R295:297 CRIS.lib.Any <> :::x_'↑' not
+R291:294 CRIS.imp.ImpPrelude <> Gfun constr
+R305:305 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R317:318 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R326:326 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R306:316 CRIS.repeat.AddHeader AddName add def
+R323:325 CRIS.lib.Any <> :::x_'↑' not
+R319:322 CRIS.imp.ImpPrelude <> Gfun constr
+R334:340 CRIS.repeat.AddHeader AddGEnv <> mod

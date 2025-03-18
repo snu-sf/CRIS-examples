@@ -1,0 +1,144 @@
+DIGEST d8f4fb06498d8521ae02b372dad78e28
+FCRIS.ring.RingIAproof
+R15:18 CRIS.common.CRIS <> <> lib
+R37:46 CRIS.ring.RingHeader <> <> lib
+R48:57 CRIS.ring.CellHeader <> <> lib
+R61:65 CRIS.ring.RingA <> <> lib
+R67:71 CRIS.ring.CtrlI <> <> lib
+R73:77 CRIS.ring.CellA <> <> lib
+R79:83 CRIS.ring.CellI <> <> lib
+R87:97 CRIS.ring.CtrlIAproof <> <> lib
+R99:109 CRIS.ring.CellIAproof <> <> lib
+mod 208:213 <> RingIA
+sec 224:229 RingIA RingIA
+R245:248 CRIS.iris_system.invariants <> invG class
+R261:264 CRIS.iris_system.iprop <> subG class
+R269:270 CRIS.ring.RingIAproof <> Σ:2 var
+R266:267 CRIS.ring.RingIAproof <> Γ:3 var
+R274:278 CRIS.iris_system.syn_invariants <> sinvG class
+R286:287 CRIS.ring.RingIAproof <> α:1 var
+R283:284 CRIS.ring.RingIAproof <> Γ:3 var
+R280:281 CRIS.ring.RingIAproof <> Σ:2 var
+R297:304 CRIS.ring.CellA <> CellAGΓ class
+R306:307 CRIS.ring.RingIAproof <> Γ:3 var
+def 325:330 RingIA CellIG
+binder 332:336 <> start:10
+binder 338:340 <> len:11
+R349:357 CRIS.modules.HMod HMod addL def
+R360:367 Coq.Lists.List <> map def
+R378:380 Coq.Lists.List <> seq def
+R388:390 CRIS.ring.RingIAproof <> len:11 var
+R382:386 CRIS.ring.RingIAproof <> start:10 var
+R369:375 CRIS.ring.CellI CellI t def
+prf 406:412 RingIA correct
+binder 414:421 <> max_size:12
+R442:445 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R436:441 Coq.Strings.String <> string ind
+R446:451 Coq.Init.Datatypes <> option ind
+R453:457 CRIS.modules.SMod2HMod <> fspec rec
+binder 424:427 <> SpcR:13
+binder 429:432 <> SpcC:14
+R470:480 CRIS.simulations.ctxrefine.CtxRefine <> ctx_refines def
+R488:488 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R547:555 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R641:641 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R489:489 CRIS.modules.HMod <> :::x_'★'_x not
+R511:517 CRIS.modules.HMod <> :::x_'★'_x not
+R546:546 CRIS.modules.HMod <> :::x_'★'_x not
+R490:496 CRIS.ring.RingA RingA t def
+R507:510 CRIS.ring.RingIAproof <> SpcR:13 var
+R498:505 CRIS.ring.RingIAproof <> max_size:12 var
+R518:529 CRIS.ring.CtrlIAproof CtrlIA CellG def
+R538:545 CRIS.ring.RingIAproof <> max_size:12 var
+R531:534 CRIS.ring.RingIAproof <> SpcC:14 var
+R556:556 iris.bi.interface <> ::bi_scope:x_'∗'_x not
+R580:586 iris.bi.interface <> ::bi_scope:x_'∗'_x not
+R640:640 iris.bi.interface <> ::bi_scope:x_'∗'_x not
+R557:570 CRIS.ring.RingA RingA InitCond def
+R572:579 CRIS.ring.RingIAproof <> max_size:12 var
+R587:597 iris.bi.big_op <> ::bi_scope:'[∗'_'list]'_x_'↦'_x_'∈'_x_','_x not
+R599:601 iris.bi.big_op <> ::bi_scope:'[∗'_'list]'_x_'↦'_x_'∈'_x_','_x not
+R603:607 iris.bi.big_op <> ::bi_scope:'[∗'_'list]'_x_'↦'_x_'∈'_x_','_x not
+R622:623 iris.bi.big_op <> ::bi_scope:'[∗'_'list]'_x_'↦'_x_'∈'_x_','_x not
+binder 598:598 <> i:15
+binder 598:598 <> i:16
+binder 602:602 <> x:17
+binder 602:602 <> x:18
+R624:637 CRIS.ring.CellA CellA InitCond def
+R639:639 CRIS.ring.RingIAproof <> i:15 var
+R608:610 Coq.Lists.List <> seq def
+R614:621 CRIS.ring.RingIAproof <> max_size:12 var
+R651:651 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R699:707 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R713:713 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R652:652 CRIS.modules.HMod <> :::x_'★'_x not
+R669:680 CRIS.modules.HMod <> :::x_'★'_x not
+R698:698 CRIS.modules.HMod <> :::x_'★'_x not
+R653:659 CRIS.ring.CtrlI CtrlI t def
+R661:668 CRIS.ring.RingIAproof <> max_size:12 var
+R681:686 CRIS.ring.RingIAproof RingIA CellIG def
+R690:697 CRIS.ring.RingIAproof <> max_size:12 var
+R708:710 iris.bi.interface <> ::bi_scope:'emp' not
+R750:765 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_frameR thm
+R750:765 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_frameR thm
+R781:793 CRIS.simulations.ctxrefine.MainAdequacy <> main_adequacy thm
+R781:793 CRIS.simulations.ctxrefine.MainAdequacy <> main_adequacy thm
+R808:817 CRIS.ring.CtrlIAproof CtrlIA sim thm
+R808:817 CRIS.ring.CtrlIAproof CtrlIA sim thm
+R849:865 CRIS.modules.HMod <> hmod_addc_empty_l thm
+R849:865 CRIS.modules.HMod <> hmod_addc_empty_l thm
+R849:865 CRIS.modules.HMod <> hmod_addc_empty_l thm
+R881:891 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_frameL thm
+R881:891 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_frameL thm
+R938:957 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_strengthen thm
+R938:957 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_strengthen thm
+R982:987 CRIS.ring.RingIAproof RingIA CellIG def
+R990:1002 CRIS.ring.CtrlIAproof CtrlIA CellGS def
+R1005:1016 CRIS.ring.CtrlIAproof CtrlIA CellG def
+R1036:1040 Coq.Lists.List <> seq_S thm
+R1043:1049 Coq.Lists.List <> map_app thm
+R1052:1064 CRIS.modules.HMod <> hmod_addL_app thm
+R1036:1040 Coq.Lists.List <> seq_S thm
+R1036:1040 Coq.Lists.List <> seq_S thm
+R1036:1040 Coq.Lists.List <> seq_S thm
+R1043:1049 Coq.Lists.List <> map_app thm
+R1043:1049 Coq.Lists.List <> map_app thm
+R1043:1049 Coq.Lists.List <> map_app thm
+R1043:1049 Coq.Lists.List <> map_app thm
+R1052:1064 CRIS.modules.HMod <> hmod_addL_app thm
+R1052:1064 CRIS.modules.HMod <> hmod_addL_app thm
+R1052:1064 CRIS.modules.HMod <> hmod_addL_app thm
+R1052:1064 CRIS.modules.HMod <> hmod_addL_app thm
+R1102:1117 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_compose_hor thm
+R1102:1117 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_compose_hor thm
+R1148:1167 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_strengthen thm
+R1148:1167 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_strengthen thm
+R1204:1206 iris.bi.interface <> ::bi_scope:'emp' not
+R1204:1206 iris.bi.interface <> ::bi_scope:'emp' not
+R1204:1206 iris.bi.interface <> ::bi_scope:'emp' not
+R1236:1255 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_strengthen thm
+R1236:1255 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_strengthen thm
+R1282:1293 iris.bi.big_op <> big_sepL_app thm
+R1282:1293 iris.bi.big_op <> big_sepL_app thm
+R1282:1293 iris.bi.big_op <> big_sepL_app thm
+R1434:1453 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_strengthen thm
+R1434:1453 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_strengthen thm
+R1498:1513 CRIS.modules.HMod <> hmod_add_empty_r thm
+R1498:1513 CRIS.modules.HMod <> hmod_add_empty_r thm
+R1498:1513 CRIS.modules.HMod <> hmod_add_empty_r thm
+R1498:1513 CRIS.modules.HMod <> hmod_add_empty_r thm
+R1498:1513 CRIS.modules.HMod <> hmod_add_empty_r thm
+R1562:1574 CRIS.simulations.ctxrefine.MainAdequacy <> main_adequacy thm
+R1562:1574 CRIS.simulations.ctxrefine.MainAdequacy <> main_adequacy thm
+R1584:1593 CRIS.ring.CellIAproof CellIA sim thm
+R1584:1593 CRIS.ring.CellIAproof CellIA sim thm
+R1624:1643 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_strengthen thm
+R1624:1643 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_strengthen thm
+R1667:1677 Coq.Arith.PeanoNat Nat add_0_r thm
+R1679:1688 stdpp.list_numbers <> length_seq thm
+R1667:1677 Coq.Arith.PeanoNat Nat add_0_r thm
+R1667:1677 Coq.Arith.PeanoNat Nat add_0_r thm
+R1679:1688 stdpp.list_numbers <> length_seq thm
+R1679:1688 stdpp.list_numbers <> length_seq thm
+R1728:1733 CRIS.ring.RingIAproof RingIA.RingIA <> sec
+R1740:1745 CRIS.ring.RingIAproof RingIA <> mod

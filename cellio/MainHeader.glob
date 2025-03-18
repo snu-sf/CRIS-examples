@@ -1,0 +1,14 @@
+DIGEST 27268ee72b039dad461f740893ed164b
+FCRIS.cellio.MainHeader
+R15:18 CRIS.common.CRIS <> <> lib
+mod 29:36 <> MainName
+def 53:54 MainName mn
+def 85:86 MainName fn
+R97:102 Coq.Strings.String <> string ind
+binder 89:94 <> method:1
+R114:118 stdpp.strings <> ::stdpp_scope:x_'+:+'_x not
+R112:113 CRIS.cellio.MainHeader MainName mn def
+R122:126 stdpp.strings <> ::stdpp_scope:x_'+:+'_x not
+R127:132 CRIS.cellio.MainHeader <> method:1 var
+def 151:154 MainName main
+R177:184 CRIS.cellio.MainHeader MainName <> mod

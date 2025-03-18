@@ -1,0 +1,157 @@
+DIGEST 3e744bfd3616fc65759fb686335675b2
+FCRIS.mutsum.MutHeader
+R15:18 CRIS.common.CRIS <> <> lib
+R36:45 CRIS.imp.ImpPrelude <> <> lib
+mod 56:62 <> MutName
+def 78:81 MutName mutf
+def 109:112 MutName mutg
+R131:137 CRIS.mutsum.MutHeader MutName <> mod
+mod 148:153 <> MutAUX
+sec 164:169 MutAUX MutAUX
+def 184:186 MutAUX sum
+R192:194 Coq.Init.Datatypes <> nat ind
+binder 189:189 <> n:1
+R198:200 Coq.Init.Datatypes <> nat ind
+R215:215 CRIS.mutsum.MutHeader <> n:1 var
+R228:228 Coq.Init.Datatypes <> O constr
+R233:233 Coq.Init.Datatypes <> O constr
+R241:241 Coq.Init.Datatypes <> S constr
+R249:251 Coq.Init.Peano <> ::nat_scope:x_'+'_x not
+R248:248 CRIS.mutsum.MutHeader <> n:1 var
+R252:254 CRIS.mutsum.MutHeader <> sum:2 def
+def 307:313 MutAUX mut_max
+R316:318 Coq.Init.Datatypes <> nat ind
+prf 342:357 MutAUX mut_max_intrange
+binder 359:359 <> x:4
+R371:373 Coq.Init.Peano <> ::nat_scope:x_'<'_x not
+R370:370 CRIS.mutsum.MutHeader <> x:4 var
+R374:380 CRIS.mutsum.MutHeader MutAUX mut_max def
+binder 366:367 <> LT:5
+R393:403 CRIS.imp.ImpPrelude <> intrange_64 def
+R405:405 CRIS.mutsum.MutHeader <> x:4 var
+R428:434 CRIS.mutsum.MutHeader MutAUX mut_max def
+R470:484 Coq.ZArith.Zpower <> two_power_nat_S thm
+R470:484 Coq.ZArith.Zpower <> two_power_nat_S thm
+R470:484 Coq.ZArith.Zpower <> two_power_nat_S thm
+R501:503 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R504:516 Coq.ZArith.Zpower <> two_power_nat def
+R530:530 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R547:550 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R531:543 Coq.ZArith.Zpower <> two_power_nat def
+R501:503 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R504:516 Coq.ZArith.Zpower <> two_power_nat def
+R530:530 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R547:550 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R531:543 Coq.ZArith.Zpower <> two_power_nat def
+R573:582 Coq.ZArith.BinInt Z mul_comm thm
+R573:582 Coq.ZArith.BinInt Z mul_comm thm
+R573:582 Coq.ZArith.BinInt Z mul_comm thm
+R603:615 Coq.ZArith.Zpower <> two_power_nat def
+R633:647 CRIS.lib.Coqlib <> sumbool_to_bool def
+R687:695 Coq.ZArith.BinInt Z div_mul thm
+R687:695 Coq.ZArith.BinInt Z div_mul thm
+R687:695 Coq.ZArith.BinInt Z div_mul thm
+R687:695 Coq.ZArith.BinInt Z div_mul thm
+R687:695 Coq.ZArith.BinInt Z div_mul thm
+R687:695 Coq.ZArith.BinInt Z div_mul thm
+R687:695 Coq.ZArith.BinInt Z div_mul thm
+R687:695 Coq.ZArith.BinInt Z div_mul thm
+R687:695 Coq.ZArith.BinInt Z div_mul thm
+prf 728:748 MutAUX mut_max_intrange_sub1
+binder 750:750 <> x:6
+R762:764 Coq.Init.Peano <> ::nat_scope:x_'<'_x not
+R761:761 CRIS.mutsum.MutHeader <> x:6 var
+R765:771 CRIS.mutsum.MutHeader MutAUX mut_max def
+binder 757:758 <> LT:7
+R784:794 CRIS.imp.ImpPrelude <> intrange_64 def
+R798:800 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R797:797 CRIS.mutsum.MutHeader <> x:6 var
+R825:831 CRIS.mutsum.MutHeader MutAUX mut_max def
+R867:881 Coq.ZArith.Zpower <> two_power_nat_S thm
+R867:881 Coq.ZArith.Zpower <> two_power_nat_S thm
+R867:881 Coq.ZArith.Zpower <> two_power_nat_S thm
+R898:900 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R901:913 Coq.ZArith.Zpower <> two_power_nat def
+R927:927 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R944:947 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R928:940 Coq.ZArith.Zpower <> two_power_nat def
+R898:900 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R901:913 Coq.ZArith.Zpower <> two_power_nat def
+R927:927 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R944:947 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R928:940 Coq.ZArith.Zpower <> two_power_nat def
+R970:979 Coq.ZArith.BinInt Z mul_comm thm
+R970:979 Coq.ZArith.BinInt Z mul_comm thm
+R970:979 Coq.ZArith.BinInt Z mul_comm thm
+R1000:1012 Coq.ZArith.Zpower <> two_power_nat def
+R1030:1044 CRIS.lib.Coqlib <> sumbool_to_bool def
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+R1085:1093 Coq.ZArith.BinInt Z div_mul thm
+prf 1126:1145 MutAUX mut_max_sum_intrange
+binder 1147:1147 <> x:8
+R1159:1161 Coq.Init.Peano <> ::nat_scope:x_'<'_x not
+R1158:1158 CRIS.mutsum.MutHeader <> x:8 var
+R1162:1168 CRIS.mutsum.MutHeader MutAUX mut_max def
+binder 1154:1155 <> LT:9
+R1181:1191 CRIS.imp.ImpPrelude <> intrange_64 def
+R1194:1196 CRIS.mutsum.MutHeader MutAUX sum def
+R1198:1198 CRIS.mutsum.MutHeader <> x:8 var
+R1225:1228 Coq.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R1220:1222 CRIS.mutsum.MutHeader MutAUX sum def
+R1236:1238 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R1229:1235 CRIS.mutsum.MutHeader MutAUX mut_max def
+R1239:1245 CRIS.mutsum.MutHeader MutAUX mut_max def
+R1225:1228 Coq.ZArith.BinInt <> ::Z_scope:x_'<='_x not
+R1220:1222 CRIS.mutsum.MutHeader MutAUX sum def
+R1236:1238 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R1229:1235 CRIS.mutsum.MutHeader MutAUX mut_max def
+R1239:1245 CRIS.mutsum.MutHeader MutAUX mut_max def
+R1264:1270 CRIS.mutsum.MutHeader MutAUX mut_max def
+R1291:1293 CRIS.mutsum.MutHeader MutAUX sum def
+R1291:1293 CRIS.mutsum.MutHeader MutAUX sum def
+R1356:1370 Coq.ZArith.Zpower <> two_power_nat_S thm
+R1356:1370 Coq.ZArith.Zpower <> two_power_nat_S thm
+R1356:1370 Coq.ZArith.Zpower <> two_power_nat_S thm
+R1389:1391 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R1392:1404 Coq.ZArith.Zpower <> two_power_nat def
+R1418:1418 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R1435:1438 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R1419:1431 Coq.ZArith.Zpower <> two_power_nat def
+R1389:1391 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R1392:1404 Coq.ZArith.Zpower <> two_power_nat def
+R1418:1418 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R1435:1438 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R1419:1431 Coq.ZArith.Zpower <> two_power_nat def
+R1463:1472 Coq.ZArith.BinInt Z mul_comm thm
+R1463:1472 Coq.ZArith.BinInt Z mul_comm thm
+R1463:1472 Coq.ZArith.BinInt Z mul_comm thm
+R1495:1507 Coq.ZArith.Zpower <> two_power_nat def
+R1527:1541 CRIS.lib.Coqlib <> sumbool_to_bool def
+R1584:1592 Coq.ZArith.BinInt Z div_mul thm
+R1584:1592 Coq.ZArith.BinInt Z div_mul thm
+R1584:1592 Coq.ZArith.BinInt Z div_mul thm
+R1584:1592 Coq.ZArith.BinInt Z div_mul thm
+R1584:1592 Coq.ZArith.BinInt Z div_mul thm
+R1584:1592 Coq.ZArith.BinInt Z div_mul thm
+R1584:1592 Coq.ZArith.BinInt Z div_mul thm
+R1584:1592 Coq.ZArith.BinInt Z div_mul thm
+R1584:1592 Coq.ZArith.BinInt Z div_mul thm
+R1629:1632 Coq.Init.Peano <> ::nat_scope:x_'<='_x not
+R1624:1626 CRIS.mutsum.MutHeader MutAUX sum def
+R1634:1636 Coq.Init.Peano <> ::nat_scope:x_'*'_x not
+R1629:1632 Coq.Init.Peano <> ::nat_scope:x_'<='_x not
+R1624:1626 CRIS.mutsum.MutHeader MutAUX sum def
+R1634:1636 Coq.Init.Peano <> ::nat_scope:x_'*'_x not
+R1692:1697 CRIS.mutsum.MutHeader MutAUX.MutAUX <> sec
+R1704:1709 CRIS.mutsum.MutHeader MutAUX <> mod

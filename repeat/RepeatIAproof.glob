@@ -1,0 +1,275 @@
+DIGEST 98a93f075e5ceb5d3f4711e330456238
+FCRIS.repeat.RepeatIAproof
+R15:18 CRIS.common.CRIS <> <> lib
+R37:48 CRIS.repeat.RepeatHeader <> <> lib
+R50:56 CRIS.repeat.RepeatI <> <> lib
+R58:64 CRIS.repeat.RepeatA <> <> lib
+R82:90 CRIS.APCHeader <> <> lib
+R92:94 CRIS.APC <> <> lib
+R96:99 CRIS.APCA <> <> lib
+R101:110 CRIS.APCTactics <> <> lib
+mod 146:153 <> RepeatIA
+sec 164:171 RepeatIA RepeatIA
+R183:190 CRIS.repeat.RepeatA RepeatAS <> mod
+R192:194 CRIS.APC <> <> mod
+R196:199 CRIS.APCA APCA <> mod
+R215:218 CRIS.iris_system.invariants <> invG class
+R231:234 CRIS.iris_system.iprop <> subG class
+R239:240 CRIS.repeat.RepeatIAproof <> Σ:2 var
+R236:237 CRIS.repeat.RepeatIAproof <> Γ:3 var
+R244:248 CRIS.iris_system.syn_invariants <> sinvG class
+R256:257 CRIS.repeat.RepeatIAproof <> α:1 var
+R253:254 CRIS.repeat.RepeatIAproof <> Γ:3 var
+R250:251 CRIS.repeat.RepeatIAproof <> Σ:2 var
+var  279:282 RepeatIA.RepeatIA genv
+R286:291 CRIS.common.GEnv GEnv t def
+var  306:306 RepeatIA.RepeatIA u
+var  308:312 RepeatIA.RepeatIA u_apc
+R316:322 CRIS.iris_system.invariants <> univ_id def
+var  337:339 RepeatIA.RepeatIA spc
+var  341:348 RepeatIA.RepeatIA spc_pure
+var  350:361 RepeatIA.RepeatIA spc_pure_fun
+R371:375 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R365:370 Coq.Strings.String <> string ind
+R376:381 Coq.Init.Datatypes <> option ind
+R383:387 CRIS.modules.SMod2HMod <> fspec rec
+var  476:487 RepeatIA.RepeatIA APCInSpcPure
+R491:498 CRIS.common.Spc <> spc_incl def
+R509:516 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.spc_pure var
+R500:507 CRIS.APCA APCA Spc def
+var  531:542 RepeatIA.RepeatIA SpcPureInSpc
+R546:552 CRIS.common.Spc <> spc_sub def
+R563:565 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.spc var
+R554:561 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.spc_pure var
+var  580:598 RepeatIA.RepeatIA SpcPureFunInSpcPure
+R602:608 CRIS.common.Spc <> spc_sub def
+R623:630 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.spc_pure var
+R610:621 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.spc_pure_fun var
+var  645:659 RepeatIA.RepeatIA repeatInSpcPure
+R689:691 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R663:670 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.spc_pure var
+R672:688 CRIS.repeat.RepeatHeader RepeatName repeat def
+R692:695 Coq.Init.Datatypes <> Some constr
+R698:717 CRIS.repeat.RepeatA RepeatAS repeat_spec def
+R732:735 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.genv var
+R719:730 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.spc_pure_fun var
+def 823:826 RepeatIA APCA
+R832:837 CRIS.APCA APCA t def
+R854:856 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.spc var
+R845:852 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.spc_pure var
+R839:843 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.u_apc var
+def 879:885 RepeatIA RepeatI
+R891:899 CRIS.repeat.RepeatI RepeatI t def
+R901:904 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.genv var
+def 927:933 RepeatIA RepeatA
+R939:947 CRIS.repeat.RepeatA RepeatA t def
+R960:971 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.spc_pure_fun var
+R956:958 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.spc var
+R954:954 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.u var
+R949:952 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.genv var
+def 994:1003 RepeatIA RepeatIMod
+R1016:1020 CRIS.modules.HMod <> :::x_'★'_x not
+R1009:1015 CRIS.repeat.RepeatIAproof RepeatIA RepeatI def
+R1021:1024 CRIS.repeat.RepeatIAproof RepeatIA APCA def
+def 1047:1056 RepeatIA RepeatAMod
+R1069:1073 CRIS.modules.HMod <> :::x_'★'_x not
+R1062:1068 CRIS.repeat.RepeatIAproof RepeatIA RepeatA def
+R1074:1077 CRIS.repeat.RepeatIAproof RepeatIA APCA def
+def 1107:1109 RepeatIA Ist
+R1116:1120 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R1113:1115 Coq.Init.Datatypes <> nat ind
+R1136:1140 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R1121:1125 ExtLib.Data.Map.FMapAList <> alist def
+R1131:1135 CRIS.lib.Any Any t defax
+R1127:1129 CRIS.common.Events <> key def
+R1156:1160 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R1141:1145 ExtLib.Data.Map.FMapAList <> alist def
+R1151:1155 CRIS.lib.Any Any t defax
+R1147:1149 CRIS.common.Events <> key def
+R1161:1165 CRIS.iris_system.iprop <> iProp abbrev
+R1167:1168 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.Σ var
+R1178:1180 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1196:1197 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 1183:1188 <> st_src:19
+binder 1190:1195 <> st_tgt:20
+R1198:1200 iris.bi.interface <> ::bi_scope:'emp' not
+def 1225:1231 RepeatIA IstFull
+R1237:1243 CRIS.simulations.isim.ISim <> IstProd def
+R1279:1283 CRIS.simulations.isim.ISim <> IstEq def
+R1246:1250 CRIS.simulations.isim.ISim <> IstSB def
+R1274:1276 CRIS.repeat.RepeatIAproof RepeatIA Ist def
+R1261:1271 CRIS.modules.HMod HMod scopes proj
+R1252:1258 CRIS.repeat.RepeatIAproof RepeatIA RepeatA def
+prf 1296:1306 RepeatIA simF_repeat
+R1310:1321 CRIS.simulations.isim.ISimCore HSim sim_fun def
+R1358:1374 CRIS.repeat.RepeatHeader RepeatName repeat def
+R1350:1356 CRIS.repeat.RepeatIAproof RepeatIA IstFull def
+R1339:1348 CRIS.repeat.RepeatIAproof RepeatIA RepeatIMod def
+R1328:1337 CRIS.repeat.RepeatIAproof RepeatIA RepeatAMod def
+R1323:1326 CRIS.common.Common <> open constr
+R1428:1428 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.u var
+R1645:1650 CRIS.common.Events <> assume def
+R1878:1889 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.SpcPureInSpc var
+R1878:1889 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.SpcPureInSpc var
+R1898:1909 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.APCInSpcPure var
+R1898:1909 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.APCInSpcPure var
+R1919:1926 CRIS.APCA APCA Spc def
+R1936:1939 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R2060:2062 CRIS.APC <> APC def
+R2350:2360 Coq.ZArith.ZArith_dec <> Z_lt_le_dec thm
+R2363:2363 Coq.Init.Datatypes <> S constr
+R2350:2360 Coq.ZArith.ZArith_dec <> Z_lt_le_dec thm
+R2363:2363 Coq.Init.Datatypes <> S constr
+R2494:2505 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.SpcPureInSpc var
+R2494:2505 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.SpcPureInSpc var
+R2514:2525 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.APCInSpcPure var
+R2514:2525 CRIS.repeat.RepeatIAproof <> RepeatIA.RepeatIA.APCInSpcPure var
+R2535:2542 CRIS.APCA APCA Spc def
+R2552:2555 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R2692:2694 CRIS.APC <> APC def
+R2821:2840 Ordinal.Arithmetic OrdArith lt_from_nat thm
+R2821:2840 Ordinal.Arithmetic OrdArith lt_from_nat thm
+R2865:2876 Ordinal.Ordinal Ord lt_le_lt thm
+R2865:2876 Ordinal.Ordinal Ord lt_le_lt thm
+R2889:2905 Ordinal.Arithmetic OrdArith lt_add_r thm
+R2889:2905 Ordinal.Arithmetic OrdArith lt_add_r thm
+R2935:2954 Ordinal.Arithmetic OrdArith lt_from_nat thm
+R2935:2954 Ordinal.Arithmetic OrdArith lt_from_nat thm
+R2979:2985 CRIS.modules.SMod2HMod <> precond proj
+R3029:3031 Ordinal.Arithmetic <> ::ord_scope:x_'+'_x not
+R3020:3028 Ordinal.Ordinal Ord omega def
+R3029:3031 Ordinal.Arithmetic <> ::ord_scope:x_'+'_x not
+R3020:3028 Ordinal.Ordinal Ord omega def
+R3071:3089 Ordinal.Arithmetic OrdArith add_base_l thm
+R3071:3089 Ordinal.Arithmetic OrdArith add_base_l thm
+R3141:3148 CRIS.modules.SMod2HMod <> postcond proj
+R3233:3235 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R3229:3231 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R3225:3225 Coq.Init.Datatypes <> S constr
+R3233:3235 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R3229:3231 Coq.ZArith.BinInt <> ::Z_scope:x_'-'_x not
+R3225:3225 Coq.Init.Datatypes <> S constr
+R3356:3375 Ordinal.Arithmetic OrdArith lt_from_nat thm
+R3356:3375 Ordinal.Arithmetic OrdArith lt_from_nat thm
+R3400:3411 Ordinal.Ordinal Ord lt_le_lt thm
+R3400:3411 Ordinal.Ordinal Ord lt_le_lt thm
+R3424:3440 Ordinal.Arithmetic OrdArith lt_add_r thm
+R3424:3440 Ordinal.Arithmetic OrdArith lt_add_r thm
+R3471:3490 Ordinal.Arithmetic OrdArith lt_from_nat thm
+R3471:3490 Ordinal.Arithmetic OrdArith lt_from_nat thm
+R3515:3521 CRIS.modules.SMod2HMod <> precond proj
+R3553:3553 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3556:3558 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3566:3568 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3574:3574 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3553:3553 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3556:3558 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3566:3568 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3574:3574 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3694:3704 Coq.ZArith.ZArith_dec <> Z_le_gt_dec def
+R3694:3704 Coq.ZArith.ZArith_dec <> Z_le_gt_dec def
+R3694:3704 Coq.ZArith.ZArith_dec <> Z_le_gt_dec def
+R3694:3704 Coq.ZArith.ZArith_dec <> Z_le_gt_dec def
+R3747:3749 Ordinal.Arithmetic <> ::ord_scope:x_'+'_x not
+R3738:3746 Ordinal.Ordinal Ord omega def
+R3747:3749 Ordinal.Arithmetic <> ::ord_scope:x_'+'_x not
+R3738:3746 Ordinal.Ordinal Ord omega def
+R3776:3786 Ordinal.Ordinal Ord le_refl thm
+R3776:3786 Ordinal.Ordinal Ord le_refl thm
+R3804:3811 CRIS.modules.SMod2HMod <> postcond proj
+R4124:4126 CRIS.lib.Any <> :::x_'↑' not
+R4124:4126 CRIS.lib.Any <> :::x_'↑' not
+prf 4148:4150 RepeatIA sim
+R4154:4159 CRIS.simulations.isim.ISimCore HSim t indrec
+R4205:4211 CRIS.repeat.RepeatIAproof RepeatIA IstFull def
+R4188:4203 CRIS.repeat.RepeatA RepeatA InitCond def
+R4177:4186 CRIS.repeat.RepeatIAproof RepeatIA RepeatIMod def
+R4166:4175 CRIS.repeat.RepeatIAproof RepeatIA RepeatAMod def
+R4161:4164 CRIS.common.Common <> open constr
+R4271:4272 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R4271:4272 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R4271:4272 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R4271:4272 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R4271:4272 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R4271:4272 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+R4333:4343 CRIS.repeat.RepeatIAproof RepeatIA simF_repeat thm
+R4333:4343 CRIS.repeat.RepeatIAproof RepeatIA simF_repeat thm
+R4364:4371 CRIS.repeat.RepeatIAproof RepeatIA.RepeatIA <> sec
+sec 4383:4386 RepeatIA ctxr
+R4402:4405 CRIS.iris_system.invariants <> invG class
+R4418:4421 CRIS.iris_system.iprop <> subG class
+R4426:4427 CRIS.repeat.RepeatIAproof <> Σ:22 var
+R4423:4424 CRIS.repeat.RepeatIAproof <> Γ:23 var
+R4431:4435 CRIS.iris_system.syn_invariants <> sinvG class
+R4443:4444 CRIS.repeat.RepeatIAproof <> α:21 var
+R4440:4441 CRIS.repeat.RepeatIAproof <> Γ:23 var
+R4437:4438 CRIS.repeat.RepeatIAproof <> Σ:22 var
+def 4468:4471 RepeatIA ctxr
+R4479:4484 CRIS.common.GEnv GEnv t def
+binder 4474:4475 <> ge:29
+R4498:4504 CRIS.iris_system.invariants <> univ_id def
+binder 4488:4488 <> u:30
+binder 4490:4494 <> u_apc:31
+R4542:4546 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R4536:4541 Coq.Strings.String <> string ind
+R4547:4552 Coq.Init.Datatypes <> option ind
+R4554:4558 CRIS.modules.SMod2HMod <> fspec rec
+binder 4508:4510 <> spc:32
+binder 4512:4519 <> spc_pure:33
+binder 4521:4532 <> spc_pure_fun:34
+R4585:4592 CRIS.common.Spc <> spc_incl def
+R4603:4610 CRIS.repeat.RepeatIAproof <> spc_pure:33 var
+R4594:4601 CRIS.APCA APCA Spc def
+binder 4570:4581 <> APCInSpcPure:35
+R4637:4643 CRIS.common.Spc <> spc_sub def
+R4654:4656 CRIS.repeat.RepeatIAproof <> spc:32 var
+R4645:4652 CRIS.repeat.RepeatIAproof <> spc_pure:33 var
+binder 4622:4633 <> SpcPureInSpc:36
+R4690:4696 CRIS.common.Spc <> spc_sub def
+R4711:4718 CRIS.repeat.RepeatIAproof <> spc_pure:33 var
+R4698:4709 CRIS.repeat.RepeatIAproof <> spc_pure_fun:34 var
+binder 4668:4686 <> SpcPureFunInSpcPure:37
+R4773:4775 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R4747:4754 CRIS.repeat.RepeatIAproof <> spc_pure:33 var
+R4756:4772 CRIS.repeat.RepeatHeader RepeatName repeat def
+R4776:4779 Coq.Init.Datatypes <> Some constr
+R4782:4801 CRIS.repeat.RepeatA RepeatAS repeat_spec def
+R4816:4817 CRIS.repeat.RepeatIAproof <> ge:29 var
+R4803:4814 CRIS.repeat.RepeatIAproof <> spc_pure_fun:34 var
+binder 4730:4744 <> repeatInSpcPure:38
+R4827:4837 CRIS.simulations.ctxrefine.CtxRefine <> ctx_refines def
+R4845:4845 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R4911:4912 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R4918:4918 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R4846:4846 CRIS.modules.HMod <> :::x_'★'_x not
+R4878:4884 CRIS.modules.HMod <> :::x_'★'_x not
+R4910:4910 CRIS.modules.HMod <> :::x_'★'_x not
+R4847:4855 CRIS.repeat.RepeatA RepeatA t def
+R4866:4877 CRIS.repeat.RepeatIAproof <> spc_pure_fun:34 var
+R4862:4864 CRIS.repeat.RepeatIAproof <> spc:32 var
+R4860:4860 CRIS.repeat.RepeatIAproof <> u:30 var
+R4857:4858 CRIS.repeat.RepeatIAproof <> ge:29 var
+R4885:4890 CRIS.APCA APCA t def
+R4907:4909 CRIS.repeat.RepeatIAproof <> spc:32 var
+R4898:4905 CRIS.repeat.RepeatIAproof <> spc_pure:33 var
+R4892:4896 CRIS.repeat.RepeatIAproof <> u_apc:31 var
+R4913:4915 iris.bi.interface <> ::bi_scope:'emp' not
+R4926:4926 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R4992:4993 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R4999:4999 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R4927:4927 CRIS.modules.HMod <> :::x_'★'_x not
+R4940:4965 CRIS.modules.HMod <> :::x_'★'_x not
+R4991:4991 CRIS.modules.HMod <> :::x_'★'_x not
+R4928:4936 CRIS.repeat.RepeatI RepeatI t def
+R4938:4939 CRIS.repeat.RepeatIAproof <> ge:29 var
+R4966:4971 CRIS.APCA APCA t def
+R4988:4990 CRIS.repeat.RepeatIAproof <> spc:32 var
+R4979:4986 CRIS.repeat.RepeatIAproof <> spc_pure:33 var
+R4973:4977 CRIS.repeat.RepeatIAproof <> u_apc:31 var
+R4994:4996 iris.bi.interface <> ::bi_scope:'emp' not
+R5018:5030 CRIS.simulations.ctxrefine.MainAdequacy <> main_adequacy thm
+R5033:5035 CRIS.repeat.RepeatIAproof RepeatIA sim thm
+R5018:5030 CRIS.simulations.ctxrefine.MainAdequacy <> main_adequacy thm
+R5033:5035 CRIS.repeat.RepeatIAproof RepeatIA sim thm
+R5054:5057 CRIS.repeat.RepeatIAproof RepeatIA.ctxr <> sec
+R5064:5071 CRIS.repeat.RepeatIAproof RepeatIA <> mod

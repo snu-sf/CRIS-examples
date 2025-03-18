@@ -1,0 +1,99 @@
+DIGEST d198424c60b329d404c118a4babe244d
+FCRIS.map.MapIAproof
+R15:18 CRIS.common.CRIS <> <> lib
+R37:45 CRIS.map.MapHeader <> <> lib
+R47:50 CRIS.map.MapA <> <> lib
+R52:55 CRIS.map.MapM <> <> lib
+R57:60 CRIS.map.MapI <> <> lib
+R62:67 CRIS.simulations.sim_mod.ModSim <> <> lib
+R69:78 CRIS.map.MapIMproof <> <> lib
+R80:89 CRIS.map.MapMAproof <> <> lib
+R91:94 CRIS.mem.MemA <> <> lib
+R96:99 CRIS.simulations.wsim.wsim <> <> lib
+mod 110:114 <> MapIA
+sec 125:129 MapIA MapIA
+R145:148 CRIS.iris_system.invariants <> invG class
+R161:164 CRIS.iris_system.iprop <> subG class
+R169:170 CRIS.map.MapIAproof <> Σ:2 var
+R166:167 CRIS.map.MapIAproof <> Γ:3 var
+R174:178 CRIS.iris_system.syn_invariants <> sinvG class
+R186:187 CRIS.map.MapIAproof <> α:1 var
+R183:184 CRIS.map.MapIAproof <> Γ:3 var
+R180:181 CRIS.map.MapIAproof <> Σ:2 var
+R197:203 CRIS.map.MapA <> MapAGΓ class
+R205:206 CRIS.map.MapIAproof <> Γ:3 var
+R210:216 CRIS.map.MapM <> MapMGΓ class
+R218:219 CRIS.map.MapIAproof <> Γ:3 var
+R223:228 CRIS.mem.MemA <> memGΓ class
+R230:231 CRIS.map.MapIAproof <> Γ:3 var
+prf 244:247 MapIA ctxr
+R262:268 CRIS.iris_system.invariants <> univ_id def
+binder 250:252 <> u_s:12
+binder 254:258 <> u_mem:13
+R294:298 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R288:293 Coq.Strings.String <> string ind
+R299:304 Coq.Init.Datatypes <> option ind
+R306:310 CRIS.modules.SMod2HMod <> fspec rec
+binder 272:276 <> spc_s:14
+binder 278:284 <> spc_mem:15
+R328:331 Coq.Init.Peano <> ::nat_scope:x_'>='_x not
+R325:327 CRIS.map.MapIAproof <> u_s:12 var
+binder 320:321 <> LE:16
+R356:363 CRIS.common.Spc <> spc_incl def
+R381:385 CRIS.map.MapIAproof <> spc_s:14 var
+R366:374 CRIS.map.MapA MapAS spc def
+R376:378 CRIS.map.MapIAproof <> u_s:12 var
+binder 342:352 <> MapInSpcMap:17
+R394:404 CRIS.simulations.ctxrefine.CtxRefine <> ctx_refines def
+R412:412 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R458:459 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R497:497 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R413:413 CRIS.modules.HMod <> :::x_'★'_x not
+R430:436 CRIS.modules.HMod <> :::x_'★'_x not
+R457:457 CRIS.modules.HMod <> :::x_'★'_x not
+R414:419 CRIS.map.MapA MapA t def
+R425:429 CRIS.map.MapIAproof <> spc_s:14 var
+R421:423 CRIS.map.MapIAproof <> u_s:12 var
+R437:442 CRIS.mem.MemA MemA t def
+R450:456 CRIS.map.MapIAproof <> spc_mem:15 var
+R444:448 CRIS.map.MapIAproof <> u_mem:13 var
+R475:479 iris.bi.interface <> ::bi_scope:x_'∗'_x not
+R461:474 CRIS.map.MapA MapA init_cond def
+R480:493 CRIS.map.MapM MapM init_cond def
+R505:505 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R551:552 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R558:558 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R506:506 CRIS.modules.HMod <> :::x_'★'_x not
+R513:529 CRIS.modules.HMod <> :::x_'★'_x not
+R550:550 CRIS.modules.HMod <> :::x_'★'_x not
+R507:512 CRIS.map.MapI MapI t def
+R530:535 CRIS.mem.MemA MemA t def
+R543:549 CRIS.map.MapIAproof <> spc_mem:15 var
+R537:541 CRIS.map.MapIAproof <> u_mem:13 var
+R553:555 iris.bi.interface <> ::bi_scope:'emp' not
+R604:613 CRIS.map.MapIMproof MapIM ctxr thm
+R604:613 CRIS.map.MapIMproof MapIM ctxr thm
+R639:644 CRIS.common.Spc <> to_spc def
+R647:655 CRIS.map.MapM MapMS spc def
+R639:644 CRIS.common.Spc <> to_spc def
+R647:655 CRIS.map.MapM MapMS spc def
+R695:703 CRIS.map.MapM MapMS spc def
+R713:716 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R749:759 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_frameR thm
+R749:759 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_frameR thm
+R772:788 CRIS.modules.HMod <> hmod_addc_empty_l thm
+R791:796 CRIS.map.MapM MapM t def
+R772:788 CRIS.modules.HMod <> hmod_addc_empty_l thm
+R791:796 CRIS.map.MapM MapM t def
+R772:788 CRIS.modules.HMod <> hmod_addc_empty_l thm
+R791:796 CRIS.map.MapM MapM t def
+R812:827 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_frameR thm
+R812:827 CRIS.simulations.ctxrefine.CtxRefineFacts <> ctxr_cond_frameR thm
+R841:850 CRIS.map.MapMAproof MapMA ctxr thm
+R841:850 CRIS.map.MapMAproof MapMA ctxr thm
+R869:877 CRIS.map.MapM MapMS spc def
+R869:877 CRIS.map.MapM MapMS spc def
+R869:877 CRIS.map.MapM MapMS spc def
+R887:890 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R921:925 CRIS.map.MapIAproof MapIA.MapIA <> sec
+R932:936 CRIS.map.MapIAproof MapIA <> mod

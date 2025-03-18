@@ -1,0 +1,17 @@
+DIGEST 053d9f4b66f0684735e786e0da517445
+FCRIS.cellio.LibHeader
+R15:18 CRIS.common.CRIS <> <> lib
+mod 29:35 <> LibName
+def 52:53 LibName mn
+def 83:84 LibName fn
+R95:100 Coq.Strings.String <> string ind
+binder 87:92 <> method:1
+R112:116 stdpp.strings <> ::stdpp_scope:x_'+:+'_x not
+R110:111 CRIS.cellio.LibHeader LibName mn def
+R120:124 stdpp.strings <> ::stdpp_scope:x_'+:+'_x not
+R125:130 CRIS.cellio.LibHeader <> method:1 var
+def 149:151 LibName foo
+R156:157 CRIS.cellio.LibHeader LibName fn def
+def 179:183 LibName input
+R188:189 CRIS.cellio.LibHeader LibName fn def
+R205:211 CRIS.cellio.LibHeader LibName <> mod

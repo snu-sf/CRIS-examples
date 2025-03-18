@@ -1,0 +1,9 @@
+DIGEST fe915777888ee7c9d16658b294773e55
+FCRIS.ring.RingHeader
+R15:18 CRIS.common.CRIS <> <> lib
+mod 60:67 <> RingName
+def 83:86 RingName init
+def 121:128 RingName get_size
+def 163:169 RingName enqueue
+def 204:210 RingName dequeue
+R237:244 CRIS.ring.RingHeader RingName <> mod

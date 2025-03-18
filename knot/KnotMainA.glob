@@ -1,0 +1,306 @@
+DIGEST 05124dee0f1f03b2b423dc75cec68c86
+FCRIS.knot.KnotMainA
+R15:18 CRIS.common.CRIS <> <> lib
+R37:46 CRIS.knot.KnotHeader <> <> lib
+R48:61 CRIS.knot.KnotMainHeader <> <> lib
+R63:67 CRIS.knot.KnotA <> <> lib
+R85:93 CRIS.APCHeader <> <> lib
+R95:97 CRIS.APC <> <> lib
+R99:102 CRIS.APCA <> <> lib
+mod 138:146 <> KnotMainA
+sec 157:165 KnotMainA KnotMainA
+R177:181 CRIS.knot.KnotA KnotA <> mod
+R197:200 CRIS.iris_system.invariants <> invG class
+R213:216 CRIS.iris_system.iprop <> subG class
+R221:222 CRIS.knot.KnotMainA <> Σ:2 var
+R218:219 CRIS.knot.KnotMainA <> Γ:3 var
+R226:230 CRIS.iris_system.syn_invariants <> sinvG class
+R238:239 CRIS.knot.KnotMainA <> α:1 var
+R235:236 CRIS.knot.KnotMainA <> Γ:3 var
+R232:233 CRIS.knot.KnotMainA <> Σ:2 var
+R249:256 CRIS.knot.KnotA <> KnotAGΓ class
+R258:259 CRIS.knot.KnotMainA <> Γ:3 var
+R263:268 CRIS.mem.MemA <> memGΓ class
+R270:271 CRIS.knot.KnotMainA <> Γ:3 var
+abbrev 286:290 KnotMainA iProp
+R296:300 CRIS.iris_system.iprop <> iProp abbrev
+R302:303 CRIS.knot.KnotMainA <> KnotMainA.KnotMainA.Σ var
+R333:338 CRIS.knot.KnotA <> RA_inG meth
+def 354:361 KnotMainA init_res
+R365:366 CRIS.knot.KnotMainA <> KnotMainA.KnotMainA.Σ var
+R371:388 CRIS.iris_system.own <> iRes_singleton def
+R399:403 iris.algebra.auth <> :::'◯'_x not
+R420:420 iris.algebra.auth <> :::'◯'_x not
+R404:407 Coq.Init.Datatypes <> Some constr
+R410:413 iris.algebra.excl <> Excl constr
+R415:418 Coq.Init.Datatypes <> None constr
+R390:396 CRIS.iris_system.iprop <> base_γ def
+def 460:462 KnotMainA Fib
+R468:470 Coq.Init.Datatypes <> nat ind
+binder 465:465 <> n:11
+R474:476 Coq.Init.Datatypes <> nat ind
+R491:491 CRIS.knot.KnotMainA <> n:11 var
+R517:517 Coq.Init.Datatypes <> S constr
+R540:542 CRIS.knot.KnotMainA <> Fib:12 def
+binder 535:535 <> r:14
+R593:593 Coq.Init.Datatypes <> S constr
+R603:605 Coq.Init.Peano <> ::nat_scope:x_'+'_x not
+R602:602 CRIS.knot.KnotMainA <> r:14 var
+R606:608 CRIS.knot.KnotMainA <> Fib:12 def
+prf 642:651 KnotMainA unfold_fib
+binder 653:653 <> n:16
+R667:669 Coq.Init.Peano <> ::nat_scope:x_'>'_x not
+R666:666 CRIS.knot.KnotMainA <> n:16 var
+binder 660:663 <> COND:17
+R688:690 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R683:685 CRIS.knot.KnotMainA KnotMainA Fib def
+R687:687 CRIS.knot.KnotMainA <> n:16 var
+R702:704 Coq.Init.Peano <> ::nat_scope:x_'+'_x not
+R691:693 CRIS.knot.KnotMainA KnotMainA Fib def
+R697:699 Coq.Init.Peano <> ::nat_scope:x_'-'_x not
+R696:696 CRIS.knot.KnotMainA <> n:16 var
+R705:707 CRIS.knot.KnotMainA KnotMainA Fib def
+R711:713 Coq.Init.Peano <> ::nat_scope:x_'-'_x not
+R710:710 CRIS.knot.KnotMainA <> n:16 var
+R784:786 CRIS.knot.KnotMainA KnotMainA Fib def
+sec 839:848 KnotMainA.KnotMainA KnotMainAS
+var 863:866 KnotMainA.KnotMainA.KnotMainAS genv
+R869:874 CRIS.common.GEnv GEnv t def
+var 888:893 KnotMainA.KnotMainA.KnotMainAS SpcRec
+R902:905 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R896:901 Coq.Strings.String <> string ind
+R906:911 Coq.Init.Datatypes <> option ind
+R913:917 CRIS.modules.SMod2HMod <> fspec rec
+var 931:937 KnotMainA.KnotMainA.KnotMainAS SpcPure
+R946:949 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R940:945 Coq.Strings.String <> string ind
+R950:955 Coq.Init.Datatypes <> option ind
+R957:961 CRIS.modules.SMod2HMod <> fspec rec
+var 975:977 KnotMainA.KnotMainA.KnotMainAS Spc
+R986:989 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R980:985 Coq.Strings.String <> string ind
+R990:995 Coq.Init.Datatypes <> option ind
+R997:1001 CRIS.modules.SMod2HMod <> fspec rec
+def 1018:1025 KnotMainA fib_spec
+R1029:1033 CRIS.modules.SMod2HMod <> fspec rec
+R1042:1050 CRIS.APC <> fspec_apc def
+R1099:1099 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1101:1102 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1106:1106 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+binder 1103:1105 <> INV:26
+binder 1100:1100 <> n:27
+binder 1099:1106 <> pat:28
+R1120:1121 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1297:1309 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1375:1376 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+binder 1126:1129 <> varg:29
+R1286:1290 iris.bi.interface <> ::bi_scope:x_'∗'_x not
+R1135:1137 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1283:1285 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1138:1141 Coq.Unicode.Utf8_core <> ::type_scope:'∃'_x_'..'_x_','_x not
+R1144:1145 Coq.Unicode.Utf8_core <> ::type_scope:'∃'_x_'..'_x_','_x not
+binder 1142:1143 <> fb:30
+R1186:1190 Coq.Unicode.Utf8_core <> ::type_scope:x_'∧'_x not
+R1150:1152 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1146:1149 CRIS.knot.KnotMainA <> varg:29 var
+R1183:1185 CRIS.lib.Any <> :::x_'↑' not
+R1153:1153 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1163:1164 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1182:1182 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1154:1157 CRIS.imp.ImpPrelude <> Vptr constr
+R1159:1160 CRIS.knot.KnotMainA <> fb:30 var
+R1165:1168 CRIS.imp.ImpPrelude <> Vint constr
+R1171:1178 Coq.ZArith.BinInt Z of_nat def
+R1180:1180 CRIS.knot.KnotMainA <> n:27 var
+R1191:1191 Coq.Unicode.Utf8_core <> ::type_scope:x_'∧'_x not
+R1205:1236 Coq.Unicode.Utf8_core <> ::type_scope:x_'∧'_x not
+R1192:1202 CRIS.imp.ImpPrelude <> intrange_64 def
+R1204:1204 CRIS.knot.KnotMainA <> n:27 var
+R1237:1247 CRIS.imp.Imp <> fb_has_spec variant
+R1265:1273 CRIS.knot.KnotA KnotA mrec_spec def
+R1279:1281 CRIS.knot.KnotMainA <> INV:26 var
+R1275:1277 CRIS.knot.KnotMainA KnotMainA Fib def
+R1261:1262 CRIS.knot.KnotMainA <> fb:30 var
+R1254:1259 CRIS.knot.KnotMainA <> KnotMainA.KnotMainA.KnotMainAS.SpcRec var
+R1249:1252 CRIS.knot.KnotMainA <> KnotMainA.KnotMainA.KnotMainAS.genv var
+R1291:1293 CRIS.knot.KnotMainA <> INV:26 var
+binder 1314:1317 <> vret:31
+R1364:1368 iris.bi.interface <> ::bi_scope:x_'∗'_x not
+R1323:1325 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1361:1363 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1330:1332 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1326:1329 CRIS.knot.KnotMainA <> vret:31 var
+R1333:1333 CRIS.lib.Any <> :::x_'↑' not
+R1357:1360 CRIS.lib.Any <> :::x_'↑' not
+R1334:1337 CRIS.imp.ImpPrelude <> Vint constr
+R1340:1347 Coq.ZArith.BinInt Z of_nat def
+R1350:1352 CRIS.knot.KnotMainA KnotMainA Fib def
+R1354:1354 CRIS.knot.KnotMainA <> n:27 var
+R1369:1371 CRIS.knot.KnotMainA <> INV:26 var
+R1053:1056 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1065:1066 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1057:1057 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1059:1060 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1064:1064 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+binder 1061:1063 <> INV:32
+binder 1058:1058 <> n:33
+binder 1057:1064 <> pat:34
+R1069:1072 Ordinal.Arithmetic <> ::ord_scope:x_'*'_x not
+R1079:1079 Ordinal.Arithmetic <> ::ord_scope:x_'*'_x not
+R1076:1078 Coq.Init.Datatypes <> nat ind
+R1073:1073 CRIS.knot.KnotMainA <> n:33 var
+def 1394:1403 KnotMainA MainFunSpc
+R1407:1411 ExtLib.Data.Map.FMapAList <> alist def
+R1420:1424 CRIS.modules.SMod2HMod <> fspec rec
+R1413:1418 Coq.Strings.String <> string ind
+R1434:1445 CRIS.lib.Coqlib Seal sealing defax
+R1458:1458 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R1487:1487 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R1459:1459 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1476:1477 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1486:1486 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1460:1475 CRIS.knot.KnotMainHeader KnotMainName fib def
+R1478:1485 CRIS.knot.KnotMainA KnotMainA fib_spec def
+R1447:1450 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+def 1504:1512 KnotMainA main_body
+R1520:1524 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R1515:1519 CRIS.lib.Any Any t defax
+R1525:1529 ITree.Core.ITreeDefinition <> itree corec
+R1537:1541 CRIS.lib.Any Any t defax
+R1531:1535 CRIS.common.Events <> hmodE def
+R1550:1552 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1554:1555 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1560:1563 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R1556:1559 CRIS.APC <> pure def
+R1564:1570 ITree.Core.Subevent <> trigger abbrev
+R1573:1578 CRIS.common.Events <> Choose constr
+def 1598:1606 KnotMainA main_spec
+R1609:1613 CRIS.modules.SMod2HMod <> fspec rec
+R1622:1633 CRIS.modules.SMod2HMod <> fspec_simple def
+R1647:1648 Coq.Program.Syntax <> :::'()' not
+binder 1647:1648 <> pat:35
+R1661:1662 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1711:1723 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1782:1783 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+binder 1667:1670 <> varg:36
+R1694:1698 iris.bi.interface <> ::bi_scope:x_'∗'_x not
+R1676:1678 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1691:1693 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1683:1685 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1679:1682 CRIS.knot.KnotMainA <> varg:36 var
+R1688:1690 CRIS.lib.Any <> :::x_'↑' not
+R1686:1687 Coq.Init.Datatypes <> tt constr
+R1699:1707 CRIS.knot.KnotA KnotA knot_init def
+binder 1728:1731 <> vret:37
+R1737:1739 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1776:1778 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1744:1746 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1740:1743 CRIS.knot.KnotMainA <> vret:37 var
+R1747:1747 CRIS.lib.Any <> :::x_'↑' not
+R1772:1775 CRIS.lib.Any <> :::x_'↑' not
+R1748:1751 CRIS.imp.ImpPrelude <> Vint constr
+R1754:1761 Coq.ZArith.BinInt Z of_nat def
+R1764:1766 CRIS.knot.KnotMainA KnotMainA Fib def
+def 1801:1807 KnotMainA MainSpc
+R1811:1815 ExtLib.Data.Map.FMapAList <> alist def
+R1824:1828 CRIS.modules.SMod2HMod <> fspec rec
+R1817:1822 Coq.Strings.String <> string ind
+R1837:1848 CRIS.lib.Coqlib Seal sealing defax
+R1861:1861 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1879:1880 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1900:1900 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1862:1862 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1868:1869 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1878:1878 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1870:1877 CRIS.knot.KnotMainA KnotMainA fib_spec def
+R1881:1881 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1888:1889 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1899:1899 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1890:1898 CRIS.knot.KnotMainA KnotMainA main_spec def
+R1850:1853 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+prf 1912:1927 KnotMainA MainFunSpc_nodup
+R1931:1940 Coq.Lists.List <> NoDup ind
+R1943:1950 Coq.Lists.List <> map def
+R1956:1965 CRIS.knot.KnotMainA KnotMainA MainFunSpc def
+R1952:1954 Coq.Init.Datatypes <> fst def
+R1985:1994 CRIS.knot.KnotMainA KnotMainA MainFunSpc def
+R2004:2007 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+prf 2037:2049 KnotMainA MainSpc_nodup
+R2053:2062 Coq.Lists.List <> NoDup ind
+R2065:2072 Coq.Lists.List <> map def
+R2078:2084 CRIS.knot.KnotMainA KnotMainA MainSpc def
+R2074:2076 Coq.Init.Datatypes <> fst def
+R2104:2110 CRIS.knot.KnotMainA KnotMainA MainSpc def
+R2120:2123 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R2148:2157 CRIS.knot.KnotMainA KnotMainA.KnotMainA.KnotMainAS <> sec
+sec 2169:2177 KnotMainA.KnotMainA KnotMainA
+def 2193:2198 KnotMainA scopes
+R2203:2203 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2214:2214 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+def 2231:2236 KnotMainA fnsems
+binder 2238:2241 <> genv:38
+binder 2243:2248 <> SpcRec:39
+R2257:2257 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2332:2338 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2401:2401 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2258:2258 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2275:2276 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2331:2331 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2259:2274 CRIS.knot.KnotMainHeader KnotMainName fib def
+R2277:2277 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2284:2285 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2330:2330 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2278:2283 CRIS.knot.KnotMainA KnotMainA scopes def
+R2286:2296 CRIS.modules.SMod2HMod <> mk_specbody constr
+R2321:2329 CRIS.APC <> pure_body def
+R2299:2306 CRIS.knot.KnotMainA KnotMainA fib_spec def
+R2313:2318 CRIS.knot.KnotMainA <> SpcRec:39 var
+R2308:2311 CRIS.knot.KnotMainA <> genv:38 var
+R2339:2339 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2357:2358 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2400:2400 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2340:2356 CRIS.knot.KnotMainHeader KnotMainName main def
+R2359:2359 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2366:2367 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2399:2399 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2360:2365 CRIS.knot.KnotMainA KnotMainA scopes def
+R2368:2378 CRIS.modules.SMod2HMod <> mk_specbody constr
+R2390:2398 CRIS.knot.KnotMainA KnotMainA main_body def
+R2380:2388 CRIS.knot.KnotMainA KnotMainA main_spec def
+def 2426:2428 KnotMainA Mod
+binder 2430:2433 <> genv:40
+binder 2435:2440 <> SpcRec:41
+R2444:2449 CRIS.modules.SMod SMod t rec
+R2463:2473 CRIS.modules.SMod SMod scopes proj
+R2463:2473 CRIS.modules.SMod SMod scopes proj
+R2463:2473 CRIS.modules.SMod SMod scopes proj
+R2490:2500 CRIS.modules.SMod SMod fnsems proj
+R2490:2500 CRIS.modules.SMod SMod fnsems proj
+R2529:2543 CRIS.modules.SMod SMod initial_st proj
+R2529:2543 CRIS.modules.SMod SMod initial_st proj
+R2478:2483 CRIS.knot.KnotMainA KnotMainA scopes def
+R2505:2510 CRIS.knot.KnotMainA KnotMainA fnsems def
+R2517:2522 CRIS.knot.KnotMainA <> SpcRec:41 var
+R2512:2515 CRIS.knot.KnotMainA <> genv:40 var
+R2548:2549 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+def 2651:2658 KnotMainA InitCond
+R2662:2666 CRIS.knot.KnotMainA KnotMainA iProp abbrev
+R2671:2673 iris.bi.interface <> ::bi_scope:'emp' not
+def 2692:2692 KnotMainA t
+binder 2694:2697 <> genv:42
+binder 2699:2699 <> u:43
+binder 2701:2706 <> SpcRec:44
+binder 2708:2710 <> Spc:45
+R2715:2726 CRIS.lib.Coqlib Seal sealing defax
+R2734:2745 CRIS.modules.SMod SMod to_hmod def
+R2770:2772 CRIS.knot.KnotMainA KnotMainA Mod def
+R2779:2784 CRIS.knot.KnotMainA <> SpcRec:44 var
+R2774:2777 CRIS.knot.KnotMainA <> genv:42 var
+R2765:2767 CRIS.knot.KnotMainA <> Spc:45 var
+R2748:2756 CRIS.simulations.wsim.wsim <> wsim_ginv def
+R2760:2762 stdpp.base <> ::stdpp_scope:'⊤' not
+R2758:2758 CRIS.knot.KnotMainA <> u:43 var
+R2728:2731 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R2793:2801 CRIS.knot.KnotMainA KnotMainA.KnotMainA.KnotMainA <> sec
+R2808:2816 CRIS.knot.KnotMainA KnotMainA.KnotMainA <> sec
+R2823:2831 CRIS.knot.KnotMainA KnotMainA <> mod

@@ -1,0 +1,104 @@
+DIGEST be065b8f88f62d4352dcf4f5ddba6138
+FCRIS.ring.CellI
+R15:18 CRIS.common.CRIS <> <> lib
+R37:46 CRIS.imp.ImpPrelude <> <> lib
+R64:73 CRIS.ring.RingHeader <> <> lib
+R91:100 CRIS.ring.CellHeader <> <> lib
+mod 136:140 <> CellI
+sec 151:155 CellI CellI
+var  170:171 CellI.CellI Σ
+R175:177 CRIS.iris_system.iprop <> GRA class
+var 220:222 CellI.CellI idx
+R226:228 Coq.Init.Datatypes <> nat ind
+def 287:292 CellI scopes
+R297:297 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R313:313 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R298:308 CRIS.ring.CellHeader CellName mn def
+R310:312 CRIS.ring.CellI <> CellI.CellI.idx var
+def 329:332 CellI v_cv
+R337:337 CRIS.common.Events <> :::x_'↯'_x not
+R353:358 CRIS.common.Events <> :::x_'↯'_x not
+R338:348 CRIS.ring.CellHeader CellName mn def
+R350:352 CRIS.ring.CellI <> CellI.CellI.idx var
+def 418:420 CellI get
+R428:431 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R424:427 Coq.Init.Datatypes <> unit ind
+R432:436 ITree.Core.ITreeDefinition <> itree corec
+R444:444 Coq.Numbers.BinNums <> Z ind
+R438:442 CRIS.common.Events <> pmodE def
+R453:455 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R457:464 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R467:470 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R481:489 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R471:475 CRIS.common.Events <> cgetU def
+R477:480 CRIS.ring.CellI CellI v_cv def
+binder 465:466 <> cv:4
+R490:492 ITree.Core.ITreeDefinition <> Ret abbrev
+R494:495 CRIS.ring.CellI <> cv:4 var
+def 512:514 CellI set
+R519:522 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R518:518 Coq.Numbers.BinNums <> Z ind
+R523:527 ITree.Core.ITreeDefinition <> itree corec
+R535:538 Coq.Init.Datatypes <> unit ind
+R529:533 CRIS.common.Events <> pmodE def
+R547:549 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R551:558 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 550:550 <> x:5
+R570:579 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R559:562 CRIS.common.Events <> cput def
+R569:569 CRIS.ring.CellI <> x:5 var
+R564:567 CRIS.ring.CellI CellI v_cv def
+R580:582 ITree.Core.ITreeDefinition <> Ret abbrev
+R584:585 Coq.Program.Syntax <> :::'()' not
+def 602:607 CellI fnsems
+R616:616 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R656:662 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R702:702 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R617:617 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R634:635 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R655:655 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R618:629 CRIS.ring.CellHeader CellName get def
+R631:633 CRIS.ring.CellI <> CellI.CellI.idx var
+R636:636 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R643:644 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R654:654 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R637:642 CRIS.ring.CellI CellI scopes def
+R645:649 CRIS.common.Events <> cfunU def
+R651:653 CRIS.ring.CellI CellI get def
+R663:663 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R680:681 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R701:701 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R664:675 CRIS.ring.CellHeader CellName set def
+R677:679 CRIS.ring.CellI <> CellI.CellI.idx var
+R682:682 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R689:690 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R700:700 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R683:688 CRIS.ring.CellI CellI scopes def
+R691:695 CRIS.common.Events <> cfunU def
+R697:699 CRIS.ring.CellI CellI set def
+def 727:729 CellI Mod
+R733:738 CRIS.modules.PMod PMod t rec
+R750:760 CRIS.modules.PMod PMod scopes proj
+R750:760 CRIS.modules.PMod PMod scopes proj
+R750:760 CRIS.modules.PMod PMod scopes proj
+R777:787 CRIS.modules.PMod PMod fnsems proj
+R777:787 CRIS.modules.PMod PMod fnsems proj
+R804:818 CRIS.modules.PMod PMod initial_st proj
+R804:818 CRIS.modules.PMod PMod initial_st proj
+R765:770 CRIS.ring.CellI CellI scopes def
+R792:797 CRIS.ring.CellI CellI fnsems def
+R823:823 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R836:836 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R824:824 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R829:829 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R835:835 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R825:828 CRIS.ring.CellI CellI v_cv def
+R832:834 CRIS.lib.Any <> :::x_'↑' not
+R830:831 Coq.Init.Datatypes <> tt constr
+def 938:938 CellI t
+R943:954 CRIS.lib.Coqlib Seal sealing defax
+R962:973 CRIS.modules.PMod PMod to_hmod def
+R975:977 CRIS.ring.CellI CellI Mod def
+R956:959 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R985:989 CRIS.ring.CellI CellI.CellI <> sec
+R996:1000 CRIS.ring.CellI CellI <> mod

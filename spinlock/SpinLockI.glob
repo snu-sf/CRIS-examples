@@ -1,0 +1,218 @@
+DIGEST 9104804432388b30597c4e6d9640c151
+FCRIS.spinlock.SpinLockI
+R15:18 CRIS.common.CRIS <> <> lib
+R36:45 CRIS.imp.ImpPrelude <> <> lib
+R47:55 CRIS.SchHeader <> <> lib
+R57:65 CRIS.mem.MemHeader <> <> lib
+R67:80 CRIS.spinlock.SpinLockHeader <> <> lib
+mod 244:252 <> SpinLockI
+sec 263:271 SpinLockI SpinLockI
+var  285:286 SpinLockI.SpinLockI Σ
+R290:292 CRIS.iris_system.iprop <> GRA class
+def 310:315 SpinLockI scopes
+R319:322 Coq.Init.Datatypes <> list ind
+R324:329 Coq.Strings.String <> string ind
+R334:335 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+def 352:358 SpinLockI newlock
+R370:374 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R362:365 Coq.Init.Datatypes <> list ind
+R367:369 CRIS.imp.ImpPrelude <> val ind
+R375:379 ITree.Core.ITreeDefinition <> itree corec
+R387:389 CRIS.imp.ImpPrelude <> val ind
+R381:385 CRIS.common.Events <> pmodE def
+R398:400 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R402:409 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R414:417 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R410:413 CRIS.SchHeader <> 𝒴 abbrev
+R418:418 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R422:424 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R428:431 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R461:469 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R432:437 CRIS.common.Events <> ccallU def
+R453:453 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R460:460 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R454:457 CRIS.imp.ImpPrelude <> Vint constr
+R439:451 CRIS.mem.MemHeader MemName alloc def
+R425:427 CRIS.imp.ImpPrelude <> val ind
+binder 419:421 <> loc:2
+binder 419:421 <> loc:3
+R474:477 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R470:473 CRIS.SchHeader <> 𝒴 abbrev
+R478:478 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R480:482 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R486:489 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R524:532 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R490:495 CRIS.common.Events <> ccallU def
+R511:511 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R515:516 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R523:523 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R512:514 CRIS.spinlock.SpinLockI <> loc:2 var
+R517:520 CRIS.imp.ImpPrelude <> Vint constr
+R497:509 CRIS.mem.MemHeader MemName store def
+R483:485 CRIS.imp.ImpPrelude <> val ind
+binder 479:479 <> pat:4
+R537:540 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R533:536 CRIS.SchHeader <> 𝒴 abbrev
+R541:543 ITree.Core.ITreeDefinition <> Ret abbrev
+R545:547 CRIS.spinlock.SpinLockI <> loc:2 var
+def 564:570 SpinLockI acquire
+R582:586 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R574:577 Coq.Init.Datatypes <> list ind
+R579:581 CRIS.imp.ImpPrelude <> val ind
+R587:591 ITree.Core.ITreeDefinition <> itree corec
+R599:601 CRIS.imp.ImpPrelude <> val ind
+R593:597 CRIS.common.Events <> pmodE def
+R610:612 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R614:621 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 613:613 <> x:5
+R622:622 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R944:954 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R623:632 ITree.Core.ITreeDefinition ITree iter def
+R942:943 Coq.Init.Datatypes <> tt constr
+R643:645 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R647:658 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R663:666 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R659:662 CRIS.SchHeader <> 𝒴 abbrev
+R667:667 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R673:675 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R679:682 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R725:737 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R683:688 CRIS.common.Events <> ccallU def
+R704:707 Coq.Init.Datatypes <> ::list_scope:x_'++'_x not
+R703:703 CRIS.spinlock.SpinLockI <> x:5 var
+R708:708 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R715:716 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R723:723 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R709:712 CRIS.imp.ImpPrelude <> Vint constr
+R717:720 CRIS.imp.ImpPrelude <> Vint constr
+R690:700 CRIS.mem.MemHeader MemName cas def
+R676:678 CRIS.imp.ImpPrelude <> val ind
+binder 668:672 <> b_raw:6
+binder 668:672 <> b_raw:7
+R742:745 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R738:741 CRIS.SchHeader <> 𝒴 abbrev
+R746:746 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R748:750 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R752:755 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R779:791 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R756:756 CRIS.common.Events <> :::x_'?' not
+R777:778 CRIS.common.Events <> :::x_'?' not
+R757:761 CRIS.imp.ImpPrelude <> pargs def
+R770:770 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R776:776 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R771:775 CRIS.spinlock.SpinLockI <> b_raw:6 var
+R763:763 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R768:768 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R764:767 CRIS.imp.ImpPrelude <> Tint constr
+R751:751 Coq.Numbers.BinNums <> Z ind
+binder 747:747 <> b:8
+binder 747:747 <> b:9
+R796:811 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R792:795 CRIS.SchHeader <> 𝒴 abbrev
+R812:815 Coq.ssr.ssreflect <> ::general_if_scope:'if'_x_'then'_x_'else'_x not
+R830:836 Coq.ssr.ssreflect <> ::general_if_scope:'if'_x_'then'_x_'else'_x not
+R849:866 Coq.ssr.ssreflect <> ::general_if_scope:'if'_x_'then'_x_'else'_x not
+R867:870 Coq.ssr.ssreflect <> ::general_if_scope:'if'_x_'then'_x_'else'_x not
+R885:891 Coq.ssr.ssreflect <> ::general_if_scope:'if'_x_'then'_x_'else'_x not
+R904:921 Coq.ssr.ssreflect <> ::general_if_scope:'if'_x_'then'_x_'else'_x not
+R922:930 CRIS.common.Events <> triggerUB def
+R892:894 ITree.Core.ITreeDefinition <> Ret abbrev
+R897:899 Coq.Init.Datatypes <> inr constr
+R901:902 Coq.Init.Datatypes <> tt constr
+R871:876 stdpp.base <> decide def
+R880:882 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R879:879 CRIS.spinlock.SpinLockI <> b:8 var
+R837:839 ITree.Core.ITreeDefinition <> Ret abbrev
+R842:844 Coq.Init.Datatypes <> inl constr
+R846:847 Coq.Init.Datatypes <> tt constr
+R816:821 stdpp.base <> decide def
+R825:827 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R824:824 CRIS.spinlock.SpinLockI <> b:8 var
+R959:962 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R955:958 CRIS.SchHeader <> 𝒴 abbrev
+R963:965 ITree.Core.ITreeDefinition <> Ret abbrev
+R967:972 CRIS.imp.ImpPrelude <> Vundef constr
+def 989:995 SpinLockI release
+R1007:1011 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R999:1002 Coq.Init.Datatypes <> list ind
+R1004:1006 CRIS.imp.ImpPrelude <> val ind
+R1012:1016 ITree.Core.ITreeDefinition <> itree corec
+R1024:1026 CRIS.imp.ImpPrelude <> val ind
+R1018:1022 CRIS.common.Events <> pmodE def
+R1035:1037 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1039:1046 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 1038:1038 <> x:10
+R1051:1054 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R1047:1050 CRIS.SchHeader <> 𝒴 abbrev
+R1055:1055 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R1057:1059 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R1063:1066 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R1103:1111 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R1067:1072 CRIS.common.Events <> ccallU def
+R1090:1093 Coq.Init.Datatypes <> ::list_scope:x_'++'_x not
+R1089:1089 CRIS.spinlock.SpinLockI <> x:10 var
+R1094:1094 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R1101:1101 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R1095:1098 CRIS.imp.ImpPrelude <> Vint constr
+R1074:1086 CRIS.mem.MemHeader MemName store def
+R1060:1062 CRIS.imp.ImpPrelude <> val ind
+binder 1056:1056 <> pat:11
+R1116:1119 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R1112:1115 CRIS.SchHeader <> 𝒴 abbrev
+R1120:1122 ITree.Core.ITreeDefinition <> Ret abbrev
+R1124:1129 CRIS.imp.ImpPrelude <> Vundef constr
+def 1146:1151 SpinLockI fnsems
+R1160:1160 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1208:1214 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1262:1268 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1316:1316 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1161:1161 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1182:1183 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1207:1207 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1162:1181 CRIS.spinlock.SpinLockHeader SpinLockName newlock def
+R1184:1184 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1191:1192 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1206:1206 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1185:1190 CRIS.spinlock.SpinLockI SpinLockI scopes def
+R1193:1197 CRIS.common.Events <> cfunU def
+R1199:1205 CRIS.spinlock.SpinLockI SpinLockI newlock def
+R1215:1215 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1236:1237 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1261:1261 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1216:1235 CRIS.spinlock.SpinLockHeader SpinLockName acquire def
+R1238:1238 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1245:1246 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1260:1260 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1239:1244 CRIS.spinlock.SpinLockI SpinLockI scopes def
+R1247:1251 CRIS.common.Events <> cfunU def
+R1253:1259 CRIS.spinlock.SpinLockI SpinLockI acquire def
+R1269:1269 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1290:1291 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1315:1315 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1270:1289 CRIS.spinlock.SpinLockHeader SpinLockName release def
+R1292:1292 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1299:1300 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1314:1314 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1293:1298 CRIS.spinlock.SpinLockI SpinLockI scopes def
+R1301:1305 CRIS.common.Events <> cfunU def
+R1307:1313 CRIS.spinlock.SpinLockI SpinLockI release def
+def 1341:1343 SpinLockI Mod
+R1347:1352 CRIS.modules.PMod PMod t rec
+R1364:1374 CRIS.modules.PMod PMod scopes proj
+R1364:1374 CRIS.modules.PMod PMod scopes proj
+R1364:1374 CRIS.modules.PMod PMod scopes proj
+R1391:1401 CRIS.modules.PMod PMod fnsems proj
+R1391:1401 CRIS.modules.PMod PMod fnsems proj
+R1418:1432 CRIS.modules.PMod PMod initial_st proj
+R1418:1432 CRIS.modules.PMod PMod initial_st proj
+R1379:1384 CRIS.spinlock.SpinLockI SpinLockI scopes def
+R1406:1411 CRIS.spinlock.SpinLockI SpinLockI fnsems def
+R1437:1438 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+def 1544:1544 SpinLockI t
+R1548:1553 CRIS.modules.HMod HMod t rec
+R1558:1569 CRIS.lib.Coqlib Seal sealing defax
+R1577:1588 CRIS.modules.PMod PMod to_hmod def
+R1590:1592 CRIS.spinlock.SpinLockI SpinLockI Mod def
+R1571:1574 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R1600:1608 CRIS.spinlock.SpinLockI SpinLockI.SpinLockI <> sec
+R1615:1623 CRIS.spinlock.SpinLockI SpinLockI <> mod

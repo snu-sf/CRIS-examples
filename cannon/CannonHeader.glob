@@ -1,0 +1,10 @@
+DIGEST c8e125af8f47fcc8ebcc31d20c4065b1
+FCRIS.cannon.CannonHeader
+R15:18 CRIS.common.CRIS <> <> lib
+R36:45 CRIS.imp.ImpPrelude <> <> lib
+mod 56:65 <> CannonName
+def 80:83 CannonName fire
+R108:117 CRIS.cannon.CannonHeader CannonName <> mod
+mod 128:135 <> MainName
+def 151:154 MainName main
+R216:223 CRIS.cannon.CannonHeader MainName <> mod

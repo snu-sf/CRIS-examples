@@ -1,0 +1,7 @@
+DIGEST 05cff4b460bce780d1656a03c21e3cdc
+FCRIS.spinlock.SpinLockMainHeader
+R15:20 CRIS.common.Common <> <> lib
+mod 31:46 <> SpinLockMainName
+def 62:65 SpinLockMainName main
+def 96:99 SpinLockMainName incr
+R116:131 CRIS.spinlock.SpinLockMainHeader SpinLockMainName <> mod

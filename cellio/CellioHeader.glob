@@ -1,0 +1,17 @@
+DIGEST 484032ab7986286c7552b3743ed3fbbe
+FCRIS.cellio.CellioHeader
+R15:18 CRIS.common.CRIS <> <> lib
+mod 29:38 <> CellioName
+def 54:55 CellioName mn
+def 84:85 CellioName fn
+R96:101 Coq.Strings.String <> string ind
+binder 88:93 <> method:1
+R113:117 stdpp.strings <> ::stdpp_scope:x_'+:+'_x not
+R111:112 CRIS.cellio.CellioHeader CellioName mn def
+R121:125 stdpp.strings <> ::stdpp_scope:x_'+:+'_x not
+R126:131 CRIS.cellio.CellioHeader <> method:1 var
+def 148:150 CellioName set
+R155:156 CRIS.cellio.CellioHeader CellioName fn def
+def 178:180 CellioName get
+R185:186 CRIS.cellio.CellioHeader CellioName fn def
+R199:208 CRIS.cellio.CellioHeader CellioName <> mod

@@ -1,0 +1,67 @@
+Require Import CRIS.
+Require Import Imp.
+Require Import ImpPrelude.
+Require Import RepeatHeader.
+Require Import APCHeader APC.
+
+Set Implicit Arguments.
+
+(* Define Specification *)
+Module RepeatAS. Section RepeatAS.
+
+  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+
+  Context (genv : GEnv.t).
+  Context (spc_pure : string → option fspec).
+
+  (* mathematical repeat *)
+  Fixpoint repeat_fun A (f: A → A) (n: nat) (a: A): A :=
+    match n with
+    | 0 => a
+    | S n' => repeat_fun f n' (f a)
+    end.
+
+  Definition repeat_spec (genv: GEnv.t) : fspec :=
+    fspec_apc (λ '(n, x, f_sem), OrdArith.add Ord.omega (n:nat)%ord)
+      (λ '(n, x, f_sem),
+        ((λ arg, ⌜∃ (fn:string) (fptr:mblock), arg = [Vptr fptr 0; Vint (Z.of_nat n); Vint x]↑
+                        ∧ (intrange_64 (Z.of_nat n))
+                        ∧ CEnv.blk2id (CEnv.load_genv genv) fptr = Some fn
+                        ∧ fn_has_spec spc_pure fn
+                            (fspec_apc
+                              (λ _, Ord.omega)
+                              (λ x, 
+                                ((λ varg, ⌜varg = [Vint x]↑⌝%I),
+                                (λ vret, ⌜vret = (Vint (f_sem x))↑⌝%I))
+                              )
+                            )
+                      ⌝%I),
+          (λ ret, ⌜ret = (Vint (repeat_fun f_sem n x))↑⌝%I))).
+
+  Definition Spc: alist string fspec :=
+    Seal.sealing CRIS [(RepeatName.repeat, repeat_spec genv)].
+
+End RepeatAS. End RepeatAS.
+
+(* Define Module *)
+Module RepeatA. Section RepeatA.
+
+  Definition scopes := [RepeatName.mn].
+
+  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+
+  Definition fnsems genv spc_pure :=
+    [(RepeatName.repeat, (scopes, mk_specbody (RepeatAS.repeat_spec spc_pure genv) pure_body))].
+
+  Program Definition Mod genv spc_pure : SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems genv spc_pure;
+    SMod.initial_st := [];
+  |}.
+  Solve All Obligations with prove_scope.
+  Next Obligation. prove_nodup. Qed.
+
+  Definition init_cond : iProp Σ := emp%I.
+
+  Definition t genv u spc spc_pure := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) spc (Mod genv spc_pure)).
+End RepeatA. End RepeatA.

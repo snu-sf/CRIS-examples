@@ -1,0 +1,122 @@
+DIGEST 9a3c395b4cfa7ba866a2ec6b702f3dda
+FCRIS.cellio.CellioIAproof
+R15:18 CRIS.common.CRIS <> <> lib
+R36:47 CRIS.cellio.CellioHeader <> <> lib
+R49:55 CRIS.cellio.CellioA <> <> lib
+R57:63 CRIS.cellio.CellioI <> <> lib
+R81:84 CRIS.cellio.LibA <> <> lib
+mod 149:156 <> CellioIA
+sec 167:174 CellioIA CellioIA
+R186:192 CRIS.cellio.CellioA CellioA <> mod
+R208:211 CRIS.iris_system.invariants <> invG class
+R224:227 CRIS.iris_system.iprop <> subG class
+R232:233 CRIS.cellio.CellioIAproof <> Σ:2 var
+R229:230 CRIS.cellio.CellioIAproof <> Γ:3 var
+R237:241 CRIS.iris_system.syn_invariants <> sinvG class
+R249:250 CRIS.cellio.CellioIAproof <> α:1 var
+R246:247 CRIS.cellio.CellioIAproof <> Γ:3 var
+R243:244 CRIS.cellio.CellioIAproof <> Σ:2 var
+R260:269 CRIS.cellio.CellioA <> CellioAGΓ class
+R271:272 CRIS.cellio.CellioIAproof <> Γ:3 var
+var  315:319 CellioIA.CellioIA spc_s
+R329:333 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R323:328 Coq.Strings.String <> string ind
+R334:339 Coq.Init.Datatypes <> option ind
+R341:345 CRIS.modules.SMod2HMod <> fspec rec
+var  360:367 CellioIA.CellioIA LibInSpc
+R371:378 CRIS.common.Spc <> spc_incl def
+R390:394 CRIS.cellio.CellioIAproof <> CellioIA.CellioIA.spc_s var
+R380:388 CRIS.cellio.LibA LibAS spc def
+def 414:416 CellioIA Ist
+R423:427 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R420:422 Coq.Init.Datatypes <> nat ind
+R443:447 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R428:432 ExtLib.Data.Map.FMapAList <> alist def
+R438:442 CRIS.lib.Any Any t defax
+R434:436 CRIS.common.Events <> key def
+R463:467 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R448:452 ExtLib.Data.Map.FMapAList <> alist def
+R458:462 CRIS.lib.Any Any t defax
+R454:456 CRIS.common.Events <> key def
+R468:472 CRIS.iris_system.iprop <> iProp abbrev
+R474:475 CRIS.cellio.CellioIAproof <> CellioIA.CellioIA.Σ var
+R484:486 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R502:509 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 489:494 <> st_src:12
+binder 496:501 <> st_tgt:13
+R511:514 iris.bi.interface <> ::bi_scope:'∃'_x_'..'_x_','_x not
+R516:517 iris.bi.interface <> ::bi_scope:'∃'_x_'..'_x_','_x not
+binder 515:515 <> v:14
+R555:559 iris.bi.interface <> ::bi_scope:x_'∗'_x not
+R518:520 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R552:554 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R527:529 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R521:526 CRIS.cellio.CellioIAproof <> st_tgt:13 var
+R530:530 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R551:551 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R531:531 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R544:545 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R550:550 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R532:543 CRIS.cellio.CellioI CellioI v_cv def
+R547:549 CRIS.lib.Any <> :::x_'↑' not
+R546:546 CRIS.cellio.CellioIAproof <> v:14 var
+R560:563 CRIS.cellio.CellioA CellioA auth def
+R565:565 CRIS.cellio.CellioIAproof <> v:14 var
+def 591:597 CellioIA CellioI
+R603:611 CRIS.cellio.CellioI CellioI t def
+def 634:640 CellioIA CellioA
+R646:654 CRIS.cellio.CellioA CellioA t def
+R656:660 CRIS.cellio.CellioIAproof <> CellioIA.CellioIA.spc_s var
+prf 673:680 CellioIA simF_set
+R684:695 CRIS.simulations.isim.ISimCore HSim sim_fun def
+R722:735 CRIS.cellio.CellioHeader CellioName set def
+R718:720 CRIS.cellio.CellioIAproof CellioIA Ist def
+R710:716 CRIS.cellio.CellioIAproof CellioIA CellioI def
+R702:708 CRIS.cellio.CellioIAproof CellioIA CellioA def
+R697:700 CRIS.common.Common <> open constr
+R820:821 Coq.Init.Datatypes <> tt constr
+R820:821 Coq.Init.Datatypes <> tt constr
+R985:985 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R999:1004 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1016:1016 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R986:998 CRIS.cellio.CellioA CellioA cell_auth_get thm
+R985:985 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R999:1004 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1016:1016 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R986:998 CRIS.cellio.CellioA CellioA cell_auth_get thm
+R1042:1042 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1056:1061 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1073:1073 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1043:1055 CRIS.cellio.CellioA CellioA cell_auth_set thm
+R1042:1042 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1056:1061 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1073:1073 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1043:1055 CRIS.cellio.CellioA CellioA cell_auth_set thm
+prf 1278:1285 CellioIA simF_get
+R1289:1300 CRIS.simulations.isim.ISimCore HSim sim_fun def
+R1327:1340 CRIS.cellio.CellioHeader CellioName get def
+R1323:1325 CRIS.cellio.CellioIAproof CellioIA Ist def
+R1315:1321 CRIS.cellio.CellioIAproof CellioIA CellioI def
+R1307:1313 CRIS.cellio.CellioIAproof CellioIA CellioA def
+R1302:1305 CRIS.common.Common <> open constr
+R1476:1476 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1490:1495 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1507:1507 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1477:1489 CRIS.cellio.CellioA CellioA cell_auth_get thm
+R1476:1476 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1490:1495 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1507:1507 iris.proofmode.ltac_tactics <> :::'('_x_'with'_x_')' not
+R1477:1489 CRIS.cellio.CellioA CellioA cell_auth_get thm
+prf 1712:1714 CellioIA sim
+R1718:1723 CRIS.simulations.isim.ISimCore HSim t indrec
+R1763:1765 CRIS.cellio.CellioIAproof CellioIA Ist def
+R1746:1761 CRIS.cellio.CellioA CellioA InitCond def
+R1738:1744 CRIS.cellio.CellioIAproof CellioIA CellioI def
+R1730:1736 CRIS.cellio.CellioIAproof CellioIA CellioA def
+R1725:1728 CRIS.common.Common <> open constr
+R1848:1855 CRIS.cellio.CellioIAproof CellioIA simF_set thm
+R1848:1855 CRIS.cellio.CellioIAproof CellioIA simF_set thm
+R1877:1884 CRIS.cellio.CellioIAproof CellioIA simF_get thm
+R1877:1884 CRIS.cellio.CellioIAproof CellioIA simF_get thm
+R1905:1912 CRIS.cellio.CellioIAproof CellioIA.CellioIA <> sec
+R1919:1926 CRIS.cellio.CellioIAproof CellioIA <> mod

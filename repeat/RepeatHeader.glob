@@ -1,0 +1,16 @@
+DIGEST cfeddbf99c25d11bed64e5130a42264f
+FCRIS.repeat.RepeatHeader
+R15:18 CRIS.common.CRIS <> <> lib
+R36:45 CRIS.imp.ImpPrelude <> <> lib
+mod 56:65 <> RepeatName
+def 81:82 RepeatName mn
+def 111:112 RepeatName fn
+R123:128 Coq.Strings.String <> string ind
+binder 115:120 <> method:1
+R140:144 stdpp.strings <> ::stdpp_scope:x_'+:+'_x not
+R138:139 CRIS.repeat.RepeatHeader RepeatName mn def
+R148:152 stdpp.strings <> ::stdpp_scope:x_'+:+'_x not
+R153:158 CRIS.repeat.RepeatHeader <> method:1 var
+def 175:180 RepeatName repeat
+R185:186 CRIS.repeat.RepeatHeader RepeatName fn def
+R202:211 CRIS.repeat.RepeatHeader RepeatName <> mod

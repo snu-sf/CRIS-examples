@@ -1,0 +1,124 @@
+DIGEST 1e9de4279a5478f3b966490f9cfa5b74
+FCRIS.mutsum.MutMainA
+R15:18 CRIS.common.CRIS <> <> lib
+R36:44 CRIS.mutsum.MutHeader <> <> lib
+R46:58 CRIS.mutsum.MutMainHeader <> <> lib
+R60:68 CRIS.APCHeader <> <> lib
+R70:72 CRIS.APC <> <> lib
+mod 108:115 <> MutMainA
+sec 126:133 MutMainA MutMainA
+R149:152 CRIS.iris_system.invariants <> invG class
+R165:168 CRIS.iris_system.iprop <> subG class
+R173:174 CRIS.mutsum.MutMainA <> Σ:2 var
+R170:171 CRIS.mutsum.MutMainA <> Γ:3 var
+R178:182 CRIS.iris_system.syn_invariants <> sinvG class
+R190:191 CRIS.mutsum.MutMainA <> α:1 var
+R187:188 CRIS.mutsum.MutMainA <> Γ:3 var
+R184:185 CRIS.mutsum.MutMainA <> Σ:2 var
+abbrev 212:216 MutMainA iProp
+R222:226 CRIS.iris_system.iprop <> iProp abbrev
+R228:229 CRIS.mutsum.MutMainA <> MutMainA.MutMainA.Σ var
+def 247:252 MutMainA scopes
+R257:257 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R267:267 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+def 284:292 MutMainA main_body
+R301:305 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R296:300 CRIS.lib.Any Any t defax
+R306:310 ITree.Core.ITreeDefinition <> itree corec
+R318:322 CRIS.lib.Any Any t defax
+R312:316 CRIS.common.Events <> hmodE def
+R331:333 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R335:336 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R341:344 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R337:340 CRIS.APC <> pure def
+R345:351 ITree.Core.Subevent <> trigger abbrev
+R354:359 CRIS.common.Events <> Choose constr
+R361:365 CRIS.lib.Any Any t defax
+def 383:391 MutMainA main_spec
+R394:398 CRIS.modules.SMod2HMod <> fspec rec
+R407:418 CRIS.modules.SMod2HMod <> fspec_simple def
+R435:438 Coq.Init.Datatypes <> unit ind
+R452:453 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R485:497 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R536:537 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R454:456 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R461:462 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 457:460 <> varg:9
+R464:466 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R479:481 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R471:473 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R467:470 CRIS.mutsum.MutMainA <> varg:9 var
+R476:478 CRIS.lib.Any <> :::x_'↑' not
+R474:475 Coq.Init.Datatypes <> tt constr
+R498:500 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R505:506 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 501:504 <> vret:10
+R508:510 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R530:532 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R515:517 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R511:514 CRIS.mutsum.MutMainA <> vret:10 var
+R518:518 CRIS.lib.Any <> :::x_'↑' not
+R526:529 CRIS.lib.Any <> :::x_'↑' not
+R519:522 CRIS.imp.ImpPrelude <> Vint constr
+def 555:557 MutMainA Spc
+R560:564 ExtLib.Data.Map.FMapAList <> alist def
+R573:577 CRIS.modules.SMod2HMod <> fspec rec
+R566:571 Coq.Strings.String <> string ind
+R586:597 CRIS.lib.Coqlib Seal sealing defax
+R604:604 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R634:634 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R605:605 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R622:623 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R633:633 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R606:621 CRIS.mutsum.MutMainHeader MutMainName main def
+R624:632 CRIS.mutsum.MutMainA MutMainA main_spec def
+R599:602 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+prf 646:654 MutMainA Spc_nodup
+R657:666 Coq.Lists.List <> NoDup ind
+R669:676 Coq.Lists.List <> map def
+R682:684 CRIS.mutsum.MutMainA MutMainA Spc def
+R678:680 Coq.Init.Datatypes <> fst def
+R704:706 CRIS.mutsum.MutMainA MutMainA Spc def
+R716:719 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+def 754:759 MutMainA fnsems
+R768:768 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R830:830 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R769:769 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R786:787 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R829:829 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R770:785 CRIS.mutsum.MutMainHeader MutMainName main def
+R788:788 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R795:796 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R828:828 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R789:794 CRIS.mutsum.MutMainA MutMainA scopes def
+R797:807 CRIS.modules.SMod2HMod <> mk_specbody constr
+R819:827 CRIS.mutsum.MutMainA MutMainA main_body def
+R809:817 CRIS.mutsum.MutMainA MutMainA main_spec def
+def 855:857 MutMainA Mod
+R860:865 CRIS.modules.SMod SMod t rec
+R879:889 CRIS.modules.SMod SMod scopes proj
+R879:889 CRIS.modules.SMod SMod scopes proj
+R879:889 CRIS.modules.SMod SMod scopes proj
+R906:916 CRIS.modules.SMod SMod fnsems proj
+R906:916 CRIS.modules.SMod SMod fnsems proj
+R933:947 CRIS.modules.SMod SMod initial_st proj
+R933:947 CRIS.modules.SMod SMod initial_st proj
+R894:899 CRIS.mutsum.MutMainA MutMainA scopes def
+R921:926 CRIS.mutsum.MutMainA MutMainA fnsems def
+R952:953 Coq.Lists.List ListNotations ::list_scope:'['_']' not
+def 1055:1062 MutMainA InitCond
+R1066:1070 CRIS.mutsum.MutMainA MutMainA iProp abbrev
+R1075:1077 iris.bi.interface <> ::bi_scope:'emp' not
+def 1096:1096 MutMainA t
+binder 1098:1098 <> u:11
+binder 1100:1102 <> Spc:12
+R1107:1118 CRIS.lib.Coqlib Seal sealing defax
+R1126:1137 CRIS.modules.SMod SMod to_hmod def
+R1161:1163 CRIS.mutsum.MutMainA MutMainA Mod def
+R1157:1159 CRIS.mutsum.MutMainA <> Spc:12 var
+R1140:1148 CRIS.simulations.wsim.wsim <> wsim_ginv def
+R1152:1154 stdpp.base <> ::stdpp_scope:'⊤' not
+R1150:1150 CRIS.mutsum.MutMainA <> u:11 var
+R1120:1123 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R1171:1178 CRIS.mutsum.MutMainA MutMainA.MutMainA <> sec
+R1185:1192 CRIS.mutsum.MutMainA MutMainA <> mod

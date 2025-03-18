@@ -1,0 +1,511 @@
+DIGEST e863da46f19fc12b1bfad4405920bf1c
+FCRIS.map.MapM
+R15:18 CRIS.common.CRIS <> <> lib
+R37:45 CRIS.map.MapHeader <> <> lib
+R63:66 CRIS.simulations.wsim.wsim <> <> lib
+rec 142:148 <> MapMGΓ
+proj 177:183 <> map_inG
+R156:158 CRIS.iris_system.sProp <> HRA class
+binder 151:152 <> Γ:1
+R188:190 CRIS.iris_system.iprop <> inG class
+R193:197 iris.algebra.excl <> exclR canonstruc
+R199:203 iris.algebra.ofe <> unitO canonstruc
+R206:207 CRIS.map.MapM <> Γ:1 var
+def 224:229 <> MapMΓ
+R233:235 CRIS.iris_system.sProp <> HRA class
+R240:241 CRIS.iris_system.iprop <> :::'#['_x_';'_'..'_';'_x_']' not
+R253:253 CRIS.iris_system.iprop <> :::'#['_x_';'_'..'_';'_x_']' not
+R242:246 iris.algebra.excl <> exclR canonstruc
+R248:252 iris.algebra.ofe <> unitO canonstruc
+inst 272:279 <> subG_GΓ
+R287:289 CRIS.iris_system.sProp <> HRA class
+binder 282:283 <> Γ:4
+R308:312 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R294:297 CRIS.iris_system.iprop <> subG class
+R306:307 CRIS.map.MapM <> Γ:4 var
+R299:304 CRIS.map.MapM <> MapMΓ def
+R313:319 CRIS.map.MapM <> MapMGΓ class
+R321:322 CRIS.map.MapM <> Γ:4 var
+R364:371 CRIS.map.MapM <> subG_GΓ inst
+R373:379 CRIS.map.MapM <> map_inG meth
+mod 402:406 <> MapMS
+sec 417:421 MapMS MapMS
+R437:440 CRIS.iris_system.invariants <> invG class
+R453:456 CRIS.iris_system.iprop <> subG class
+R461:462 CRIS.map.MapM <> Σ:6 var
+R458:459 CRIS.map.MapM <> Γ:7 var
+R466:470 CRIS.iris_system.syn_invariants <> sinvG class
+R478:479 CRIS.map.MapM <> α:5 var
+R475:476 CRIS.map.MapM <> Γ:7 var
+R472:473 CRIS.map.MapM <> Σ:6 var
+R489:495 CRIS.map.MapM <> MapMGΓ class
+R497:498 CRIS.map.MapM <> Γ:7 var
+var  513:513 MapMS.MapMS u
+R517:523 CRIS.iris_system.invariants <> univ_id def
+def 541:547 MapMS pending
+R551:555 CRIS.iris_system.iprop <> iProp abbrev
+R557:558 CRIS.map.MapM <> MapMS.MapMS.Σ var
+R563:565 CRIS.iris_system.own <> own def
+R576:579 iris.algebra.excl <> Excl constr
+R581:582 Coq.Program.Syntax <> :::'()' not
+R567:573 CRIS.iris_system.iprop <> base_γ def
+prf 594:607 MapMS pending_unique
+R618:623 iris.bi.interface <> ::stdpp_scope:x_'-∗'_x not
+R611:617 CRIS.map.MapM MapMS pending def
+R631:636 iris.bi.interface <> ::bi_scope:x_'-∗'_x not
+R624:630 CRIS.map.MapM MapMS pending def
+R637:641 iris.bi.interface <> ::bi_scope:'False' not
+R666:672 CRIS.map.MapM MapMS pending def
+R666:672 CRIS.map.MapM MapMS pending def
+R666:672 CRIS.map.MapM MapMS pending def
+def 774:782 MapMS init_spec
+R786:790 CRIS.modules.SMod2HMod <> fspec rec
+R799:805 CRIS.simulations.wsim.wsim <> w_fspec def
+R807:807 CRIS.map.MapM <> MapMS.MapMS.u var
+R816:827 CRIS.modules.SMod2HMod <> fspec_simple def
+R838:841 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R850:862 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R847:849 Coq.Init.Datatypes <> nat ind
+binder 842:843 <> sz:15
+R863:863 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R938:951 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R964:964 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R864:866 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R871:872 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 867:870 <> varg:16
+R926:930 iris.bi.interface <> ::bi_scope:x_'∗'_x not
+R873:875 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R923:925 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R895:899 Coq.Unicode.Utf8_core <> ::type_scope:x_'∧'_x not
+R880:882 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R876:879 CRIS.map.MapM <> varg:16 var
+R892:894 CRIS.lib.Any <> :::x_'↑' not
+R883:883 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R891:891 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R884:887 CRIS.imp.ImpPrelude <> Vint constr
+R889:890 CRIS.map.MapM <> sz:15 var
+R907:909 Coq.ZArith.BinInt <> ::Z_scope:x_'<'_x not
+R902:904 Coq.ZArith.BinInt <> ::Z_scope:x_'*'_x not
+R905:906 CRIS.map.MapM <> sz:15 var
+R910:919 CRIS.imp.ImpPrelude <> modulus_64 def
+R931:937 CRIS.map.MapM MapMS pending def
+R952:954 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R959:960 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 955:958 <> vret:17
+R961:963 iris.bi.interface <> ::bi_scope:'emp' not
+def 985:992 MapMS get_spec
+R996:1000 CRIS.modules.SMod2HMod <> fspec rec
+R1010:1016 CRIS.simulations.wsim.wsim <> w_fspec def
+R1018:1018 CRIS.map.MapM <> MapMS.MapMS.u var
+R1027:1038 CRIS.modules.SMod2HMod <> fspec_simple def
+R1049:1051 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1053:1064 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 1052:1052 <> k:18
+R1065:1065 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1099:1112 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1125:1125 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1066:1068 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1073:1074 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 1069:1072 <> varg:19
+R1075:1077 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1096:1098 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1082:1084 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1078:1081 CRIS.map.MapM <> varg:19 var
+R1093:1095 CRIS.lib.Any <> :::x_'↑' not
+R1085:1085 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R1092:1092 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R1086:1089 CRIS.imp.ImpPrelude <> Vint constr
+R1091:1091 CRIS.map.MapM <> k:18 var
+R1113:1115 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1120:1121 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 1116:1119 <> vret:20
+R1122:1124 iris.bi.interface <> ::bi_scope:'emp' not
+def 1146:1153 MapMS set_spec
+R1157:1161 CRIS.modules.SMod2HMod <> fspec rec
+R1170:1176 CRIS.simulations.wsim.wsim <> w_fspec def
+R1178:1178 CRIS.map.MapM <> MapMS.MapMS.u var
+R1187:1198 CRIS.modules.SMod2HMod <> fspec_simple def
+R1209:1212 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1219:1230 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1213:1213 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1215:1216 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1218:1218 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+binder 1217:1217 <> v:21
+binder 1214:1214 <> k:22
+binder 1213:1218 <> pat:23
+R1231:1231 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1275:1288 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1301:1301 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1232:1234 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1239:1240 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 1235:1238 <> varg:24
+R1241:1243 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1272:1274 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1248:1250 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1244:1247 CRIS.map.MapM <> varg:24 var
+R1251:1251 CRIS.lib.Any <> :::x_'↑' not
+R1268:1271 CRIS.lib.Any <> :::x_'↑' not
+R1252:1252 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1259:1260 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1267:1267 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1253:1256 CRIS.imp.ImpPrelude <> Vint constr
+R1258:1258 CRIS.map.MapM <> k:22 var
+R1261:1264 CRIS.imp.ImpPrelude <> Vint constr
+R1266:1266 CRIS.map.MapM <> v:21 var
+R1289:1291 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1296:1297 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 1292:1295 <> vret:25
+R1298:1300 iris.bi.interface <> ::bi_scope:'emp' not
+def 1322:1337 MapMS set_by_user_spec
+R1341:1345 CRIS.modules.SMod2HMod <> fspec rec
+R1355:1361 CRIS.simulations.wsim.wsim <> w_fspec def
+R1363:1363 CRIS.map.MapM <> MapMS.MapMS.u var
+R1372:1383 CRIS.modules.SMod2HMod <> fspec_simple def
+R1394:1396 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1398:1409 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 1397:1397 <> k:26
+R1410:1410 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1444:1457 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1470:1470 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1411:1413 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1418:1419 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 1414:1417 <> varg:27
+R1420:1422 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1441:1443 iris.bi.interface <> ::bi_scope:'⌜'_x_'⌝' not
+R1427:1429 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1423:1426 CRIS.map.MapM <> varg:27 var
+R1438:1440 CRIS.lib.Any <> :::x_'↑' not
+R1430:1430 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R1437:1437 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R1431:1434 CRIS.imp.ImpPrelude <> Vint constr
+R1436:1436 CRIS.map.MapM <> k:26 var
+R1458:1460 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R1465:1466 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 1461:1464 <> vret:28
+R1467:1469 iris.bi.interface <> ::bi_scope:'emp' not
+def 1491:1493 MapMS spc
+R1497:1501 ExtLib.Data.Map.FMapAList <> alist def
+R1510:1514 CRIS.modules.SMod2HMod <> fspec rec
+R1503:1508 Coq.Strings.String <> string ind
+R1523:1534 CRIS.lib.Coqlib Seal sealing defax
+R1547:1547 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1573:1581 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1605:1613 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1637:1645 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1685:1685 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R1548:1548 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1561:1562 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1572:1572 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1549:1560 CRIS.map.MapHeader MapName init def
+R1563:1571 CRIS.map.MapM MapMS init_spec def
+R1582:1582 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1594:1595 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1604:1604 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1583:1593 CRIS.map.MapHeader MapName get def
+R1596:1603 CRIS.map.MapM MapMS get_spec def
+R1614:1614 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1626:1627 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1636:1636 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1615:1625 CRIS.map.MapHeader MapName set def
+R1628:1635 CRIS.map.MapM MapMS set_spec def
+R1646:1646 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1666:1667 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1684:1684 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R1647:1665 CRIS.map.MapHeader MapName set_by_user def
+R1668:1683 CRIS.map.MapM MapMS set_by_user_spec def
+R1536:1539 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+prf 1697:1705 MapMS spc_nodup
+R1709:1718 Coq.Lists.List <> NoDup ind
+R1721:1728 Coq.Lists.List <> map def
+R1734:1736 CRIS.map.MapM MapMS spc def
+R1730:1732 Coq.Init.Datatypes <> fst def
+R1761:1763 CRIS.map.MapM MapMS spc def
+R1761:1763 CRIS.map.MapM MapMS spc def
+R1761:1763 CRIS.map.MapM MapMS spc def
+R1773:1776 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R1801:1805 CRIS.map.MapM MapMS.MapMS <> sec
+R1812:1816 CRIS.map.MapM MapMS <> mod
+mod 2128:2131 <> MapM
+sec 2142:2145 MapM MapM
+R2161:2164 CRIS.iris_system.invariants <> invG class
+R2177:2180 CRIS.iris_system.iprop <> subG class
+R2185:2186 CRIS.map.MapM <> Σ:30 var
+R2182:2183 CRIS.map.MapM <> Γ:31 var
+R2190:2194 CRIS.iris_system.syn_invariants <> sinvG class
+R2202:2203 CRIS.map.MapM <> α:29 var
+R2199:2200 CRIS.map.MapM <> Γ:31 var
+R2196:2197 CRIS.map.MapM <> Σ:30 var
+R2213:2219 CRIS.map.MapM <> MapMGΓ class
+R2221:2222 CRIS.map.MapM <> Γ:31 var
+var  2237:2237 MapM.MapM u
+R2241:2247 CRIS.iris_system.invariants <> univ_id def
+def 2265:2270 MapM scopes
+R2275:2275 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2281:2281 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+def 2297:2302 MapM v_size
+R2312:2316 CRIS.common.Events <> :::x_'↯'_x not
+def 2338:2342 MapM v_map
+R2352:2356 CRIS.common.Events <> :::x_'↯'_x not
+def 2378:2381 MapM init
+R2393:2397 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R2385:2388 Coq.Init.Datatypes <> list ind
+R2390:2392 CRIS.imp.ImpPrelude <> val ind
+R2398:2402 ITree.Core.ITreeDefinition <> itree corec
+R2410:2412 CRIS.imp.ImpPrelude <> val ind
+R2404:2408 CRIS.common.Events <> hmodE def
+R2421:2423 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R2428:2435 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 2424:2427 <> varg:39
+R2440:2443 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2464:2472 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2444:2444 CRIS.common.Events <> :::x_'?' not
+R2462:2463 CRIS.common.Events <> :::x_'?' not
+R2445:2449 CRIS.imp.ImpPrelude <> pargs def
+R2458:2461 CRIS.map.MapM <> varg:39 var
+R2451:2451 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2456:2456 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2452:2455 CRIS.imp.ImpPrelude <> Tint constr
+binder 2436:2439 <> size:40
+R2489:2498 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R2473:2476 CRIS.common.Events <> cput def
+R2485:2488 CRIS.map.MapM <> size:40 var
+R2478:2483 CRIS.map.MapM MapM v_size def
+R2499:2501 ITree.Core.ITreeDefinition <> Ret abbrev
+R2503:2508 CRIS.imp.ImpPrelude <> Vundef constr
+def 2527:2529 MapM get
+R2541:2545 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R2533:2536 Coq.Init.Datatypes <> list ind
+R2538:2540 CRIS.imp.ImpPrelude <> val ind
+R2546:2550 ITree.Core.ITreeDefinition <> itree corec
+R2558:2560 CRIS.imp.ImpPrelude <> val ind
+R2552:2556 CRIS.common.Events <> hmodE def
+R2569:2571 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R2576:2583 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 2572:2575 <> varg:41
+R2585:2588 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2609:2617 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2589:2589 CRIS.common.Events <> :::x_'?' not
+R2607:2608 CRIS.common.Events <> :::x_'?' not
+R2590:2594 CRIS.imp.ImpPrelude <> pargs def
+R2603:2606 CRIS.map.MapM <> varg:41 var
+R2596:2596 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2601:2601 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R2597:2600 CRIS.imp.ImpPrelude <> Tint constr
+binder 2584:2584 <> k:42
+R2622:2625 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2638:2646 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2626:2630 CRIS.common.Events <> cgetU def
+R2632:2637 CRIS.map.MapM MapM v_size def
+binder 2618:2621 <> size:43
+R2670:2679 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R2647:2652 CRIS.common.Events <> assume def
+R2655:2658 Coq.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R2660:2662 Coq.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R2659:2659 CRIS.map.MapM <> k:42 var
+R2659:2659 CRIS.map.MapM <> k:42 var
+R2663:2666 CRIS.map.MapM <> size:43 var
+R2681:2684 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2696:2704 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2685:2689 CRIS.common.Events <> cgetU def
+R2691:2695 CRIS.map.MapM MapM v_map def
+binder 2680:2680 <> f:44
+R2705:2707 ITree.Core.ITreeDefinition <> Ret abbrev
+R2710:2713 CRIS.imp.ImpPrelude <> Vint constr
+R2716:2716 CRIS.map.MapM <> f:44 var
+R2718:2718 CRIS.map.MapM <> k:42 var
+def 2737:2739 MapM set
+R2751:2755 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R2743:2746 Coq.Init.Datatypes <> list ind
+R2748:2750 CRIS.imp.ImpPrelude <> val ind
+R2756:2760 ITree.Core.ITreeDefinition <> itree corec
+R2768:2770 CRIS.imp.ImpPrelude <> val ind
+R2762:2766 CRIS.common.Events <> hmodE def
+R2779:2781 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R2786:2793 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 2782:2785 <> varg:45
+R2794:2794 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R2801:2801 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R2803:2806 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R2833:2841 CRIS.lib.ITreelib ITreeNotations ::itree_scope:''''_x_':'_x_'<-'_x_';;'_x not
+R2807:2807 CRIS.common.Events <> :::x_'?' not
+R2831:2832 CRIS.common.Events <> :::x_'?' not
+R2808:2812 CRIS.imp.ImpPrelude <> pargs def
+R2827:2830 CRIS.map.MapM <> varg:45 var
+R2814:2814 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2819:2820 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2825:2825 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R2815:2818 CRIS.imp.ImpPrelude <> Tint constr
+R2821:2824 CRIS.imp.ImpPrelude <> Tint constr
+R2795:2795 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2797:2798 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R2800:2800 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+binder 2799:2799 <> v:46
+binder 2796:2796 <> k:47
+binder 2795:2800 <> pat:48
+R2846:2849 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2862:2870 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2850:2854 CRIS.common.Events <> cgetU def
+R2856:2861 CRIS.map.MapM MapM v_size def
+binder 2842:2845 <> size:49
+R2894:2903 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R2871:2876 CRIS.common.Events <> assume def
+R2879:2882 Coq.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R2884:2886 Coq.ZArith.BinInt <> ::Z_scope:x_'<='_x_'<'_x not
+R2883:2883 CRIS.map.MapM <> k:47 var
+R2883:2883 CRIS.map.MapM <> k:47 var
+R2887:2890 CRIS.map.MapM <> size:49 var
+R2905:2908 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2920:2928 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R2909:2913 CRIS.common.Events <> cgetU def
+R2915:2919 CRIS.map.MapM MapM v_map def
+binder 2904:2904 <> f:50
+R2964:2973 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_';;;'_x not
+R2929:2932 CRIS.common.Events <> cput def
+R2941:2942 stdpp.base <> ::stdpp_scope:'<['_x_':='_x_']>' not
+R2944:2945 stdpp.base <> ::stdpp_scope:'<['_x_':='_x_']>' not
+R2947:2962 stdpp.base <> ::stdpp_scope:'<['_x_':='_x_']>' not
+R2943:2943 CRIS.map.MapM <> k:47 var
+R2946:2946 CRIS.map.MapM <> v:46 var
+R2956:2960 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R2955:2955 Coq.Numbers.BinNums <> Z ind
+R2961:2961 Coq.Numbers.BinNums <> Z ind
+R2951:2951 CRIS.map.MapM <> f:50 var
+R2934:2938 CRIS.map.MapM MapM v_map def
+R2974:2976 ITree.Core.ITreeDefinition <> Ret abbrev
+R2978:2983 CRIS.imp.ImpPrelude <> Vundef constr
+def 3000:3010 MapM set_by_user
+R3022:3026 Coq.Unicode.Utf8_core <> ::type_scope:x_'→'_x not
+R3014:3017 Coq.Init.Datatypes <> list ind
+R3019:3021 CRIS.imp.ImpPrelude <> val ind
+R3027:3031 ITree.Core.ITreeDefinition <> itree corec
+R3039:3041 CRIS.imp.ImpPrelude <> val ind
+R3033:3037 CRIS.common.Events <> hmodE def
+R3050:3052 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R3057:3064 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+binder 3053:3056 <> varg:51
+R3066:3069 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R3090:3098 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R3070:3070 CRIS.common.Events <> :::x_'?' not
+R3088:3089 CRIS.common.Events <> :::x_'?' not
+R3071:3075 CRIS.imp.ImpPrelude <> pargs def
+R3084:3087 CRIS.map.MapM <> varg:51 var
+R3077:3077 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3082:3082 Coq.Lists.List ListNotations ::list_scope:'['_x_']' not
+R3078:3081 CRIS.imp.ImpPrelude <> Tint constr
+binder 3065:3065 <> k:52
+R3100:3103 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R3127:3135 CRIS.lib.ITreelib ITreeNotations ::itree_scope:x_'<-'_x_';;'_x not
+R3104:3110 ITree.Core.Subevent <> trigger abbrev
+R3113:3114 CRIS.common.Events <> IO constr
+R3124:3125 Coq.Program.Syntax <> :::'()' not
+binder 3099:3099 <> v:53
+R3136:3141 CRIS.common.Events <> ccallU def
+R3155:3155 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3162:3163 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3170:3170 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3156:3159 CRIS.imp.ImpPrelude <> Vint constr
+R3161:3161 CRIS.map.MapM <> k:52 var
+R3164:3167 CRIS.imp.ImpPrelude <> Vint constr
+R3169:3169 CRIS.map.MapM <> v:53 var
+R3143:3153 CRIS.map.MapHeader MapName set def
+def 3187:3192 MapM fnsems
+R3201:3201 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3272:3278 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3346:3352 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3420:3426 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3518:3518 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3202:3202 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3215:3216 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3271:3271 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3203:3214 CRIS.map.MapHeader MapName init def
+R3217:3217 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3224:3225 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3270:3270 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3218:3223 CRIS.map.MapM MapM scopes def
+R3226:3236 CRIS.modules.SMod2HMod <> mk_specbody constr
+R3259:3263 CRIS.common.Events <> cfunU def
+R3265:3268 CRIS.map.MapM MapM init def
+R3239:3253 CRIS.map.MapM MapMS init_spec def
+R3255:3255 CRIS.map.MapM <> MapM.MapM.u var
+R3279:3279 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3291:3292 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3345:3345 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3280:3290 CRIS.map.MapHeader MapName get def
+R3293:3293 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3300:3301 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3344:3344 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3294:3299 CRIS.map.MapM MapM scopes def
+R3302:3312 CRIS.modules.SMod2HMod <> mk_specbody constr
+R3334:3338 CRIS.common.Events <> cfunU def
+R3340:3342 CRIS.map.MapM MapM get def
+R3315:3328 CRIS.map.MapM MapMS get_spec def
+R3330:3330 CRIS.map.MapM <> MapM.MapM.u var
+R3353:3353 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3365:3366 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3419:3419 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3354:3364 CRIS.map.MapHeader MapName set def
+R3367:3367 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3374:3375 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3418:3418 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3368:3373 CRIS.map.MapM MapM scopes def
+R3376:3386 CRIS.modules.SMod2HMod <> mk_specbody constr
+R3408:3412 CRIS.common.Events <> cfunU def
+R3414:3416 CRIS.map.MapM MapM set def
+R3389:3402 CRIS.map.MapM MapMS set_spec def
+R3404:3404 CRIS.map.MapM <> MapM.MapM.u var
+R3427:3427 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3447:3448 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3517:3517 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3428:3446 CRIS.map.MapHeader MapName set_by_user def
+R3449:3449 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3456:3457 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3516:3516 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3450:3455 CRIS.map.MapM MapM scopes def
+R3458:3468 CRIS.modules.SMod2HMod <> mk_specbody constr
+R3498:3502 CRIS.common.Events <> cfunU def
+R3504:3514 CRIS.map.MapM MapM set_by_user def
+R3471:3492 CRIS.map.MapM MapMS set_by_user_spec def
+R3494:3494 CRIS.map.MapM <> MapM.MapM.u var
+def 3543:3545 MapM Mod
+R3549:3554 CRIS.modules.SMod SMod t rec
+R3566:3576 CRIS.modules.SMod SMod scopes proj
+R3566:3576 CRIS.modules.SMod SMod scopes proj
+R3566:3576 CRIS.modules.SMod SMod scopes proj
+R3593:3603 CRIS.modules.SMod SMod fnsems proj
+R3593:3603 CRIS.modules.SMod SMod fnsems proj
+R3620:3634 CRIS.modules.SMod SMod initial_st proj
+R3620:3634 CRIS.modules.SMod SMod initial_st proj
+R3581:3586 CRIS.map.MapM MapM scopes def
+R3608:3613 CRIS.map.MapM MapM fnsems def
+R3639:3639 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3656:3681 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3712:3712 Coq.Lists.List ListNotations ::list_scope:'['_x_';'_x_';'_'..'_';'_x_']' not
+R3640:3640 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3647:3648 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3655:3655 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3641:3646 CRIS.map.MapM MapM v_size def
+R3652:3654 CRIS.lib.Any <> :::x_'↑' not
+R3682:3682 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3688:3690 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3711:3711 Coq.Init.Datatypes <> ::core_scope:'('_x_','_x_','_'..'_','_x_')' not
+R3683:3687 CRIS.map.MapM MapM v_map def
+R3691:3691 CRIS.lib.Any <> :::x_'↑' not
+R3707:3710 CRIS.lib.Any <> :::x_'↑' not
+R3692:3695 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R3701:3703 Coq.Unicode.Utf8_core <> :::'λ'_x_'..'_x_','_x not
+R3700:3700 Coq.Numbers.BinNums <> Z ind
+def 3814:3822 MapM init_cond
+R3826:3830 CRIS.iris_system.iprop <> iProp abbrev
+R3832:3833 CRIS.map.MapM <> MapM.MapM.Σ var
+R3838:3840 iris.bi.interface <> ::bi_scope:'emp' not
+def 3859:3859 MapM t
+binder 3861:3863 <> Spc:54
+R3868:3879 CRIS.lib.Coqlib Seal sealing defax
+R3888:3899 CRIS.modules.SMod SMod to_hmod def
+R3901:3902 CRIS.map.MapM <> MapM.MapM.Σ var
+R3904:3906 iris.bi.interface <> ::bi_scope:'emp' not
+R3908:3910 CRIS.map.MapM <> Spc:54 var
+R3912:3914 CRIS.map.MapM MapM Mod def
+R3881:3884 CRIS.simulations.isim.ITacticsCommon <> CRIS def
+R3922:3925 CRIS.map.MapM MapM.MapM <> sec
+R3932:3935 CRIS.map.MapM MapM <> mod
