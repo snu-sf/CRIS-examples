@@ -1,7 +1,0 @@
-DIGEST 8ef4d34d8bb2550923c8fa4e920d29b4
-FCRIS.incr.IncrMainHeader
-R15:18 CRIS.common.CRIS <> <> lib
-mod 29:36 <> MainName
-def 52:55 MainName main
-def 86:86 MainName f
-R100:107 CRIS.incr.IncrMainHeader MainName <> mod

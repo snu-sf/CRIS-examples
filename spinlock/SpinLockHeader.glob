@@ -1,8 +1,0 @@
-DIGEST 224c4db617db1b2bbce7d697a77dec33
-FCRIS.spinlock.SpinLockHeader
-R15:20 CRIS.common.Common <> <> lib
-mod 31:42 <> SpinLockName
-def 58:64 SpinLockName newlock
-def 93:99 SpinLockName acquire
-def 128:134 SpinLockName release
-R154:165 CRIS.spinlock.SpinLockHeader SpinLockName <> mod

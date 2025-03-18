@@ -1,7 +1,0 @@
-DIGEST 1a529a16d639c9cfe1d6fa77b9d67159
-FCRIS.mutsum.MutMainHeader
-R15:18 CRIS.common.CRIS <> <> lib
-R36:45 CRIS.imp.ImpPrelude <> <> lib
-mod 56:66 <> MutMainName
-def 82:85 MutMainName main
-R107:117 CRIS.mutsum.MutMainHeader MutMainName <> mod
