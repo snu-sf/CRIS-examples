@@ -24,9 +24,7 @@ Module IncrMainI. Section IncrMainI.
     λ arg,
       𝒴;;; '(blk, ofs) : mblock * ptrofs <- (pargs [Tptr] arg)?;;
       (* atomic update *)
-      𝒴;;; 'v_raw : val <- ccallU MemName.load [Vptr blk ofs];;
-            'v : Z <- (pargs [Tint] [v_raw])?;;
-            '_ : val <- ccallU MemName.store [Vptr blk ofs; Vint (v + 1)%Z];;
+      𝒴;;; '_ : val <- faa [Vptr blk ofs];;
       𝒴;;; Ret tt.
 
   Definition fnsems :=

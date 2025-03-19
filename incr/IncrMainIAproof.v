@@ -1,17 +1,15 @@
 Require Import CRIS.
-
 Require Import IncrMainI IncrMainA SchA MemA SchTactics.
 From iris Require Import frac_auth numbers.
 
 Module IncrIA. Section IncrIA.
   Import IncrMainAS.
-  Local Existing Instance IncrMainA.RA_inG.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
   Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !IncrMainAGΓ Γ}.
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
-  Context (u_s: univ_id).
+  Context (u_s : univ_id).
   Context (spc_s spc_user_s spc_mem : string → option fspec).
   Context (SchInSpc : spc_incl (SchAS.spc u_s spc_user_s) spc_s).
   Context (MemInSpc : spc_incl MemA.spc spc_s).
@@ -60,6 +58,7 @@ Module IncrIA. Section IncrIA.
     iInv "INV" as "I" "IA". SL_red.
     iDestruct "I" as (x) "PT". SL_red. iDestruct "PT" as "[PT CA]".
 
+    rewrite /faa.
     inline_r. steps_r.
     force_r (q7, q8, Vint x, 1%Qp).
     steps_r. force_r ([Vptr q7 q8]↑).
