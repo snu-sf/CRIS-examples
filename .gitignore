@@ -51,3 +51,5 @@ main.d.byte
 
 builddep
 _opam
+
+.diff
