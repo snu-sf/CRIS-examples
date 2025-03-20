@@ -17,7 +17,7 @@ Module IncrMainAS. Section IncrMainAS.
   Definition main_spec u : fspec :=
     w_fspec_sch u (fspec_simple (λ _ : unit, (λ arg, ⌜arg = tt↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
 
-  Definition N_main : namespace := (nroot .@ MainName.main).
+  Definition N_main : namespace := (nroot .@ MainHdr.main).
 
   Definition counter γ q (v : Z) : iProp Σ := own γ (◯F{q} v).
   Definition counter_syn {n} γ q (v : Z) : SRFSyn.t n := <own> γ (◯F{q} v).
@@ -52,8 +52,8 @@ Module IncrMainAS. Section IncrMainAS.
       ))%I.
 
   Definition spc u : alist string fspec :=
-    [(MainName.main, main_spec u);
-     (MainName.f,    f_spec u)].
+    [(MainHdr.main, main_spec u);
+     (MainHdr.f,    f_spec u)].
 End IncrMainAS. End IncrMainAS.
 
 Module IncrMainA. Section IncrMainA.
@@ -64,7 +64,7 @@ Module IncrMainA. Section IncrMainA.
 
   Definition main : unit → itree hmodE unit :=
     λ _,
-      𝒴;;; 'ptr_raw : val <- ccallU MemName.alloc [Vint 1%Z];;
+      𝒴;;; 'ptr_raw : val <- ccallU MemHdr.alloc [Vint 1%Z];;
       𝒴;;; tid1 <- Sch.spawn ("f", [ptr_raw]↑↑);;
       𝒴;;; tid2 <- Sch.spawn ("f", [ptr_raw]↑↑);;
       𝒴;;; Sch.join tid1;;;
@@ -76,8 +76,8 @@ Module IncrMainA. Section IncrMainA.
     λ _, 𝒴;;; Ret tt.
 
   Definition fnsems u :=
-    [(MainName.main, (scopes, mk_specbody (IncrMainAS.main_spec u) (cfunN main)));
-     (MainName.f,    (scopes, mk_specbody (IncrMainAS.f_spec u) (cfunN (sfunN f))))].
+    [(MainHdr.main, (scopes, mk_specbody (IncrMainAS.main_spec u) (cfunN main)));
+     (MainHdr.f,    (scopes, mk_specbody (IncrMainAS.f_spec u) (cfunN (sfunN f))))].
 
   Program Definition Mod u : SMod.t := {|
     SMod.scopes := scopes;

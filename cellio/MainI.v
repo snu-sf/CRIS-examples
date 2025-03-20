@@ -6,18 +6,18 @@ Set Implicit Arguments.
 Module MainI. Section MainI.
   Context `{Σ: GRA}.
 
-  Definition scopes := [MainName.mn].
+  Definition scopes := [MainHdr.mn].
 
   Definition main: Any.t -> itree pmodE Any.t :=
     λ _,
-      ccallU (Y:=unit) CellioName.set tt;;;
-      ccallU (Y:=unit) LibName.foo tt;;;
-      x <- ccallU (Y:=Z) CellioName.get tt;;
+      ccallU (Y:=unit) CellioHdr.set tt;;;
+      ccallU (Y:=unit) LibHdr.foo tt;;;
+      x <- ccallU (Y:=Z) CellioHdr.get tt;;
       trigger (@IO _ unit "Print" x);;;
       Ret tt↑.
   
   Definition fnsems :=
-    [(MainName.main, (scopes, main))].
+    [(MainHdr.main, (scopes, main))].
 
   Program Definition Mod: PMod.t := {|
     PMod.scopes := scopes;

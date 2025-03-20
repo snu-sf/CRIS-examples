@@ -50,7 +50,7 @@ Section KnotMainAS.
 
   Definition MainFunSpc : alist string fspec := 
     Seal.sealing CRIS
-      [(KnotMainName.fib, fib_spec)].
+      [(KnotMainHdr.fib, fib_spec)].
 
   Definition main_body: Any.t → itree hmodE Any.t :=
     λ _, pure;;; trigger (Choose _).
@@ -70,8 +70,8 @@ Section KnotMainA.
   Definition scopes := ["KnotMain"].
 
   Definition fnsems genv SpcRec :=
-    [(KnotMainName.fib, (scopes, mk_specbody (fib_spec genv SpcRec) pure_body));
-     (KnotMainName.main, (scopes, mk_specbody main_spec main_body))].
+    [(KnotMainHdr.fib, (scopes, mk_specbody (fib_spec genv SpcRec) pure_body));
+     (KnotMainHdr.main, (scopes, mk_specbody main_spec main_body))].
 
   Program Definition Mod genv SpcRec : SMod.t :=
   {|

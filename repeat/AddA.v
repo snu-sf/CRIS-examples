@@ -34,7 +34,7 @@ Module AddAS. Section AddAS.
 
   Definition Spc : alist string fspec :=
     Seal.sealing CRIS
-      [(AddName.succ, succ_spec); (AddName.add, add_spec)]. 
+      [(AddHdr.succ, succ_spec); (AddHdr.add, add_spec)]. 
   
   Lemma Spc_nodup: List.NoDup (List.map fst Spc).
   Proof. unfold Spc. unseal CRIS. prove_nodup. Qed.
@@ -46,11 +46,11 @@ Module AddA. Section AddA.
 
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
-  Definition scopes := [AddName.mn].
+  Definition scopes := [AddHdr.mn].
 
   Definition fnsems :=
-    [(AddName.succ, (scopes, mk_specbody AddAS.succ_spec pure_body));
-     (AddName.add, (scopes, mk_specbody AddAS.add_spec pure_body))].
+    [(AddHdr.succ, (scopes, mk_specbody AddAS.succ_spec pure_body));
+     (AddHdr.add, (scopes, mk_specbody AddAS.add_spec pure_body))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

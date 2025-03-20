@@ -8,7 +8,7 @@ Set Implicit Arguments.
 Module AddI. Section AddI.
   Context `{Σ : GRA}.
 
-  Definition scopes := [AddName.mn].
+  Definition scopes := [AddHdr.mn].
 
   Definition succ : list val → itree pmodE val :=
     λ varg,
@@ -18,12 +18,12 @@ Module AddI. Section AddI.
   Definition add (cenv: CEnv.t): list val → itree pmodE val :=
     λ varg,
       '(n, m): _ <- ((pargs [Tint; Tint] varg)?);;
-      fb <- ((cenv.(CEnv.id2blk) AddName.succ)?);;
-      ccallU RepeatName.repeat [Vptr fb 0; Vint n; Vint m].
+      fb <- ((cenv.(CEnv.id2blk) AddHdr.succ)?);;
+      ccallU RepeatHdr.repeat [Vptr fb 0; Vint n; Vint m].
 
   Definition fnsems (genv: GEnv.t) :=
-    [(AddName.succ, (scopes, cfunU succ));
-     (AddName.add, (scopes, cfunU (add (CEnv.load_genv genv))))].
+    [(AddHdr.succ, (scopes, cfunU succ));
+     (AddHdr.add, (scopes, cfunU (add (CEnv.load_genv genv))))].
 
   Program Definition Mod (genv: GEnv.t) : PMod.t := {|
     PMod.scopes := scopes;

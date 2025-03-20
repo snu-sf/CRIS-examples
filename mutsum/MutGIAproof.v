@@ -28,7 +28,7 @@ Module MutGIA. Section MutGIA.
   (*************)
 
   Lemma simF_mutg:
-    HSim.sim_fun open MutGAMod MutGIMod IstFull MutName.mutg.
+    HSim.sim_fun open MutGAMod MutGIMod IstFull MutHdr.mutg.
   Proof.
     init_simF u_s 0.
     

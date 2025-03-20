@@ -22,8 +22,8 @@ Module AddIA. Section AddIA.
   (* SPC Hypothesis *)
   Context (APCInSpcPure : spc_incl APCA.Spc spc_pure).
   Context (SpcPureInSpc : spc_sub spc_pure spc).
-  Context (repeatInSpcPure : spc_pure RepeatName.repeat = Some (RepeatAS.repeat_spec spc_pure_fun genv)).
-  Context (succInSpcPureFun : spc_pure_fun AddName.succ = Some AddAS.succ_spec).
+  Context (repeatInSpcPure : spc_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec spc_pure_fun genv)).
+  Context (succInSpcPureFun : spc_pure_fun AddHdr.succ = Some AddAS.succ_spec).
 
   (* Modules *)
   Local Definition APCA := (APCA.t u_apc spc_pure spc).
@@ -55,7 +55,7 @@ Module AddIA. Section AddIA.
     apply (_add_succ_repeat_fun (Z.to_nat n) m).
   Qed.
 
-  Lemma simF_succ : HSim.sim_fun open AddAMod AddIMod IstFull AddName.succ.
+  Lemma simF_succ : HSim.sim_fun open AddAMod AddIMod IstFull AddHdr.succ.
   Proof.
     (* Simulation Start *)
     init_simF u 0.
@@ -80,15 +80,15 @@ Module AddIA. Section AddIA.
     Unshelve. et. exact (0↑).
   (*FAST*)Qed.
 
-  Lemma simF_add : HSim.sim_fun open AddAMod AddIMod IstFull AddName.add.
+  Lemma simF_add : HSim.sim_fun open AddAMod AddIMod IstFull AddHdr.add.
   Proof.
     (* succ is in somewhere at CEnv *)
     pose proof (@CEnv.incl_incl_env AddGEnv.t genv) as INCLENV.
     eapply INCLENV in GEnvIncl; et.
-    pose proof (@GEnvIncl AddName.succ Gfun↑) as SS.
+    pose proof (@GEnvIncl AddHdr.succ Gfun↑) as SS.
     hexploit SS; [left; ss|intros]. des. clear SS INCLENV.
     apply CEnv.load_genv_wf in GEnvWF.
-    pose proof (GEnvWF AddName.succ blk) as GEnvWF. apply GEnvWF in FIND as FIND'.
+    pose proof (GEnvWF AddHdr.succ blk) as GEnvWF. apply GEnvWF in FIND as FIND'.
 
     (* Simulation Start *)
     init_simF u 0.
@@ -111,7 +111,7 @@ Module AddIA. Section AddIA.
     { instantiate (1 := 0). apply OrdArith.lt_from_nat; lia. }
     { eapply Ord.lt_le_lt; et. apply OrdArith.lt_add_r. instantiate (1:= (Z.to_nat n)). apply OrdArith.lt_from_nat. lia. }
     { unfold precond. ss. iFrame. instantiate (1 := (Z.to_nat n, m, succ_fun)). iPureIntro. split.
-      - exists AddName.succ, blk. rewrite Z2Nat.id; et. hrepeat split; et. unfold_intrange_64; des_ifs_safe; hrepeat destruct Z_le_gt_dec; ss; try lia.
+      - exists AddHdr.succ, blk. rewrite Z2Nat.id; et. hrepeat split; et. unfold_intrange_64; des_ifs_safe; hrepeat destruct Z_le_gt_dec; ss; try lia.
         (* succ has sufficient spec *)
         econs; et. unfold succ_spec, fspec_weaker.
         ii. exists x_src. split; r; ii; iIntros; iModIntro; hss.
@@ -150,8 +150,8 @@ Section ctxr.
         (GEnvIncl : incl AddGEnv.t ge)
         (APCInSpcPure : spc_incl APCA.Spc spc_pure)
         (SpcPureInSpc : spc_sub spc_pure spc)
-        (repeatInSpcPure: spc_pure RepeatName.repeat = Some (RepeatAS.repeat_spec spc_pure_fun ge))
-        (succInSpcPureFun : spc_pure_fun AddName.succ = Some AddAS.succ_spec) :
+        (repeatInSpcPure: spc_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec spc_pure_fun ge))
+        (succInSpcPureFun : spc_pure_fun AddHdr.succ = Some AddAS.succ_spec) :
     ctx_refines
       ((AddA.t u spc) ★ (RepeatA.t ge u spc spc_pure_fun) ★ (APCA.t u_apc spc_pure spc), emp%I)
       ((AddI.t ge)    ★ (RepeatA.t ge u spc spc_pure_fun) ★ (APCA.t u_apc spc_pure spc), emp%I).

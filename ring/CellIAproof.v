@@ -32,7 +32,7 @@ Module CellIA. Section CellIA.
 
   (*************)
 
-  Lemma simF_get : HSim.sim_fun open CellA CellI Ist (CellName.get idx).
+  Lemma simF_get : HSim.sim_fun open CellA CellI Ist (CellHdr.get idx).
   Proof.
     init_simF u_s 0.
 
@@ -57,7 +57,7 @@ Module CellIA. Section CellIA.
   (*FAST*)Qed.
 
   Lemma simF_set:
-    HSim.sim_fun open CellA CellI Ist (CellName.set idx).
+    HSim.sim_fun open CellA CellI Ist (CellHdr.set idx).
   Proof.
     init_simF u_s 0.
 

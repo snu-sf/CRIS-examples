@@ -72,8 +72,8 @@ Module SpinLockMainAS. Section SpinLockMainAS.
   Qed.
 
   Definition spc u : alist string fspec :=
-    [(SpinLockMainName.main, main_spec u);
-     (SpinLockMainName.incr, incr_spec u)].
+    [(SpinLockMainHdr.main, main_spec u);
+     (SpinLockMainHdr.incr, incr_spec u)].
 End SpinLockMainAS. End SpinLockMainAS.
 
 (* Module definition *)
@@ -109,8 +109,8 @@ Module SpinLockMainA. Section SpinLockMainA.
       Ret Vundef.
 
   Definition fnsems u :=
-    [(SpinLockMainName.main, (scopes, mk_specbody (SpinLockMainAS.main_spec u) (cfunN main)));
-     (SpinLockMainName.incr, (scopes, mk_specbody (SpinLockMainAS.incr_spec u) (cfunN (sfunN incr))))].
+    [(SpinLockMainHdr.main, (scopes, mk_specbody (SpinLockMainAS.main_spec u) (cfunN main)));
+     (SpinLockMainHdr.incr, (scopes, mk_specbody (SpinLockMainAS.incr_spec u) (cfunN (sfunN incr))))].
 
   Program Definition Mod u : SMod.t := {|
     SMod.scopes := [];

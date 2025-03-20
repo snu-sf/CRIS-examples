@@ -30,7 +30,7 @@ Module MapMA. Section MapMA.
   Local Definition MapA := (MapA.t u_a spc_s).
   Local Definition MapM := (MapM.t u_m spc_t).
 
-  Lemma simF_init : HSim.sim_fun open MapA MapM Ist MapName.init.
+  Lemma simF_init : HSim.sim_fun open MapA MapM Ist MapHdr.init.
   Proof.
     init_simF u_a u_m.
 
@@ -59,7 +59,7 @@ Module MapMA. Section MapMA.
     iExists _, _. iSplitR; eauto. iRight. iFrame.
   (*FAST*)Qed.
 
-  Lemma simF_get : HSim.sim_fun open MapA MapM Ist MapName.get.
+  Lemma simF_get : HSim.sim_fun open MapA MapM Ist MapHdr.get.
   Proof.
     init_simF u_a u_m.
 
@@ -94,7 +94,7 @@ Module MapMA. Section MapMA.
     iExists _, _. iSplit; eauto. iRight. iFrame.
   (*FAST*)Qed.
 
-  Lemma simF_set : HSim.sim_fun open MapA MapM Ist MapName.set.
+  Lemma simF_set : HSim.sim_fun open MapA MapM Ist MapHdr.set.
   Proof.
     init_simF u_a u_m.
 
@@ -126,7 +126,7 @@ Module MapMA. Section MapMA.
     iExists _, _. iSplit; eauto. iRight. iFrame.
   (*FAST*)Qed.
 
-  Lemma simF_set_by_user : HSim.sim_fun open MapA MapM Ist MapName.set_by_user.
+  Lemma simF_set_by_user : HSim.sim_fun open MapA MapM Ist MapHdr.set_by_user.
   Proof.
     init_simF u_a u_m.
 

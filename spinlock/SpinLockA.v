@@ -71,9 +71,9 @@ Module SpinLockAS. Section SpinLockAS.
       ))%I.
 
   Definition spc u : alist string fspec :=
-    [(SpinLockName.newlock, newlock_spec u);
-     (SpinLockName.acquire, acquire_spec u);
-     (SpinLockName.release, release_spec u)].
+    [(SpinLockHdr.newlock, newlock_spec u);
+     (SpinLockHdr.acquire, acquire_spec u);
+     (SpinLockHdr.release, release_spec u)].
 End SpinLockAS. End SpinLockAS.
 
 (* Module definition *)
@@ -99,9 +99,9 @@ Module SpinLockA. Section SpinLockA.
   Definition release : list val → itree hmodE val := λ _, 𝒴;;; Ret Vundef.
 
   Definition fnsems u :=
-    [(SpinLockName.newlock, (scopes, mk_specbody (SpinLockAS.newlock_spec u) (cfunU newlock)));
-     (SpinLockName.acquire, (scopes, mk_specbody (SpinLockAS.acquire_spec u) (cfunU acquire)));
-     (SpinLockName.release, (scopes, mk_specbody (SpinLockAS.release_spec u) (cfunU release)))].
+    [(SpinLockHdr.newlock, (scopes, mk_specbody (SpinLockAS.newlock_spec u) (cfunU newlock)));
+     (SpinLockHdr.acquire, (scopes, mk_specbody (SpinLockAS.acquire_spec u) (cfunU acquire)));
+     (SpinLockHdr.release, (scopes, mk_specbody (SpinLockAS.release_spec u) (cfunU release)))].
 
   Program Definition Mod u : SMod.t := {|
     SMod.scopes := [];

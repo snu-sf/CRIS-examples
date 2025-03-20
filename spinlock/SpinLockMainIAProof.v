@@ -26,7 +26,7 @@ Module SpinLockMainIA. Section SpinLockMainIA.
   Local Definition MA := (SpinLockMainA ★ (MemA ★ SpinLockA)).
   Local Definition MI := (SpinLockMainI ★ (MemA ★ SpinLockA)).
 
-  Lemma incr_simF : HSim.sim_fun open MA MI IstFull SpinLockMainName.incr.
+  Lemma incr_simF : HSim.sim_fun open MA MI IstFull SpinLockMainHdr.incr.
   Proof.
     init_simF u_a 0.
     (* process src precondition *)
@@ -108,7 +108,7 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     | NODS : List.NoDup (map fst ?st_s), NODD : List.NoDup (map fst ?st_t) |- ?a
       => clear nths NODS st_s NODD st_t; iIntros (nths st_s st_t NODS NODD) end.
 
-  Lemma main_simF : HSim.sim_fun open MA MI IstFull SpinLockMainName.main.
+  Lemma main_simF : HSim.sim_fun open MA MI IstFull SpinLockMainHdr.main.
   Proof.
     init_simF u_a 0.
     (* process src precondition *)
@@ -192,7 +192,12 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     iSplitL "IST"; ss; clear nths st_s st_t NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST".
     steps_r. destruct q; cycle 1.
     { (* fail case *)
-      steps_r. sch_yield_l. force_l false. steps_l. by_coind "CIH".
+      steps_r. sch_yield_l. force_l false. steps_l.
+  iApply wsim_progress. iApply wsim_base_t.
+  iSpecialize ("CIH" $! _).
+  (hrepeat do 1 unshelve first[instantiate (1:= (_,_))|instantiate (1:= existT _ _)]); [..|s; grind; iIntrosFresh "I"; iApply "CIH"]; try eassumption.
+
+
       hss. iFrame. eauto.
     }
     (* success case *)
@@ -223,6 +228,7 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     sch_yield_l. steps_l. forces_l. iSplit; eauto. steps_l.
     (* terminate both *)
     step. iSplit; eauto.
+  Unshelve. all:eauto.
   (*FAST*)Qed.
 
   Lemma sim : HSim.t open MA MI emp%I IstFull.

@@ -1,7 +1,7 @@
 Require Import CRIS.
 
 (* Function names as string *)
-Module CellName.
+Module CellHdr.
   Definition mn (idx : nat) := "Cell" +:+ HexString.of_nat idx.
 
   Definition fn (idx : nat) (method : string) :=
@@ -9,4 +9,4 @@ Module CellName.
 
   Definition get idx := fn idx "get".
   Definition set idx := fn idx "set".
-End CellName.
+End CellHdr.

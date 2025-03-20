@@ -36,7 +36,7 @@ Module IncrIA. Section IncrIA.
       iExists _; iSplitR; eauto. SL_red. iSplitR; eauto.
   Qed.
 
-  Lemma f_simF : HSim.sim_fun open MA MI IstFull MainName.f.
+  Lemma f_simF : HSim.sim_fun open MA MI IstFull MainHdr.f.
   Proof.
     init_simF u_s 0.
 
@@ -58,7 +58,7 @@ Module IncrIA. Section IncrIA.
     iInv "INV" as "I" "IA". SL_red.
     iDestruct "I" as (x) "PT". SL_red. iDestruct "PT" as "[PT CA]".
 
-    rewrite /faa.
+    rewrite /MemHdr.faa.
     inline_r. steps_r.
     force_r (q7, q8, Vint x, 1%Qp).
     steps_r. force_r ([Vptr q7 q8]↑).
@@ -87,7 +87,7 @@ Module IncrIA. Section IncrIA.
     step; eauto.
   (*FAST*)Qed.
 
-  Lemma main_simF : HSim.sim_fun open MA MI IstFull MainName.main.
+  Lemma main_simF : HSim.sim_fun open MA MI IstFull MainHdr.main.
   Proof.
     init_simF u_s 0.
 

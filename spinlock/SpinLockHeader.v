@@ -1,7 +1,7 @@
 Require Import Common.
 
-Module SpinLockName.
+Module SpinLockHdr.
   Definition newlock := "newlock".
   Definition acquire := "acquire".
   Definition release := "release".
-End SpinLockName.
+End SpinLockHdr.

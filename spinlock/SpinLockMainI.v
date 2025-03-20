@@ -12,17 +12,17 @@ Module SpinLockMainI. Section SpinLockMainI.
 
   Definition main : unit → itree pmodE unit :=
     λ _,
-      𝒴;;; 'v : val <- ccallU MemName.alloc [Vint 1];;
-      𝒴;;; '_ : val <- ccallU MemName.store [v; Vint 0];;
-      𝒴;;; 'l : val <- ccallU SpinLockName.newlock ([] : list val);;
+      𝒴;;; 'v : val <- ccallU MemHdr.alloc [Vint 1];;
+      𝒴;;; '_ : val <- ccallU MemHdr.store [v; Vint 0];;
+      𝒴;;; 'l : val <- ccallU SpinLockHdr.newlock ([] : list val);;
       𝒴;;; 't1 : nat <- Sch.spawn ("incr", [l; v]↑↑);;
       𝒴;;; 't2 : nat <- Sch.spawn ("incr", [l; v]↑↑);;
       𝒴;;; '_ : SAny.t <- Sch.join t1;;
       𝒴;;; '_ : SAny.t <- Sch.join t2;;
-      𝒴;;; '_ : val <- ccallU SpinLockName.acquire [l];;
-      𝒴;;; 'x : val <- ccallU MemName.load [v];;
+      𝒴;;; '_ : val <- ccallU SpinLockHdr.acquire [l];;
+      𝒴;;; 'x : val <- ccallU MemHdr.load [v];;
       𝒴;;; 'x : Z <- (pargs [Tint] [x])?;;
-      𝒴;;; '_ : val <- ccallU SpinLockName.release [l];;
+      𝒴;;; '_ : val <- ccallU SpinLockHdr.release [l];;
       𝒴;;; '_ : unit <- trigger (IO "printf" x);;
       𝒴;;; Ret tt.
 
@@ -31,16 +31,16 @@ Module SpinLockMainI. Section SpinLockMainI.
       𝒴;;; '(lb, lo, (vb, vo)) : (mblock * ptrofs * (mblock * ptrofs)) <- (pargs [Tptr; Tptr] arg)?;;
       let l := Vptr lb lo in
       let v := Vptr vb vo in
-      𝒴;;; '_ : val <- ccallU SpinLockName.acquire [l];;
-      𝒴;;; 'x : val <- ccallU MemName.load [v];;
+      𝒴;;; '_ : val <- ccallU SpinLockHdr.acquire [l];;
+      𝒴;;; 'x : val <- ccallU MemHdr.load [v];;
       𝒴;;; 'x : Z <- (pargs [Tint] [x])?;;
-      𝒴;;; '_ : val <- ccallU MemName.store [v; Vint (x + 1)];;
-      𝒴;;; '_ : val <- ccallU SpinLockName.release [l];;
+      𝒴;;; '_ : val <- ccallU MemHdr.store [v; Vint (x + 1)];;
+      𝒴;;; '_ : val <- ccallU SpinLockHdr.release [l];;
       𝒴;;; Ret Vundef.
 
   Definition fnsems :=
-    [(SpinLockMainName.main, (scopes, cfunU main));
-     (SpinLockMainName.incr, (scopes, cfunU (sfunU incr)))].
+    [(SpinLockMainHdr.main, (scopes, cfunU main));
+     (SpinLockMainHdr.incr, (scopes, cfunU (sfunU incr)))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

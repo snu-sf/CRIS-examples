@@ -95,8 +95,8 @@ Module CellAS. Section CellAS.
       (fun ret => ⌜ret = tt↑⌝ ∗ cell v)))%I.
 
   Definition Spc : alist string fspec :=
-    Seal.sealing CRIS [(CellName.get idx, get_spec);
-                       (CellName.set idx, set_spec)].
+    Seal.sealing CRIS [(CellHdr.get idx, get_spec);
+                       (CellHdr.set idx, set_spec)].
 
   Lemma Spc_nodup : List.NoDup (List.map fst Spc).
   Proof.
@@ -115,11 +115,11 @@ Module CellA. Section CellA.
   Variable idx : nat.
 
   (* Scopes *)
-  Definition scopes := [CellName.mn idx].
+  Definition scopes := [CellHdr.mn idx].
 
   Definition fnsems : alist string (list string * fspecbody) :=
-    [(CellName.get idx, ([], mk_specbody (CellAS.get_spec idx) fbody_trivial));
-     (CellName.set idx, ([], mk_specbody (CellAS.set_spec idx) fbody_trivial))].
+    [(CellHdr.get idx, ([], mk_specbody (CellAS.get_spec idx) fbody_trivial));
+     (CellHdr.set idx, ([], mk_specbody (CellAS.set_spec idx) fbody_trivial))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

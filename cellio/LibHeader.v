@@ -1,6 +1,6 @@
 Require Import CRIS.
 
-Module LibName.
+Module LibHdr.
 
   Definition mn := "Lib".
     
@@ -10,4 +10,4 @@ Module LibName.
   Definition foo := fn "foo".
   Definition input := fn "input".
 
-End LibName.
+End LibHdr.

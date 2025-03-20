@@ -39,9 +39,9 @@ Module CellioAll. Section CellioAll.
 
   Hypothesis ModulesWF : HMod.wf mod_tgt.
   Hypothesis inputInLib : ∃ scp input (SCP: incl scp LibA.(SMod.scopes)),
-    alist_find LibName.input (SMod.fnsems LibA) = Some (scp, trivial_specbody input).
+    alist_find LibHdr.input (SMod.fnsems LibA) = Some (scp, trivial_specbody input).
   Hypothesis fooInLib : ∃ scp foo (SCP: incl scp LibA.(SMod.scopes)),
-    alist_find LibName.foo (SMod.fnsems LibA) = Some (scp, trivial_specbody foo).
+    alist_find LibHdr.foo (SMod.fnsems LibA) = Some (scp, trivial_specbody foo).
 
   Lemma lib_spc_incl: spc_incl LibAS.spc spc.
   Proof.

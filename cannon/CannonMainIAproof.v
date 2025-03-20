@@ -21,7 +21,7 @@ Module CannonMainIA. Section CannonMainIA.
   Local Definition MainAMod := (MainA.t 1 SpcMain).
   Local Definition MainIMod := (MainI.t 1).
   
-  Lemma simF_main : HSim.sim_fun open MainAMod MainIMod Ist MainName.main.
+  Lemma simF_main : HSim.sim_fun open MainAMod MainIMod Ist MainHdr.main.
   Proof.
     init_simF 0 0.
 

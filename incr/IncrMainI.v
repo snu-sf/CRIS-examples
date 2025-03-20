@@ -8,14 +8,14 @@ Module IncrMainI. Section IncrMainI.
 
   Definition main : unit → itree pmodE unit :=
     λ _,
-      𝒴;;; 'ptr_raw : val <- ccallU MemName.alloc [Vint 1%Z];;
+      𝒴;;; 'ptr_raw : val <- ccallU MemHdr.alloc [Vint 1%Z];;
       𝒴;;; '(blk, ofs) : mblock * ptrofs <- (pargs [Tptr] [ptr_raw])?;;
-      𝒴;;; '_ : val <- ccallU MemName.store [Vptr blk ofs; Vint 0%Z];;
+      𝒴;;; '_ : val <- ccallU MemHdr.store [Vptr blk ofs; Vint 0%Z];;
       𝒴;;; tid1 <- Sch.spawn ("f", [Vptr blk ofs]↑↑);;
       𝒴;;; tid2 <- Sch.spawn ("f", [Vptr blk ofs]↑↑);;
       𝒴;;; Sch.join tid1;;;
       𝒴;;; Sch.join tid2;;;
-      𝒴;;; 'v_raw : val <- ccallU MemName.load [Vptr blk ofs];;
+      𝒴;;; 'v_raw : val <- ccallU MemHdr.load [Vptr blk ofs];;
       𝒴;;; 'v : Z <- (pargs [Tint] [v_raw])?;;
       𝒴;;; '_ : unit <- trigger (IO "OUT" v);;
       𝒴;;; Ret tt.
@@ -24,12 +24,12 @@ Module IncrMainI. Section IncrMainI.
     λ arg,
       𝒴;;; '(blk, ofs) : mblock * ptrofs <- (pargs [Tptr] arg)?;;
       (* atomic update *)
-      𝒴;;; '_ : val <- faa [Vptr blk ofs];;
+      𝒴;;; '_ : val <- MemHdr.faa [Vptr blk ofs];;
       𝒴;;; Ret tt.
 
   Definition fnsems :=
-    [(MainName.main, (scopes, cfunU main));
-     (MainName.f,    (scopes, cfunU (sfunU f)))].
+    [(MainHdr.main, (scopes, cfunU main));
+     (MainHdr.f,    (scopes, cfunU (sfunU f)))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

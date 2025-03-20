@@ -1,6 +1,6 @@
 Require Import CRIS.
 
-Module MainName.
+Module MainHdr.
   Definition main := "CRIS_init".
   Definition f := "f".
-End MainName.
+End MainHdr.

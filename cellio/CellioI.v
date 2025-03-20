@@ -7,12 +7,12 @@ Set Implicit Arguments.
 Module CellioI. Section CellioI.
   Context `{Σ: GRA}.
 
-  Definition scopes := [CellioName.mn].
-  Definition v_cv := (CellioName.mn) ↯ "cv".
+  Definition scopes := [CellioHdr.mn].
+  Definition v_cv := (CellioHdr.mn) ↯ "cv".
 
   Definition set: Any.t -> itree pmodE Any.t :=
     λ _,
-      'i: Z <- ccallU LibName.input tt;;
+      'i: Z <- ccallU LibHdr.input tt;;
       cput v_cv i;;;
       Ret tt↑.
 
@@ -22,8 +22,8 @@ Module CellioI. Section CellioI.
       Ret (i:Z)↑.
 
   Definition fnsems :=
-    [(CellioName.set, (scopes, set));
-     (CellioName.get, (scopes, get))].
+    [(CellioHdr.set, (scopes, set));
+     (CellioHdr.get, (scopes, get))].
 
   Program Definition Mod: PMod.t := {|
     PMod.scopes := scopes;

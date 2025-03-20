@@ -18,7 +18,7 @@ Module MainIA. Section MainIA.
   Local Definition IstFull := (IstProd (IstSB MainA.(HMod.scopes) Ist) IstEq).
 
   Lemma simF_main:
-    HSim.sim_fun open MainA (MainI.t ★ CellioA) IstFull MainName.main.
+    HSim.sim_fun open MainA (MainI.t ★ CellioA) IstFull MainHdr.main.
   Proof. 
     init_simF 0 0.
     

@@ -1,13 +1,13 @@
 Require Import CRIS.
 Require Export ImpPrelude Imp MemA.
 
-Module KnotMainName.
+Module KnotMainHdr.
 Definition fib := "KnotMain.fib".
 Definition main := "CRIS_init".
-End KnotMainName.
+End KnotMainHdr.
 
 Module KnotMainGEnv.
 Definition t : GEnv.t :=
-  [(KnotMainName.fib, Gfun↑);
-   (KnotMainName.main, Gfun↑)].
+  [(KnotMainHdr.fib, Gfun↑);
+   (KnotMainHdr.main, Gfun↑)].
 End KnotMainGEnv.

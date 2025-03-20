@@ -16,7 +16,7 @@ Module MainAS. Section MainAS.
     )%I.
 
   Definition Spc : alist string fspec :=
-    Seal.sealing CRIS [(MainName.main, main_spec)].
+    Seal.sealing CRIS [(MainHdr.main, main_spec)].
 End MainAS. End MainAS.
 
 Module MainA. Section MainA.
@@ -31,7 +31,7 @@ Module MainA. Section MainA.
     match n with
     | 0 => Ret tt
     | S n' =>
-      'r : Z <- ccallU CannonName.fire ([] : list val);;
+      'r : Z <- ccallU CannonHdr.fire ([] : list val);;
       _ <- trigger (@IO _ void "print" [r]↑);;
       main_repeat n'
     end.
@@ -40,7 +40,7 @@ Module MainA. Section MainA.
     λ _, main_repeat num_fire.
 
   Definition fnsems :=
-    [(MainName.main, (scopes, mk_specbody MainAS.main_spec (cfunU main)))].
+    [(MainHdr.main, (scopes, mk_specbody MainAS.main_spec (cfunU main)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

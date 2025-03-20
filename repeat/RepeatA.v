@@ -39,19 +39,19 @@ Module RepeatAS. Section RepeatAS.
           (λ ret, ⌜ret = (Vint (repeat_fun f_sem n x))↑⌝%I))).
 
   Definition Spc: alist string fspec :=
-    Seal.sealing CRIS [(RepeatName.repeat, repeat_spec genv)].
+    Seal.sealing CRIS [(RepeatHdr.repeat, repeat_spec genv)].
 
 End RepeatAS. End RepeatAS.
 
 (* Define Module *)
 Module RepeatA. Section RepeatA.
 
-  Definition scopes := [RepeatName.mn].
+  Definition scopes := [RepeatHdr.mn].
 
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
   Definition fnsems genv spc_pure :=
-    [(RepeatName.repeat, (scopes, mk_specbody (RepeatAS.repeat_spec spc_pure genv) pure_body))].
+    [(RepeatHdr.repeat, (scopes, mk_specbody (RepeatAS.repeat_spec spc_pure genv) pure_body))].
 
   Program Definition Mod genv spc_pure : SMod.t := {|
     SMod.scopes := scopes;

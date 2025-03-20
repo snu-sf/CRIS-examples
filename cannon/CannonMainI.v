@@ -17,7 +17,7 @@ Module MainI. Section MainI.
     match n with
     | 0 => Ret tt
     | S n' =>
-      'r : Z <- ccallU CannonName.fire ([] : list val);;
+      'r : Z <- ccallU CannonHdr.fire ([] : list val);;
       trigger (@IO _ void "print" [r]↑);;;
       main_repeat n'
     end.
@@ -26,7 +26,7 @@ Module MainI. Section MainI.
     λ _, main_repeat num_fire.
 
   Definition fnsems :=
-    [(MainName.main, (scopes, cfunU main))].
+    [(MainHdr.main, (scopes, cfunU main))].
   
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

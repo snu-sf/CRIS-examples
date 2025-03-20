@@ -13,8 +13,8 @@ Module CellI. Section CellI.
   Variable idx : nat.
 
   (* Scopes and a member variable `cv` *)
-  Definition scopes := [CellName.mn idx].
-  Definition v_cv := (CellName.mn idx) ↯ "cv".
+  Definition scopes := [CellHdr.mn idx].
+  Definition v_cv := (CellHdr.mn idx) ↯ "cv".
 
   (* Implementations of get and set *)
   Definition get : unit -> itree pmodE Z :=
@@ -28,8 +28,8 @@ Module CellI. Section CellI.
       Ret ().
 
   Definition fnsems :=
-    [(CellName.get idx, (scopes, cfunU get));
-     (CellName.set idx, (scopes, cfunU set))].
+    [(CellHdr.get idx, (scopes, cfunU get));
+     (CellHdr.set idx, (scopes, cfunU set))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

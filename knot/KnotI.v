@@ -13,25 +13,25 @@ Module KnotI. Section KnotI.
   Definition knotF genv : list val -> itree pmodE val :=
     fun varg =>
       fb <- (pargs [Tblk] varg)?;;
-      blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotName._f)?;;
-      '_: val <- ccallU MemName.store [Vptr blk 0; Vptr fb 0];;
-      rb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotName.rec)?;;
+      blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;
+      '_: val <- ccallU MemHdr.store [Vptr blk 0; Vptr fb 0];;
+      rb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr.rec)?;;
       Ret (Vptr rb 0)
   .
 
   Definition recF genv : list val -> itree pmodE val :=
     fun varg =>
       n <- (pargs [Tint] varg)?;;
-      blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotName._f)?;;
-      'fb: val <- ccallU MemName.load [Vptr blk 0];; fb <- (unblk fb)?;;
+      blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;
+      'fb: val <- ccallU MemHdr.load [Vptr blk 0];; fb <- (unblk fb)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
-      rb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotName.rec)?;;
+      rb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr.rec)?;;
       ccallU fn [Vptr rb 0; Vint n]
   .
 
   Definition fnsems genv :=
-    [(KnotName.rec, (scopes, cfunU (recF genv)));
-     (KnotName.knot, (scopes, cfunU (knotF genv)))].
+    [(KnotHdr.rec, (scopes, cfunU (recF genv)));
+     (KnotHdr.knot, (scopes, cfunU (knotF genv)))].
   
   Program Definition Mod genv : PMod.t :=
   {|

@@ -14,15 +14,15 @@ Module SpinLockI. Section SpinLockI.
 
   Definition newlock : list val → itree pmodE val :=
     λ _,
-      𝒴;;; 'loc : val <- ccallU MemName.alloc [Vint 1];;
-      𝒴;;; '_ : val <- ccallU MemName.store [loc; Vint 0];;
+      𝒴;;; 'loc : val <- ccallU MemHdr.alloc [Vint 1];;
+      𝒴;;; '_ : val <- ccallU MemHdr.store [loc; Vint 0];;
       𝒴;;; Ret loc.
 
   Definition acquire : list val → itree pmodE val :=
     λ x,
       (ITree.iter
         (λ _,
-          𝒴;;; 'b_raw : val <- ccallU MemName.cas (x ++ [Vint 0; Vint 1]);;
+          𝒴;;; 'b_raw : val <- ccallU MemHdr.cas (x ++ [Vint 0; Vint 1]);;
           𝒴;;; 'b : Z <- (pargs [Tint] [b_raw])?;;
           𝒴;;;
             if (decide (b = 0)) then Ret (inl tt)
@@ -33,13 +33,13 @@ Module SpinLockI. Section SpinLockI.
 
   Definition release : list val → itree pmodE val :=
     λ x,
-      𝒴;;; '_ : val <- ccallU MemName.store (x ++ [Vint 0]);;
+      𝒴;;; '_ : val <- ccallU MemHdr.store (x ++ [Vint 0]);;
       𝒴;;; Ret Vundef.
 
   Definition fnsems :=
-    [(SpinLockName.newlock, (scopes, cfunU newlock));
-     (SpinLockName.acquire, (scopes, cfunU acquire));
-     (SpinLockName.release, (scopes, cfunU release))].
+    [(SpinLockHdr.newlock, (scopes, cfunU newlock));
+     (SpinLockHdr.acquire, (scopes, cfunU acquire));
+     (SpinLockHdr.release, (scopes, cfunU release))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

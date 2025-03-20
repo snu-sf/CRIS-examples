@@ -7,18 +7,18 @@ Module MainA. Section MainA.
   Import CellioA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CellioAGΓ Γ}.
 
-  Definition scopes := [MainName.mn].
+  Definition scopes := [MainHdr.mn].
 
   Definition main: Any.t -> itree hmodE Any.t :=
     λ _,
       trigger (Assume (cell 0));;;
-      'i: Z <- ccallU LibName.input tt;;
-      '_: unit <- ccallU LibName.foo tt;;
+      'i: Z <- ccallU LibHdr.input tt;;
+      '_: unit <- ccallU LibHdr.foo tt;;
       '_: unit <- trigger (IO "Print" i);;
       Ret tt↑.
   
   Definition fnsems : alist string (list string * fspecbody) :=
-    [(MainName.main, (scopes, mk_specbody fspec_trivial main))].
+    [(MainHdr.main, (scopes, mk_specbody fspec_trivial main))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

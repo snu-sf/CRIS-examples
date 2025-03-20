@@ -23,14 +23,14 @@ Module KnotMainI. Section KnotMainI.
 
   Definition mainF genv : () -> itree pmodE val :=
     fun '() =>
-      fibb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotMainName.fib)?;;
-      'fb: val <- ccallU KnotName.knot [Vptr fibb 0];; 'fb: mblock <- (unblk fb)?;;
+      fibb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotMainHdr.fib)?;;
+      'fb: val <- ccallU KnotHdr.knot [Vptr fibb 0];; 'fb: mblock <- (unblk fb)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
       ccallU fn [Vint 10].
 
   Definition fnsems genv :=
-    [(KnotMainName.fib, (scopes, cfunU (fibF genv)));
-     (KnotMainName.main, (scopes, cfunU (mainF genv)))].
+    [(KnotMainHdr.fib, (scopes, cfunU (fibF genv)));
+     (KnotMainHdr.main, (scopes, cfunU (mainF genv)))].
   
   Program Definition Mod genv: PMod.t :=
   {|

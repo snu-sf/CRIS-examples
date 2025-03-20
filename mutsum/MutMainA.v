@@ -19,10 +19,10 @@ Module MutMainA. Section MutMainA.
          (λ vret, (⌜vret = (Vint 55)↑⌝)%I))).
 
   Definition Spc: alist string fspec :=
-    Seal.sealing CRIS [(MutMainName.main, main_spec)].
+    Seal.sealing CRIS [(MutMainHdr.main, main_spec)].
 
   Definition fnsems :=
-    [(MutMainName.main, (scopes, mk_specbody main_spec main_body))].
+    [(MutMainHdr.main, (scopes, mk_specbody main_spec main_body))].
 
   Program Definition Mod: SMod.t :=
   {|

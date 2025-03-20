@@ -13,12 +13,12 @@ Module MutMainI. Section MutMainI.
   ***)
   Definition mainF: () -> itree pmodE val :=
     fun _ =>
-      'r: val <- ccallU MutName.mutf [Vint 10];;
+      'r: val <- ccallU MutHdr.mutf [Vint 10];;
       Ret r
   .
 
   Definition fnsems :=
-    [(MutMainName.main, (scopes, cfunU mainF))].
+    [(MutMainHdr.main, (scopes, cfunU mainF))].
   
   Program Definition Mod: PMod.t :=
   {|

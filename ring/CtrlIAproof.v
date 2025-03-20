@@ -113,7 +113,7 @@ Module CtrlIA. Section CtrlIA.
   (*************)
 
   Lemma simF_init:
-    HSim.sim_fun open RingAMod RingIMod IstFull RingName.init.
+    HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.init.
   Proof.
     init_simF u_s 0.
 
@@ -149,7 +149,7 @@ Module CtrlIA. Section CtrlIA.
   (*FAST*)Qed.
 
   Lemma simF_get_size:
-    HSim.sim_fun open RingAMod RingIMod IstFull RingName.get_size.
+    HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.get_size.
   Proof.
     init_simF u_s 0.
 
@@ -172,7 +172,7 @@ Module CtrlIA. Section CtrlIA.
   (*FAST*)Qed.
 
   Lemma simF_enqueue:
-    HSim.sim_fun open RingAMod RingIMod IstFull RingName.enqueue.
+    HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.enqueue.
   Proof.
     unfold RingAMod, RingIMod, CellGS.
     init_simF u_s 0.
@@ -198,7 +198,7 @@ Module CtrlIA. Section CtrlIA.
     rewrite (@cellgroup_split ((tl+ List.length q) mod max_size)); try nia.
     i; move_aux.
 
-    (* TGT: inline CellName.set *)
+    (* TGT: inline CellHdr.set *)
     inline_r.
     steps_r.
     destruct q'; [ss; nia|].
@@ -233,7 +233,7 @@ Module CtrlIA. Section CtrlIA.
   (*FAST*)Qed.
 
   Lemma simF_dequeue:
-    HSim.sim_fun open RingAMod RingIMod IstFull RingName.dequeue.
+    HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.dequeue.
   Proof.
     unfold RingAMod, RingIMod, CellGS.
     init_simF u_s 0.
@@ -258,7 +258,7 @@ Module CtrlIA. Section CtrlIA.
     rewrite (@cellgroup_split (tl mod max_size)); try nia.
     i; move_aux.
 
-    (* TGT: inline CellName.get *)
+    (* TGT: inline CellHdr.get *)
     inline_r.
     step_r. forces_r. iDestruct "LIVE" as "(Q & LIVE)".
     rewrite !Nat.add_0_l in NODUPFS NODUPFT WFS WFT.

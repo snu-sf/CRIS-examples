@@ -17,7 +17,7 @@ Module RepeatIA. Section RepeatIA.
   Context (APCInSpcPure : spc_incl APCA.Spc spc_pure).
   Context (SpcPureInSpc : spc_sub spc_pure spc).
   Context (SpcPureFunInSpcPure : spc_sub spc_pure_fun spc_pure).
-  Context (repeatInSpcPure : spc_pure RepeatName.repeat = Some (RepeatAS.repeat_spec spc_pure_fun genv)). (* to avoid recursive definition of SpcPure *)
+  Context (repeatInSpcPure : spc_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec spc_pure_fun genv)). (* to avoid recursive definition of SpcPure *)
 
   (* Modules *)
   Local Definition APCA := (APCA.t u_apc spc_pure spc).
@@ -31,7 +31,7 @@ Module RepeatIA. Section RepeatIA.
     (λ _ st_src st_tgt, emp%I).
   Local Definition IstFull := (IstProd (IstSB RepeatA.(HMod.scopes) Ist) IstEq).
 
-  Lemma simF_repeat : HSim.sim_fun open RepeatAMod RepeatIMod IstFull RepeatName.repeat.
+  Lemma simF_repeat : HSim.sim_fun open RepeatAMod RepeatIMod IstFull RepeatHdr.repeat.
   Proof.
     (* Simulation Start *)
     init_simF u 0.
@@ -122,7 +122,7 @@ Section ctxr.
         (APCInSpcPure : spc_incl APCA.Spc spc_pure)
         (SpcPureInSpc : spc_sub spc_pure spc)
         (SpcPureFunInSpcPure : spc_sub spc_pure_fun spc_pure)
-        (repeatInSpcPure: spc_pure RepeatName.repeat = Some (RepeatAS.repeat_spec spc_pure_fun ge)) :
+        (repeatInSpcPure: spc_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec spc_pure_fun ge)) :
     ctx_refines
       ((RepeatA.t ge u spc spc_pure_fun) ★ (APCA.t u_apc spc_pure spc), emp%I)
       ((RepeatI.t ge)                    ★ (APCA.t u_apc spc_pure spc), emp%I).

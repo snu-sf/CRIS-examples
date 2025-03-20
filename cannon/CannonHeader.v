@@ -1,13 +1,13 @@
 Require Import CRIS.
 Require Import ImpPrelude.
 
-Module CannonName.
+Module CannonHdr.
 
 Definition fire := "Cannon.fire".
 
-End CannonName.
+End CannonHdr.
 
-Module MainName.
+Module MainHdr.
   Definition main := "CRIS_init".
   (* Definition main := "Main.main". *)
-End MainName.
+End MainHdr.

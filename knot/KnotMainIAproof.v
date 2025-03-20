@@ -43,7 +43,7 @@ Module KnotMainIA. Section KnotMainIA.
   (*************)
 
   Lemma simF_fib:
-    HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainName.fib.
+    HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainHdr.fib.
   Proof.
     init_simF u_s 0.
 
@@ -103,7 +103,7 @@ Module KnotMainIA. Section KnotMainIA.
   (*FAST*)Qed.
 
   Lemma simF_main:
-    HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainName.main.
+    HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainHdr.main.
   Proof.
     init_simF u_s 0.
 
@@ -111,13 +111,13 @@ Module KnotMainIA. Section KnotMainIA.
     pose proof (@CEnv.incl_incl_env KnotMainGEnv.t genv) as INCLENV.
     unfold KnotMainGEnv.t in GEnvIncl; ss.
     eapply INCLENV in GEnvIncl; et. unfold CEnv.incl_env in GEnvIncl.
-    specialize (@GEnvIncl KnotMainName.fib Gfun↑) as SF.
+    specialize (@GEnvIncl KnotMainHdr.fib Gfun↑) as SF.
     hexploit SF; [left; ss|intro SKINCL_F].
     des. clear SF INCLENV. inv KnotInSpc.
 
     (* SKWF *)
     apply CEnv.load_genv_wf in GEnvWF. unfold CEnv.wf in GEnvWF.
-    specialize (GEnvWF KnotMainName.fib blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDF.
+    specialize (GEnvWF KnotMainHdr.fib blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDF.
 
     (* SRC: precondition *)
     steps_l. destruct q; ss. iDestruct "ASM" as "[[% FG] %]". des; subst. hss.

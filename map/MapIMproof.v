@@ -83,7 +83,7 @@ Module MapIM. Section MapIM.
   Local Definition MapIMod := (MapI.t ★ MemA).
   Local Definition IstFull := (IstProd (IstSB MapM.(HMod.scopes) Ist) IstEq).
 
-  Lemma simF_init : HSim.sim_fun open MapMMod MapIMod IstFull MapName.init.
+  Lemma simF_init : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.init.
   Proof.
     init_simF u_s 0.
 
@@ -177,7 +177,7 @@ Module MapIM. Section MapIM.
     }
   (*FAST*)Qed.
 
-  Lemma simF_get : HSim.sim_fun open MapMMod MapIMod IstFull MapName.get.
+  Lemma simF_get : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.get.
   Proof.
     init_simF u_s 0.
 
@@ -221,7 +221,7 @@ Module MapIM. Section MapIM.
     iPoseProof ("M" with "GRT") as "M". iFrame.
   (*FAST*)Qed.
 
-  Lemma simF_set : HSim.sim_fun open MapMMod MapIMod IstFull MapName.set.
+  Lemma simF_set : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.set.
   Proof.
     init_simF u_s 0.
 
@@ -267,7 +267,7 @@ Module MapIM. Section MapIM.
     rewrite -> fun_to_list_update, Z2Nat.id; try nia. iFrame.
   (*FAST*)Qed.
 
-  Lemma simF_set_by_user : HSim.sim_fun open MapMMod MapIMod IstFull MapName.set_by_user.
+  Lemma simF_set_by_user : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.set_by_user.
   Proof.
     init_simF u_s 0.
 

@@ -17,10 +17,10 @@ Module MutFA. Section MutFA.
          (λ vret, (⌜vret = (Vint (Z.of_nat (sum n)))↑⌝)%I))).
          
   Definition SpcF: alist string fspec :=
-    Seal.sealing CRIS [(MutName.mutf, f_spec)].
+    Seal.sealing CRIS [(MutHdr.mutf, f_spec)].
 
   Definition fnsems :=
-    [(MutName.mutf, (scopes, mk_specbody f_spec pure_body))].
+    [(MutHdr.mutf, (scopes, mk_specbody f_spec pure_body))].
 
   Program Definition Mod: SMod.t :=
   {|

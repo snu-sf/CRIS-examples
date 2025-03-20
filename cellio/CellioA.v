@@ -48,7 +48,7 @@ Module CellioA. Section CellioA.
       x <- trigger (Take Z);;
       trigger (Assume (CellioA.cell x));;;
       (* i <- trigger (@IO _ Z "Input" tt);; *)
-      'i: Z <- ccallU LibName.input tt;;
+      'i: Z <- ccallU LibHdr.input tt;;
       trigger (Guarantee (CellioA.cell i));;;
       Ret tt↑.
   
@@ -59,11 +59,11 @@ Module CellioA. Section CellioA.
       trigger (Guarantee (CellioA.cell x));;;
       Ret x↑.
 
-  Definition scopes := [CellioName.mn].
+  Definition scopes := [CellioHdr.mn].
   
   Definition fnsems : alist string (list string * fspecbody) :=
-    [(CellioName.set, (scopes, mk_specbody fspec_trivial set));
-     (CellioName.get, (scopes, mk_specbody fspec_trivial get))].
+    [(CellioHdr.set, (scopes, mk_specbody fspec_trivial set));
+     (CellioHdr.get, (scopes, mk_specbody fspec_trivial get))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

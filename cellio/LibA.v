@@ -3,7 +3,7 @@ Require Import MainHeader CellioHeader LibHeader.
 
 Set Implicit Arguments.
 
-Module LibName.
+Module LibHdr.
 
   Definition mn := "Lib".
     
@@ -13,7 +13,7 @@ Module LibName.
   Definition foo := fn "foo".
   Definition input := fn "input".
 
-End LibName.
+End LibHdr.
 
 
 Module LibAS.
@@ -21,7 +21,7 @@ Section LibAS.
   Context `{Σ: GRA}.
 
   Definition spc: alist string fspec :=
-    Seal.sealing CRIS [(LibName.foo, fspec_trivial); (LibName.input, fspec_trivial)].
+    Seal.sealing CRIS [(LibHdr.foo, fspec_trivial); (LibHdr.input, fspec_trivial)].
   
   Lemma spc_nodup: List.NoDup (List.map fst spc).
   Proof.

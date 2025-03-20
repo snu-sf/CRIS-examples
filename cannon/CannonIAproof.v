@@ -20,7 +20,7 @@ Module CannonIA. Section CannonIA.
   Local Definition CannonAMod := (CannonA.t Spc_s).
   Local Definition CannonIMod := (CannonI.t).
 
-  Lemma simF_fire : HSim.sim_fun open CannonAMod CannonIMod Ist CannonName.fire.
+  Lemma simF_fire : HSim.sim_fun open CannonAMod CannonIMod Ist CannonHdr.fire.
   Proof.
     init_simF 0 0.
 

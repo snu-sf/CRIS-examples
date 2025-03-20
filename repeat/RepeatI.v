@@ -7,7 +7,7 @@ Set Implicit Arguments.
 Module RepeatI. Section RepeatI.
   Context `{Σ : GRA}.
 
-  Definition scopes := [RepeatName.mn].
+  Definition scopes := [RepeatHdr.mn].
 
   Definition repeat (cenv: CEnv.t): list val → itree pmodE val :=
     λ varg, 
@@ -18,10 +18,10 @@ Module RepeatI. Section RepeatI.
       else
         fn <- (cenv.(CEnv.blk2id) fb)?;;
         v <- ccallU fn [Vint x];;
-        ccallU RepeatName.repeat [Vptr fb 0; Vint (n - 1); v].
+        ccallU RepeatHdr.repeat [Vptr fb 0; Vint (n - 1); v].
 
   Definition fnsems (genv: GEnv.t) :=
-    [(RepeatName.repeat, (scopes, cfunU (repeat (CEnv.load_genv genv: CEnv.t))))].
+    [(RepeatHdr.repeat, (scopes, cfunU (repeat (CEnv.load_genv genv: CEnv.t))))].
 
   Program Definition Mod (genv: GEnv.t) : PMod.t := {|
     PMod.scopes := scopes;

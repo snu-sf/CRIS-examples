@@ -1,6 +1,6 @@
 Require Import CRIS.
 Require Import ImpPrelude.
 
-Module MutMainName.
+Module MutMainHdr.
   Definition main := "CRIS_init".
-End MutMainName.
+End MutMainHdr.

@@ -1,6 +1,6 @@
 Require Import CRIS.
 
-Module CellioName.
+Module CellioHdr.
   Definition mn := "Cellio".
 
   Definition fn (method: string) :=
@@ -8,5 +8,5 @@ Module CellioName.
 
   Definition set := fn "set".
   Definition get := fn "get".
-End CellioName.
+End CellioHdr.
 

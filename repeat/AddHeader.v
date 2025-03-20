@@ -1,7 +1,7 @@
 Require Import CRIS.
 Require Import ImpPrelude.
 
-Module AddName.
+Module AddHdr.
   Definition mn := "Add".
 
   Definition fn (method: string) :=
@@ -9,10 +9,10 @@ Module AddName.
 
   Definition succ := fn "succ".
   Definition add := fn "add".
-End AddName.
+End AddHdr.
 
 Module AddGEnv.
 Definition t : GEnv.t :=
-  [(AddName.succ, Gfun↑); 
-   (AddName.add, Gfun↑)].
+  [(AddHdr.succ, Gfun↑); 
+   (AddHdr.add, Gfun↑)].
 End AddGEnv.

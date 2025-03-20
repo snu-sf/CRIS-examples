@@ -9,10 +9,10 @@ Module RingAS. Section RingAS.
   Context `{Σ : GRA}.
 
   Definition Spc : alist string fspec :=
-    Seal.sealing CRIS [(RingName.init, fspec_trivial);
-                       (RingName.get_size, fspec_trivial);
-                       (RingName.enqueue, fspec_trivial);
-                       (RingName.dequeue, fspec_trivial)].
+    Seal.sealing CRIS [(RingHdr.init, fspec_trivial);
+                       (RingHdr.get_size, fspec_trivial);
+                       (RingHdr.enqueue, fspec_trivial);
+                       (RingHdr.dequeue, fspec_trivial)].
 
   Lemma Spc_nodup : List.NoDup (List.map fst Spc).
   Proof.
@@ -67,10 +67,10 @@ Module RingA. Section RingA.
   .
 
   Definition fnsems :=
-    [(RingName.init, (scopes,mk_specbody fspec_trivial (cfunU init)));
-     (RingName.get_size, (scopes,mk_specbody fspec_trivial (cfunU get_size)));
-     (RingName.enqueue, (scopes,mk_specbody fspec_trivial (cfunU enqueue)));
-     (RingName.dequeue, (scopes,mk_specbody fspec_trivial (cfunU dequeue)))].
+    [(RingHdr.init, (scopes,mk_specbody fspec_trivial (cfunU init)));
+     (RingHdr.get_size, (scopes,mk_specbody fspec_trivial (cfunU get_size)));
+     (RingHdr.enqueue, (scopes,mk_specbody fspec_trivial (cfunU enqueue)));
+     (RingHdr.dequeue, (scopes,mk_specbody fspec_trivial (cfunU dequeue)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

@@ -1,6 +1,6 @@
 Require Import Common.
 
-Module SpinLockMainName.
+Module SpinLockMainHdr.
   Definition main := "CRIS_init".
   Definition incr := "incr".
-End SpinLockMainName.
+End SpinLockMainHdr.

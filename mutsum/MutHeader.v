@@ -1,10 +1,10 @@
 Require Import CRIS.
 Require Export ImpPrelude.
 
-Module MutName.
+Module MutHdr.
   Definition mutf := "MutF.f".
   Definition mutg := "MutG.g".
-End MutName.
+End MutHdr.
 
 Module MutAUX. Section MutAUX.
 

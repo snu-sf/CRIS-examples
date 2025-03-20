@@ -19,14 +19,14 @@ Module MutFI. Section MutFI.
       if dec n 0%Z
       then Ret (Vint 0)
       else (
-        m <- ccallU MutName.mutg [Vint (n - 1)];;
+        m <- ccallU MutHdr.mutg [Vint (n - 1)];;
         r <- (vadd (Vint n) m)?;;
         Ret r
       )
   .
 
   Definition fnsems :=
-    [(MutName.mutf, (scopes, cfunU fF))].
+    [(MutHdr.mutf, (scopes, cfunU fF))].
   
   Program Definition Mod: PMod.t :=
   {|

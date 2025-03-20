@@ -118,7 +118,7 @@ Section KnotAS.
           (fun vret => (⌜vret = (Vint (Z.of_nat (f n)))↑⌝ ∗ knot_frag (Some f))%I))).
 
   Definition KnotRecSpc: alist string fspec :=
-    Seal.sealing CRIS [(KnotName.rec, rec_spec)].
+    Seal.sealing CRIS [(KnotHdr.rec, rec_spec)].
 
   Definition knot_spec : fspec :=
     fspec_simple (X:=(nat -> nat))
@@ -132,8 +132,8 @@ Section KnotAS.
 
   Definition KnotSpc : alist string fspec :=
     Seal.sealing CRIS 
-      [(KnotName.rec, rec_spec); 
-      (KnotName.knot, knot_spec)].
+      [(KnotHdr.rec, rec_spec); 
+      (KnotHdr.knot, knot_spec)].
 
 End KnotAS.
 
@@ -143,8 +143,8 @@ Section KnotA.
   Definition scopes := ["Knot"].
 
   Definition fnsems genv SpcRec SpcFun :=
-    [(KnotName.rec, (scopes, mk_specbody rec_spec pure_body));
-     (KnotName.knot, (scopes, mk_specbody (knot_spec genv SpcRec SpcFun) fbody_trivial))].
+    [(KnotHdr.rec, (scopes, mk_specbody rec_spec pure_body));
+     (KnotHdr.knot, (scopes, mk_specbody (knot_spec genv SpcRec SpcFun) fbody_trivial))].
 
   Program Definition Mod genv SpcRec SpcFun : SMod.t :=
   {|
@@ -156,7 +156,7 @@ Section KnotA.
   Next Obligation. prove_nodup. Qed.
 
   Definition init_cond genv : iProp :=
-    ((var_points_to genv KnotName._f (Vint 0)) ∗ knot_full None)%I.
+    ((var_points_to genv KnotHdr._f (Vint 0)) ∗ knot_full None)%I.
 
   Definition t genv u SpcRec SpcFun Spc :=
     Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Spc (Mod genv SpcRec SpcFun)).

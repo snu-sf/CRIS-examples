@@ -52,7 +52,7 @@ Module CannonAS. Section CannonAS.
     )%I.
 
   Definition Spc : alist string fspec :=
-    Seal.sealing CRIS [(CannonName.fire, fire_spec)].
+    Seal.sealing CRIS [(CannonHdr.fire, fire_spec)].
 
   Lemma Spc_nodup : List.NoDup (List.map fst Spc).
   Proof. unfold Spc. unseal CRIS. prove_nodup. Qed.
@@ -72,7 +72,7 @@ Module CannonA. Section CannonA.
       Ret r.
 
   Definition fnsems :=
-    [(CannonName.fire, (scopes, mk_specbody CannonAS.fire_spec (cfunU fire)))].
+    [(CannonHdr.fire, (scopes, mk_specbody CannonAS.fire_spec (cfunU fire)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

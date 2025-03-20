@@ -27,7 +27,7 @@ Module MutMainIA. Section MutMainIA.
   (*************)
 
   Lemma simF_main:
-    HSim.sim_fun open MutMainAMod MutMainIMod IstFull MutMainName.main.
+    HSim.sim_fun open MutMainAMod MutMainIMod IstFull MutMainHdr.main.
   Proof.
     init_simF u_s 0.
 

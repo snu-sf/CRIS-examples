@@ -37,7 +37,7 @@ Module CtrlI. Section CtrlI.
       'tl : nat <- cgetU v_tl;;
       if (hd - tl <? max_size)
       then
-        'u: () <- ccallU (CellName.set (hd mod max_size)) x;;
+        'u: () <- ccallU (CellHdr.set (hd mod max_size)) x;;
         cput v_hd (hd+1)
       else
         trigger (@IO _ void "error" "enqueue failed: queue reached its maximum capacity");;; Ret tt
@@ -49,7 +49,7 @@ Module CtrlI. Section CtrlI.
       'tl : nat <- cgetU v_tl;;
       if (0 <? hd - tl)
       then
-        x <- ccallU (CellName.get (tl mod max_size)) tt;;
+        x <- ccallU (CellHdr.get (tl mod max_size)) tt;;
         cput v_tl (tl+1);;;
         Ret x
       else
@@ -57,10 +57,10 @@ Module CtrlI. Section CtrlI.
   .
 
   Definition fnsems :=
-    [(RingName.init, (scopes, cfunU init));
-     (RingName.get_size, (scopes, cfunU get_size));
-     (RingName.enqueue, (scopes, cfunU enqueue));
-     (RingName.dequeue, (scopes, cfunU dequeue))].
+    [(RingHdr.init, (scopes, cfunU init));
+     (RingHdr.get_size, (scopes, cfunU get_size));
+     (RingHdr.enqueue, (scopes, cfunU enqueue));
+     (RingHdr.dequeue, (scopes, cfunU dequeue))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

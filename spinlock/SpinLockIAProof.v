@@ -23,7 +23,7 @@ Module SpinLockIA. Section SpinLockIA.
   Local Definition MA := (SpinLockA ★ MemA).
   Local Definition MI := (SpinLockI ★ MemA).
 
-  Lemma newlock_simF : HSim.sim_fun open MA MI IstFull SpinLockName.newlock.
+  Lemma newlock_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.newlock.
   Proof.
     init_simF u_a 0.
     (* preprocess initial conditions *)
@@ -51,7 +51,7 @@ Module SpinLockIA. Section SpinLockIA.
     steps_l. step. eauto.
   (*FAST*)Qed.
 
-  Lemma acquire_simF : HSim.sim_fun open MA MI IstFull SpinLockName.acquire.
+  Lemma acquire_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.acquire.
   Proof.
     init_simF u_a 0.
     (* process src precondition *)
@@ -117,7 +117,7 @@ Module SpinLockIA. Section SpinLockIA.
     Unshelve. all: eauto.
   (*FAST*)Qed.
 
-  Lemma release_simF : HSim.sim_fun open MA MI IstFull SpinLockName.release.
+  Lemma release_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.release.
     init_simF u_a 0.
     (* process src precondition *)
     steps_l.

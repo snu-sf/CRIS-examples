@@ -141,10 +141,10 @@ Module MapAS. Section MapAS.
     
     Definition spc : alist string fspec :=
       Seal.sealing CRIS
-        [(MapName.init, init_spec);
-        (MapName.get, get_spec);
-        (MapName.set, set_spec);
-        (MapName.set_by_user, set_by_user_spec)].
+        [(MapHdr.init, init_spec);
+        (MapHdr.get, get_spec);
+        (MapHdr.set, set_spec);
+        (MapHdr.set_by_user, set_by_user_spec)].
     
     Lemma spc_nodup : List.NoDup (List.map fst spc).
     Proof. unfold spc. unseal CRIS. prove_nodup. Qed.
@@ -191,13 +191,13 @@ Module MapA. Section MapA.
     λ varg,
       k <- (pargs [Tint] varg)!;;
       v <- trigger (IO "input" ());;
-      ccallN MapName.set [Vint k; Vint v].
+      ccallN MapHdr.set [Vint k; Vint v].
 
   Definition fnsems :=
-    [(MapName.init, (scopes, mk_specbody (MapAS.init_spec υ) fbody_trivial));
-     (MapName.get, (scopes, mk_specbody (MapAS.get_spec υ) (cfunN get)));
-     (MapName.set, (scopes, mk_specbody (MapAS.set_spec υ) (cfunN set)));
-     (MapName.set_by_user, (scopes, mk_specbody (MapAS.set_by_user_spec υ) (cfunN set_by_user)))].
+    [(MapHdr.init, (scopes, mk_specbody (MapAS.init_spec υ) fbody_trivial));
+     (MapHdr.get, (scopes, mk_specbody (MapAS.get_spec υ) (cfunN get)));
+     (MapHdr.set, (scopes, mk_specbody (MapAS.set_spec υ) (cfunN set)));
+     (MapHdr.set_by_user, (scopes, mk_specbody (MapAS.set_by_user_spec υ) (cfunN set_by_user)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

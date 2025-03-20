@@ -35,7 +35,7 @@ Module KnotIA. Section KnotIA.
               (<<BLK: fb' = Vptr fb 0>>) /\
               (<<FN: fb_has_spec genv SpcFun fb (fun_gen genv SpcRec f)>>)⌝)
           ∗ (knot_full f')
-          ∗ (var_points_to genv KnotName._f fb'))%I.
+          ∗ (var_points_to genv KnotHdr._f fb'))%I.
 
   Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp :=
     λ _ _ _, inv.
@@ -50,7 +50,7 @@ Module KnotIA. Section KnotIA.
   (*************)
 
   Lemma simF_rec:
-    HSim.sim_fun open KnotAMod KnotIMod IstFull KnotName.rec.
+    HSim.sim_fun open KnotAMod KnotIMod IstFull KnotHdr.rec.
   Proof.
     init_simF u_s 0.
 
@@ -59,14 +59,14 @@ Module KnotIA. Section KnotIA.
     (* unfold KnotIMod in GEnvIncl; ss. apply (incl_app_inv KnotGEnv _) in GEnvIncl. des. *)
     unfold KnotGEnv.t in GEnvIncl.
     eapply INCLENV in GEnvIncl; et. unfold CEnv.incl_env in GEnvIncl.
-    specialize (@GEnvIncl KnotName._f (Gvar 0%Z)↑) as SF.
-    specialize (@GEnvIncl KnotName.rec Gfun↑) as SR.
+    specialize (@GEnvIncl KnotHdr._f (Gvar 0%Z)↑) as SF.
+    specialize (@GEnvIncl KnotHdr.rec Gfun↑) as SR.
     hexploit SF; [right; right; left; ss|intro SKINCL_F].
     hexploit SR; [right; left; ss|intro SKINCL_REC]. des. clear SF SR INCLENV.
 
     (* SKWF - SkEnv blk2id *)
     apply CEnv.load_genv_wf in GEnvWF. unfold CEnv.wf in GEnvWF.
-    specialize (GEnvWF KnotName.rec blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDR.
+    specialize (GEnvWF KnotHdr.rec blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDR.
 
     (* Simulation Start *)
     (* SRC: precondition *)
@@ -125,21 +125,21 @@ Module KnotIA. Section KnotIA.
   (*FAST*)Qed.
 
   Lemma simF_knot:
-    HSim.sim_fun open KnotAMod KnotIMod IstFull KnotName.knot.
+    HSim.sim_fun open KnotAMod KnotIMod IstFull KnotHdr.knot.
   Proof.
     init_simF u_s 0.
 
     (* SKINCL *)
     pose proof (@CEnv.incl_incl_env KnotGEnv.t genv) as INCLENV.
     unfold KnotGEnv.t in GEnvIncl. eapply INCLENV in GEnvIncl; et. unfold CEnv.incl_env in GEnvIncl.
-    specialize (@GEnvIncl KnotName._f (Gvar 0%Z)↑) as SF.
-    specialize (@GEnvIncl KnotName.rec Gfun↑) as SR.
+    specialize (@GEnvIncl KnotHdr._f (Gvar 0%Z)↑) as SF.
+    specialize (@GEnvIncl KnotHdr.rec Gfun↑) as SR.
     hexploit SF; [right; right; left; ss|intro SKINCL_F].
     hexploit SR; [right; left; ss|intro SKINCL_REC]. des. clear SF SR INCLENV.
 
     (* SKWF *)
     apply CEnv.load_genv_wf in GEnvWF. unfold CEnv.wf in GEnvWF.
-    specialize (GEnvWF KnotName.rec blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDR.
+    specialize (GEnvWF KnotHdr.rec blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDR.
 
     (* SRC: precondition *)
     steps_l.

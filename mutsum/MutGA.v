@@ -17,10 +17,10 @@ Module MutGA. Section MutGA.
          (λ vret, (⌜vret = (Vint (Z.of_nat (sum n)))↑⌝)%I))).
          
   Definition SpcG: alist string fspec :=
-    Seal.sealing CRIS [(MutName.mutg, g_spec)].
+    Seal.sealing CRIS [(MutHdr.mutg, g_spec)].
 
   Definition fnsems :=
-    [(MutName.mutg, (scopes, mk_specbody g_spec pure_body))].
+    [(MutHdr.mutg, (scopes, mk_specbody g_spec pure_body))].
 
   Program Definition Mod: SMod.t :=
   {|
