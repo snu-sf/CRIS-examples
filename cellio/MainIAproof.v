@@ -1,5 +1,5 @@
 Require Import CRIS.
-Require Import CellioHeader CellioA MainHeader MainA MainI LibA LibA.
+Require Import CellioHeader CellioA MainHeader MainA MainI CtxA CtxA.
 
 Set Implicit Arguments.
 
@@ -11,7 +11,7 @@ Module MainIA. Section MainIA.
     λ _ st_src st_tgt, emp%I.
 
   Context (spc_s: string -> option fspec).
-  Context (LibInSpc: spc_incl LibAS.spc spc_s). (* Specs of Library functions *)
+  Context (CtxInSpc: spc_incl CtxAS.spc spc_s). (* Specs of Ctxrary functions *)
 
   Local Definition CellioA := (CellioA.t spc_s).
   Local Definition MainA := (MainA.t spc_s).

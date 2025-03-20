@@ -1,11 +1,11 @@
 Require Import CRIS.
-Require Import MainHeader CellioHeader LibHeader.
+Require Import MainHeader CellioHeader CtxHeader.
 
 Set Implicit Arguments.
 
-Module LibHdr.
+Module CtxHdr.
 
-  Definition mn := "Lib".
+  Definition mn := "Ctx".
     
   Definition fn (method: string) :=
     mn +:+ "." +:+ method.
@@ -13,19 +13,19 @@ Module LibHdr.
   Definition foo := fn "foo".
   Definition input := fn "input".
 
-End LibHdr.
+End CtxHdr.
 
 
-Module LibAS.
-Section LibAS.
+Module CtxAS.
+Section CtxAS.
   Context `{Σ: GRA}.
 
   Definition spc: alist string fspec :=
-    Seal.sealing CRIS [(LibHdr.foo, fspec_trivial); (LibHdr.input, fspec_trivial)].
+    Seal.sealing CRIS [(CtxHdr.foo, fspec_trivial); (CtxHdr.input, fspec_trivial)].
   
   Lemma spc_nodup: List.NoDup (List.map fst spc).
   Proof.
     unfold spc. unseal CRIS. prove_nodup.
   Qed.
 
-End LibAS. End LibAS.
+End CtxAS. End CtxAS.

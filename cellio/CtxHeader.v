@@ -1,8 +1,8 @@
 Require Import CRIS.
 
-Module LibHdr.
+Module CtxHdr.
 
-  Definition mn := "Lib".
+  Definition mn := "Ctx".
     
   Definition fn (method: string) :=
     mn +:+ "." +:+ method.
@@ -10,4 +10,4 @@ Module LibHdr.
   Definition foo := fn "foo".
   Definition input := fn "input".
 
-End LibHdr.
+End CtxHdr.

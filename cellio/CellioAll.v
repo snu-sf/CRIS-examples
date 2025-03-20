@@ -1,7 +1,7 @@
 Require Import CRIS Cancel.
 Require Import ImpPrelude.
 Require Import CellioHeader MainHeader.
-Require Import CellioA CellioI MainA MainI LibA.
+Require Import CellioA CellioI MainA MainI CtxA.
 Require Import CellioIAproof MainIAproof.
 
 Module CellioAll. Section CellioAll.
@@ -17,17 +17,17 @@ Module CellioAll. Section CellioAll.
     apply CellioA.ir_valid.
   Qed.
 
-  Variable LibA: SMod.t.
-  Local Definition smod_src : SMod.t := MainA.Mod ☆ LibA.
+  Variable CtxA: SMod.t.
+  Local Definition smod_src : SMod.t := MainA.Mod ☆ CtxA.
   Local Definition spc : string → option fspec := spc_from smod_src.
-  Local Definition Lib := Seal.sealing CRIS (SMod.to_hmod emp spc LibA).
+  Local Definition Ctx := Seal.sealing CRIS (SMod.to_hmod emp spc CtxA).
   Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
   Local Definition mod_src : HMod.t := SMod.to_hmod emp spc smod_src.
-  Local Definition mod_tgt : HMod.t := MainI.t ★ CellioI.t ★ Lib.
+  Local Definition mod_tgt : HMod.t := MainI.t ★ CellioI.t ★ Ctx.
   
   Local Definition main_fsp : fspec := fspec_trivial.
-  Local Definition LibInitCond : iProp Σ := emp%I.
-  Local Definition init_cond : iProp Σ := MainA.InitCond ∗ CellioA.InitCond ∗ LibInitCond.
+  Local Definition CtxInitCond : iProp Σ := emp%I.
+  Local Definition init_cond : iProp Σ := MainA.InitCond ∗ CellioA.InitCond ∗ CtxInitCond.
   
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
@@ -38,15 +38,15 @@ Module CellioAll. Section CellioAll.
   Local Definition trivial_specbody body := {|fsb_fspec := fspec_trivial; fsb_body := body|}.
 
   Hypothesis ModulesWF : HMod.wf mod_tgt.
-  Hypothesis inputInLib : ∃ scp input (SCP: incl scp LibA.(SMod.scopes)),
-    alist_find LibHdr.input (SMod.fnsems LibA) = Some (scp, trivial_specbody input).
-  Hypothesis fooInLib : ∃ scp foo (SCP: incl scp LibA.(SMod.scopes)),
-    alist_find LibHdr.foo (SMod.fnsems LibA) = Some (scp, trivial_specbody foo).
+  Hypothesis inputInCtx : ∃ scp input (SCP: incl scp CtxA.(SMod.scopes)),
+    alist_find CtxHdr.input (SMod.fnsems CtxA) = Some (scp, trivial_specbody input).
+  Hypothesis fooInCtx : ∃ scp foo (SCP: incl scp CtxA.(SMod.scopes)),
+    alist_find CtxHdr.foo (SMod.fnsems CtxA) = Some (scp, trivial_specbody foo).
 
-  Lemma lib_spc_incl: spc_incl LibAS.spc spc.
+  Lemma lib_spc_incl: spc_incl CtxAS.spc spc.
   Proof.
-    i. rewrite /LibAS.spc. unseal CRIS. econs; first prove_nodup.
-    destruct inputInLib, fooInLib. des.
+    i. rewrite /CtxAS.spc. unseal CRIS. econs; first prove_nodup.
+    destruct inputInCtx, fooInCtx. des.
     ii; rewrite -FIND /spc /spc_from /smod_src //=. des_ifs; ss; des_ifs.
     { rewrite eq_rel_dec_correct in Heq0. des_ifs.
       rewrite /option_map. des_ifs.
@@ -59,10 +59,10 @@ Module CellioAll. Section CellioAll.
   (* Refinement between spec/impl of whole program (linked module) *)
   Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
   Proof.
-    (* consider identical modules in src/tgt as context (LibA, LibA) *)
+    (* consider identical modules in src/tgt as context (CtxA, CtxA) *)
     eapply ctxr_refines.
     rewrite -[(_, emp%I)]hmod_addc_empty_r /init_cond -!hmod_addc_assoc.
-    rewrite /mod_src /mod_tgt !add_interp_comm -!hmod_add_assoc /Lib.
+    rewrite /mod_src /mod_tgt !add_interp_comm -!hmod_add_assoc /Ctx.
     unseal CRIS. eapply ctxr_frameR, ctxr_cond_frameR.
     (* solve by transitivity:
       MainI ★ CellioI ⊆ MainI ★ CellioA ⊆ MainA ★ CellioA 

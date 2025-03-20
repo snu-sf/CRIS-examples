@@ -1,6 +1,6 @@
 Require Import CRIS.
 Require Import CellioHeader CellioA CellioI.
-Require Import LibA.
+Require Import CtxA.
 
 Set Implicit Arguments.
 
@@ -12,7 +12,7 @@ Module CellioIA. Section CellioIA.
 
   (* spc for src module *)
   Context (spc_s : string → option fspec).
-  Context (LibInSpc : spc_incl LibAS.spc spc_s).
+  Context (CtxInSpc : spc_incl CtxAS.spc spc_s).
   
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     λ _ st_src st_tgt,

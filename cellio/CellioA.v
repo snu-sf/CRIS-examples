@@ -1,5 +1,5 @@
 Require Import CRIS.
-Require Import CellioHeader LibHeader.
+Require Import CellioHeader CtxHeader.
 
 Set Implicit Arguments.
 
@@ -48,7 +48,7 @@ Module CellioA. Section CellioA.
       x <- trigger (Take Z);;
       trigger (Assume (CellioA.cell x));;;
       (* i <- trigger (@IO _ Z "Input" tt);; *)
-      'i: Z <- ccallU LibHdr.input tt;;
+      'i: Z <- ccallU CtxHdr.input tt;;
       trigger (Guarantee (CellioA.cell i));;;
       Ret tt↑.
   
