@@ -44,7 +44,7 @@ Module SpinLockAll.
 
   (* the source SMod *)
   Local Definition smod_src : SMod.t :=
-    SpinLockMainA.Mod u ☆ MemA.Mod ☆ SchA.Mod u spc_user_s ☆ SpinLockA.Mod u.
+    SpinLockMainA.Mod u ☆ MemA.Mod ☆ (SchA.Mod u spc_user_s ☆ SchA_link.Mod u) ☆ SpinLockA.Mod u.
   (* the source spc *)
   Local Definition spc_s : string → option fspec :=
     spc_from smod_src.
@@ -120,14 +120,18 @@ Module SpinLockAll.
       { apply MemInSpc. }
     }
     rewrite hmod_add_assoc.
-    etrans; first eapply ctxr_comm. rewrite -hmod_add_assoc. eapply ctxr_frameR.
+    etrans; first eapply ctxr_comm. rewrite -hmod_add_assoc.
     etrans.
-    { rewrite hmod_addc_empty_l. eapply ctxr_frameR, ctxr_cond_frameR. eapply MemIA.ctxr.
+    { do 2 eapply ctxr_frameR.
+      rewrite hmod_addc_empty_l. eapply ctxr_frameR, ctxr_cond_frameR. eapply MemIA.ctxr.
       apply MemInSpc.
     }
-    eapply ctxr_frameL.
+    rewrite -hmod_add_assoc. eapply ctxr_frameR.
+    rewrite hmod_add_assoc. eapply ctxr_frameL.
     etrans.
     { replace (SMod.to_hmod _ _ (SchA.Mod _ _)) with (SchA.t u spc_s spc_user_s); cycle 1.
+      { unfold_hmod; ss. }
+      replace (SMod.to_hmod _ _ (SchA_link.Mod _)) with (SchA_link.t u spc_s); cycle 1.
       { unfold_hmod; ss. }
       rewrite hmod_addc_empty_l.
       eapply SchIA.ctxr.

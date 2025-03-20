@@ -37,20 +37,24 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     steps_r. hss. steps_r. rewrite /SpinLockMainI.incr. steps_r.
     unfold_iter_l. steps_l.
     (* tgt yields *)
-    sch_yield_r. iFrame; ss; clear nths; iIntros (nths st_s st_t) "IST TID".
-    steps_r. sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r; iFrame.
+    clear st_src st_tgt NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST TID".
+    steps_r. sch_yield_r; iFrame.
+    clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST TID".
     (* tgt inline - lock acquire *)
     inline_r. force_r (tid, γ_l, Vptr blk_l ofs_l, existT 0 (lock_P (blk_v, ofs_v) γ_v)).
     steps_r. forces_r. iFrame.
     iSplit; eauto. hss. steps_r.
     sch_yield_l. force_l false. steps_l.
     (* start coinduction for lock acquisition *)
-    iApply wsim_reset. iStopProof. revert nths. combine_quant st_s. combine_quant st_t.
+    iApply wsim_reset. iStopProof.
+    revert nths. combine_quant NODS. combine_quant NODD. combine_quant st_s. combine_quant st_t.
     eapply wsim_coind.
-    iIntros (g' [st_t [st_s nths]]) "[#I [F IST]] _ #CIH".
+    iIntros (g' [st_t [st_s [nths [NODS NODD]]]]) "[#I [F IST]] _ #CIH".
     unfold_iter_r. unfold_iter_l. steps_l. steps_r.
     (* tgt yield *)
-    sch_yield_r. iSplitL "IST"; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST".
+    sch_yield_r; iFrame.
+    clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST".
     steps_r. destruct q; cycle 1.
     { (* fail case *)
       steps_r. sch_yield_l. force_l false. steps_l. by_coind "CIH".
@@ -59,18 +63,22 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     (* success case *)
     steps_r. iDestruct "GRT" as "[[_ [TKN P]] <-]". hss. steps_r.
     (* tgt yield *)
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r; iFrame.
+    clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST TID".
     rewrite /lock_P; SL_red; iDestruct "P" as "[TKN [%x P]]"; SL_red; iDestruct "P" as "[PT P]".
     (* tgt inline - mem load *)
     inline_r. force_r (blk_v, ofs_v, Vint x, 1%Qp). forces_r. iSplitL "PT"; iFrame; eauto.
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
     (* tgt yield *)
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID". steps_r.
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r; iFrame.
+    clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST TID".
+    sch_yield_r; iFrame.
+    clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST TID".
     (* tgt inline - mem store *)
     inline_r. force_r (blk_v, ofs_v, Vint (x + 1)). forces_r. iSplitL "PT"; iFrame; eauto.
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r; iFrame.
+    clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST TID".
     iCombine "P F" as "C". iMod (own_update with "C") as "[F C]".
     { apply frac_auth_update, (Z_local_update _ _ (x + 1) 1); lia. }
     (* tgt inline - lock acquire - restore lock protected proposition *)
@@ -83,14 +91,22 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     }
     steps_r. hss. steps_r.
     (* tgt yield *)
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST".
+    sch_yield_r; iFrame.
+    clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST".
     steps_r. iDestruct "GRT" as "[[-> TID] _]". hss. steps_r.
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID". steps_r.
+    sch_yield_r; iFrame.
+    clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST TID". steps_r.
     (* src yield *)
     sch_yield_l. steps_l. force_l true. steps_l. forces_l. iFrame; iSplit; eauto.
     (* both terminate *)
     steps_l. step. iFrame. eauto.
+    Unshelve. all: eauto.
   (*FAST*)Qed.
+
+  Ltac reintro nths :=
+    match goal with
+    | NODS : List.NoDup (map fst ?st_s), NODD : List.NoDup (map fst ?st_t) |- ?a
+      => clear nths NODS st_s NODD st_t; iIntros (nths st_s st_t NODS NODD) end.
 
   Lemma main_simF : HSim.sim_fun open MA MI IstFull SpinLockMainName.main.
   Proof.
@@ -98,15 +114,15 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     (* process src precondition *)
     steps_l. iDestruct "ASM" as "[[-> TID] ->]". hss.
     (* tgt yield *)
-    steps_r. sch_yield_r. iFrame; ss; clear nths; iIntros (nths st_s st_t) "IST TID".
+    steps_r. sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     (* tgt inline - mem alloc - counter allocation *)
     inline_r. force_r 1. forces_r. iSplit; eauto.
     steps_r. iDestruct "GRT" as "[[%blk [-> [GRT _]]] ->]". hss. steps_r.
-    steps_r. sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    steps_r. sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     (* tgt inline - mem store - counter initialization *)
     inline_r. force_r (blk, 0%Z, Vint 0). forces_r. iFrame; iSplit; eauto.
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
-    steps_r. sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    steps_r. sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     (* create lock-guarded proposition *)
     iApply (wsim_own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)).
     { eapply frac_auth_valid; ss. }
@@ -116,9 +132,9 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     { SL_red; iSplit; eauto. iFrame. iExists _; SL_red; iFrame. }
     steps_r. hss. steps_r.
     (* src/tgt yields *)
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST".
+    sch_yield_r. iFrame; reintro nths. iIntros "IST".
     steps_r. iDestruct "GRT" as "[[TID [%val [%γ_l [-> #I]]]] %EQ]". hss. steps_r.
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     iPoseProof "I" as "[%b_l [%o_l [-> _]]]".
     sch_yield_l. steps_l. force_l (Vptr b_l o_l, Vptr blk 0). steps_l. sch_yield_l.
     (* create preconditions of incr *)
@@ -127,49 +143,53 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     steps_l. sch_spawn.
     { apply MainInSpc; ss. }
     { eapply (incr_spawnable). }
-    iFrame; ss; clear nths st_s st_t.
+    iFrame; ss; clear nths st_src st_tgt NODS NODD.
     iSplit.
     { iSplit; eauto. }
-    iIntros (tid nths st_s st_t) "IST TID TKN".
+    iIntros (tid nths st_s st_t NODS NODD) "IST TID TKN".
     steps_l. steps_r.
     (* src/tgt yields *)
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     sch_yield_l. steps_l.
     (* spawn thread 2 - incr *)
     sch_spawn.
     { apply MainInSpc; ss. }
     { eapply (incr_spawnable u_a). }
-    iSplitL "IST"; ss; clear nths st_s st_t. iFrame.
+    iSplitL "IST"; ss; clear nths st_s st_t NODS NODD. iFrame.
     iSplit.
     { iSplit; eauto. }
-    iIntros (tid2 nths st_s st_t) "IST TID TKN2".
+    iIntros (tid2 nths st_s st_t NODS NODD) "IST TID TKN2".
     steps_l. steps_r.
     (* src/tgt yields *)
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     sch_yield_l. steps_l.
     (* join thread 1 - incr *)
     sch_join; iFrame.
-    clear nths st_s st_t; iIntros (nths st_s st_t vret ret) "IST TID W1 /=".
-    steps_r. sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    clear nths st_s st_t NODS NODD; iIntros (nths st_s st_t vret ret NODS NODD) "IST TID W1 /=".
+    steps_r. sch_yield_r.
+    iFrame; ss; clear nths st_s st_t NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST TID".
     sch_yield_l. steps_l.
     (* join thread 2 - incr *)
     sch_join; iFrame.
-    clear nths st_s st_t; iIntros (nths st_s st_t vret2 ret2) "IST TID W2 /=".
+    clear nths st_s st_t NODS NODD; iIntros (nths st_s st_t vret2 ret2 NODS NODD) "IST TID W2 /=".
     steps_l. steps_r.
     unfold_iter_l. steps_l.
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r.
+    iFrame; ss; clear nths st_s st_t NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST TID".
     sch_yield_l. force_l false. steps_l.
     (* tgt inline - lock acquire *)
     inline_r. force_r (0, γ_l, Vptr b_l o_l, existT 0 (lock_P (blk, 0%Z) γ)). forces_r. iFrame.
     iSplit; eauto.
     steps_r. hss. steps_r.
     (* start coinduction for lock acquisition *)
-    iApply wsim_reset. iStopProof. revert nths. combine_quant st_s. combine_quant st_t.
+    iApply wsim_reset. iStopProof.
+    revert nths. combine_quant NODS. combine_quant NODD. combine_quant st_s. combine_quant st_t.
     eapply wsim_coind.
-    iIntros (g' [st_t [st_s nths]]) "[#I [W1 [W2 IST]]] _ #CIH /=".
+    iIntros (g' [st_t [st_s [nths [NODS NODD]]]]) "[#I [W1 [W2 IST]]] _ #CIH /=".
     unfold_iter_r. unfold_iter_l. steps_r.
     (* tgt yield *)
-    sch_yield_r. iSplitL "IST"; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST".
+    sch_yield_r.
+    iSplitL "IST"; ss; clear nths st_s st_t NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST".
     steps_r. destruct q; cycle 1.
     { (* fail case *)
       steps_r. sch_yield_l. force_l false. steps_l. by_coind "CIH".
@@ -179,27 +199,27 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     steps_r. iDestruct "GRT" as "[[-> [TID [TKN P]]] _]". hss. steps_r.
     SL_red. iCombine "W1 W2" as "W". iDestruct "P" as "[%x P]"; SL_red; iDestruct "P" as "[PT B]".
     iCombine "B W" gives %WF%frac_auth_agree. inv WF.
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     (* tgt inline - mem load *)
     inline_r. force_r (blk, 0%Z, Vint 2%Z, 1%Qp). forces_r. iSplitL "PT"; eauto.
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
     (* tgt yield *)
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID". steps_r.
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
+    sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     (* tgt inline - lock release *)
     inline_r. force_r (0, γ_l, Vptr b_l o_l, existT 0 (lock_P (blk, 0%Z) γ)). forces_r.
     iSplitL "TKN TID B PT".
     { SL_red. iSplit; eauto. iFrame. iSplit; eauto. iSplit; eauto. iExists _; SL_red; iFrame. }
     steps_r. hss. steps_r.
     (* tgt yield *)
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST".
+    sch_yield_r. iFrame; reintro nths. iIntros "IST".
     steps_r. iDestruct "GRT" as "[[-> TID] _]". hss. steps_r.
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     sch_yield_l. force_l true. steps_l.
     (* both output - counter value *)
     sch_yield_l. step.
     steps_l. steps_r.
-    sch_yield_r. iFrame; ss; clear nths st_s st_t; iIntros (nths st_s st_t) "IST TID". steps_r.
+    sch_yield_r. iFrame; reintro nths. iIntros "IST TID". steps_r.
     sch_yield_l. steps_l. forces_l. iSplit; eauto. steps_l.
     (* terminate both *)
     step. iSplit; eauto.

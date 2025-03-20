@@ -48,11 +48,11 @@ Module IncrIA. Section IncrIA.
 
     sch_yield_r.
     iSplitL "IST"; iFrame.
-    clear nths. iIntros (nths st_s st_t) "IST TID".
+    clear nths NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
     steps_r.
     sch_yield_r.
     iSplitL "IST"; iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
 
     rewrite /IncrMainAS.f_inv.
     iInv "INV" as "I" "IA". SL_red.
@@ -79,10 +79,9 @@ Module IncrIA. Section IncrIA.
     iMod ("IA" with "[PT CA]") as "_".
     { iExists (x + 1)%Z; SL_red; ss; iFrame. }
     
-    sch_yield_r.
-    iSplitL "IST"; iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
-    
+    sch_yield_r. iFrame.
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+
     sch_yield_l.
     steps_l. force_l. steps_l. force_l. iSplitL "TID C"; iFrame; eauto. steps_l.
     step; eauto.
@@ -97,9 +96,9 @@ Module IncrIA. Section IncrIA.
 
     (* src/tgt yield *)
     steps_r.
-    sch_yield_r.
-    iSplitL "IST"; iFrame.
-    clear nths. iIntros (nths st_s st_t) "IST TID".
+    sch_yield_r. iFrame.
+    clear nths NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+
     sch_yield_l.
 
     (* src/tgt alloc *)
@@ -111,10 +110,10 @@ Module IncrIA. Section IncrIA.
 
     (* tgt yield *)
     sch_yield_r. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
     steps_r.
     sch_yield_r. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
 
     (* tgt store *)
     inline_r. steps_r. force_r (b, 0%Z, Vint 0%Z). steps_r.
@@ -124,7 +123,7 @@ Module IncrIA. Section IncrIA.
 
     (* src/tgt yield *)
     sch_yield_r. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
     sch_yield_l.
 
     iApply (wsim_own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)).
@@ -143,39 +142,40 @@ Module IncrIA. Section IncrIA.
     sch_spawn; eauto using f_spawnable.
     { eapply MainInSpc. ss. }
     iFrame. iSplitL "" ; eauto.
-    clear nths st_s st_t.
-    iIntros (tid nths st_s st_t) "IST TID TOKEN".
+    clear nths st_s st_t NODS NODD. iIntros (tid nths st_s st_t NODS NODD) "IST TID TKN".
 
     (* src/tgt yield *)
     sch_yield_r. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+
     sch_yield_l.
 
     sch_spawn; eauto using f_spawnable.
     { eapply MainInSpc. ss. }
     iFrame. iSplitL "" ; eauto.
-    clear nths st_s st_t.
-    iIntros (tid0 nths st_s st_t) "IST TID TOKEN2".
+    clear nths st_s st_t NODS NODD. iIntros (tid2 nths st_s st_t NODS NODD) "IST TID TKN2".
 
     (* src/tgt yield *)
     sch_yield_r. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+
     sch_yield_l.
 
     sch_join. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t ? ?) "IST TID Q /="; SL_red.
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t ? ? NODS NODD) "IST TID Q /=". SL_red.
     iDestruct "Q" as "[[-> ->] Q]".
 
     sch_yield_r. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+
     sch_yield_l.
 
     sch_join. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t ? ?) "IST TID Q2 /="; SL_red.
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t ? ? NODS NODD) "IST TID Q2 /="; SL_red.
     iDestruct "Q2" as "[[-> ->] Q2]".
 
     sch_yield_r. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
 
     iInv "I" as "INV" "INVA"; iEval (SL_red) in "INV"; iDestruct "INV" as "[%x INV]".
     iEval (SL_red) in "INV". iDestruct "INV" as "[PT C]".
@@ -190,16 +190,17 @@ Module IncrIA. Section IncrIA.
     { SL_red. iExists 2; SL_red; iFrame. }
 
     sch_yield_r. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+
     sch_yield_r. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
 
     sch_yield_l. step.
     steps_l. steps_r.
 
     sch_yield_r. iFrame.
-    clear nths st_s st_t. iIntros (nths st_s st_t) "IST TID".
-
+    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    
     sch_yield_l.
     steps_l. force_l. steps_l. force_l. iSplitL "TID"; eauto.
     steps_l. steps_r.
