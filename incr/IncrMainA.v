@@ -20,13 +20,13 @@ Module IncrMainAS. Section IncrMainAS.
   Definition N_main : namespace := (nroot .@ MainHdr.main).
 
   Definition counter γ q (v : Z) : iProp Σ := own γ (◯F{q} v).
-  Definition counter_syn {n} γ q (v : Z) : SRFSyn.t n := <own> γ (◯F{q} v).
+  Definition counter_syn {n} γ q (v : Z) : GTerm.t n := <own> γ (◯F{q} v).
   Definition counter_auth γ (v : Z) : iProp Σ := own γ (●F v).
 
-  Definition ccounter_syn n γ blk ofs : SRFSyn.t n :=
+  Definition ccounter_syn n γ blk ofs : GTerm.t n :=
     (∃ v : τ{Z, n},
       <own> base_γ (mem_points_to_singleton_r (blk, ofs) 1%Qp (Vint v))
-      ∗ <own> γ (frac_auth_auth v))%SRF.
+      ∗ <own> γ (frac_auth_auth v))%SAT.
 
   Definition f_inv u n γ blk ofs : iProp Σ :=
     inv u n N_main (ccounter_syn n γ blk ofs).

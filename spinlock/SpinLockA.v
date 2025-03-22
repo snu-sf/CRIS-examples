@@ -31,9 +31,9 @@ Module SpinLockAS. Section SpinLockAS.
 
   Definition N_SpinLockA := nroot .@ "spin_lock".
 
-  Definition token n γ : SRFSyn.t n := <own> γ (Excl ()).
+  Definition token n γ : GTerm.t n := <own> γ (Excl ()).
 
-  Definition lock_inv {n} blk ofs (P : SRFSyn.t n) γ : SRFSyn.t n :=
+  Definition lock_inv {n} blk ofs (P : GTerm.t n) γ : GTerm.t n :=
     (blk, ofs) ↦ (Vint 1)
     ∨ (blk, ofs) ↦ (Vint 0) ∗ P ∗ token n γ.
 
@@ -43,7 +43,7 @@ Module SpinLockAS. Section SpinLockAS.
   (* Function specs *)
   Definition newlock_spec u : fspec :=
     w_fspec u
-      (fspec_simple (X := nat * {n & SRFSyn.t n})
+      (fspec_simple (X := nat * {n & GTerm.t n})
         (λ '(tid, (existT n P)),
           ((λ _, SchAS.tid_user tid ∗ ⟦P⟧),
           (λ ret, SchAS.tid_user tid ∗ ∃ val γ, ⌜ret = val↑⌝ ∗ is_lock u γ val P))
@@ -51,7 +51,7 @@ Module SpinLockAS. Section SpinLockAS.
 
   Definition acquire_spec u : fspec :=
     w_fspec u
-      (fspec_simple (X := nat * gname * val * {n & SRFSyn.t n})
+      (fspec_simple (X := nat * gname * val * {n & GTerm.t n})
         (λ '(tid, γ, val, P),
           ((λ arg, ⌜arg = [val]↑⌝ ∗ SchAS.tid_user tid ∗ is_lock u γ val (projT2 P)),
           (λ ret, ⌜ret = Vundef↑⌝ ∗ SchAS.tid_user tid ∗ ⟦token (projT1 P) γ⟧ ∗ ⟦projT2 P⟧))
@@ -59,7 +59,7 @@ Module SpinLockAS. Section SpinLockAS.
 
   Definition release_spec u : fspec :=
     w_fspec u
-      (fspec_simple (X := nat * gname * val * {n & SRFSyn.t n})
+      (fspec_simple (X := nat * gname * val * {n & GTerm.t n})
         (λ '(tid, γ, val, P),
           ((λ arg, ⌜arg = [val]↑⌝
             ∗ SchAS.tid_user tid

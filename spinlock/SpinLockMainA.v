@@ -29,8 +29,8 @@ Module SpinLockMainAS. Section SpinLockMainAS.
         (λ arg, ⌜arg = tt↑⌝ ∗ SchAS.tid_user 0,
         λ ret, ⌜ret = tt↑⌝)))%I.
 
-  Definition lock_P loc γ : SRFSyn.t 0 :=
-    ∃ v : τ{Z}%SRF, loc ↦ (Vint v) ∗ <own> γ (●F v).
+  Definition lock_P loc γ : GTerm.t 0 :=
+    ∃ v : τ{Z}%SAT, loc ↦ (Vint v) ∗ <own> γ (●F v).
 
   Definition incr_spec u : fspec :=
     w_fspec u
@@ -55,7 +55,7 @@ Module SpinLockMainAS. Section SpinLockMainAS.
           ∗ own γ_v (◯F{1/2} 0%Z)))%I.
 
   Definition incr_post γ_v : SAny.t → SAny.t → SynDepO :=
-    (λ _ _, existT 0 (<own> γ_v (◯F{1/2} 1%Z)))%SRF.
+    (λ _ _, existT 0 (<own> γ_v (◯F{1/2} 1%Z)))%SAT.
 
   Lemma incr_spawnable u blk_l ofs_l blk_v ofs_v γ_v :
     SchAS.fspec_spawnable u (incr_spec u)

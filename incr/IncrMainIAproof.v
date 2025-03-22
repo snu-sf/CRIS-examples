@@ -25,7 +25,7 @@ Module IncrIA. Section IncrIA.
   Lemma f_spawnable γ v blk ofs:
     SchAS.fspec_spawnable u_s (IncrMainAS.f_spec u_s)
       (λ varg arg, ⌜varg = arg ∧ varg = ([Vptr blk ofs]↑↑)⌝ ∗ counter γ (1/2) v ∗ f_inv u_s 0 γ blk ofs)%I
-      (λ vret ret, existT 0 ((⌜vret = ret ∧ vret = tt↑↑⌝ ∗ counter_syn γ (1/2) (v + 1))%SRF)).
+      (λ vret ret, existT 0 ((⌜vret = ret ∧ vret = tt↑↑⌝ ∗ counter_syn γ (1/2) (v + 1))%SAT)).
   Proof.
     rewrite /SchAS.fspec_spawnable /w_fspec /fspec_virtual /precond /postcond /f_spec /=.
     ii; ss. eexists (x_src, (blk, ofs, v, γ)); split; red; ii.
