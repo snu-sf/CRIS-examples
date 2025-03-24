@@ -10,40 +10,6 @@ Global Instance subG_GΓ {Γ : HRA} : subG IncrAΓ Γ → IncrAGΓ Γ.
 Proof. solve_inG. Defined.
 Hint Unfold subG_GΓ IncrAΓ : GRA_index.
 
-Module FaaA. Section FaaA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !memGΓ Γ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ}.
-
-  Definition faa_spec u : fspec :=
-    w_fspec_sch u (fspec_simple (λ '(b, ofs), (λ arg, ⌜arg = [Vptr b ofs]↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
-
-  Definition spc u : alist string fspec :=
-    [(FaaHdr.faa, faa_spec u)].
-
-  Definition scopes : list string := [].
-
-  Definition faa : list val → itree hmodE unit :=
-    λ arg,
-      '(b, ofs) : mblock * ptrofs <- (pargs [Tptr] arg)?;;
-      𝒴;;;
-        'v : Z <- trigger (Take Z);;
-        trigger (Assume ((b, ofs) ↦ Vint v));;;
-        trigger (Guarantee ((b, ofs) ↦ Vint (v + 1)));;;
-      𝒴;;; Ret tt.
-
-  Definition fnsems u := [(FaaHdr.faa, (scopes, mk_specbody (faa_spec u) (cfunN faa)))].
-
-  Program Definition Mod u : SMod.t := {|
-    SMod.scopes := scopes;
-    SMod.fnsems := fnsems u;
-    SMod.initial_st := [];
-  |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
-
-  Definition t u spc : HMod.t := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) spc (Mod u)).
-End FaaA. End FaaA.
-
 Module IncrAS. Section IncrAS.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
   Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !IncrAGΓ Γ}.
