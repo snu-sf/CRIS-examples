@@ -28,8 +28,9 @@ Module SpinLockIA. Section SpinLockIA.
     init_simF u_a 0.
     (* preprocess initial conditions *)
     steps_l. rename q1 into tid. destruct q2 as [n P]; s. iDestruct "ASM" as "[[TID P] ->]". hss.
+    steps_r.
     (* tgt yield *)
-    steps_r. sch_yield_r. iFrame. clear nths NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST TID".
+    sch_yield_r. iFrame. clear nths NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST TID".
     (* tgt inline - mem alloc *)
     inline_r. force_r 1. forces_r. iSplit; eauto.
     steps_r. iDestruct "GRT" as "[[%blk [-> [PT _]]] ->]". hss. steps_r.
