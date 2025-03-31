@@ -8,7 +8,7 @@ Module IncrI. Section IncrI.
 
   Definition incr : list val → itree pmodE unit :=
     λ arg,
-      𝒴;;; '_ : unit <- ccallU FaaHdr.faa arg;;
+      𝒴;;; '_ : unit <- ccallU FaaHdr.faa2 arg;;
       𝒴;;; Ret tt.
 
   Definition main : unit → itree pmodE unit :=

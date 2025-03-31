@@ -1,5 +1,5 @@
 Require Import CRIS.
-Require Import IncrI IncrA SchA MemA SchTactics FAA2.
+Require Import IncrI IncrA SchA MemA SchTactics FAA_A.
 From iris Require Import frac_auth numbers.
 
 Module IncrIA. Section IncrIA.

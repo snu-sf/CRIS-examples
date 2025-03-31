@@ -1,7 +1,7 @@
 Require Import CRIS.
 
 Module FaaHdr.
-  Definition faa := "faa".
+  Definition faa2 := "faa2".
 End FaaHdr.
 
 Module IncrHdr.

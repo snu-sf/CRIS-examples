@@ -1,6 +1,6 @@
 Require Import CRIS Cancel.
 Require Import MemI MemA MemIAproof ImpPrelude.
-Require Import IncrHeader IncrI IncrA IncrIAproof FAA2.
+Require Import IncrHeader IncrI IncrA IncrIAproof FAA_I FAA_A FAA_IAproof.
 Require Import SchHeader SchI SchA SchIAproof SchTactics.
 
 Module IncrAll.
