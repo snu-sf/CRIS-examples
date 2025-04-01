@@ -18,17 +18,17 @@ Module CtrlIA. Section CtrlIA.
   (* An universe ID for Ring, Ctrl, and Cell modules *)
   Context (u_s: univ_id).
   (* Spec tables *)
-  Variable SpcR : string -> option fspec.
-  Variable SpcC : string -> option fspec.
+  Variable SpR : string -> option fspec.
+  Variable SpC : string -> option fspec.
 
   (* Definitions of a list of Cell modules *)
-  Local Definition CellA := (fun idx => CellA.t idx SpcC).
+  Local Definition CellA := (fun idx => CellA.t idx SpC).
   Definition CellG start len : HMod.t :=
     HMod.addL (List.map CellA (seq start len)).
   Definition CellGS := (CellG 0 max_size).
 
   (* Definitions of RingA module and RingI module *)
-  Local Definition RingA := (RingA.t max_size SpcR).
+  Local Definition RingA := (RingA.t max_size SpR).
   Local Definition CtrlI := (CtrlI.t max_size).
   Local Definition RingAMod := (RingA ★ CellGS).
   Local Definition RingIMod := (CtrlI ★ CellGS).
@@ -108,7 +108,7 @@ Module CtrlIA. Section CtrlIA.
        ([∗ list] i↦x ∈ q, CellAS.cell ((tl+i) mod max_size) x) ∗
        ([∗ list] i↦x ∈ q', (CellAS.pending ((hd+i) mod max_size) ∨ CellAS.cell ((hd+i) mod max_size) x)))%I.
 
-  Notation IstFull := (IstProd (IstSB (RingA.t max_size SpcR).(HMod.scopes) Ist) IstEq).
+  Notation IstFull := (IstProd (IstSB (RingA.t max_size SpR).(HMod.scopes) Ist) IstEq).
 
   (*************)
 

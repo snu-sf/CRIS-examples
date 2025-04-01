@@ -10,11 +10,11 @@ Module MainIA. Section MainIA.
   Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ _ st_src st_tgt, emp%I.
 
-  Context (spc_s: string -> option fspec).
-  Context (CtxInSpc: spc_incl CtxAS.spc spc_s). (* Specs of Ctxrary functions *)
+  Context (sp_s: string -> option fspec).
+  Context (CtxInSp: sp_incl CtxAS.sp sp_s). (* Specs of Ctxrary functions *)
 
-  Local Definition CellioA := (CellioA.t spc_s).
-  Local Definition MainA := (MainA.t spc_s).
+  Local Definition CellioA := (CellioA.t sp_s).
+  Local Definition MainA := (MainA.t sp_s).
   Local Definition IstFull := (IstProd (IstSB MainA.(HMod.scopes) Ist) IstEq).
 
   Lemma simF_main:

@@ -11,19 +11,19 @@ Module MutGIA. Section MutGIA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
   Context (u_s u_apc: univ_id).
-  Context (Spc: string -> option fspec).
-  Context (SpcPure: string -> option fspec).
+  Context (Sp: string -> option fspec).
+  Context (SpPure: string -> option fspec).
 
-  Context (APCInSpc : spc_incl (APCA.Spc) Spc).
-  Context (FInPure : spc_incl (MutFA.SpcF) SpcPure).
-  Context (PureInSpc : spc_sub SpcPure Spc).
+  Context (APCInSp : sp_incl (APCA.Sp) Sp).
+  Context (FInPure : sp_incl (MutFA.SpF) SpPure).
+  Context (PureInSp : sp_sub SpPure Sp).
 
   Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ _ _ _, (True)%I.
 
-  Local Definition MutGAMod := (MutGA.t u_s Spc ★ APCA.t u_apc SpcPure Spc).
-  Local Definition MutGIMod := (MutGI.t ★ APCA.t u_apc SpcPure Spc).
-  Local Definition IstFull := (IstProd (IstSB (MutGA.t u_s Spc).(HMod.scopes) Ist) IstEq).
+  Local Definition MutGAMod := (MutGA.t u_s Sp ★ APCA.t u_apc SpPure Sp).
+  Local Definition MutGIMod := (MutGI.t ★ APCA.t u_apc SpPure Sp).
+  Local Definition IstFull := (IstProd (IstSB (MutGA.t u_s Sp).(HMod.scopes) Ist) IstEq).
   
   (*************)
 
@@ -68,7 +68,7 @@ Module MutGIA. Section MutGIA.
     steps_r. apc_call "IST"; eauto.
     { instantiate (1:=0). eapply OrdArith.lt_from_nat. nia. }
     { instantiate (1:=q). eapply Ord.lt_le_lt; eauto. eapply OrdArith.lt_from_nat. nia. }
-    { apply FInPure. unfold MutFA.SpcF. unseal CRIS. ss. }
+    { apply FInPure. unfold MutFA.SpF. unseal CRIS. ss. }
     { iFrame. iPureIntro. esplits; eauto; [nia|refl]. }
     iDestruct "ISTPOST" as "[IST ->]".
 
@@ -98,13 +98,13 @@ End MutGIA.
 Section ctxr.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
-  Theorem ctxr (u_s u_apc: univ_id) (Spc SpcPure: string → option fspec) 
-    (APCInSpc : spc_incl (APCA.Spc) Spc)
-    (FInPure : spc_incl (MutFA.SpcF) SpcPure)
-    (PureInSpc : spc_sub SpcPure Spc)
+  Theorem ctxr (u_s u_apc: univ_id) (Sp SpPure: string → option fspec) 
+    (APCInSp : sp_incl (APCA.Sp) Sp)
+    (FInPure : sp_incl (MutFA.SpF) SpPure)
+    (PureInSp : sp_sub SpPure Sp)
   :
     ctx_refines
-      (MutGA.t u_s Spc ★ APCA.t u_apc SpcPure Spc, MutGA.init_cond)
-      (MutGI.t ★ APCA.t u_apc SpcPure Spc, emp%I).
+      (MutGA.t u_s Sp ★ APCA.t u_apc SpPure Sp, MutGA.init_cond)
+      (MutGI.t ★ APCA.t u_apc SpPure Sp, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End MutGIA.

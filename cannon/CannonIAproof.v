@@ -9,7 +9,7 @@ Module CannonIA. Section CannonIA.
   Import CannonAS.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CannonAGΓ Γ}.
 
-  Context (Spc_s : string → option fspec).
+  Context (Sp_s : string → option fspec).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     (λ _ st_s st_t,
@@ -17,7 +17,7 @@ Module CannonIA. Section CannonIA.
       ∨ Fired
     )%I.
   
-  Local Definition CannonAMod := (CannonA.t Spc_s).
+  Local Definition CannonAMod := (CannonA.t Sp_s).
   Local Definition CannonIMod := (CannonI.t).
 
   Lemma simF_fire : HSim.sim_fun open CannonAMod CannonIMod Ist CannonHdr.fire.
@@ -54,9 +54,9 @@ Section ctxr.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
   Context `{!CannonAGΓ Γ}.
 
-  Theorem ctxr (Spc_s : string → option fspec):
+  Theorem ctxr (Sp_s : string → option fspec):
     ctx_refines
-      (CannonA.t Spc_s, CannonA.init_cond)
+      (CannonA.t Sp_s, CannonA.init_cond)
       (CannonI.t, emp%I).
   Proof. eapply main_adequacy, sim. Qed.
 End ctxr. End CannonIA.

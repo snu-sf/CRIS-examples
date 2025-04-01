@@ -13,24 +13,24 @@ Module AddIA. Section AddIA.
 
   Context (genv : GEnv.t).
   Context (u u_apc : univ_id).
-  Context (spc spc_pure spc_pure_fun : string -> option fspec).
+  Context (sp sp_pure sp_pure_fun : string -> option fspec).
 
   (* GEnv Hypothesis *)
   Context (GEnvWF : GEnv.wf genv).
   Context (GEnvIncl : incl AddGEnv.t genv).
 
   (* SPC Hypothesis *)
-  Context (APCInSpcPure : spc_incl APCA.Spc spc_pure).
-  Context (SpcPureInSpc : spc_sub spc_pure spc).
-  Context (repeatInSpcPure : spc_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec spc_pure_fun genv)).
-  Context (succInSpcPureFun : spc_pure_fun AddHdr.succ = Some AddAS.succ_spec).
+  Context (APCInSpPure : sp_incl APCA.Sp sp_pure).
+  Context (SpPureInSp : sp_sub sp_pure sp).
+  Context (repeatInSpPure : sp_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec sp_pure_fun genv)).
+  Context (succInSpPureFun : sp_pure_fun AddHdr.succ = Some AddAS.succ_spec).
 
   (* Modules *)
-  Local Definition APCA := (APCA.t u_apc spc_pure spc).
-  Local Definition RepeatA := (RepeatA.t genv u spc spc_pure_fun).
+  Local Definition APCA := (APCA.t u_apc sp_pure sp).
+  Local Definition RepeatA := (RepeatA.t genv u sp sp_pure_fun).
   Local Definition RepeatAMod := (RepeatA ★ APCA).
   Local Definition AddI := (AddI.t genv).
-  Local Definition AddA := (AddA.t u spc).
+  Local Definition AddA := (AddA.t u sp).
   Local Definition AddIMod := (AddI ★ RepeatAMod).
   Local Definition AddAMod := (AddA ★ RepeatAMod).
 
@@ -68,7 +68,7 @@ Module AddIA. Section AddIA.
     steps_r.
 
     (* SRC: unfold APC *)
-    force_l. iSplit. { iPureIntro. apply SpcPureInSpc. apply APCInSpcPure. unfold APCA.Spc. unseal CRIS. et. }
+    force_l. iSplit. { iPureIntro. apply SpPureInSp. apply APCInSpPure. unfold APCA.Sp. unseal CRIS. et. }
     steps_l. forces_l. iSplit; et. inline_l. steps_l. iDestruct "ASM" as "%". hss.
     steps_l. unfold APC. force_l. steps_l.
 
@@ -101,7 +101,7 @@ Module AddIA. Section AddIA.
     steps_r. rewrite FIND. hss. steps_r.
 
     (* SRC: unfold APC *)
-    force_l. iSplit. { iPureIntro. apply SpcPureInSpc. apply APCInSpcPure. unfold APCA.Spc. unseal CRIS. et. }
+    force_l. iSplit. { iPureIntro. apply SpPureInSp. apply APCInSpPure. unfold APCA.Sp. unseal CRIS. et. }
     steps_l. forces_l. iSplit; et. steps_l.
     inline_l. steps_l. iDestruct "ASM" as "%". hss.
     steps_l. unfold APC. force_l 1. steps_l.
@@ -145,15 +145,15 @@ End AddIA.
 Section ctxr.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
-  Definition ctxr (ge : GEnv.t) (u u_apc : univ_id) (spc spc_pure spc_pure_fun : string → option fspec)
+  Definition ctxr (ge : GEnv.t) (u u_apc : univ_id) (sp sp_pure sp_pure_fun : string → option fspec)
         (GEnvWF : GEnv.wf ge)
         (GEnvIncl : incl AddGEnv.t ge)
-        (APCInSpcPure : spc_incl APCA.Spc spc_pure)
-        (SpcPureInSpc : spc_sub spc_pure spc)
-        (repeatInSpcPure: spc_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec spc_pure_fun ge))
-        (succInSpcPureFun : spc_pure_fun AddHdr.succ = Some AddAS.succ_spec) :
+        (APCInSpPure : sp_incl APCA.Sp sp_pure)
+        (SpPureInSp : sp_sub sp_pure sp)
+        (repeatInSpPure: sp_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec sp_pure_fun ge))
+        (succInSpPureFun : sp_pure_fun AddHdr.succ = Some AddAS.succ_spec) :
     ctx_refines
-      ((AddA.t u spc) ★ (RepeatA.t ge u spc spc_pure_fun) ★ (APCA.t u_apc spc_pure spc), emp%I)
-      ((AddI.t ge)    ★ (RepeatA.t ge u spc spc_pure_fun) ★ (APCA.t u_apc spc_pure spc), emp%I).
+      ((AddA.t u sp) ★ (RepeatA.t ge u sp sp_pure_fun) ★ (APCA.t u_apc sp_pure sp), emp%I)
+      ((AddI.t ge)    ★ (RepeatA.t ge u sp sp_pure_fun) ★ (APCA.t u_apc sp_pure sp), emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End AddIA.

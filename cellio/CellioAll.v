@@ -19,10 +19,10 @@ Module CellioAll. Section CellioAll.
 
   Variable CtxA: SMod.t.
   Local Definition smod_src : SMod.t := MainA.Mod ☆ CtxA.
-  Local Definition spc : string → option fspec := spc_from smod_src.
-  Local Definition Ctx := Seal.sealing CRIS (SMod.to_hmod emp spc CtxA).
+  Local Definition sp : string → option fspec := sp_from smod_src.
+  Local Definition Ctx := Seal.sealing CRIS (SMod.to_hmod emp sp CtxA).
   Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
-  Local Definition mod_src : HMod.t := SMod.to_hmod emp spc smod_src.
+  Local Definition mod_src : HMod.t := SMod.to_hmod emp sp smod_src.
   Local Definition mod_tgt : HMod.t := MainI.t ★ CellioI.t ★ Ctx.
   
   Local Definition main_fsp : fspec := fspec_trivial.
@@ -38,16 +38,16 @@ Module CellioAll. Section CellioAll.
   Local Definition trivial_specbody body := {|fsb_fspec := fspec_trivial; fsb_body := body|}.
 
   Hypothesis ModulesWF : HMod.wf mod_tgt.
-  Hypothesis inputInCtx : ∃ scp input (SCP: incl scp CtxA.(SMod.scopes)),
-    alist_find CtxHdr.input (SMod.fnsems CtxA) = Some (scp, trivial_specbody input).
-  Hypothesis fooInCtx : ∃ scp foo (SCP: incl scp CtxA.(SMod.scopes)),
-    alist_find CtxHdr.foo (SMod.fnsems CtxA) = Some (scp, trivial_specbody foo).
+  Hypothesis inputInCtx : ∃ sc input (SCP: incl sc CtxA.(SMod.scopes)),
+    alist_find CtxHdr.input (SMod.fnsems CtxA) = Some (sc, trivial_specbody input).
+  Hypothesis fooInCtx : ∃ sc foo (SCP: incl sc CtxA.(SMod.scopes)),
+    alist_find CtxHdr.foo (SMod.fnsems CtxA) = Some (sc, trivial_specbody foo).
 
-  Lemma lib_spc_incl: spc_incl CtxAS.spc spc.
+  Lemma lib_sp_incl: sp_incl CtxAS.sp sp.
   Proof.
-    i. rewrite /CtxAS.spc. unseal CRIS. econs; first prove_nodup.
+    i. rewrite /CtxAS.sp. unseal CRIS. econs; first prove_nodup.
     destruct inputInCtx, fooInCtx. des.
-    ii; rewrite -FIND /spc /spc_from /smod_src //=. des_ifs; ss; des_ifs.
+    ii; rewrite -FIND /sp /sp_from /smod_src //=. des_ifs; ss; des_ifs.
     { rewrite eq_rel_dec_correct in Heq0. des_ifs.
       rewrite /option_map. des_ifs.
     }
@@ -71,15 +71,15 @@ Module CellioAll. Section CellioAll.
     {
       (* MainI ★ CellioA ⊆ MainA *)
       rewrite -[(SMod.to_hmod _ _ MainA.Mod)](Seal.sealing_eq CRIS).
-      instantiate (1:= (MainI.t ★ (CellioA.t spc), (emp ∗ CellioA.InitCond)%I)).
+      instantiate (1:= (MainI.t ★ (CellioA.t sp), (emp ∗ CellioA.InitCond)%I)).
       eapply ctxr_cond_frameR, main_adequacy, MainIA.sim.
-      eapply lib_spc_incl.
+      eapply lib_sp_incl.
     }
     (* MainI ★ CellioI ⊆ MainI ★ CellioA 
       by CellioI ⊆ctx CellioA *)
     rewrite -[(_, emp%I)]hmod_addc_empty_r.
     eapply ctxr_frameL, ctxr_cond_frameL, main_adequacy, CellioIA.sim.
-    eapply lib_spc_incl.
+    eapply lib_sp_incl.
   Qed.
 
   Lemma cancel_tgt :

@@ -16,33 +16,33 @@ Module KnotIA. Section KnotIA.
   (* 2. universe for knot module and apc module *)
   Context (u_s u_apc: univ_id).
   (* 3. spec tables *)
-  Context (SpcRec SpcFun Spc SpcMem SpcPure: string -> option fspec).
+  Context (SpRec SpFun Sp SpMem SpPure: string -> option fspec).
   (* 4. hypotheses for genv *)
   Context (GEnvWF: GEnv.wf genv).
   Context (GEnvIncl: incl KnotGEnv.t genv).
-  (* 5. hypotheses for spc *)
-  Context (RecInSpc: spc_incl KnotRecSpc SpcRec).
-  Context (MemInSpc: spc_incl MemA.spc Spc).
-  Context (APCInSpc: spc_incl APCA.Spc Spc).
-  (* 6. hypotheses for pure spc *)
-  Context (FunInPure: spc_sub SpcFun SpcPure).
-  Context (PureInSpc : spc_sub SpcPure Spc).
+  (* 5. hypotheses for sp *)
+  Context (RecInSp: sp_incl KnotRecSp SpRec).
+  Context (MemInSp: sp_incl MemA.sp Sp).
+  Context (APCInSp: sp_incl APCA.Sp Sp).
+  (* 6. hypotheses for pure sp *)
+  Context (FunInPure: sp_sub SpFun SpPure).
+  Context (PureInSp : sp_sub SpPure Sp).
 
   Definition inv : iProp :=
     (∃ (f': optionO (natO -d> natO)) (fb': val),
         (⌜∀ f (EQ: f' ≡ (Some f: optionO (natO -d> natO))),
             ∃ fb,
               (<<BLK: fb' = Vptr fb 0>>) /\
-              (<<FN: fb_has_spec genv SpcFun fb (fun_gen genv SpcRec f)>>)⌝)
+              (<<FN: fb_has_spec genv SpFun fb (fun_gen genv SpRec f)>>)⌝)
           ∗ (knot_full f')
           ∗ (var_points_to genv KnotHdr._f fb'))%I.
 
   Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp :=
     λ _ _ _, inv.
 
-  Local Definition APCA := (APCA.t u_apc SpcPure Spc).
-  Local Definition MemA := (MemA.t u_s SpcMem).
-  Local Definition KnotA := (KnotA.t genv u_s SpcRec SpcFun Spc).
+  Local Definition APCA := (APCA.t u_apc SpPure Sp).
+  Local Definition MemA := (MemA.t u_s SpMem).
+  Local Definition KnotA := (KnotA.t genv u_s SpRec SpFun Sp).
   Local Definition KnotAMod := (KnotA ★ MemA ★ APCA).
   Local Definition KnotIMod := ((KnotI.t genv) ★ MemA ★ APCA).
   Local Definition IstFull := (IstProd (IstSB KnotA.(HMod.scopes) Ist) IstEq).
@@ -106,7 +106,7 @@ Module KnotIA. Section KnotIA.
     { instantiate (1:= (2 * q2)). eapply Ord.lt_le_lt; et. rewrite -OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.lt_from_nat. nia. }
     { iSplitR "FL VF".
       - unfold precond. ss. iFrame. iSplit.
-        + iPureIntro. eexists; esplits; et. econs; et. econs; [|refl]. apply RecInSpc. unfold KnotRecSpc. unseal CRIS. ss.
+        + iPureIntro. eexists; esplits; et. econs; et. econs; [|refl]. apply RecInSp. unfold KnotRecSp. unseal CRIS. ss.
         + iPureIntro. eexists; esplits; et. rewrite -OrdArith.mult_from_nat. apply OrdArith.le_from_nat. nia. 
       - iExists _, _, _, _. repeat (iSplit; et). iExists (Some _f_spec), _. iSplit.
         + iPureIntro. i. esplits; et. instantiate (1:=fb). econs; et. inv EQ; et.
@@ -169,7 +169,7 @@ Module KnotIA. Section KnotIA.
     steps_l. force_l. steps_l. force_l. force_l.
     iSplitL "FG"; iFrame; et.
     { iSplit; et. iPureIntro. eexists. esplit; et. econs; et. econs; [|refl].
-      apply RecInSpc. unfold KnotRecSpc. unseal CRIS. ss. }
+      apply RecInSp. unfold KnotRecSp. unseal CRIS. ss. }
     steps_l.
     hss. steps_r. step. iSplit; et.
 
@@ -198,19 +198,19 @@ Section ctxr.
   Context `{!memGΓ Γ, !KnotAGΓ Γ}.
 
   Theorem ctxr (genv: GEnv.t) (u_s u_apc: univ_id)
-    (SpcRec SpcFun Spc SpcMem SpcPure : string → option fspec)
+    (SpRec SpFun Sp SpMem SpPure : string → option fspec)
     (GEnvWF: GEnv.wf genv)
     (GEnvIncl: incl KnotGEnv.t genv)
-    (RecInSpc: spc_incl KnotA.KnotRecSpc SpcRec)
-    (MemInSpc: spc_incl MemA.spc Spc)
-    (APCInSpc: spc_incl APCA.Spc Spc)
-    (FunInPure: spc_sub SpcFun SpcPure)
-    (PureInSpc : spc_sub SpcPure Spc)   
+    (RecInSp: sp_incl KnotA.KnotRecSp SpRec)
+    (MemInSp: sp_incl MemA.sp Sp)
+    (APCInSp: sp_incl APCA.Sp Sp)
+    (FunInPure: sp_sub SpFun SpPure)
+    (PureInSp : sp_sub SpPure Sp)   
   :
     ctx_refines
-      (KnotA.t genv u_s SpcRec SpcFun Spc ★ MemA u_s SpcMem ★ APCA.t u_apc SpcPure Spc,
+      (KnotA.t genv u_s SpRec SpFun Sp ★ MemA u_s SpMem ★ APCA.t u_apc SpPure Sp,
         KnotA.init_cond genv)
-      (KnotI.t genv ★ MemA u_s SpcMem ★ APCA.t u_apc SpcPure Spc,
+      (KnotI.t genv ★ MemA u_s SpMem ★ APCA.t u_apc SpPure Sp,
         emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End KnotIA.

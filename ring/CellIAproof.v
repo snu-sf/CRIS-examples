@@ -17,7 +17,7 @@ Module CellIA. Section CellIA.
   (* An universe for Cell module *)
   Context (u_s: univ_id).
   (* A spec table *)
-  Context (Spc_s : string → option fspec).
+  Context (Sp_s : string → option fspec).
 
   Definition Ist : nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     (λ _ st_src st_tgt,
@@ -27,7 +27,7 @@ Module CellIA. Section CellIA.
           ∨ (⌜vany = v↑⌝ ∗ pending idx ∗ auth idx v)))%I.
 
   (* Definitions of two Cell modules *)
-  Local Definition CellA := (CellA.t idx Spc_s).
+  Local Definition CellA := (CellA.t idx Sp_s).
   Local Definition CellI := (CellI.t idx).
 
   (*************)

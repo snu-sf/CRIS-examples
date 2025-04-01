@@ -32,12 +32,12 @@ Module AddAS. Section AddAS.
           λ vret, ⌜vret = (Vint (add_fun n m))↑⌝%I)
       ).
 
-  Definition Spc : alist string fspec :=
+  Definition Sp : alist string fspec :=
     Seal.sealing CRIS
       [(AddHdr.succ, succ_spec); (AddHdr.add, add_spec)]. 
   
-  Lemma Spc_nodup: List.NoDup (List.map fst Spc).
-  Proof. unfold Spc. unseal CRIS. prove_nodup. Qed.
+  Lemma Sp_nodup: List.NoDup (List.map fst Sp).
+  Proof. unfold Sp. unseal CRIS. prove_nodup. Qed.
 
 End AddAS. End AddAS.
 
@@ -62,5 +62,5 @@ Module AddA. Section AddA.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Definition t u spc := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) spc Mod).
+  Definition t u sp := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) sp Mod).
 End AddA. End AddA.

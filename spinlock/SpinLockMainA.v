@@ -14,7 +14,7 @@ Proof. solve_inG. Defined.
 Hint Unfold RA_inG subG_GΓ SpinLockMainAΓ : GRA_index.
 
 (* Spec definition *)
-(* Define 1) initial resource 2) function specs 3) spc here. *)
+(* Define 1) initial resource 2) function specs 3) sp here. *)
 Module SpinLockMainAS. Section SpinLockMainAS.
   Import SpinLockAS.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
@@ -71,7 +71,7 @@ Module SpinLockMainAS. Section SpinLockMainAS.
     }
   Qed.
 
-  Definition spc u : alist string fspec :=
+  Definition sp u : alist string fspec :=
     [(SpinLockMainHdr.main, main_spec u);
      (SpinLockMainHdr.incr, incr_spec u)].
 End SpinLockMainAS. End SpinLockMainAS.
@@ -120,5 +120,5 @@ Module SpinLockMainA. Section SpinLockMainA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Defined.
 
-  Definition t u spc : HMod.t := Seal.sealing CRIS SMod.to_hmod (wsim_ginv u ⊤) spc (Mod u).
+  Definition t u sp : HMod.t := Seal.sealing CRIS SMod.to_hmod (wsim_ginv u ⊤) sp (Mod u).
 End SpinLockMainA. End SpinLockMainA.

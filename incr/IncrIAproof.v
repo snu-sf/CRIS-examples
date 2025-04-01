@@ -11,18 +11,18 @@ Module IncrIA. Section IncrIA.
 
   Context (u_s u_t : univ_id).
   Context `{u_s > u_t}.
-  Context (spc_s spc_t spc_user_s spc_mem : string → option fspec).
-  Context (SchInSpcS : spc_incl (SchAS.spc u_s spc_user_s) spc_s).
-  Context (MemInSpc : spc_incl MemA.spc spc_s).
-  Context (MainInSpc : spc_incl (IncrAS.spc u_s) spc_user_s).
-  Context (SchInSpcT : spc_incl (SchAS.spc u_t (to_spc [])) spc_t).
+  Context (sp_s sp_t sp_user_s sp_mem : string → option fspec).
+  Context (SchInSpS : sp_incl (SchAS.sp u_s sp_user_s) sp_s).
+  Context (MemInSp : sp_incl MemA.sp sp_s).
+  Context (MainInSp : sp_incl (IncrAS.sp u_s) sp_user_s).
+  Context (SchInSpT : sp_incl (SchAS.sp u_t (to_sp [])) sp_t).
 
-  Local Definition MemA := (MemA.t u_s spc_mem).
-  Local Definition IncrA := (IncrA.t u_s spc_s).
+  Local Definition MemA := (MemA.t u_s sp_mem).
+  Local Definition IncrA := (IncrA.t u_s sp_s).
   Local Definition IncrI := (IncrI.t).
   Local Definition IstFull := (IstProd (IstSB IncrA.(HMod.scopes) Ist) IstEq).
   Local Definition MA := (IncrA ★ MemA).
-  Local Definition MI := ((IncrI ★ FaaA.t u_t spc_t) ★ MemA).
+  Local Definition MI := ((IncrI ★ FaaA.t u_t sp_t) ★ MemA).
 
   Lemma f_spawnable γ v blk ofs :
     SchAS.fspec_spawnable u_s (IncrAS.incr_spec u_s)
@@ -158,7 +158,7 @@ Module IncrIA. Section IncrIA.
 
     (* src/tgt spawns *)
     sch_spawn; eauto using f_spawnable.
-    { eapply MainInSpc. ss. }
+    { eapply MainInSp. ss. }
     iFrame. iSplitL "" ; eauto.
     clear nths st_s st_t NODS NODD. iIntros (tid nths st_s st_t NODS NODD) "IST TID TKN".
 
@@ -169,7 +169,7 @@ Module IncrIA. Section IncrIA.
     sch_yield_l.
 
     sch_spawn; eauto using f_spawnable.
-    { eapply MainInSpc. ss. }
+    { eapply MainInSp. ss. }
     iFrame. iSplitL "" ; eauto.
     clear nths st_s st_t NODS NODD. iIntros (tid2 nths st_s st_t NODS NODD) "IST TID TKN2".
 
@@ -238,14 +238,14 @@ Section ctxr.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
   Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !IncrAGΓ Γ}.
 
-  Definition ctxr (u_s u_t : univ_id) (spc_s spc_t spc_user_s spc_mem : string → option fspec)
-      (SchInSpcS : spc_incl (SchAS.spc u_s spc_user_s) spc_s)
-      (SchInSpcT : spc_incl (SchAS.spc u_t (to_spc [])) spc_t)
-      (MainInSpc : spc_incl (IncrAS.spc u_s) spc_user_s)
-      (MemInSpc : spc_incl MemA.spc spc_s)
+  Definition ctxr (u_s u_t : univ_id) (sp_s sp_t sp_user_s sp_mem : string → option fspec)
+      (SchInSpS : sp_incl (SchAS.sp u_s sp_user_s) sp_s)
+      (SchInSpT : sp_incl (SchAS.sp u_t (to_sp [])) sp_t)
+      (MainInSp : sp_incl (IncrAS.sp u_s) sp_user_s)
+      (MemInSp : sp_incl MemA.sp sp_s)
       (Univ : u_s > u_t) :
     ctx_refines
-      ((IncrA.t u_s spc_s)            ★ (MemA.t u_s spc_mem), emp%I)
-      ((IncrI.t ★ FaaA.t u_t spc_t)   ★ (MemA.t u_s spc_mem), emp%I).
-  Proof. eapply main_adequacy, sim; try solve_sch_spc; eauto. Qed.
+      ((IncrA.t u_s sp_s)            ★ (MemA.t u_s sp_mem), emp%I)
+      ((IncrI.t ★ FaaA.t u_t sp_t)   ★ (MemA.t u_s sp_mem), emp%I).
+  Proof. eapply main_adequacy, sim; try solve_sch_sp; eauto. Qed.
 End ctxr. End IncrIA.

@@ -12,9 +12,9 @@ Module MapMA. Section MapMA.
   Context (u_a u_m : univ_id).
   Context `(u_a > u_m).
 
-  Context (spc_s spc_t : string → option fspec).
-  Context (MapInSpcS : spc_incl (MapAS.spc u_a) spc_s).
-  Context (MapInSpcT : spc_incl (MapMS.spc u_m) spc_t).
+  Context (sp_s sp_t : string → option fspec).
+  Context (MapInSpS : sp_incl (MapAS.sp u_a) sp_s).
+  Context (MapInSpT : sp_incl (MapMS.sp u_m) sp_t).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     (λ _ st_src st_tgt,
@@ -27,8 +27,8 @@ Module MapMA. Section MapMA.
             ∗ auth_allocated f
             ∗ auth_unallocated sz))%I.
 
-  Local Definition MapA := (MapA.t u_a spc_s).
-  Local Definition MapM := (MapM.t u_m spc_t).
+  Local Definition MapA := (MapA.t u_a sp_s).
+  Local Definition MapM := (MapM.t u_m sp_t).
 
   Lemma simF_init : HSim.sim_fun open MapA MapM Ist MapHdr.init.
   Proof.
@@ -180,12 +180,12 @@ Module MapMA. Section MapMA.
 End MapMA.
 Section MapMA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapAGΓ Γ, !MapMGΓ Γ, !memGΓ Γ}.
-  Lemma ctxr u_s u_t spc_s spc_t
+  Lemma ctxr u_s u_t sp_s sp_t
       (LE : u_s > u_t)
-      (MapInSpcS : spc_incl (MapAS.spc u_s) spc_s)
-      (MapInSpcT : spc_incl (MapMS.spc u_t) spc_t) :
+      (MapInSpS : sp_incl (MapAS.sp u_s) sp_s)
+      (MapInSpT : sp_incl (MapMS.sp u_t) sp_t) :
     ctx_refines
-      (MapA.t u_s spc_s, MapA.init_cond)
-      (MapM.t u_t spc_t, emp%I).
+      (MapA.t u_s sp_s, MapA.init_cond)
+      (MapM.t u_t sp_t, emp%I).
   Proof. eapply main_adequacy, MapMA.sim; eauto. Qed.
 End MapMA. End MapMA.

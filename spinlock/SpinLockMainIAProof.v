@@ -11,16 +11,16 @@ Module SpinLockMainIA. Section SpinLockMainIA.
   Context `{!memGΓ Γ, !SchAGΣ Σ, !SchAGΓ Γ, !SpinLockMainAGΓ Γ, !SpinLockAGΓ Γ}.
 
   Context (u_a : univ_id). (* univ_id of the source/mem module *)
-  Context (spc_s spc_user_s spc_mem : string → option fspec). (* spcs of lock/sch/mem *)
-  Context (SchInSpc : spc_incl (SchAS.spc u_a spc_user_s) spc_s).
-  Context (MemInSpc : spc_incl MemA.spc spc_s).
-  Context (MainInSpc : spc_incl (SpinLockMainAS.spc u_a) spc_user_s).
+  Context (sp_s sp_user_s sp_mem : string → option fspec). (* sps of lock/sch/mem *)
+  Context (SchInSp : sp_incl (SchAS.sp u_a sp_user_s) sp_s).
+  Context (MemInSp : sp_incl MemA.sp sp_s).
+  Context (MainInSp : sp_incl (SpinLockMainAS.sp u_a) sp_user_s).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
-  Local Definition MemA := (MemA.t u_a spc_mem).
-  Local Definition SpinLockA := (SpinLockA.t u_a spc_s).
-  Local Definition SpinLockMainA := (SpinLockMainA.t u_a spc_s).
+  Local Definition MemA := (MemA.t u_a sp_mem).
+  Local Definition SpinLockA := (SpinLockA.t u_a sp_s).
+  Local Definition SpinLockMainA := (SpinLockMainA.t u_a sp_s).
   Local Definition SpinLockMainI := (SpinLockMainI.t).
   Local Definition IstFull := (IstProd (IstSB SpinLockMainA.(HMod.scopes) Ist) IstEq).
   Local Definition MA := (SpinLockMainA ★ (MemA ★ SpinLockA)).
@@ -141,7 +141,7 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     iDestruct "W" as "[W1 W2]".
     (* spawn thread 1 - incr *)
     steps_l. sch_spawn.
-    { apply MainInSpc; ss. }
+    { apply MainInSp; ss. }
     { eapply (incr_spawnable). }
     iFrame; ss; clear nths st_src st_tgt NODS NODD.
     iSplit.
@@ -153,7 +153,7 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     sch_yield_l. steps_l.
     (* spawn thread 2 - incr *)
     sch_spawn.
-    { apply MainInSpc; ss. }
+    { apply MainInSp; ss. }
     { eapply (incr_spawnable u_a). }
     iSplitL "IST"; ss; clear nths st_s st_t NODS NODD. iFrame.
     iSplit.
@@ -244,12 +244,12 @@ Section ctxr.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
   Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !SpinLockMainAGΓ Γ, !SpinLockAGΓ Γ}.
 
-  Definition ctxr (u : univ_id) (spc_s spc_user_s spc_mem : string → option fspec)
-      (SchInSpc : spc_incl (SchAS.spc u spc_user_s) spc_s)
-      (MainInSpc : spc_incl (SpinLockMainAS.spc u) spc_user_s)
-      (MemInSpc : spc_incl MemA.spc spc_s) :
+  Definition ctxr (u : univ_id) (sp_s sp_user_s sp_mem : string → option fspec)
+      (SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s)
+      (MainInSp : sp_incl (SpinLockMainAS.sp u) sp_user_s)
+      (MemInSp : sp_incl MemA.sp sp_s) :
     ctx_refines
-      ((SpinLockMainA.t u spc_s) ★ (MemA.t u spc_mem ★ (SpinLockA.t u spc_s)), emp%I)
-      ((SpinLockMainI.t)         ★ (MemA.t u spc_mem ★ (SpinLockA.t u spc_s)), emp%I).
+      ((SpinLockMainA.t u sp_s) ★ (MemA.t u sp_mem ★ (SpinLockA.t u sp_s)), emp%I)
+      ((SpinLockMainI.t)         ★ (MemA.t u sp_mem ★ (SpinLockA.t u sp_s)), emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End SpinLockMainIA.

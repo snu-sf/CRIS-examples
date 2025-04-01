@@ -20,12 +20,12 @@ Module CtxAS.
 Section CtxAS.
   Context `{Σ: GRA}.
 
-  Definition spc: alist string fspec :=
+  Definition sp: alist string fspec :=
     Seal.sealing CRIS [(CtxHdr.foo, fspec_trivial); (CtxHdr.input, fspec_trivial)].
   
-  Lemma spc_nodup: List.NoDup (List.map fst spc).
+  Lemma sp_nodup: List.NoDup (List.map fst sp).
   Proof.
-    unfold spc. unseal CRIS. prove_nodup.
+    unfold sp. unseal CRIS. prove_nodup.
   Qed.
 
 End CtxAS. End CtxAS.

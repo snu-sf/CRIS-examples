@@ -87,9 +87,9 @@ Module KnotA. Section KnotA.
 Section KnotAS.
 
   Variable genv: GEnv.t.
-  Variable SpcRec: string → option fspec.
-  Variable SpcFun: string → option fspec.
-  Variable SpcPure: string → option fspec.
+  Variable SpRec: string → option fspec.
+  Variable SpFun: string → option fspec.
+  Variable SpPure: string → option fspec.
 
   Definition var_points_to (var: string) (v: val): iProp :=
     match ((CEnv.load_genv genv).(CEnv.id2blk) var) with
@@ -113,24 +113,24 @@ Section KnotAS.
     fspec_apc (λ n: nat, (2 * n)%ord)
       (fun n => 
         ((fun varg => (⌜∃ fb, varg = [Vptr fb 0; Vint (Z.of_nat n)]↑ ∧ (intrange_64 n) ∧
-                        fb_has_spec genv SpcRec fb rec_spec⌝
+                        fb_has_spec genv SpRec fb rec_spec⌝
                         ∗ knot_frag (Some f))%I),
           (fun vret => (⌜vret = (Vint (Z.of_nat (f n)))↑⌝ ∗ knot_frag (Some f))%I))).
 
-  Definition KnotRecSpc: alist string fspec :=
+  Definition KnotRecSp: alist string fspec :=
     Seal.sealing CRIS [(KnotHdr.rec, rec_spec)].
 
   Definition knot_spec : fspec :=
     fspec_simple (X:=(nat -> nat))
       (fun f => 
         ((fun varg => (⌜∃ fb, varg = [Vptr fb 0]↑ ∧ 
-                        fb_has_spec genv SpcFun fb (fun_gen f)⌝
+                        fb_has_spec genv SpFun fb (fun_gen f)⌝
                         ∗ (∃ old, knot_frag old))%I,
           (fun vret => (⌜∃ fb, vret = (Vptr fb 0)↑ ∧
-                        fb_has_spec genv SpcRec fb rec_spec⌝
+                        fb_has_spec genv SpRec fb rec_spec⌝
                         ∗ knot_frag (Some f))%I)))).
 
-  Definition KnotSpc : alist string fspec :=
+  Definition KnotSp : alist string fspec :=
     Seal.sealing CRIS 
       [(KnotHdr.rec, rec_spec); 
       (KnotHdr.knot, knot_spec)].
@@ -142,14 +142,14 @@ Section KnotA.
 
   Definition scopes := ["Knot"].
 
-  Definition fnsems genv SpcRec SpcFun :=
+  Definition fnsems genv SpRec SpFun :=
     [(KnotHdr.rec, (scopes, mk_specbody rec_spec pure_body));
-     (KnotHdr.knot, (scopes, mk_specbody (knot_spec genv SpcRec SpcFun) fbody_trivial))].
+     (KnotHdr.knot, (scopes, mk_specbody (knot_spec genv SpRec SpFun) fbody_trivial))].
 
-  Program Definition Mod genv SpcRec SpcFun : SMod.t :=
+  Program Definition Mod genv SpRec SpFun : SMod.t :=
   {|
     SMod.scopes := scopes;
-    SMod.fnsems := fnsems genv SpcRec SpcFun;
+    SMod.fnsems := fnsems genv SpRec SpFun;
     SMod.initial_st := [];
   |}.
   Solve All Obligations with prove_scope.
@@ -158,7 +158,7 @@ Section KnotA.
   Definition init_cond genv : iProp :=
     ((var_points_to genv KnotHdr._f (Vint 0)) ∗ knot_full None)%I.
 
-  Definition t genv u SpcRec SpcFun Spc :=
-    Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Spc (Mod genv SpcRec SpcFun)).
+  Definition t genv u SpRec SpFun Sp :=
+    Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Sp (Mod genv SpRec SpFun)).
 End KnotA.
 End KnotA. End KnotA.

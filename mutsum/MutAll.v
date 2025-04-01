@@ -20,13 +20,13 @@ Module MutAll.
   Local Definition ginv : iProp Σ := wsim_ginv u ⊤.
 
   Local Definition smod_src : SMod.t := MutMainA.Mod ☆ MutFA.Mod ☆ MutGA.Mod ☆ APCC.Mod.
-  Local Definition spc : string → option fspec := spc_from smod_src.
+  Local Definition sp : string → option fspec := sp_from smod_src.
 
   Local Definition smod_pure : SMod.t := MutFA.Mod ☆ MutGA.Mod.
-  Local Definition spc_pure : string → option fspec := spc_from smod_pure.
+  Local Definition sp_pure : string → option fspec := sp_from smod_pure.
 
   Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
-  Local Definition mod_src : HMod.t := SMod.to_hmod ginv spc smod_src.
+  Local Definition mod_src : HMod.t := SMod.to_hmod ginv sp smod_src.
   Local Definition mod_tgt : HMod.t := MutMainI.t ★ MutFI.t ★ MutGI.t ★ APCI.t.
 
   Local Definition main_fsp : fspec := MutMainA.main_spec.
@@ -38,9 +38,9 @@ Module MutAll.
             ((mod_src, init_cond) : HMod.modc).
   Proof. eapply cancellation; try by econs. i. iIntros "%POST". iPureIntro. des; eauto. Qed.
 
-  Ltac prove_spc :=
-    rewrite /APCA.Spc /MutFA.SpcF /MutGA.SpcG /spc /smod_src /spc_pure /spc_incl /spc_sub /find_body
-      /pure_specbody /spc_from /smod_pure /option_map; try unseal CRIS; try prove_nodup;
+  Ltac prove_sp :=
+    rewrite /APCA.Sp /MutFA.SpF /MutGA.SpG /sp /smod_src /sp_pure /sp_incl /sp_sub /find_body
+      /pure_specbody /sp_from /smod_pure /option_map; try unseal CRIS; try prove_nodup;
     ii; ss; rewrite ->!eq_rel_dec_correct in *; des_ifs; eexists; ss.
 
   (* Refinement between spec/impl of whole program (linked module) *)
@@ -52,30 +52,30 @@ Module MutAll.
     etrans. { eapply ctxr_comm. }
     etrans.
     { rewrite -hmod_addc_empty_l. eapply ctxr_cond_frameR.
-      replace (SMod.to_hmod ginv spc APCC.Mod) with (APCC.t u spc); cycle 1.
+      replace (SMod.to_hmod ginv sp APCC.Mod) with (APCC.t u sp); cycle 1.
       { unfold APCC.t. unseal CRIS. ss. }
       eapply APCAC.ctxr.
-      { instantiate (1:=spc). prove_spc. }
-      { instantiate (1:=spc_pure). prove_spc. } 
-      { prove_spc. }
+      { instantiate (1:=sp). prove_sp. }
+      { instantiate (1:=sp_pure). prove_sp. } 
+      { prove_sp. }
     }
     etrans. { eapply ctxr_comm. }
-    rewrite !hmod_add_assoc. rewrite -(hmod_add_assoc (SMod.to_hmod ginv spc MutFA.Mod)).
+    rewrite !hmod_add_assoc. rewrite -(hmod_add_assoc (SMod.to_hmod ginv sp MutFA.Mod)).
     etrans.
     { eapply ctxr_compose_mix.
-      { replace (SMod.to_hmod ginv spc MutMainA.Mod) with (MutMainA.t u spc); cycle 1.
+      { replace (SMod.to_hmod ginv sp MutMainA.Mod) with (MutMainA.t u sp); cycle 1.
         { unfold MutMainA.t. unseal CRIS. ss. }
-        eapply MutMainIA.ctxr; prove_spc.
+        eapply MutMainIA.ctxr; prove_sp.
       }
-      { replace (SMod.to_hmod ginv spc MutFA.Mod) with (MutFA.t u spc); cycle 1.
+      { replace (SMod.to_hmod ginv sp MutFA.Mod) with (MutFA.t u sp); cycle 1.
         { unfold MutFA.t. unseal CRIS. ss. }
-        replace (SMod.to_hmod ginv spc MutGA.Mod) with (MutGA.t u spc); cycle 1.
+        replace (SMod.to_hmod ginv sp MutGA.Mod) with (MutGA.t u sp); cycle 1.
         { unfold MutGA.t. unseal CRIS. ss. }
         rewrite !hmod_add_assoc.
         etrans.
         { eapply ctxr_compose_mix.
-          { eapply MutFIA.ctxr; prove_spc. }
-          { eapply MutGIA.ctxr; prove_spc. }
+          { eapply MutFIA.ctxr; prove_sp. }
+          { eapply MutGIA.ctxr; prove_sp. }
         }
         rewrite hmod_addc_empty_l -hmod_add_assoc. refl.
       }

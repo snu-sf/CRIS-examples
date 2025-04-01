@@ -73,12 +73,12 @@ Module MapIM. Section MapIM.
 
   (* universe ids of src modules *)
   Context (u_s u_mem : univ_id).
-  (* spcs of src/mem modules *)
-  Context (spc_s spc_mem : string → option fspec).
-  Context (MapInSpc : spc_incl (MapMS.spc u_s) spc_s).
+  (* sps of src/mem modules *)
+  Context (sp_s sp_mem : string → option fspec).
+  Context (MapInSp : sp_incl (MapMS.sp u_s) sp_s).
 
-  Local Definition MemA := (MemA.t u_mem spc_mem).
-  Local Definition MapM := (MapM.t u_s spc_s).
+  Local Definition MemA := (MemA.t u_mem sp_mem).
+  Local Definition MapM := (MapM.t u_s sp_s).
   Local Definition MapMMod := (MapM ★ MemA).
   Local Definition MapIMod := (MapI.t ★ MemA).
   Local Definition IstFull := (IstProd (IstSB MapM.(HMod.scopes) Ist) IstEq).
@@ -313,10 +313,10 @@ Module MapIM. Section MapIM.
 End MapIM.
 Section MapIM.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ, !memGΓ Γ}.
-  Lemma ctxr (u_s u_mem : univ_id) (spc_s spc_mem : string → option fspec)
-      (INCL : spc_incl (MapMS.spc u_s) spc_s) :
+  Lemma ctxr (u_s u_mem : univ_id) (sp_s sp_mem : string → option fspec)
+      (INCL : sp_incl (MapMS.sp u_s) sp_s) :
     ctx_refines
-      ((MapM.t u_s spc_s) ★ (MemA.t u_mem spc_mem), MapM.init_cond)
-      ((MapI.t)           ★ (MemA.t u_mem spc_mem), emp%I).
+      ((MapM.t u_s sp_s) ★ (MemA.t u_mem sp_mem), MapM.init_cond)
+      ((MapI.t)           ★ (MemA.t u_mem sp_mem), emp%I).
   Proof. eapply main_adequacy, MapIM.sim; eauto. Qed.
 End MapIM. End MapIM.

@@ -16,7 +16,7 @@ Module MutGA. Section MutGA.
         ((λ varg, (⌜varg = [Vint (Z.of_nat n)]↑ ∧ n < mut_max⌝)%I),
          (λ vret, (⌜vret = (Vint (Z.of_nat (sum n)))↑⌝)%I))).
          
-  Definition SpcG: alist string fspec :=
+  Definition SpG: alist string fspec :=
     Seal.sealing CRIS [(MutHdr.mutg, g_spec)].
 
   Definition fnsems :=

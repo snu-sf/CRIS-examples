@@ -21,7 +21,7 @@ Proof. solve_inG. Defined.
 Hint Unfold subG_GΓ spinlock_inG : GRA_index.
 
 (* Spec definition *)
-(* Define 1) initial resource 2) function specs 3) spc here. *)
+(* Define 1) initial resource 2) function specs 3) sp here. *)
 Module SpinLockAS. Section SpinLockAS.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
   Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !SpinLockAGΓ Γ}.
@@ -70,7 +70,7 @@ Module SpinLockAS. Section SpinLockAS.
             ∗ SchAS.tid_user tid))
       ))%I.
 
-  Definition spc u : alist string fspec :=
+  Definition sp u : alist string fspec :=
     [(SpinLockHdr.newlock, newlock_spec u);
      (SpinLockHdr.acquire, acquire_spec u);
      (SpinLockHdr.release, release_spec u)].
@@ -111,5 +111,5 @@ Module SpinLockA. Section SpinLockA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Defined.
 
-  Definition t u spc : HMod.t := Seal.sealing CRIS SMod.to_hmod (wsim_ginv u ⊤) spc (Mod u).
+  Definition t u sp : HMod.t := Seal.sealing CRIS SMod.to_hmod (wsim_ginv u ⊤) sp (Mod u).
 End SpinLockA. End SpinLockA.

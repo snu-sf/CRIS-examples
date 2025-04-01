@@ -30,22 +30,22 @@ Module KnotAll.
     - apply ir_knotRA_valid.
   Qed.
 
-  (* pure spc *)
-  Local Definition spc_rec : string → option fspec := 
-    to_spc KnotA.KnotRecSpc.
-  Local Definition spc_fun : string → option fspec :=
-    to_spc (KnotMainA.MainFunSpc genv spc_rec).
-  Local Definition spc_pure : string → option fspec :=
-    to_spc (KnotA.KnotRecSpc ++ (KnotMainA.MainFunSpc genv spc_rec)).
+  (* pure sp *)
+  Local Definition sp_rec : string → option fspec := 
+    to_sp KnotA.KnotRecSp.
+  Local Definition sp_fun : string → option fspec :=
+    to_sp (KnotMainA.MainFunSp genv sp_rec).
+  Local Definition sp_pure : string → option fspec :=
+    to_sp (KnotA.KnotRecSp ++ (KnotMainA.MainFunSp genv sp_rec)).
 
   Local Definition smod_src : SMod.t :=
-    (KnotMainA.Mod genv spc_rec) ☆ (KnotA.Mod genv spc_rec spc_fun)
+    (KnotMainA.Mod genv sp_rec) ☆ (KnotA.Mod genv sp_rec sp_fun)
     ☆ MemA.Mod ☆ APCC.Mod.
-  Local Definition spc : string → option fspec := spc_from smod_src.
+  Local Definition sp : string → option fspec := sp_from smod_src.
 
   Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
 
-  Local Definition mod_src : HMod.t := SMod.to_hmod ginv spc smod_src.
+  Local Definition mod_src : HMod.t := SMod.to_hmod ginv sp smod_src.
 
   Local Definition mod_tgt : HMod.t :=
     KnotMainI.t genv ★ KnotI.t genv ★ MemI.t csl genv ★ APCI.t.
@@ -67,10 +67,10 @@ Module KnotAll.
     des; eauto.
   Qed.
 
-  Ltac prove_spc :=
-    rewrite /MemA.spc /APCA.Spc /KnotA.KnotRecSpc /KnotA.KnotSpc /KnotMainA.MainFunSpc /KnotMainA.MainSpc;
-    rewrite /spc /spc_pure /spc_fun /spc_rec /smod_src /spc_pure /spc_incl /spc_sub /find_body /pure_specbody /spc_from /option_map;
-    rewrite /spc_fun /spc_rec /APCA.Spc /KnotA.KnotRecSpc /KnotA.KnotSpc /KnotMainA.MainFunSpc /KnotMainA.MainSpc;
+  Ltac prove_sp :=
+    rewrite /MemA.sp /APCA.Sp /KnotA.KnotRecSp /KnotA.KnotSp /KnotMainA.MainFunSp /KnotMainA.MainSp;
+    rewrite /sp /sp_pure /sp_fun /sp_rec /smod_src /sp_pure /sp_incl /sp_sub /find_body /pure_specbody /sp_from /option_map;
+    rewrite /sp_fun /sp_rec /APCA.Sp /KnotA.KnotRecSp /KnotA.KnotSp /KnotMainA.MainFunSp /KnotMainA.MainSp;
     try unseal CRIS; try prove_nodup;
     ii; ss; rewrite ->!eq_rel_dec_correct in *; des_ifs; ss; eexists; ss.
 
@@ -80,13 +80,13 @@ Module KnotAll.
     eapply ctxr_refines.
     unfold mod_src, mod_tgt. rewrite !add_interp_comm.
 
-    replace (SMod.to_hmod _ spc (KnotMainA.Mod _ _)) with (KnotMainA.t genv u spc_rec spc); cycle 1.
+    replace (SMod.to_hmod _ sp (KnotMainA.Mod _ _)) with (KnotMainA.t genv u sp_rec sp); cycle 1.
     { unfold KnotMainA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod _ spc (KnotA.Mod _ _ _)) with (KnotA.t genv u spc_rec spc_fun spc); cycle 1.
+    replace (SMod.to_hmod _ sp (KnotA.Mod _ _ _)) with (KnotA.t genv u sp_rec sp_fun sp); cycle 1.
     { unfold KnotA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod _ spc MemA.Mod) with (MemA.t u spc); cycle 1.
+    replace (SMod.to_hmod _ sp MemA.Mod) with (MemA.t u sp); cycle 1.
     { unfold MemA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod _ spc APCC.Mod) with (APCC.t u spc); cycle 1.
+    replace (SMod.to_hmod _ sp APCC.Mod) with (APCC.t u sp); cycle 1.
     { unfold APCC.t; unseal CRIS; ss. }
 
     rewrite -!hmod_add_assoc.
@@ -94,31 +94,31 @@ Module KnotAll.
     etrans. 
     { rewrite !hmod_add_assoc. rewrite -hmod_addc_empty_l. eapply ctxr_cond_frameR.
       eapply APCAC.ctxr.
-      { instantiate (1:=spc). prove_spc. }
-      { instantiate (1:=spc_pure). prove_spc. }
-      { prove_spc; rewrite /KnotMainA.t /KnotA.t /= alist_find_map_snd /o_map; unseal CRIS; ss. }
+      { instantiate (1:=sp). prove_sp. }
+      { instantiate (1:=sp_pure). prove_sp. }
+      { prove_sp; rewrite /KnotMainA.t /KnotA.t /= alist_find_map_snd /o_map; unseal CRIS; ss. }
     }
     rewrite !hmod_add_assoc.
     etrans. { eapply ctxr_comm. }
     etrans.
     { rewrite !hmod_add_assoc hmod_addc_empty_l /init_cond.
       eapply ctxr_cond_frameR.
-      eapply KnotMainIA.ctxr; try prove_spc.
+      eapply KnotMainIA.ctxr; try prove_sp.
       rewrite /genv /incl; ss. i; des; ss; tauto.
     }
     eapply ctxr_frameL.
     etrans.
     { rewrite hmod_addc_empty_l.
       eapply ctxr_cond_frameR.
-      eapply KnotIA.ctxr; try prove_spc.
+      eapply KnotIA.ctxr; try prove_sp.
       rewrite /genv /incl; ss. i; des; ss; tauto.
     }
     eapply ctxr_frameL. unfold KnotIAproof.KnotIA.MemA.
     rewrite hmod_addc_empty_l.
     rewrite -hmod_addc_empty_r -[(MemI.t csl genv ★ _, emp%I)]hmod_addc_empty_r.
     eapply ctxr_compose_hor.
-    { eapply MemIA.ctxr; prove_spc. }
-    { eapply APCIA.ctxr; prove_spc. }
+    { eapply MemIA.ctxr; prove_sp. }
+    { eapply APCIA.ctxr; prove_sp. }
   Qed.
 
   Lemma cancel_tgt :

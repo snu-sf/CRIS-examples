@@ -8,20 +8,20 @@ Set Implicit Arguments.
 Module RingAS. Section RingAS.
   Context `{Σ : GRA}.
 
-  Definition Spc : alist string fspec :=
+  Definition Sp : alist string fspec :=
     Seal.sealing CRIS [(RingHdr.init, fspec_trivial);
                        (RingHdr.get_size, fspec_trivial);
                        (RingHdr.enqueue, fspec_trivial);
                        (RingHdr.dequeue, fspec_trivial)].
 
-  Lemma Spc_nodup : List.NoDup (List.map fst Spc).
+  Lemma Sp_nodup : List.NoDup (List.map fst Sp).
   Proof.
-    unfold Spc. unseal CRIS. prove_nodup.
+    unfold Sp. unseal CRIS. prove_nodup.
   Qed.
 
 End RingAS.
 
-Global Hint Unfold Spc : stb.
+Global Hint Unfold Sp : stb.
 
 End RingAS.
 
@@ -84,6 +84,6 @@ Module RingA. Section RingA.
   Definition InitCond : iProp Σ :=
     ([∗ list] i↦_ ∈ (replicate max_size 0%Z), CellAS.pending i)%I.
 
-  Definition t Spc := Seal.sealing CRIS (SMod.to_hmod emp Spc Mod).
+  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod emp Sp Mod).
 
 End RingA. End RingA.

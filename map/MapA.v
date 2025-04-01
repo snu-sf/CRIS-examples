@@ -139,15 +139,15 @@ Module MapAS. Section MapAS.
             (λ varg, ⌜varg = [Vint k]↑⌝ ∗ points_to k w,
               λ vret, ⌜vret = Vundef↑⌝ ∗ ∃ v, points_to k v)))%I.
     
-    Definition spc : alist string fspec :=
+    Definition sp : alist string fspec :=
       Seal.sealing CRIS
         [(MapHdr.init, init_spec);
         (MapHdr.get, get_spec);
         (MapHdr.set, set_spec);
         (MapHdr.set_by_user, set_by_user_spec)].
     
-    Lemma spc_nodup : List.NoDup (List.map fst spc).
-    Proof. unfold spc. unseal CRIS. prove_nodup. Qed.
+    Lemma sp_nodup : List.NoDup (List.map fst sp).
+    Proof. unfold sp. unseal CRIS. prove_nodup. Qed.
   End spec.
 End MapAS. End MapAS.
 
@@ -210,5 +210,5 @@ Module MapA. Section MapA.
   Definition init_cond : iProp Σ :=
     (MapAS.initial_map ∗ MapMS.pending)%I.
 
-  Definition t spc := Seal.sealing CRIS (SMod.to_hmod emp spc Mod).
+  Definition t sp := Seal.sealing CRIS (SMod.to_hmod emp sp Mod).
 End MapA. End MapA.

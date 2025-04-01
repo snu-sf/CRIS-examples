@@ -18,9 +18,9 @@ Module CannonAll.
   Qed.
 
   Local Definition smod_src : SMod.t := CannonA.Mod ☆ (MainA.Mod 1).
-  Local Definition spc : string → option fspec := spc_from smod_src.
+  Local Definition sp : string → option fspec := sp_from smod_src.
   Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
-  Local Definition mod_src : HMod.t := SMod.to_hmod emp spc smod_src.
+  Local Definition mod_src : HMod.t := SMod.to_hmod emp sp smod_src.
   Local Definition mod_tgt : HMod.t := CannonI.t ★ (MainI.t 1).
 
   Local Definition main_fsp : fspec := MainAS.main_spec.
@@ -43,15 +43,15 @@ Module CannonAll.
     rewrite -[(mod_tgt, _)]hmod_addc_empty_r.
     unfold mod_src, mod_tgt. rewrite add_interp_comm.
     eapply ctxr_compose_hor.
-    { replace (SMod.to_hmod _ _ CannonA.Mod) with (CannonA.t spc); cycle 1.
+    { replace (SMod.to_hmod _ _ CannonA.Mod) with (CannonA.t sp); cycle 1.
       { unfold CannonA.t. unseal CRIS. ss. }
       eapply CannonIA.ctxr.
     }
-    { replace (SMod.to_hmod _ _ (MainA.Mod 1)) with (MainA.t 1 spc); cycle 1.
+    { replace (SMod.to_hmod _ _ (MainA.Mod 1)) with (MainA.t 1 sp); cycle 1.
       { unfold MainA.t. unseal CRIS. ss. }
       eapply CannonMainIA.ctxr.
-      i. rewrite /CannonAS.Spc. unseal CRIS. econs; first prove_nodup.
-      ii; rewrite -FIND /spc /spc_from /smod_src //=; des_ifs; ss; des_ifs.
+      i. rewrite /CannonAS.Sp. unseal CRIS. econs; first prove_nodup.
+      ii; rewrite -FIND /sp /sp_from /smod_src //=; des_ifs; ss; des_ifs.
     }
   Qed.
 

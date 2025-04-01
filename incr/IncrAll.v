@@ -27,29 +27,29 @@ Module IncrAll.
   Qed.
 
   (* source module *)
-  Local Definition spc_user_s : string → option fspec :=
-    to_spc (IncrAS.spc u ++ MemA.spc).
+  Local Definition sp_user_s : string → option fspec :=
+    to_sp (IncrAS.sp u ++ MemA.sp).
   Local Definition smod_src : SMod.t :=
-    (IncrA.Mod u) ☆ (MemA.Mod) ☆ (SchA.Mod u spc_user_s ☆ SchA_link.Mod u).
-  Local Definition spc_s : string → option fspec := spc_from smod_src.
+    (IncrA.Mod u) ☆ (MemA.Mod) ☆ (SchA.Mod u sp_user_s ☆ SchA_link.Mod u).
+  Local Definition sp_s : string → option fspec := sp_from smod_src.
 
   Local Definition smod_cancel : HMod.t := SModCancel.to_hmod smod_src.
-  Local Definition mod_src : HMod.t := SMod.to_hmod (wsim_ginv u ⊤) spc_s smod_src.
+  Local Definition mod_src : HMod.t := SMod.to_hmod (wsim_ginv u ⊤) sp_s smod_src.
   Local Definition mod_tgt : HMod.t := (IncrI.t ★ FaaI.t) ★ (MemI.t csl genv) ★ (SchI.t).
 
-  Local Definition SchInSpc : spc_incl (SchAS.spc u spc_user_s) spc_s.
+  Local Definition SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s.
   Proof.
-    ii; rewrite /spc_s /SchAS.spc /MemA.spc /IncrAS.spc; unseal CRIS; split; [prove_nodup|ii].
+    ii; rewrite /sp_s /SchAS.sp /MemA.sp /IncrAS.sp; unseal CRIS; split; [prove_nodup|ii].
     ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
-  Local Definition MainInSpc : spc_incl (IncrAS.spc u) spc_user_s.
+  Local Definition MainInSp : sp_incl (IncrAS.sp u) sp_user_s.
   Proof.
-    ii; rewrite /spc_s /SchAS.spc /MemA.spc /IncrAS.spc; unseal CRIS; split; [prove_nodup|ii].
+    ii; rewrite /sp_s /SchAS.sp /MemA.sp /IncrAS.sp; unseal CRIS; split; [prove_nodup|ii].
     ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
-  Local Definition MemInSpc : spc_incl MemA.spc spc_s.
+  Local Definition MemInSp : sp_incl MemA.sp sp_s.
   Proof.
-    ii; rewrite /spc_s /SchAS.spc /MemA.spc /IncrAS.spc; unseal CRIS; split; [prove_nodup|ii].
+    ii; rewrite /sp_s /SchAS.sp /MemA.sp /IncrAS.sp; unseal CRIS; split; [prove_nodup|ii].
     ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
 
@@ -65,9 +65,9 @@ Module IncrAll.
   (* Refinement between spec/impl of whole program (linked module) *)
   Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
   Proof.
-    hexploit (IncrIA.ctxr u 0 spc_s (to_spc (SchAS.spc 0 (to_spc []))) spc_user_s spc_s).
-    all: eauto using SchInSpc, MainInSpc, MemInSpc.
-    { rewrite /SchAS.spc; unseal CRIS. split; ii; ss. prove_nodup. }
+    hexploit (IncrIA.ctxr u 0 sp_s (to_sp (SchAS.sp 0 (to_sp []))) sp_user_s sp_s).
+    all: eauto using SchInSp, MainInSp, MemInSp.
+    { rewrite /SchAS.sp; unseal CRIS. split; ii; ss. prove_nodup. }
     i; eapply ctxr_refines.
     rewrite -[(mod_src, _)]hmod_addc_empty_l.
     rewrite -[(mod_tgt, _)]hmod_addc_empty_r.
@@ -76,29 +76,29 @@ Module IncrAll.
     rewrite assoc. eapply ctxr_compose_hor.
     { etrans.
       { eapply ctxr_cond_frameR.
-        replace (SMod.to_hmod _ _ (IncrA.Mod u)) with (IncrA.t u spc_s); cycle 1.
+        replace (SMod.to_hmod _ _ (IncrA.Mod u)) with (IncrA.t u sp_s); cycle 1.
         { rewrite /IncrA.t; unseal CRIS; ss. }
-        replace (SMod.to_hmod _ _ MemA.Mod) with (MemA.t u spc_s); cycle 1.
+        replace (SMod.to_hmod _ _ MemA.Mod) with (MemA.t u sp_s); cycle 1.
         { rewrite /MemA.t; unseal CRIS; ss. }
         eauto.
       }
       { rewrite ?hmod_add_assoc. eapply ctxr_frameL.
         etrans.
-        { eapply ctxr_cond_frameR. eapply main_adequacy, FaaIA.sim. instantiate (1:=to_spc []).
-          rewrite /SchAS.spc; unseal CRIS. split; ii; ss. prove_nodup.
+        { eapply ctxr_cond_frameR. eapply main_adequacy, FaaIA.sim. instantiate (1:=to_sp []).
+          rewrite /SchAS.sp; unseal CRIS. split; ii; ss. prove_nodup.
         }
         etrans.
-        { eapply ctxr_cond_frameL, ctxr_frameL, MemIA.ctxr. eauto using MemInSpc. }
+        { eapply ctxr_cond_frameL, ctxr_frameL, MemIA.ctxr. eauto using MemInSp. }
         { eapply ctxr_cond_strengthen; eauto. }
       }
     }
     eapply main_adequacy.
-    replace (SMod.to_hmod _ _ (SchA.Mod u spc_user_s)) with (SchA.t u spc_s spc_user_s); cycle 1.
+    replace (SMod.to_hmod _ _ (SchA.Mod u sp_user_s)) with (SchA.t u sp_s sp_user_s); cycle 1.
     { rewrite /SchA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod _ _ (SchA_link.Mod _)) with (SchA_link.t u spc_s); cycle 1.
+    replace (SMod.to_hmod _ _ (SchA_link.Mod _)) with (SchA_link.t u sp_s); cycle 1.
     { unfold_hmod; ss. }
-    eapply SchIA.sim; eauto using SchInSpc.
-    { rewrite /spc_sub /spc_user_s /spc_s /IncrAS.spc /MemA.spc; unseal CRIS. ii; ss.
+    eapply SchIA.sim; eauto using SchInSp.
+    { rewrite /sp_sub /sp_user_s /sp_s /IncrAS.sp /MemA.sp; unseal CRIS. ii; ss.
       des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
     }
   Qed.

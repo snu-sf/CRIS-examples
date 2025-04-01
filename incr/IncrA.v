@@ -52,7 +52,7 @@ Module IncrAS. Section IncrAS.
   Definition main_spec u : fspec :=
     w_fspec_sch u (fspec_simple (λ _ : unit, (λ arg, ⌜arg = tt↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
 
-  Definition spc u : alist string fspec :=
+  Definition sp u : alist string fspec :=
     [(IncrHdr.incr, incr_spec u);
      (IncrHdr.main, main_spec u)].
 End IncrAS. End IncrAS.
@@ -88,6 +88,6 @@ Module IncrA. Section IncrA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t u spc : HMod.t :=
-    Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) spc (Mod u)).
+  Definition t u sp : HMod.t :=
+    Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) sp (Mod u)).
 End IncrA. End IncrA.

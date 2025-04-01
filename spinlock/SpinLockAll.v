@@ -38,18 +38,18 @@ Module SpinLockAll.
   (* the target module *)
   Local Definition mod_tgt : HMod.t := SpinLockMainI.t ★ MemI.t csl genv ★ SchI.t ★ SpinLockI.t.
 
-  (* spc of source module (scheduler spec excluded) *)
-  Local Definition spc_user_s : string → option fspec :=
-    to_spc (SpinLockMainAS.spc u ++ MemA.spc ++ SpinLockAS.spc u).
+  (* sp of source module (scheduler spec excluded) *)
+  Local Definition sp_user_s : string → option fspec :=
+    to_sp (SpinLockMainAS.sp u ++ MemA.sp ++ SpinLockAS.sp u).
 
   (* the source SMod *)
   Local Definition smod_src : SMod.t :=
-    SpinLockMainA.Mod u ☆ MemA.Mod ☆ (SchA.Mod u spc_user_s ☆ SchA_link.Mod u) ☆ SpinLockA.Mod u.
-  (* the source spc *)
-  Local Definition spc_s : string → option fspec :=
-    spc_from smod_src.
+    SpinLockMainA.Mod u ☆ MemA.Mod ☆ (SchA.Mod u sp_user_s ☆ SchA_link.Mod u) ☆ SpinLockA.Mod u.
+  (* the source sp *)
+  Local Definition sp_s : string → option fspec :=
+    sp_from smod_src.
   (* the source HMod *)
-  Local Definition mod_src : HMod.t := SMod.to_hmod (wsim_ginv u ⊤) spc_s smod_src.
+  Local Definition mod_src : HMod.t := SMod.to_hmod (wsim_ginv u ⊤) sp_s smod_src.
 
   (* initial condition for the source *)
   Local Definition init_cond : iProp Σ := (MemA.init_cond csl genv ∗ SchA.init_cond)%I.
@@ -57,25 +57,25 @@ Module SpinLockAll.
   (* source module after cancellation *)
   Local Definition smod_cancel : HMod.t := SModCancel.to_hmod smod_src.
 
-  (* Some assumptions on spc inclusion *)
-  Lemma SchInSpc : spc_incl (SchAS.spc u spc_user_s) spc_s.
+  (* Some assumptions on sp inclusion *)
+  Lemma SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s.
   Proof.
-    rewrite /spc_user_s /SchAS.spc /spc_s /smod_src; unseal CRIS. split; first prove_nodup.
+    rewrite /sp_user_s /SchAS.sp /sp_s /smod_src; unseal CRIS. split; first prove_nodup.
     ii. ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
-  Lemma MainInSpc : spc_incl (SpinLockMainAS.spc u) spc_user_s.
+  Lemma MainInSp : sp_incl (SpinLockMainAS.sp u) sp_user_s.
   Proof.
-    rewrite /spc_user_s /SpinLockMainAS.spc /spc_s /smod_src; unseal CRIS. split; first prove_nodup.
+    rewrite /sp_user_s /SpinLockMainAS.sp /sp_s /smod_src; unseal CRIS. split; first prove_nodup.
     ii. ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
-  Lemma MemInSpc : spc_incl (MemA.spc) spc_s.
+  Lemma MemInSp : sp_incl (MemA.sp) sp_s.
   Proof.
-    rewrite /spc_user_s /MemA.spc /spc_s /smod_src; unseal CRIS. split; first prove_nodup.
+    rewrite /sp_user_s /MemA.sp /sp_s /smod_src; unseal CRIS. split; first prove_nodup.
     ii. ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
-  Lemma UserInSpc : spc_sub spc_user_s spc_s.
+  Lemma UserInSp : sp_sub sp_user_s sp_s.
   Proof.
-    rewrite /spc_user_s /spc_s /MemA.spc; unseal CRIS.
+    rewrite /sp_user_s /sp_s /MemA.sp; unseal CRIS.
     ii; ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
     
@@ -96,18 +96,18 @@ Module SpinLockAll.
     do 2 rewrite -hmod_add_assoc.
     etrans.
     { eapply ctxr_frameR.
-      replace (SMod.to_hmod _ _ (SpinLockMainA.Mod _)) with (SpinLockMainA.t u spc_s); cycle 1.
+      replace (SMod.to_hmod _ _ (SpinLockMainA.Mod _)) with (SpinLockMainA.t u sp_s); cycle 1.
       { unfold_hmod; ss. }
-      replace (SMod.to_hmod _ _ (MemA.Mod)) with (MemA.t u spc_s); cycle 1.
+      replace (SMod.to_hmod _ _ (MemA.Mod)) with (MemA.t u sp_s); cycle 1.
       { unfold_hmod; ss. }
-      replace (SMod.to_hmod _ _ (SpinLockA.Mod _)) with (SpinLockA.t u spc_s); cycle 1.
+      replace (SMod.to_hmod _ _ (SpinLockA.Mod _)) with (SpinLockA.t u sp_s); cycle 1.
       { unfold_hmod; ss. }
       rewrite hmod_add_assoc -hmod_addc_empty_l.
       etrans; first eapply ctxr_cond_frameR.
       { eapply SpinLockMainIA.ctxr; eauto.
-        { apply SchInSpc. }
-        { apply MainInSpc. }
-        { apply MemInSpc. }
+        { apply SchInSp. }
+        { apply MainInSp. }
+        { apply MemInSp. }
       }
       rewrite hmod_addc_empty_l. refl.
     }
@@ -116,27 +116,27 @@ Module SpinLockAll.
     { eapply ctxr_frameR. rewrite -hmod_addc_empty_l. eapply ctxr_cond_frameR.
       etrans; first eapply ctxr_comm.
       eapply SpinLockIA.ctxr.
-      { apply SchInSpc. }
-      { apply MemInSpc. }
+      { apply SchInSp. }
+      { apply MemInSp. }
     }
     rewrite hmod_add_assoc.
     etrans; first eapply ctxr_comm. rewrite -hmod_add_assoc.
     etrans.
     { do 2 eapply ctxr_frameR.
       rewrite hmod_addc_empty_l. eapply ctxr_frameR, ctxr_cond_frameR. eapply MemIA.ctxr.
-      apply MemInSpc.
+      apply MemInSp.
     }
     rewrite -hmod_add_assoc. eapply ctxr_frameR.
     rewrite hmod_add_assoc. eapply ctxr_frameL.
     etrans.
-    { replace (SMod.to_hmod _ _ (SchA.Mod _ _)) with (SchA.t u spc_s spc_user_s); cycle 1.
+    { replace (SMod.to_hmod _ _ (SchA.Mod _ _)) with (SchA.t u sp_s sp_user_s); cycle 1.
       { unfold_hmod; ss. }
-      replace (SMod.to_hmod _ _ (SchA_link.Mod _)) with (SchA_link.t u spc_s); cycle 1.
+      replace (SMod.to_hmod _ _ (SchA_link.Mod _)) with (SchA_link.t u sp_s); cycle 1.
       { unfold_hmod; ss. }
       rewrite hmod_addc_empty_l.
       eapply SchIA.ctxr.
-      { apply SchInSpc. }
-      { apply UserInSpc. }
+      { apply SchInSp. }
+      { apply UserInSp. }
     }
     refl.
   Qed.

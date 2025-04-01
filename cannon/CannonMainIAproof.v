@@ -12,13 +12,13 @@ Module CannonMainIA. Section CannonMainIA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
   Context `{!CannonAGΓ Γ}.
 
-  Context (SpcMain : string → option fspec).
-  Context (CannonInMain : spc_incl CannonAS.Spc SpcMain).
+  Context (SpMain : string → option fspec).
+  Context (CannonInMain : sp_incl CannonAS.Sp SpMain).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     λ _ _ _, (True)%I.
 
-  Local Definition MainAMod := (MainA.t 1 SpcMain).
+  Local Definition MainAMod := (MainA.t 1 SpMain).
   Local Definition MainIMod := (MainI.t 1).
   
   Lemma simF_main : HSim.sim_fun open MainAMod MainIMod Ist MainHdr.main.
@@ -56,11 +56,11 @@ Section ctxr.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
   Context `{!CannonAGΓ Γ}.
 
-  Theorem ctxr (SpcMain : string → option fspec)
-    (CannonInMain : spc_incl CannonAS.Spc SpcMain)
+  Theorem ctxr (SpMain : string → option fspec)
+    (CannonInMain : sp_incl CannonAS.Sp SpMain)
   :
     ctx_refines
-      (MainA.t 1 SpcMain, (MainA.init_cond))
+      (MainA.t 1 SpMain, (MainA.init_cond))
       (MainI.t 1, (emp%I)).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End CannonMainIA.

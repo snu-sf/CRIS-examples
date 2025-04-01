@@ -37,18 +37,18 @@ Module KnotMainA. Section KnotMainA.
 Section KnotMainAS.
 
   Variable genv: GEnv.t.
-  Variable SpcRec: string -> option fspec.
-  Variable SpcPure: string -> option fspec.
-  Variable Spc: string -> option fspec.
+  Variable SpRec: string -> option fspec.
+  Variable SpPure: string -> option fspec.
+  Variable Sp: string -> option fspec.
 
   Definition fib_spec : fspec :=
     fspec_apc (λ '(n, INV), (2 * (n: nat))%ord)
       (fun '(n, INV) => 
         ((fun varg => (⌜∃ fb, varg = [Vptr fb 0; Vint (Z.of_nat n)]↑ ∧ (intrange_64 n) ∧
-                          fb_has_spec genv SpcRec fb (mrec_spec Fib INV)⌝ ∗ INV)%I),
+                          fb_has_spec genv SpRec fb (mrec_spec Fib INV)⌝ ∗ INV)%I),
          (fun vret => (⌜vret = (Vint (Z.of_nat (Fib n)))↑⌝ ∗ INV)%I))).
 
-  Definition MainFunSpc : alist string fspec := 
+  Definition MainFunSp : alist string fspec := 
     Seal.sealing CRIS
       [(KnotMainHdr.fib, fib_spec)].
 
@@ -61,7 +61,7 @@ Section KnotMainAS.
         ((fun varg => (⌜varg = tt↑⌝ ∗ knot_init)%I),
          (fun vret => (⌜vret = (Vint (Z.of_nat (Fib 10)))↑⌝)%I))).
 
-  Definition MainSpc : alist string fspec :=
+  Definition MainSp : alist string fspec :=
     Seal.sealing CRIS
       [("fib", fib_spec); ("main", main_spec)].
 End KnotMainAS.
@@ -69,14 +69,14 @@ End KnotMainAS.
 Section KnotMainA.
   Definition scopes := ["KnotMain"].
 
-  Definition fnsems genv SpcRec :=
-    [(KnotMainHdr.fib, (scopes, mk_specbody (fib_spec genv SpcRec) pure_body));
+  Definition fnsems genv SpRec :=
+    [(KnotMainHdr.fib, (scopes, mk_specbody (fib_spec genv SpRec) pure_body));
      (KnotMainHdr.main, (scopes, mk_specbody main_spec main_body))].
 
-  Program Definition Mod genv SpcRec : SMod.t :=
+  Program Definition Mod genv SpRec : SMod.t :=
   {|
     SMod.scopes := scopes;
-    SMod.fnsems := fnsems genv SpcRec;
+    SMod.fnsems := fnsems genv SpRec;
     SMod.initial_st := [];
   |}.
   Solve All Obligations with prove_scope.
@@ -84,6 +84,6 @@ Section KnotMainA.
 
   Definition init_cond : iProp := emp%I.
 
-  Definition t genv u SpcRec Spc := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Spc (Mod genv SpcRec)).
+  Definition t genv u SpRec Sp := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Sp (Mod genv SpRec)).
 End KnotMainA.
 End KnotMainA. End KnotMainA.

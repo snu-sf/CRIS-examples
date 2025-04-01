@@ -15,7 +15,7 @@ Module MainAS. Section MainAS.
       (λ ret, ⌜ret = tt↑⌝))
     )%I.
 
-  Definition Spc : alist string fspec :=
+  Definition Sp : alist string fspec :=
     Seal.sealing CRIS [(MainHdr.main, main_spec)].
 End MainAS. End MainAS.
 
@@ -52,5 +52,5 @@ Module MainA. Section MainA.
 
   Definition init_cond : iProp Σ := True%I.
 
-  Definition t Spc := Seal.sealing CRIS (SMod.to_hmod emp Spc Mod).
+  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod emp Sp Mod).
 End MainA. End MainA.

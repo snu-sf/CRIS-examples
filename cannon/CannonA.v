@@ -51,11 +51,11 @@ Module CannonAS. Section CannonAS.
       (λ ret, (⌜ret = (1: Z)%Z↑⌝)))
     )%I.
 
-  Definition Spc : alist string fspec :=
+  Definition Sp : alist string fspec :=
     Seal.sealing CRIS [(CannonHdr.fire, fire_spec)].
 
-  Lemma Spc_nodup : List.NoDup (List.map fst Spc).
-  Proof. unfold Spc. unseal CRIS. prove_nodup. Qed.
+  Lemma Sp_nodup : List.NoDup (List.map fst Sp).
+  Proof. unfold Sp. unseal CRIS. prove_nodup. Qed.
 End CannonAS. End CannonAS.
 
 Module CannonA. Section CannonA.
@@ -84,5 +84,5 @@ Module CannonA. Section CannonA.
 
   Definition init_cond : iProp Σ := Ready.
 
-  Definition t spc := Seal.sealing CRIS (SMod.to_hmod emp spc Mod).
+  Definition t sp := Seal.sealing CRIS (SMod.to_hmod emp sp Mod).
 End CannonA. End CannonA.

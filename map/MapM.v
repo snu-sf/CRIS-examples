@@ -52,15 +52,15 @@ Module MapMS. Section MapMS.
           (λ varg, ⌜varg = [Vint k]↑⌝,
             λ vret, emp))%I).
 
-  Definition spc : alist string fspec :=
+  Definition sp : alist string fspec :=
     Seal.sealing CRIS
       [(MapHdr.init, init_spec);
        (MapHdr.get, get_spec);
        (MapHdr.set, set_spec);
        (MapHdr.set_by_user, set_by_user_spec)].
 
-  Lemma spc_nodup : List.NoDup (List.map fst spc).
-  Proof. by rewrite /spc; unseal CRIS; prove_nodup. Qed.
+  Lemma sp_nodup : List.NoDup (List.map fst sp).
+  Proof. by rewrite /sp; unseal CRIS; prove_nodup. Qed.
 End MapMS. End MapMS.
 
 (*** module M Map
@@ -135,5 +135,5 @@ Module MapM. Section MapM.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Definition t Spc := Seal.sealing CRIS (@SMod.to_hmod Σ emp Spc Mod).
+  Definition t Sp := Seal.sealing CRIS (@SMod.to_hmod Σ emp Sp Mod).
 End MapM. End MapM.

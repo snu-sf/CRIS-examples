@@ -10,16 +10,16 @@ Module CellioIA. Section CellioIA.
   Import CellioA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CellioAGΓ Γ}.
 
-  (* spc for src module *)
-  Context (spc_s : string → option fspec).
-  Context (CtxInSpc : spc_incl CtxAS.spc spc_s).
+  (* sp for src module *)
+  Context (sp_s : string → option fspec).
+  Context (CtxInSp : sp_incl CtxAS.sp sp_s).
   
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     λ _ st_src st_tgt,
       (∃ v, ⌜st_tgt = [(CellioI.v_cv, v↑)]⌝ ∗ auth v)%I.
 
   Local Definition CellioI := (CellioI.t).
-  Local Definition CellioA := (CellioA.t spc_s).
+  Local Definition CellioA := (CellioA.t sp_s).
 
   Lemma simF_set : HSim.sim_fun open CellioA CellioI Ist CellioHdr.set.
   Proof.

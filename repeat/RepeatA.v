@@ -12,7 +12,7 @@ Module RepeatAS. Section RepeatAS.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
   Context (genv : GEnv.t).
-  Context (spc_pure : string → option fspec).
+  Context (sp_pure : string → option fspec).
 
   (* mathematical repeat *)
   Fixpoint repeat_fun A (f: A → A) (n: nat) (a: A): A :=
@@ -27,7 +27,7 @@ Module RepeatAS. Section RepeatAS.
         ((λ arg, ⌜∃ (fn:string) (fptr:mblock), arg = [Vptr fptr 0; Vint (Z.of_nat n); Vint x]↑
                         ∧ (intrange_64 (Z.of_nat n))
                         ∧ CEnv.blk2id (CEnv.load_genv genv) fptr = Some fn
-                        ∧ fn_has_spec spc_pure fn
+                        ∧ fn_has_spec sp_pure fn
                             (fspec_apc
                               (λ _, Ord.omega)
                               (λ x, 
@@ -38,7 +38,7 @@ Module RepeatAS. Section RepeatAS.
                       ⌝%I),
           (λ ret, ⌜ret = (Vint (repeat_fun f_sem n x))↑⌝%I))).
 
-  Definition Spc: alist string fspec :=
+  Definition Sp: alist string fspec :=
     Seal.sealing CRIS [(RepeatHdr.repeat, repeat_spec genv)].
 
 End RepeatAS. End RepeatAS.
@@ -50,12 +50,12 @@ Module RepeatA. Section RepeatA.
 
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
-  Definition fnsems genv spc_pure :=
-    [(RepeatHdr.repeat, (scopes, mk_specbody (RepeatAS.repeat_spec spc_pure genv) pure_body))].
+  Definition fnsems genv sp_pure :=
+    [(RepeatHdr.repeat, (scopes, mk_specbody (RepeatAS.repeat_spec sp_pure genv) pure_body))].
 
-  Program Definition Mod genv spc_pure : SMod.t := {|
+  Program Definition Mod genv sp_pure : SMod.t := {|
     SMod.scopes := scopes;
-    SMod.fnsems := fnsems genv spc_pure;
+    SMod.fnsems := fnsems genv sp_pure;
     SMod.initial_st := [];
   |}.
   Solve All Obligations with prove_scope.
@@ -63,5 +63,5 @@ Module RepeatA. Section RepeatA.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Definition t genv u spc spc_pure := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) spc (Mod genv spc_pure)).
+  Definition t genv u sp sp_pure := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) sp (Mod genv sp_pure)).
 End RepeatA. End RepeatA.

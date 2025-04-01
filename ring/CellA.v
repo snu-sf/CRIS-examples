@@ -94,18 +94,18 @@ Module CellAS. Section CellAS.
      ((fun arg => ⌜arg = v↑⌝ ∗ (pending ∨ cell v0)),
       (fun ret => ⌜ret = tt↑⌝ ∗ cell v)))%I.
 
-  Definition Spc : alist string fspec :=
+  Definition Sp : alist string fspec :=
     Seal.sealing CRIS [(CellHdr.get idx, get_spec);
                        (CellHdr.set idx, set_spec)].
 
-  Lemma Spc_nodup : List.NoDup (List.map fst Spc).
+  Lemma Sp_nodup : List.NoDup (List.map fst Sp).
   Proof.
-    unfold Spc. unseal CRIS. prove_nodup.
+    unfold Sp. unseal CRIS. prove_nodup.
   Qed.
 
 End CellAS. End CellAS.
 
-Global Hint Unfold CellAS.Spc : spc.
+Global Hint Unfold CellAS.Sp : sp.
 
 (* Define CellA Module *)
 Module CellA. Section CellA.
@@ -133,6 +133,6 @@ Module CellA. Section CellA.
   Definition InitCond : iProp Σ :=
     (∃ v, CellAS.cell idx v ∗ CellAS.auth idx v)%I.
 
-  Definition t Spc := Seal.sealing CRIS (SMod.to_hmod emp Spc Mod).
+  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod emp Sp Mod).
 
 End CellA. End CellA.

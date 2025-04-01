@@ -18,7 +18,7 @@ Module MutMainA. Section MutMainA.
         ((λ varg, (⌜varg = tt↑⌝)%I),
          (λ vret, (⌜vret = (Vint 55)↑⌝)%I))).
 
-  Definition Spc: alist string fspec :=
+  Definition Sp: alist string fspec :=
     Seal.sealing CRIS [(MutMainHdr.main, main_spec)].
 
   Definition fnsems :=
@@ -35,5 +35,5 @@ Module MutMainA. Section MutMainA.
 
   Definition init_cond : iProp := emp%I.
 
-  Definition t u Spc := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Spc Mod).
+  Definition t u Sp := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Sp Mod).
 End MutMainA. End MutMainA.

@@ -16,7 +16,7 @@ Module MutFA. Section MutFA.
         ((λ varg, (⌜varg = [Vint (Z.of_nat n)]↑ ∧ n < mut_max⌝)%I),
          (λ vret, (⌜vret = (Vint (Z.of_nat (sum n)))↑⌝)%I))).
          
-  Definition SpcF: alist string fspec :=
+  Definition SpF: alist string fspec :=
     Seal.sealing CRIS [(MutHdr.mutf, f_spec)].
 
   Definition fnsems :=
@@ -33,5 +33,5 @@ Module MutFA. Section MutFA.
 
   Definition init_cond : iProp := emp%I.
 
-  Definition t u Spc := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Spc Mod).
+  Definition t u Sp := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Sp Mod).
 End MutFA. End MutFA.

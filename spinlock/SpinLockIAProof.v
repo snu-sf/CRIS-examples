@@ -10,14 +10,14 @@ Module SpinLockIA. Section SpinLockIA.
   Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !SpinLockAGΓ Γ}.
 
   Context (u_a : univ_id). (* univ_id of the source/mem module *)
-  Context (spc_s spc_user_s spc_mem : string → option fspec). (* spcs of lock/sch/mem *)
-  Context (SchInSpc : spc_incl (SchAS.spc u_a spc_user_s) spc_s).
-  Context (MemInSpc : spc_incl MemA.spc spc_s).
+  Context (sp_s sp_user_s sp_mem : string → option fspec). (* sps of lock/sch/mem *)
+  Context (SchInSp : sp_incl (SchAS.sp u_a sp_user_s) sp_s).
+  Context (MemInSp : sp_incl MemA.sp sp_s).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
-  Local Definition MemA := (MemA.t u_a spc_mem).
-  Local Definition SpinLockA := (SpinLockA.t u_a spc_s).
+  Local Definition MemA := (MemA.t u_a sp_mem).
+  Local Definition SpinLockA := (SpinLockA.t u_a sp_s).
   Local Definition SpinLockI := (SpinLockI.t).
   Local Definition IstFull := (IstProd (IstSB SpinLockA.(HMod.scopes) Ist) IstEq).
   Local Definition MA := (SpinLockA ★ MemA).
@@ -165,11 +165,11 @@ Section SpinLockIA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
   Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !SpinLockAGΓ Γ}.
   (* ctxr works as a unit in compositions of module simulations *)
-  Lemma ctxr (u : univ_id) (spc_s spc_user_s spc_mem : string → option fspec)
-      (SchInSpc : spc_incl (SchAS.spc u spc_user_s) spc_s)
-      (MemInSpc : spc_incl MemA.spc spc_s) :
+  Lemma ctxr (u : univ_id) (sp_s sp_user_s sp_mem : string → option fspec)
+      (SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s)
+      (MemInSp : sp_incl MemA.sp sp_s) :
     ctx_refines
-      (SpinLockA.t u spc_s ★ MemA.t u spc_mem, emp%I)
-      (SpinLockI.t         ★ MemA.t u spc_mem, emp%I).
+      (SpinLockA.t u sp_s ★ MemA.t u sp_mem, emp%I)
+      (SpinLockI.t         ★ MemA.t u sp_mem, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End SpinLockIA. End SpinLockIA.
