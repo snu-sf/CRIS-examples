@@ -37,6 +37,7 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R repeat $(COQMODULE)"; \
 	 echo "-R ring $(COQMODULE)"; \
 	 echo "-R spinlock $(COQMODULE)"; \
+	 echo "-R increment $(COQMODULE)"; \
 	 echo $(COQTHEORIES)) > _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 

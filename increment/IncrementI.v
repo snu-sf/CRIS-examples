@@ -1,0 +1,39 @@
+Require Import CRIS.
+Require Import ImpPrelude MemHeader SchHeader.
+Require Import IncrementHeader.
+
+Module IncrementI. Section IncrementI.
+  Context {Σ : GRA}.
+
+  Definition scopes : list string := [].
+
+  Definition increment : list val → itree pmodE val :=
+    λ arg,
+      𝒴;;; '(blk, ofs) : (mblock * ptrofs) <- (pargs [Tptr] arg)?;;
+      𝒴;;;
+        ITree.iter (λ _ : unit,
+          𝒴;;; 'v_raw : val <- ccallU MemHdr.load [Vptr blk ofs];;
+          𝒴;;; 'v : Z <- (pargs [Tint] [v_raw])?;;
+          𝒴;;; 's_raw : val <- ccallU MemHdr.cas [Vptr blk ofs; Vint v; Vint (v + 1)];;
+          𝒴;;; 's : Z <- (pargs [Tint] [s_raw])?;;
+          𝒴;;;
+            if (decide (s = 1))
+            then Ret (inr (Vint v))
+            else
+             if (decide (s = 0))
+             then Ret (inl tt)
+             else triggerUB
+        ) ().
+
+  Definition fnsems := [(IncrementHdr.increment, (scopes, cfunU increment))].
+
+  Program Definition Mod : PMod.t := {|
+    PMod.scopes := scopes;
+    PMod.fnsems := fnsems;
+    PMod.initial_st := [];
+  |}.
+  Solve All Obligations with prove_scope.
+  Next Obligation. prove_nodup. Qed.
+
+  Definition t : HMod.t := Seal.sealing CRIS (PMod.to_hmod Mod).
+End IncrementI. End IncrementI.
