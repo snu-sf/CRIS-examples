@@ -25,28 +25,28 @@ Module MapMS. Section MapMS.
   Qed.
 
   Definition init_spec : fspec :=
-    w_fspec u
+    wsim_fspec u
       (fspec_simple
         (λ (sz : nat),
           (λ varg, ⌜varg = [Vint sz]↑ ∧ (8 * sz < modulus_64)%Z⌝ ∗ pending,
             λ vret, emp)))%I.
 
   Definition get_spec : fspec := 
-    w_fspec u
+    wsim_fspec u
       (fspec_simple
         (λ k,
           (λ varg, ⌜varg = [Vint k]↑⌝,
             λ vret, emp)))%I.
 
   Definition set_spec : fspec :=
-    w_fspec u
+    wsim_fspec u
       (fspec_simple
         (λ '(k, v),
           (λ varg, ⌜varg = ([Vint k; Vint v])↑⌝,
             λ vret, emp))%I).
 
   Definition set_by_user_spec : fspec := 
-    w_fspec u
+    wsim_fspec u
       (fspec_simple
         (λ k,
           (λ varg, ⌜varg = [Vint k]↑⌝,
@@ -135,5 +135,5 @@ Module MapM. Section MapM.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Definition t Sp := Seal.sealing CRIS (@SMod.to_hmod Σ emp Sp Mod).
+  Definition t Sp := Seal.sealing CRIS (@SMod.to_hmod Σ Sp Mod).
 End MapM. End MapM.

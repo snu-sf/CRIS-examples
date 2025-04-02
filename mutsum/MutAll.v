@@ -17,7 +17,6 @@ Module MutAll.
 
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof. solve_ir_valid. Qed.
-  Local Definition ginv : iProp Σ := wsim_ginv u ⊤.
 
   Local Definition smod_src : SMod.t := MutMainA.Mod ☆ MutFA.Mod ☆ MutGA.Mod ☆ APCC.Mod.
   Local Definition sp : string → option fspec := sp_from smod_src.
@@ -26,7 +25,7 @@ Module MutAll.
   Local Definition sp_pure : string → option fspec := sp_from smod_pure.
 
   Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
-  Local Definition mod_src : HMod.t := SMod.to_hmod ginv sp smod_src.
+  Local Definition mod_src : HMod.t := SMod.to_hmod sp smod_src.
   Local Definition mod_tgt : HMod.t := MutMainI.t ★ MutFI.t ★ MutGI.t ★ APCI.t.
 
   Local Definition main_fsp : fspec := MutMainA.main_spec.
@@ -52,7 +51,7 @@ Module MutAll.
     etrans. { eapply ctxr_comm. }
     etrans.
     { rewrite -hmod_addc_empty_l. eapply ctxr_cond_frameR.
-      replace (SMod.to_hmod ginv sp APCC.Mod) with (APCC.t u sp); cycle 1.
+      replace (SMod.to_hmod sp APCC.Mod) with (APCC.t u sp); cycle 1.
       { unfold APCC.t. unseal CRIS. ss. }
       eapply APCAC.ctxr.
       { instantiate (1:=sp). prove_sp. }
@@ -60,16 +59,16 @@ Module MutAll.
       { prove_sp. }
     }
     etrans. { eapply ctxr_comm. }
-    rewrite !hmod_add_assoc. rewrite -(hmod_add_assoc (SMod.to_hmod ginv sp MutFA.Mod)).
+    rewrite !hmod_add_assoc. rewrite -(hmod_add_assoc (SMod.to_hmod sp MutFA.Mod)).
     etrans.
     { eapply ctxr_compose_mix.
-      { replace (SMod.to_hmod ginv sp MutMainA.Mod) with (MutMainA.t u sp); cycle 1.
+      { replace (SMod.to_hmod sp MutMainA.Mod) with (MutMainA.t u sp); cycle 1.
         { unfold MutMainA.t. unseal CRIS. ss. }
         eapply MutMainIA.ctxr; prove_sp.
       }
-      { replace (SMod.to_hmod ginv sp MutFA.Mod) with (MutFA.t u sp); cycle 1.
+      { replace (SMod.to_hmod sp MutFA.Mod) with (MutFA.t u sp); cycle 1.
         { unfold MutFA.t. unseal CRIS. ss. }
-        replace (SMod.to_hmod ginv sp MutGA.Mod) with (MutGA.t u sp); cycle 1.
+        replace (SMod.to_hmod sp MutGA.Mod) with (MutGA.t u sp); cycle 1.
         { unfold MutGA.t. unseal CRIS. ss. }
         rewrite !hmod_add_assoc.
         etrans.

@@ -17,7 +17,7 @@ Module IncrIA. Section IncrIA.
   Context (MainInSp : sp_incl (IncrAS.sp u_s) sp_user_s).
   Context (SchInSpT : sp_incl (SchAS.sp u_t (to_sp [])) sp_t).
 
-  Local Definition MemA := (MemA.t u_s sp_mem).
+  Local Definition MemA := (MemA.t sp_mem).
   Local Definition IncrA := (IncrA.t u_s sp_s).
   Local Definition IncrI := (IncrI.t).
   Local Definition IstFull := (IstProd (IstSB IncrA.(HMod.scopes) Ist) IstEq).
@@ -33,11 +33,11 @@ Module IncrIA. Section IncrIA.
       (λ vret ret,
         existT 0 ((⌜vret = ret ∧ vret = tt↑↑⌝ ∗ counter_syn γ (1/2) (v + 2))%SAT)).
   Proof.
-    rewrite /SchAS.fspec_spawnable /w_fspec /fspec_virtual /precond /postcond /incr_spec /=.
+    rewrite /SchAS.fspec_spawnable /wsim_fspec /fspec_virtual /precond /postcond /incr_spec /=.
     ii; ss. eexists (x_src, (blk, ofs, v, γ)); split; red; ii.
-    - rewrite /precond /w_fspec_sch /fspec_simple /w_fspec /precond /=.
+    - rewrite /precond /sch_fspec /fspec_simple /wsim_fspec /precond /=.
       iIntros "[W [% [-> [TID [% [-> [[-> ->] [C #INV]]]]]]]]". iFrame. eauto.
-    - rewrite /postcond /w_fspec_sch /fspec_simple /w_fspec /postcond /=.
+    - rewrite /postcond /sch_fspec /fspec_simple /wsim_fspec /postcond /=.
       iIntros "[W [TID [[-> C] ->]]]". iFrame. iExists _; iSplitR; eauto.
       iExists _; iSplitR; eauto. SL_red. iSplitR; eauto.
   Qed.
@@ -245,7 +245,7 @@ Section ctxr.
       (MemInSp : sp_incl MemA.sp sp_s)
       (Univ : u_s > u_t) :
     ctx_refines
-      ((IncrA.t u_s sp_s)            ★ (MemA.t u_s sp_mem), emp%I)
-      ((IncrI.t ★ FaaA.t u_t sp_t)   ★ (MemA.t u_s sp_mem), emp%I).
+      ((IncrA.t u_s sp_s)            ★ (MemA.t sp_mem), emp%I)
+      ((IncrI.t ★ FaaA.t u_t sp_t)   ★ (MemA.t sp_mem), emp%I).
   Proof. eapply main_adequacy, sim; try solve_sch_sp; eauto. Qed.
 End ctxr. End IncrIA.

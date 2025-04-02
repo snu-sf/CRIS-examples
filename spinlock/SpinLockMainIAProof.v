@@ -18,7 +18,7 @@ Module SpinLockMainIA. Section SpinLockMainIA.
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
-  Local Definition MemA := (MemA.t u_a sp_mem).
+  Local Definition MemA := (MemA.t sp_mem).
   Local Definition SpinLockA := (SpinLockA.t u_a sp_s).
   Local Definition SpinLockMainA := (SpinLockMainA.t u_a sp_s).
   Local Definition SpinLockMainI := (SpinLockMainI.t).
@@ -249,7 +249,7 @@ Section ctxr.
       (MainInSp : sp_incl (SpinLockMainAS.sp u) sp_user_s)
       (MemInSp : sp_incl MemA.sp sp_s) :
     ctx_refines
-      ((SpinLockMainA.t u sp_s) ★ (MemA.t u sp_mem ★ (SpinLockA.t u sp_s)), emp%I)
-      ((SpinLockMainI.t)         ★ (MemA.t u sp_mem ★ (SpinLockA.t u sp_s)), emp%I).
+      ((SpinLockMainA.t u sp_s) ★ (MemA.t sp_mem ★ (SpinLockA.t u sp_s)), emp%I)
+      ((SpinLockMainI.t)         ★ (MemA.t sp_mem ★ (SpinLockA.t u sp_s)), emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End SpinLockMainIA.

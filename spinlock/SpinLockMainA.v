@@ -24,7 +24,7 @@ Module SpinLockMainAS. Section SpinLockMainAS.
   Definition ir : SpinLockMainAΓ := *[None].
 
   Definition main_spec u : fspec :=
-    w_fspec u
+    wsim_fspec u
       (fspec_simple (λ _ : unit,
         (λ arg, ⌜arg = tt↑⌝ ∗ SchAS.tid_user 0,
         λ ret, ⌜ret = tt↑⌝)))%I.
@@ -33,7 +33,7 @@ Module SpinLockMainAS. Section SpinLockMainAS.
     ∃ v : τ{Z}%SAT, loc ↦ (Vint v) ∗ <own> γ (●F v).
 
   Definition incr_spec u : fspec :=
-    w_fspec u
+    wsim_fspec u
       (fspec_simple (λ '(tid, blk_l, ofs_l, blk_v, ofs_v, γ_v),
         ((λ arg,
           ⌜arg = ([Vptr blk_l ofs_l; Vptr blk_v ofs_v]↑↑)↑⌝
@@ -63,7 +63,8 @@ Module SpinLockMainAS. Section SpinLockMainAS.
   Proof.
     intros x_s; ss.
     exists (x_s, blk_l, ofs_l, blk_v, ofs_v, γ_v); split.
-    { intros varg arg. unfold_pre_post. iIntros "[W [%va [-> [TID [%sarg [-> [-> [-> P]]]]]]]]".
+    { intros varg arg. unfold_pre_post.
+      iIntros "[W [%va [-> [TID [%sarg [-> [-> [-> P]]]]]]]]".
       iFrame. iModIntro. iSplit; eauto.
     }
     { iIntros (vret ret); rewrite /postcond /incr_spec /=; iIntros "[$ [[-> [TID R]] ->]] /=".
@@ -120,5 +121,5 @@ Module SpinLockMainA. Section SpinLockMainA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Defined.
 
-  Definition t u sp : HMod.t := Seal.sealing CRIS SMod.to_hmod (wsim_ginv u ⊤) sp (Mod u).
+  Definition t u sp : HMod.t := Seal.sealing CRIS SMod.to_hmod sp (Mod u).
 End SpinLockMainA. End SpinLockMainA.

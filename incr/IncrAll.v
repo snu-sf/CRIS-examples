@@ -34,7 +34,7 @@ Module IncrAll.
   Local Definition sp_s : string → option fspec := sp_from smod_src.
 
   Local Definition smod_cancel : HMod.t := SModCancel.to_hmod smod_src.
-  Local Definition mod_src : HMod.t := SMod.to_hmod (wsim_ginv u ⊤) sp_s smod_src.
+  Local Definition mod_src : HMod.t := SMod.to_hmod sp_s smod_src.
   Local Definition mod_tgt : HMod.t := (IncrI.t ★ FaaI.t) ★ (MemI.t csl genv) ★ (SchI.t).
 
   Local Definition SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s.
@@ -76,9 +76,9 @@ Module IncrAll.
     rewrite assoc. eapply ctxr_compose_hor.
     { etrans.
       { eapply ctxr_cond_frameR.
-        replace (SMod.to_hmod _ _ (IncrA.Mod u)) with (IncrA.t u sp_s); cycle 1.
+        replace (SMod.to_hmod _ (IncrA.Mod u)) with (IncrA.t u sp_s); cycle 1.
         { rewrite /IncrA.t; unseal CRIS; ss. }
-        replace (SMod.to_hmod _ _ MemA.Mod) with (MemA.t u sp_s); cycle 1.
+        replace (SMod.to_hmod _ MemA.Mod) with (MemA.t u sp_s); cycle 1.
         { rewrite /MemA.t; unseal CRIS; ss. }
         eauto.
       }
@@ -93,9 +93,9 @@ Module IncrAll.
       }
     }
     eapply main_adequacy.
-    replace (SMod.to_hmod _ _ (SchA.Mod u sp_user_s)) with (SchA.t u sp_s sp_user_s); cycle 1.
+    replace (SMod.to_hmod _ (SchA.Mod u sp_user_s)) with (SchA.t u sp_s sp_user_s); cycle 1.
     { rewrite /SchA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod _ _ (SchA_link.Mod _)) with (SchA_link.t u sp_s); cycle 1.
+    replace (SMod.to_hmod _ (SchA_link.Mod _)) with (SchA_link.t u sp_s); cycle 1.
     { unfold_hmod; ss. }
     eapply SchIA.sim; eauto using SchInSp.
     { rewrite /sp_sub /sp_user_s /sp_s /IncrAS.sp /MemA.sp; unseal CRIS. ii; ss.

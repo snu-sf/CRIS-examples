@@ -5,13 +5,13 @@ Require Import FAA_I FAA_A.
 Module FaaIA. Section FaaIA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
   Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ}.
-  Context (u_s u_mem : univ_id).
+  Context (u_s : univ_id).
   Context (sp_s sp_mem sp_user_s : string → option fspec).
   Context (SchInSp : sp_incl (SchAS.sp u_s sp_user_s) sp_s).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
-  Local Definition MemA := (MemA.t u_mem sp_mem).
+  Local Definition MemA := (MemA.t sp_mem).
   Local Definition FaaA := (FaaA.t u_s sp_s).
   Local Definition FaaI := (FaaI.t).
   Local Definition IstFull := (IstProd (IstSB FaaA.(HMod.scopes) Ist) IstEq).

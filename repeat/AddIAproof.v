@@ -12,7 +12,6 @@ Module AddIA. Section AddIA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
   Context (genv : GEnv.t).
-  Context (u u_apc : univ_id).
   Context (sp sp_pure sp_pure_fun : string -> option fspec).
 
   (* GEnv Hypothesis *)
@@ -26,11 +25,11 @@ Module AddIA. Section AddIA.
   Context (succInSpPureFun : sp_pure_fun AddHdr.succ = Some AddAS.succ_spec).
 
   (* Modules *)
-  Local Definition APCA := (APCA.t u_apc sp_pure sp).
-  Local Definition RepeatA := (RepeatA.t genv u sp sp_pure_fun).
+  Local Definition APCA := (APCA.t sp_pure sp).
+  Local Definition RepeatA := (RepeatA.t genv sp sp_pure_fun).
   Local Definition RepeatAMod := (RepeatA ★ APCA).
   Local Definition AddI := (AddI.t genv).
-  Local Definition AddA := (AddA.t u sp).
+  Local Definition AddA := (AddA.t sp).
   Local Definition AddIMod := (AddI ★ RepeatAMod).
   Local Definition AddAMod := (AddA ★ RepeatAMod).
 
@@ -58,7 +57,7 @@ Module AddIA. Section AddIA.
   Lemma simF_succ : HSim.sim_fun open AddAMod AddIMod IstFull AddHdr.succ.
   Proof.
     (* Simulation Start *)
-    init_simF u 0.
+    init_simF 0 0.
 
     (* SRC: handle the precond of succ *)
     steps_l. rename q into n.
@@ -91,7 +90,7 @@ Module AddIA. Section AddIA.
     pose proof (GEnvWF AddHdr.succ blk) as GEnvWF. apply GEnvWF in FIND as FIND'.
 
     (* Simulation Start *)
-    init_simF u 0.
+    init_simF 0 0.
 
     (* SRC: handle the precond of add *)
     steps_l. rename q1 into n, q2 into m.
@@ -145,7 +144,7 @@ End AddIA.
 Section ctxr.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
-  Definition ctxr (ge : GEnv.t) (u u_apc : univ_id) (sp sp_pure sp_pure_fun : string → option fspec)
+  Definition ctxr (ge : GEnv.t) (sp sp_pure sp_pure_fun : string → option fspec)
         (GEnvWF : GEnv.wf ge)
         (GEnvIncl : incl AddGEnv.t ge)
         (APCInSpPure : sp_incl APCA.Sp sp_pure)
@@ -153,7 +152,7 @@ Section ctxr.
         (repeatInSpPure: sp_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec sp_pure_fun ge))
         (succInSpPureFun : sp_pure_fun AddHdr.succ = Some AddAS.succ_spec) :
     ctx_refines
-      ((AddA.t u sp) ★ (RepeatA.t ge u sp sp_pure_fun) ★ (APCA.t u_apc sp_pure sp), emp%I)
-      ((AddI.t ge)    ★ (RepeatA.t ge u sp sp_pure_fun) ★ (APCA.t u_apc sp_pure sp), emp%I).
+      ((AddA.t sp) ★ (RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I)
+      ((AddI.t ge)    ★ (RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End AddIA.

@@ -77,7 +77,7 @@ Module MapIM. Section MapIM.
   Context (sp_s sp_mem : string → option fspec).
   Context (MapInSp : sp_incl (MapMS.sp u_s) sp_s).
 
-  Local Definition MemA := (MemA.t u_mem sp_mem).
+  Local Definition MemA := (MemA.t sp_mem).
   Local Definition MapM := (MapM.t u_s sp_s).
   Local Definition MapMMod := (MapM ★ MemA).
   Local Definition MapIMod := (MapI.t ★ MemA).
@@ -313,10 +313,10 @@ Module MapIM. Section MapIM.
 End MapIM.
 Section MapIM.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ, !memGΓ Γ}.
-  Lemma ctxr (u_s u_mem : univ_id) (sp_s sp_mem : string → option fspec)
+  Lemma ctxr (u_s : univ_id) (sp_s sp_mem : string → option fspec)
       (INCL : sp_incl (MapMS.sp u_s) sp_s) :
     ctx_refines
-      ((MapM.t u_s sp_s) ★ (MemA.t u_mem sp_mem), MapM.init_cond)
-      ((MapI.t)           ★ (MemA.t u_mem sp_mem), emp%I).
+      ((MapM.t u_s sp_s) ★ (MemA.t sp_mem), MapM.init_cond)
+      ((MapI.t)           ★ (MemA.t sp_mem), emp%I).
   Proof. eapply main_adequacy, MapIM.sim; eauto. Qed.
 End MapIM. End MapIM.

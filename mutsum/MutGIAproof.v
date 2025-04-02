@@ -10,7 +10,6 @@ Module MutGIA. Section MutGIA.
   Import MutAUX.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
-  Context (u_s u_apc: univ_id).
   Context (Sp: string -> option fspec).
   Context (SpPure: string -> option fspec).
 
@@ -21,16 +20,16 @@ Module MutGIA. Section MutGIA.
   Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ _ _ _, (True)%I.
 
-  Local Definition MutGAMod := (MutGA.t u_s Sp ★ APCA.t u_apc SpPure Sp).
-  Local Definition MutGIMod := (MutGI.t ★ APCA.t u_apc SpPure Sp).
-  Local Definition IstFull := (IstProd (IstSB (MutGA.t u_s Sp).(HMod.scopes) Ist) IstEq).
+  Local Definition MutGAMod := (MutGA.t Sp ★ APCA.t SpPure Sp).
+  Local Definition MutGIMod := (MutGI.t ★ APCA.t SpPure Sp).
+  Local Definition IstFull := (IstProd (IstSB (MutGA.t Sp).(HMod.scopes) Ist) IstEq).
   
   (*************)
 
   Lemma simF_mutg:
     HSim.sim_fun open MutGAMod MutGIMod IstFull MutHdr.mutg.
   Proof.
-    init_simF u_s 0.
+    init_simF 0 0.
     
     (* SRC: precondition *)
     steps_l. iDestruct "ASM" as "((%Y & %B) & %Q)". subst; hss.
@@ -98,13 +97,13 @@ End MutGIA.
 Section ctxr.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
-  Theorem ctxr (u_s u_apc: univ_id) (Sp SpPure: string → option fspec) 
+  Theorem ctxr (Sp SpPure: string → option fspec) 
     (APCInSp : sp_incl (APCA.Sp) Sp)
     (FInPure : sp_incl (MutFA.SpF) SpPure)
     (PureInSp : sp_sub SpPure Sp)
   :
     ctx_refines
-      (MutGA.t u_s Sp ★ APCA.t u_apc SpPure Sp, MutGA.init_cond)
-      (MutGI.t ★ APCA.t u_apc SpPure Sp, emp%I).
+      (MutGA.t Sp ★ APCA.t SpPure Sp, MutGA.init_cond)
+      (MutGI.t ★ APCA.t SpPure Sp, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End MutGIA.

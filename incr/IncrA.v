@@ -43,14 +43,14 @@ Module IncrAS. Section IncrAS.
   Qed.
 
   Definition incr_spec u : fspec :=
-    w_fspec_sch u
+    sch_fspec u
       (fspec_simple (λ '(blk, ofs, v, γ),
         (λ varg, ⌜varg = ([Vptr blk ofs]↑↑)↑⌝ ∗ counter γ (1/2) v ∗ incr_inv u 0 γ blk ofs,
         λ vret, ⌜vret = (tt↑↑)↑⌝ ∗ counter γ (1/2) (v + 2))
       ))%I.
 
   Definition main_spec u : fspec :=
-    w_fspec_sch u (fspec_simple (λ _ : unit, (λ arg, ⌜arg = tt↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
+    sch_fspec u (fspec_simple (λ _ : unit, (λ arg, ⌜arg = tt↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
 
   Definition sp u : alist string fspec :=
     [(IncrHdr.incr, incr_spec u);
@@ -89,5 +89,5 @@ Module IncrA. Section IncrA.
   Next Obligation. prove_nodup. Qed.
 
   Definition t u sp : HMod.t :=
-    Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) sp (Mod u)).
+    Seal.sealing CRIS (SMod.to_hmod sp (Mod u)).
 End IncrA. End IncrA.

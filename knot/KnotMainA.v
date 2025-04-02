@@ -8,7 +8,6 @@ Set Implicit Arguments.
 Module KnotMainA. Section KnotMainA.
   Import KnotA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !KnotAGΓ Γ, !memGΓ Γ}.
-  Notation iProp := (iProp Σ).
   Local Existing Instance RA_inG.
 
   (* Specifications *)
@@ -82,8 +81,8 @@ Section KnotMainA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition init_cond : iProp := emp%I.
+  Definition init_cond : iProp Σ := emp%I.
 
-  Definition t genv u SpRec Sp := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Sp (Mod genv SpRec)).
+  Definition t genv SpRec Sp := Seal.sealing CRIS (SMod.to_hmod Sp (Mod genv SpRec)).
 End KnotMainA.
 End KnotMainA. End KnotMainA.

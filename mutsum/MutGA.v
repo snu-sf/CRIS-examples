@@ -6,7 +6,6 @@ Set Implicit Arguments.
 Module MutGA. Section MutGA.
   Import MutAUX.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Notation iProp := (iProp Σ).
 
   Definition scopes := ["MutG"].
 
@@ -31,7 +30,7 @@ Module MutGA. Section MutGA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition init_cond : iProp := emp%I.
+  Definition init_cond : iProp Σ := emp%I.
 
-  Definition t u Stb := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Stb Mod).
+  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod Sp Mod).
 End MutGA. End MutGA.

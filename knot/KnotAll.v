@@ -12,8 +12,6 @@ Module KnotAll.
   
   (* universe *)
   Local Definition u: univ_id := 1.
-  (* global invariant *)
-  Local Definition ginv : iProp Σ := wsim_ginv u ⊤.
   (* mem *)
   Local Definition csl : string → bool := λ _, false.
   (* global environment *)
@@ -45,7 +43,7 @@ Module KnotAll.
 
   Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
 
-  Local Definition mod_src : HMod.t := SMod.to_hmod ginv sp smod_src.
+  Local Definition mod_src : HMod.t := SMod.to_hmod sp smod_src.
 
   Local Definition mod_tgt : HMod.t :=
     KnotMainI.t genv ★ KnotI.t genv ★ MemI.t csl genv ★ APCI.t.
@@ -80,13 +78,13 @@ Module KnotAll.
     eapply ctxr_refines.
     unfold mod_src, mod_tgt. rewrite !add_interp_comm.
 
-    replace (SMod.to_hmod _ sp (KnotMainA.Mod _ _)) with (KnotMainA.t genv u sp_rec sp); cycle 1.
+    replace (SMod.to_hmod sp (KnotMainA.Mod _ _)) with (KnotMainA.t genv u sp_rec sp); cycle 1.
     { unfold KnotMainA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod _ sp (KnotA.Mod _ _ _)) with (KnotA.t genv u sp_rec sp_fun sp); cycle 1.
+    replace (SMod.to_hmod sp (KnotA.Mod _ _ _)) with (KnotA.t genv u sp_rec sp_fun sp); cycle 1.
     { unfold KnotA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod _ sp MemA.Mod) with (MemA.t u sp); cycle 1.
+    replace (SMod.to_hmod sp MemA.Mod) with (MemA.t u sp); cycle 1.
     { unfold MemA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod _ sp APCC.Mod) with (APCC.t u sp); cycle 1.
+    replace (SMod.to_hmod sp APCC.Mod) with (APCC.t u sp); cycle 1.
     { unfold APCC.t; unseal CRIS; ss. }
 
     rewrite -!hmod_add_assoc.

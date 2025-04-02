@@ -49,7 +49,7 @@ Module SpinLockAll.
   Local Definition sp_s : string → option fspec :=
     sp_from smod_src.
   (* the source HMod *)
-  Local Definition mod_src : HMod.t := SMod.to_hmod (wsim_ginv u ⊤) sp_s smod_src.
+  Local Definition mod_src : HMod.t := SMod.to_hmod sp_s smod_src.
 
   (* initial condition for the source *)
   Local Definition init_cond : iProp Σ := (MemA.init_cond csl genv ∗ SchA.init_cond)%I.
@@ -96,11 +96,11 @@ Module SpinLockAll.
     do 2 rewrite -hmod_add_assoc.
     etrans.
     { eapply ctxr_frameR.
-      replace (SMod.to_hmod _ _ (SpinLockMainA.Mod _)) with (SpinLockMainA.t u sp_s); cycle 1.
+      replace (SMod.to_hmod _ (SpinLockMainA.Mod _)) with (SpinLockMainA.t u sp_s); cycle 1.
       { unfold_hmod; ss. }
-      replace (SMod.to_hmod _ _ (MemA.Mod)) with (MemA.t u sp_s); cycle 1.
+      replace (SMod.to_hmod _ (MemA.Mod)) with (MemA.t u sp_s); cycle 1.
       { unfold_hmod; ss. }
-      replace (SMod.to_hmod _ _ (SpinLockA.Mod _)) with (SpinLockA.t u sp_s); cycle 1.
+      replace (SMod.to_hmod _ (SpinLockA.Mod _)) with (SpinLockA.t u sp_s); cycle 1.
       { unfold_hmod; ss. }
       rewrite hmod_add_assoc -hmod_addc_empty_l.
       etrans; first eapply ctxr_cond_frameR.
@@ -129,9 +129,9 @@ Module SpinLockAll.
     rewrite -hmod_add_assoc. eapply ctxr_frameR.
     rewrite hmod_add_assoc. eapply ctxr_frameL.
     etrans.
-    { replace (SMod.to_hmod _ _ (SchA.Mod _ _)) with (SchA.t u sp_s sp_user_s); cycle 1.
+    { replace (SMod.to_hmod _ (SchA.Mod _ _)) with (SchA.t u sp_s sp_user_s); cycle 1.
       { unfold_hmod; ss. }
-      replace (SMod.to_hmod _ _ (SchA_link.Mod _)) with (SchA_link.t u sp_s); cycle 1.
+      replace (SMod.to_hmod _ (SchA_link.Mod _)) with (SchA_link.t u sp_s); cycle 1.
       { unfold_hmod; ss. }
       rewrite hmod_addc_empty_l.
       eapply SchIA.ctxr.

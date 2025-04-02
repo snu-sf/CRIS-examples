@@ -63,5 +63,5 @@ Module RepeatA. Section RepeatA.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Definition t genv u sp sp_pure := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) sp (Mod genv sp_pure)).
+  Definition t genv sp sp_pure := Seal.sealing CRIS (SMod.to_hmod sp (Mod genv sp_pure)).
 End RepeatA. End RepeatA.

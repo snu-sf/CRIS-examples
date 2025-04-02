@@ -52,5 +52,5 @@ Module MainA. Section MainA.
 
   Definition init_cond : iProp Σ := True%I.
 
-  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod emp Sp Mod).
+  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod Sp Mod).
 End MainA. End MainA.

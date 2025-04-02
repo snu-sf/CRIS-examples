@@ -5,12 +5,12 @@ Require Import MapHeader MapA MapM MapI ModSim MapIMproof MapMAproof MemA.
 Module MapIA. Section MapIA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapAGΓ Γ, !MapMGΓ Γ, !memGΓ Γ}.
 
-  Lemma ctxr (u_s u_mem : univ_id) (sp_s sp_mem : string → option fspec)
+  Lemma ctxr (u_s : univ_id) (sp_s sp_mem : string → option fspec)
       (LE : u_s >= 2)
       (MapInSpMap : sp_incl (MapAS.sp u_s) sp_s) :
     ctx_refines
-      ((MapA.t u_s sp_s) ★ (MemA.t u_mem sp_mem), (MapA.init_cond ∗ MapM.init_cond)%I)
-      ((MapI.t)           ★ (MemA.t u_mem sp_mem), emp%I).
+      ((MapA.t u_s sp_s) ★ (MemA.t sp_mem), (MapA.init_cond ∗ MapM.init_cond)%I)
+      ((MapI.t)           ★ (MemA.t sp_mem), emp%I).
   Proof.
     etrans; cycle 1.
     { eapply MapIM.ctxr.

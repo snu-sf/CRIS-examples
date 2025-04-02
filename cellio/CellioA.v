@@ -78,5 +78,5 @@ Module CellioA. Section CellioA.
 
   Definition InitRes : Σ := own.iRes_singleton base_γ (●E 0%Z).
 
-  Definition t sp := Seal.sealing CRIS (SMod.to_hmod emp sp Mod).
+  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
 End CellioA. End CellioA.

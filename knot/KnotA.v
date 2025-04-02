@@ -28,7 +28,6 @@ Definition ir_knotAΓ : KnotAΓ := *[Some (ir_knotRA)].
 
 Module KnotA. Section KnotA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !KnotAGΓ Γ, !memGΓ Γ}.
-  Notation iProp := (iProp Σ).
 
   (* Resources *)
 
@@ -38,12 +37,12 @@ Module KnotA. Section KnotA.
     { apply func_ext. intro z. specialize (H z). ss. } ss.
   Qed.
 
-  Definition knot_full (f: option (nat → nat)) : iProp :=
+  Definition knot_full (f: option (nat → nat)) : iProp Σ :=
     own base_γ (● (Some (Excl (f: optionO (natO -d> natO))))).
-  Definition knot_frag (f: option (nat → nat)) : iProp := 
+  Definition knot_frag (f: option (nat → nat)) : iProp Σ := 
     own base_γ (◯ (Some (Excl (f: optionO (natO -d> natO))))).
 
-  Definition knot_init: iProp := knot_frag None.
+  Definition knot_init: iProp Σ := knot_frag None.
 
   Lemma knot_ra_merge
       (f0 f1: optionO (natO -d> natO))
@@ -91,13 +90,13 @@ Section KnotAS.
   Variable SpFun: string → option fspec.
   Variable SpPure: string → option fspec.
 
-  Definition var_points_to (var: string) (v: val): iProp :=
+  Definition var_points_to (var: string) (v: val): iProp Σ :=
     match ((CEnv.load_genv genv).(CEnv.id2blk) var) with
     | Some blk => mem_points_to_singleton (blk, 0%Z) 1%Qp v
     | None => True
     end.
 
-  Definition mrec_spec (f: nat -> nat) (INV: iProp): fspec :=
+  Definition mrec_spec (f: nat -> nat) (INV: iProp Σ): fspec :=
     fspec_apc (λ n: nat, 2 * n + 1)%ord
       (fun (n: nat) =>
           ((fun arg => (⌜arg = [Vint (Z.of_nat n)]↑ /\ (intrange_64 n)⌝ ∗ INV)%I),
@@ -155,10 +154,10 @@ Section KnotA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition init_cond genv : iProp :=
+  Definition init_cond genv : iProp Σ :=
     ((var_points_to genv KnotHdr._f (Vint 0)) ∗ knot_full None)%I.
 
-  Definition t genv u SpRec SpFun Sp :=
-    Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) Sp (Mod genv SpRec SpFun)).
+  Definition t genv SpRec SpFun Sp :=
+    Seal.sealing CRIS (SMod.to_hmod Sp (Mod genv SpRec SpFun)).
 End KnotA.
 End KnotA. End KnotA.
