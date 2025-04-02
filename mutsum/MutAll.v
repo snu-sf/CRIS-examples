@@ -8,12 +8,11 @@ Require Import APCIAproof APCACproof.
 
 Module MutAll.
   Import inv_instances.
-  Local Definition u : univ_id := 1.
 
   Local Instance Γ : HRA := ##[invΓ].
   Local Instance Σ : GRA := ##[invΣ; Γ].
-  Definition irΓ : Γ := **[ir_invΓ u].
-  Definition irΣ : Σ := **[ir_invΣ u; irΓ].
+  Definition irΓ : Γ := **[ir_invΓ 0].
+  Definition irΣ : Σ := **[ir_invΣ 0; irΓ].
 
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof. solve_ir_valid. Qed.
@@ -51,7 +50,7 @@ Module MutAll.
     etrans. { eapply ctxr_comm. }
     etrans.
     { rewrite -hmod_addc_empty_l. eapply ctxr_cond_frameR.
-      replace (SMod.to_hmod sp APCC.Mod) with (APCC.t u sp); cycle 1.
+      replace (SMod.to_hmod sp APCC.Mod) with (APCC.t sp); cycle 1.
       { unfold APCC.t. unseal CRIS. ss. }
       eapply APCAC.ctxr.
       { instantiate (1:=sp). prove_sp. }
@@ -62,13 +61,13 @@ Module MutAll.
     rewrite !hmod_add_assoc. rewrite -(hmod_add_assoc (SMod.to_hmod sp MutFA.Mod)).
     etrans.
     { eapply ctxr_compose_mix.
-      { replace (SMod.to_hmod sp MutMainA.Mod) with (MutMainA.t u sp); cycle 1.
+      { replace (SMod.to_hmod sp MutMainA.Mod) with (MutMainA.t sp); cycle 1.
         { unfold MutMainA.t. unseal CRIS. ss. }
         eapply MutMainIA.ctxr; prove_sp.
       }
-      { replace (SMod.to_hmod sp MutFA.Mod) with (MutFA.t u sp); cycle 1.
+      { replace (SMod.to_hmod sp MutFA.Mod) with (MutFA.t sp); cycle 1.
         { unfold MutFA.t. unseal CRIS. ss. }
-        replace (SMod.to_hmod sp MutGA.Mod) with (MutGA.t u sp); cycle 1.
+        replace (SMod.to_hmod sp MutGA.Mod) with (MutGA.t sp); cycle 1.
         { unfold MutGA.t. unseal CRIS. ss. }
         rewrite !hmod_add_assoc.
         etrans.

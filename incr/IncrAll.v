@@ -78,7 +78,7 @@ Module IncrAll.
       { eapply ctxr_cond_frameR.
         replace (SMod.to_hmod _ (IncrA.Mod u)) with (IncrA.t u sp_s); cycle 1.
         { rewrite /IncrA.t; unseal CRIS; ss. }
-        replace (SMod.to_hmod _ MemA.Mod) with (MemA.t u sp_s); cycle 1.
+        replace (SMod.to_hmod _ MemA.Mod) with (MemA.t sp_s); cycle 1.
         { rewrite /MemA.t; unseal CRIS; ss. }
         eauto.
       }

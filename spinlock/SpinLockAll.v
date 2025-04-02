@@ -98,7 +98,7 @@ Module SpinLockAll.
     { eapply ctxr_frameR.
       replace (SMod.to_hmod _ (SpinLockMainA.Mod _)) with (SpinLockMainA.t u sp_s); cycle 1.
       { unfold_hmod; ss. }
-      replace (SMod.to_hmod _ (MemA.Mod)) with (MemA.t u sp_s); cycle 1.
+      replace (SMod.to_hmod _ (MemA.Mod)) with (MemA.t sp_s); cycle 1.
       { unfold_hmod; ss. }
       replace (SMod.to_hmod _ (SpinLockA.Mod _)) with (SpinLockA.t u sp_s); cycle 1.
       { unfold_hmod; ss. }

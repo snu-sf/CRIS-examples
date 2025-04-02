@@ -10,16 +10,14 @@ Module KnotAll.
   Local Instance Γ : HRA := ##[invΓ; memΓ; KnotAΓ].
   Local Instance Σ : GRA := ##[invΣ; Γ].
   
-  (* universe *)
-  Local Definition u: univ_id := 1.
   (* mem *)
   Local Definition csl : string → bool := λ _, false.
   (* global environment *)
   Local Definition genv : GEnv.t := KnotGEnv.t ++ KnotMainGEnv.t.
 
   (* initial resource *)
-  Local Definition irΓ : Γ := **[ir_invΓ u; ir_memΓ csl genv; ir_knotAΓ].
-  Local Definition irΣ : Σ := **[ir_invΣ u; irΓ].
+  Local Definition irΓ : Γ := **[ir_invΓ 0; ir_memΓ csl genv; ir_knotAΓ].
+  Local Definition irΣ : Σ := **[ir_invΣ 0; irΓ].
 
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof.
@@ -78,13 +76,13 @@ Module KnotAll.
     eapply ctxr_refines.
     unfold mod_src, mod_tgt. rewrite !add_interp_comm.
 
-    replace (SMod.to_hmod sp (KnotMainA.Mod _ _)) with (KnotMainA.t genv u sp_rec sp); cycle 1.
+    replace (SMod.to_hmod sp (KnotMainA.Mod _ _)) with (KnotMainA.t genv sp_rec sp); cycle 1.
     { unfold KnotMainA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod sp (KnotA.Mod _ _ _)) with (KnotA.t genv u sp_rec sp_fun sp); cycle 1.
+    replace (SMod.to_hmod sp (KnotA.Mod _ _ _)) with (KnotA.t genv sp_rec sp_fun sp); cycle 1.
     { unfold KnotA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod sp MemA.Mod) with (MemA.t u sp); cycle 1.
+    replace (SMod.to_hmod sp MemA.Mod) with (MemA.t sp); cycle 1.
     { unfold MemA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod sp APCC.Mod) with (APCC.t u sp); cycle 1.
+    replace (SMod.to_hmod sp APCC.Mod) with (APCC.t sp); cycle 1.
     { unfold APCC.t; unseal CRIS; ss. }
 
     rewrite -!hmod_add_assoc.
