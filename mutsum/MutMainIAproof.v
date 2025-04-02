@@ -9,27 +9,25 @@ Set Implicit Arguments.
 Module MutMainIA. Section MutMainIA.
   Import MutAUX.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Notation iProp := (iProp Σ).
 
-  Context (u_s u_apc: univ_id).
   Context (Sp SpPure: string -> option fspec).
   Context (APCInSp : sp_incl (APCA.Sp) Sp).
   Context (FInPure : sp_incl (MutFA.SpF) SpPure).
   Context (PureInSp : sp_sub SpPure Sp).
 
-  Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp :=
+  Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ _ _ _, (True)%I.
 
-  Local Definition MutMainAMod := ((MutMainA.t u_s Sp) ★ APCA.t u_apc SpPure Sp).
-  Local Definition MutMainIMod := ((MutMainI.t) ★ APCA.t u_apc SpPure Sp).
-  Local Definition IstFull := (IstProd (IstSB (MutMainA.t u_s Sp).(HMod.scopes) Ist) IstEq).
+  Local Definition MutMainAMod := ((MutMainA.t Sp) ★ APCA.t SpPure Sp).
+  Local Definition MutMainIMod := ((MutMainI.t) ★ APCA.t SpPure Sp).
+  Local Definition IstFull := (IstProd (IstSB (MutMainA.t Sp).(HMod.scopes) Ist) IstEq).
   
   (*************)
 
   Lemma simF_main:
     HSim.sim_fun open MutMainAMod MutMainIMod IstFull MutMainHdr.main.
   Proof.
-    init_simF u_s 0.
+    init_simF 0 0.
 
     (* SRC: precondition *)
     steps_l. iDestruct "ASM" as "%". des; subst; hss.
@@ -74,13 +72,13 @@ End MutMainIA.
 Section ctxr.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
-  Theorem ctxr (u_s u_apc: univ_id) (Sp SpPure: string → option fspec)
+  Theorem ctxr (Sp SpPure: string → option fspec)
     (APCInSp : sp_incl (APCA.Sp) Sp)
     (FInPure : sp_incl (MutFA.SpF) SpPure)
     (PureInSp : sp_sub SpPure Sp)
   :
     ctx_refines
-      (MutMainA.t u_s Sp ★ APCA.t u_apc SpPure Sp, emp%I)
-      (MutMainI.t ★ APCA.t u_apc SpPure Sp, emp%I).
+      (MutMainA.t Sp ★ APCA.t SpPure Sp, emp%I)
+      (MutMainI.t ★ APCA.t SpPure Sp, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End MutMainIA.

@@ -16,7 +16,7 @@ Module SpinLockIA. Section SpinLockIA.
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
-  Local Definition MemA := (MemA.t u_a sp_mem).
+  Local Definition MemA := (MemA.t sp_mem).
   Local Definition SpinLockA := (SpinLockA.t u_a sp_s).
   Local Definition SpinLockI := (SpinLockI.t).
   Local Definition IstFull := (IstProd (IstSB SpinLockA.(HMod.scopes) Ist) IstEq).
@@ -169,7 +169,7 @@ Section SpinLockIA.
       (SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s)
       (MemInSp : sp_incl MemA.sp sp_s) :
     ctx_refines
-      (SpinLockA.t u sp_s ★ MemA.t u sp_mem, emp%I)
-      (SpinLockI.t         ★ MemA.t u sp_mem, emp%I).
+      (SpinLockA.t u sp_s ★ MemA.t sp_mem, emp%I)
+      (SpinLockI.t         ★ MemA.t sp_mem, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End SpinLockIA. End SpinLockIA.

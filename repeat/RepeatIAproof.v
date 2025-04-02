@@ -10,7 +10,6 @@ Module RepeatIA. Section RepeatIA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
   Context (genv : GEnv.t).
-  Context (u u_apc : univ_id).
   Context (sp sp_pure sp_pure_fun : string → option fspec). (* sp_pure_fun stores fspecs which repeat use *)
 
   (* SPC Hypothesis *)
@@ -20,9 +19,9 @@ Module RepeatIA. Section RepeatIA.
   Context (repeatInSpPure : sp_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec sp_pure_fun genv)). (* to avoid recursive definition of SpPure *)
 
   (* Modules *)
-  Local Definition APCA := (APCA.t u_apc sp_pure sp).
+  Local Definition APCA := (APCA.t sp_pure sp).
   Local Definition RepeatI := (RepeatI.t genv).
-  Local Definition RepeatA := (RepeatA.t genv u sp sp_pure_fun).
+  Local Definition RepeatA := (RepeatA.t genv sp sp_pure_fun).
   Local Definition RepeatIMod := (RepeatI ★ APCA).
   Local Definition RepeatAMod := (RepeatA ★ APCA).
 
@@ -34,7 +33,7 @@ Module RepeatIA. Section RepeatIA.
   Lemma simF_repeat : HSim.sim_fun open RepeatAMod RepeatIMod IstFull RepeatHdr.repeat.
   Proof.
     (* Simulation Start *)
-    init_simF u 0.
+    init_simF 0 0.
 
     (* SRC: handle the precond of repeat *)
     steps_l. rename q2 into f_sem, q3 into n, q4 into x.
@@ -118,13 +117,13 @@ End RepeatIA.
 Section ctxr.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
-  Definition ctxr (ge : GEnv.t) (u u_apc : univ_id) (sp sp_pure sp_pure_fun : string → option fspec)
+  Definition ctxr (ge : GEnv.t) (sp sp_pure sp_pure_fun : string → option fspec)
         (APCInSpPure : sp_incl APCA.Sp sp_pure)
         (SpPureInSp : sp_sub sp_pure sp)
         (SpPureFunInSpPure : sp_sub sp_pure_fun sp_pure)
         (repeatInSpPure: sp_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec sp_pure_fun ge)) :
     ctx_refines
-      ((RepeatA.t ge u sp sp_pure_fun) ★ (APCA.t u_apc sp_pure sp), emp%I)
-      ((RepeatI.t ge)                    ★ (APCA.t u_apc sp_pure sp), emp%I).
+      ((RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I)
+      ((RepeatI.t ge)                    ★ (APCA.t sp_pure sp), emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End RepeatIA.

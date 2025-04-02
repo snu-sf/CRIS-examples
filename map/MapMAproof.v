@@ -9,12 +9,10 @@ Local Open Scope nat_scope.
 Module MapMA. Section MapMA.
   Import MapAS.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapAGΓ Γ, !MapMGΓ Γ}.
-  Context (u_a u_m : univ_id).
-  Context `(u_a > u_m).
 
   Context (sp_s sp_t : string → option fspec).
-  Context (MapInSpS : sp_incl (MapAS.sp u_a) sp_s).
-  Context (MapInSpT : sp_incl (MapMS.sp u_m) sp_t).
+  Context (MapInSpS : sp_incl MapAS.sp sp_s).
+  Context (MapInSpT : sp_incl MapMS.sp sp_t).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     (λ _ st_src st_tgt,
@@ -27,12 +25,12 @@ Module MapMA. Section MapMA.
             ∗ auth_allocated f
             ∗ auth_unallocated sz))%I.
 
-  Local Definition MapA := (MapA.t u_a sp_s).
-  Local Definition MapM := (MapM.t u_m sp_t).
+  Local Definition MapA := (MapA.t sp_s).
+  Local Definition MapM := (MapM.t sp_t).
 
   Lemma simF_init : HSim.sim_fun open MapA MapM Ist MapHdr.init.
   Proof.
-    init_simF u_a u_m.
+    init_simF 0 0.
 
     steps_l.
     iDestruct "ASM" as "[[[-> %range] P] ->]".
@@ -61,7 +59,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_get : HSim.sim_fun open MapA MapM Ist MapHdr.get.
   Proof.
-    init_simF u_a u_m.
+    init_simF 0 0.
 
     steps_l.
     iDestruct "ASM" as "((-> & MAP) & ->)".
@@ -96,7 +94,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_set : HSim.sim_fun open MapA MapM Ist MapHdr.set.
   Proof.
-    init_simF u_a u_m.
+    init_simF 0 0.
 
     (* SRC: handle the IST of Map and the precond of set *)
     do 2 step_l.
@@ -128,7 +126,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_set_by_user : HSim.sim_fun open MapA MapM Ist MapHdr.set_by_user.
   Proof.
-    init_simF u_a u_m.
+    init_simF 0 0.
 
     (* SRC: handle the IST of Map and the precond of set_by_user *)
     do 2 step_l. destruct q as [k w]. steps_l.
@@ -178,14 +176,14 @@ Module MapMA. Section MapMA.
     - apply simF_set_by_user; eauto.
   Qed.
 End MapMA.
+
 Section MapMA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapAGΓ Γ, !MapMGΓ Γ, !memGΓ Γ}.
-  Lemma ctxr u_s u_t sp_s sp_t
-      (LE : u_s > u_t)
-      (MapInSpS : sp_incl (MapAS.sp u_s) sp_s)
-      (MapInSpT : sp_incl (MapMS.sp u_t) sp_t) :
+  Lemma ctxr sp_s sp_t
+      (MapInSpS : sp_incl MapAS.sp sp_s)
+      (MapInSpT : sp_incl MapMS.sp sp_t) :
     ctx_refines
-      (MapA.t u_s sp_s, MapA.init_cond)
-      (MapM.t u_t sp_t, emp%I).
+      (MapA.t sp_s, MapA.init_cond)
+      (MapM.t sp_t, emp%I).
   Proof. eapply main_adequacy, MapMA.sim; eauto. Qed.
 End MapMA. End MapMA.

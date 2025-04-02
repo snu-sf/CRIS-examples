@@ -84,6 +84,6 @@ Module RingA. Section RingA.
   Definition InitCond : iProp Σ :=
     ([∗ list] i↦_ ∈ (replicate max_size 0%Z), CellAS.pending i)%I.
 
-  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod emp Sp Mod).
+  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod Sp Mod).
 
 End RingA. End RingA.

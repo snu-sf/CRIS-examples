@@ -20,9 +20,9 @@ Module CellioAll. Section CellioAll.
   Variable CtxA: SMod.t.
   Local Definition smod_src : SMod.t := MainA.Mod ☆ CtxA.
   Local Definition sp : string → option fspec := sp_from smod_src.
-  Local Definition Ctx := Seal.sealing CRIS (SMod.to_hmod emp sp CtxA).
+  Local Definition Ctx := Seal.sealing CRIS (SMod.to_hmod sp CtxA).
   Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
-  Local Definition mod_src : HMod.t := SMod.to_hmod emp sp smod_src.
+  Local Definition mod_src : HMod.t := SMod.to_hmod sp smod_src.
   Local Definition mod_tgt : HMod.t := MainI.t ★ CellioI.t ★ Ctx.
   
   Local Definition main_fsp : fspec := fspec_trivial.
@@ -70,7 +70,7 @@ Module CellioAll. Section CellioAll.
     etrans.
     {
       (* MainI ★ CellioA ⊆ MainA *)
-      rewrite -[(SMod.to_hmod _ _ MainA.Mod)](Seal.sealing_eq CRIS).
+      rewrite -[(SMod.to_hmod _ MainA.Mod)](Seal.sealing_eq CRIS).
       instantiate (1:= (MainI.t ★ (CellioA.t sp), (emp ∗ CellioA.InitCond)%I)).
       eapply ctxr_cond_frameR, main_adequacy, MainIA.sim.
       eapply lib_sp_incl.
@@ -105,7 +105,7 @@ Module CellioAll. Section CellioAll.
       { iDestruct "H10" as "[H2 H3]".
         iSplitL "H2".
         { iFrame. done. }
-        { unfold_pre_post. eauto. }
+        { eauto. }
       }
       all: solve_res.
     }

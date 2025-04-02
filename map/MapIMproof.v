@@ -71,21 +71,19 @@ Module MapIM. Section MapIM.
             ∧ st_tgt = [(MapI.v_hptr,(Vptr blk ofs)↑)]⌝
           ∗ (blk, ofs) |-> (fun_to_list f (Z.to_nat sz)))%I.
 
-  (* universe ids of src modules *)
-  Context (u_s u_mem : univ_id).
   (* sps of src/mem modules *)
   Context (sp_s sp_mem : string → option fspec).
-  Context (MapInSp : sp_incl (MapMS.sp u_s) sp_s).
+  Context (MapInSp : sp_incl MapMS.sp sp_s).
 
-  Local Definition MemA := (MemA.t u_mem sp_mem).
-  Local Definition MapM := (MapM.t u_s sp_s).
+  Local Definition MemA := (MemA.t sp_mem).
+  Local Definition MapM := (MapM.t sp_s).
   Local Definition MapMMod := (MapM ★ MemA).
   Local Definition MapIMod := (MapI.t ★ MemA).
   Local Definition IstFull := (IstProd (IstSB MapM.(HMod.scopes) Ist) IstEq).
 
   Lemma simF_init : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.init.
   Proof.
-    init_simF u_s 0.
+    init_simF 0 0.
 
     (* preprocess given assumptions *)
     steps_l.
@@ -179,7 +177,7 @@ Module MapIM. Section MapIM.
 
   Lemma simF_get : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.get.
   Proof.
-    init_simF u_s 0.
+    init_simF 0 0.
 
     (* SRC: handle the IST of Map and the precond of get *)
     steps_l.
@@ -223,7 +221,7 @@ Module MapIM. Section MapIM.
 
   Lemma simF_set : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.set.
   Proof.
-    init_simF u_s 0.
+    init_simF 0 0.
 
     steps_l.
     iDestruct "ASM" as "[-> ->]". hss. inv G0. steps_l.
@@ -269,7 +267,7 @@ Module MapIM. Section MapIM.
 
   Lemma simF_set_by_user : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.set_by_user.
   Proof.
-    init_simF u_s 0.
+    init_simF 0 0.
 
     steps_l.
     iDestruct "ASM" as "[-> ->]".
@@ -311,12 +309,13 @@ Module MapIM. Section MapIM.
     - eapply simF_set_by_user; eauto.
   Qed.
 End MapIM.
+
 Section MapIM.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ, !memGΓ Γ}.
-  Lemma ctxr (u_s u_mem : univ_id) (sp_s sp_mem : string → option fspec)
-      (INCL : sp_incl (MapMS.sp u_s) sp_s) :
+  Lemma ctxr (sp_s sp_mem : string → option fspec)
+      (INCL : sp_incl MapMS.sp sp_s) :
     ctx_refines
-      ((MapM.t u_s sp_s) ★ (MemA.t u_mem sp_mem), MapM.init_cond)
-      ((MapI.t)           ★ (MemA.t u_mem sp_mem), emp%I).
+      ((MapM.t sp_s) ★ (MemA.t sp_mem), MapM.init_cond)
+      ((MapI.t)      ★ (MemA.t sp_mem), emp%I).
   Proof. eapply main_adequacy, MapIM.sim; eauto. Qed.
 End MapIM. End MapIM.

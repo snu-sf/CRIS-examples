@@ -133,6 +133,6 @@ Module CellA. Section CellA.
   Definition InitCond : iProp Σ :=
     (∃ v, CellAS.cell idx v ∗ CellAS.auth idx v)%I.
 
-  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod emp Sp Mod).
+  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod Sp Mod).
 
 End CellA. End CellA.

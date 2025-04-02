@@ -110,34 +110,29 @@ Module MapAS. Section MapAS.
   Qed.
 
   Section spec.
-    Context (u : univ_id).
     Definition init_spec : fspec :=
-      w_fspec u
-        (fspec_simple
-          (λ sz : nat,
-            (λ varg, ⌜varg = [Vint sz]↑ ∧ (8 * (Z.of_nat sz) < modulus_64)%Z⌝ ∗ pending,
-              λ vret, ⌜vret = Vundef↑⌝ ∗ initial_points_tos sz)))%I.
+      fspec_simple
+        (λ sz : nat,
+          (λ varg, ⌜varg = [Vint sz]↑ ∧ (8 * (Z.of_nat sz) < modulus_64)%Z⌝ ∗ pending,
+           λ vret, ⌜vret = Vundef↑⌝ ∗ initial_points_tos sz))%I.
 
     Definition get_spec: fspec :=
-      w_fspec u
-        (fspec_simple
-          (λ '(k, v),
-            (λ varg, ⌜varg = [Vint k]↑⌝ ∗ points_to k v,
-              λ vret, ⌜vret = (Vint v)↑⌝ ∗ points_to k v)))%I.
+      fspec_simple
+        (λ '(k, v),
+          (λ varg, ⌜varg = [Vint k]↑⌝ ∗ points_to k v,
+           λ vret, ⌜vret = (Vint v)↑⌝ ∗ points_to k v))%I.
 
     Definition set_spec: fspec :=
-      w_fspec u
-        (fspec_simple
-          (λ '(k, w, v),
-            (λ varg, ⌜varg = [Vint k; Vint v]↑⌝ ∗ points_to k w,
-              λ vret, ⌜vret = Vundef↑⌝ ∗ points_to k v)))%I.
+      fspec_simple
+        (λ '(k, w, v),
+          (λ varg, ⌜varg = [Vint k; Vint v]↑⌝ ∗ points_to k w,
+           λ vret, ⌜vret = Vundef↑⌝ ∗ points_to k v))%I.
 
     Definition set_by_user_spec: fspec :=
-      w_fspec u
-        (fspec_simple
-          (λ '(k, w),
-            (λ varg, ⌜varg = [Vint k]↑⌝ ∗ points_to k w,
-              λ vret, ⌜vret = Vundef↑⌝ ∗ ∃ v, points_to k v)))%I.
+      fspec_simple
+        (λ '(k, w),
+          (λ varg, ⌜varg = [Vint k]↑⌝ ∗ points_to k w,
+           λ vret, ⌜vret = Vundef↑⌝ ∗ ∃ v, points_to k v))%I.
     
     Definition sp : alist string fspec :=
       Seal.sealing CRIS
@@ -169,7 +164,6 @@ def set_by_user(k : int) ≡
 
 Module MapA. Section MapA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ, !MapAGΓ Γ}.
-  Context (υ : univ_id).
 
   Definition scopes := ["Map"].
   Definition v_map := "Map" ↯ "map".
@@ -194,10 +188,10 @@ Module MapA. Section MapA.
       ccallN MapHdr.set [Vint k; Vint v].
 
   Definition fnsems :=
-    [(MapHdr.init, (scopes, mk_specbody (MapAS.init_spec υ) fbody_trivial));
-     (MapHdr.get, (scopes, mk_specbody (MapAS.get_spec υ) (cfunN get)));
-     (MapHdr.set, (scopes, mk_specbody (MapAS.set_spec υ) (cfunN set)));
-     (MapHdr.set_by_user, (scopes, mk_specbody (MapAS.set_by_user_spec υ) (cfunN set_by_user)))].
+    [(MapHdr.init, (scopes, mk_specbody MapAS.init_spec fbody_trivial));
+     (MapHdr.get, (scopes, mk_specbody MapAS.get_spec (cfunN get)));
+     (MapHdr.set, (scopes, mk_specbody MapAS.set_spec (cfunN set)));
+     (MapHdr.set_by_user, (scopes, mk_specbody MapAS.set_by_user_spec (cfunN set_by_user)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
@@ -210,5 +204,5 @@ Module MapA. Section MapA.
   Definition init_cond : iProp Σ :=
     (MapAS.initial_map ∗ MapMS.pending)%I.
 
-  Definition t sp := Seal.sealing CRIS (SMod.to_hmod emp sp Mod).
+  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
 End MapA. End MapA.

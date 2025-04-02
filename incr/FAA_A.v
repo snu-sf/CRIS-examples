@@ -6,7 +6,7 @@ Module FaaA. Section FaaA.
   Context `{!SchAGΣ Σ, !SchAGΓ Γ}.
 
   Definition faa2_spec u : fspec :=
-    w_fspec_sch u (fspec_simple (λ '(b, ofs), (λ arg, ⌜arg = [Vptr b ofs]↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
+    sch_fspec u (fspec_simple (λ '(b, ofs), (λ arg, ⌜arg = [Vptr b ofs]↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
 
   Definition sp u : alist string fspec :=
     [(FaaHdr.faa2, faa2_spec u)].
@@ -36,5 +36,5 @@ Module FaaA. Section FaaA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t u sp : HMod.t := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) sp (Mod u)).
+  Definition t u sp : HMod.t := Seal.sealing CRIS (SMod.to_hmod sp (Mod u)).
 End FaaA. End FaaA.

@@ -42,7 +42,7 @@ Module SpinLockAS. Section SpinLockAS.
 
   (* Function specs *)
   Definition newlock_spec u : fspec :=
-    w_fspec u
+    wsim_fspec u
       (fspec_simple (X := nat * {n & GTerm.t n})
         (λ '(tid, (existT n P)),
           ((λ _, SchAS.tid_user tid ∗ ⟦P⟧),
@@ -50,7 +50,7 @@ Module SpinLockAS. Section SpinLockAS.
       ))%I.
 
   Definition acquire_spec u : fspec :=
-    w_fspec u
+    wsim_fspec u
       (fspec_simple (X := nat * gname * val * {n & GTerm.t n})
         (λ '(tid, γ, val, P),
           ((λ arg, ⌜arg = [val]↑⌝ ∗ SchAS.tid_user tid ∗ is_lock u γ val (projT2 P)),
@@ -58,7 +58,7 @@ Module SpinLockAS. Section SpinLockAS.
       ))%I.
 
   Definition release_spec u : fspec :=
-    w_fspec u
+    wsim_fspec u
       (fspec_simple (X := nat * gname * val * {n & GTerm.t n})
         (λ '(tid, γ, val, P),
           ((λ arg, ⌜arg = [val]↑⌝
@@ -111,5 +111,5 @@ Module SpinLockA. Section SpinLockA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Defined.
 
-  Definition t u sp : HMod.t := Seal.sealing CRIS SMod.to_hmod (wsim_ginv u ⊤) sp (Mod u).
+  Definition t u sp : HMod.t := Seal.sealing CRIS SMod.to_hmod sp (Mod u).
 End SpinLockA. End SpinLockA.

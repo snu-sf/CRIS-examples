@@ -8,12 +8,9 @@ Set Implicit Arguments.
 Module KnotMainIA. Section KnotMainIA.
   Import KnotA KnotMainA APCA.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !KnotAGΓ Γ, !memGΓ Γ}.
-  Notation iProp := (iProp Σ).
 
   (* 1. global environment *)
   Context (genv: GEnv.t).
-  (* 2. universe for knot module and apc module *)
-  Context (u_s u_apc: univ_id).
   (* 3. spec tables *)
   Context (SpRec SpFun SpPure Sp: string -> option fspec).
   (* 4. hypotheses for genv *)
@@ -27,14 +24,14 @@ Module KnotMainIA. Section KnotMainIA.
   Context (RecInSpPure: sp_sub SpRec SpPure).
   Context (PureInGlobal : sp_sub SpPure Sp).
 
-  Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp :=
+  Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ _ _ _, True%I.  
 
-  Local Definition APCA := (APCA.t u_apc SpPure Sp).
-  Local Definition MemA := (MemA.t u_s Sp).
-  Local Definition KnotA := (KnotA.t genv u_s SpRec SpFun Sp).
+  Local Definition APCA := (APCA.t SpPure Sp).
+  Local Definition MemA := (MemA.t Sp).
+  Local Definition KnotA := (KnotA.t genv SpRec SpFun Sp).
   Local Definition KnotAMod := (KnotA ★ MemA ★ APCA).
-  Local Definition KnotMainA := (KnotMainA.t genv u_s SpRec Sp).
+  Local Definition KnotMainA := (KnotMainA.t genv SpRec Sp).
   Local Definition KnotMainI := (KnotMainI.t genv).
   Local Definition KnotMainAMod := (KnotMainA ★ KnotAMod).
   Local Definition KnotMainIMod := (KnotMainI ★ KnotAMod).
@@ -45,7 +42,7 @@ Module KnotMainIA. Section KnotMainIA.
   Lemma simF_fib:
     HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainHdr.fib.
   Proof.
-    init_simF u_s 0.
+    init_simF 0 0.
 
     steps_l. iDestruct "ASM" as "[[% INV] %]". des; subst. hss.
     steps_r. inv H3. des. rewrite FBLOCK; hss. steps_r.
@@ -105,7 +102,7 @@ Module KnotMainIA. Section KnotMainIA.
   Lemma simF_main:
     HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainHdr.main.
   Proof.
-    init_simF u_s 0.
+    init_simF 0 0.
 
     (* SKINCL *)
     pose proof (@CEnv.incl_incl_env KnotMainGEnv.t genv) as INCLENV.
@@ -188,7 +185,7 @@ Section ctxr.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
   Context `{!KnotAGΓ Γ, !memGΓ Γ}.
   
-  Theorem ctxr (genv: GEnv.t) (u_s u_apc: univ_id)
+  Theorem ctxr (genv: GEnv.t)
     (SpRec SpFun SpPure Sp: string -> option fspec)
     (GEnvWF: GEnv.wf genv)
     (GEnvIncl: incl KnotMainGEnv.t genv)
@@ -199,15 +196,15 @@ Section ctxr.
     (PureInGlobal : sp_sub SpPure Sp)
   :
     ctx_refines
-      (KnotMainA.t genv u_s SpRec Sp
-        ★ KnotA.t genv u_s SpRec SpFun Sp
-        ★ MemA.t u_s Sp
-        ★ APCA.t u_apc SpPure Sp,
+      (KnotMainA.t genv SpRec Sp
+        ★ KnotA.t genv SpRec SpFun Sp
+        ★ MemA.t Sp
+        ★ APCA.t SpPure Sp,
       KnotMainA.init_cond)
       (KnotMainI.t genv
-        ★ KnotA.t genv u_s SpRec SpFun Sp
-        ★ MemA.t u_s Sp
-        ★ APCA.t u_apc SpPure Sp,
+        ★ KnotA.t genv SpRec SpFun Sp
+        ★ MemA.t Sp
+        ★ APCA.t SpPure Sp,
       emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End KnotMainIA.

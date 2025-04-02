@@ -62,5 +62,5 @@ Module AddA. Section AddA.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Definition t u sp := Seal.sealing CRIS (SMod.to_hmod (wsim_ginv u ⊤) sp Mod).
+  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
 End AddA. End AddA.
