@@ -15,7 +15,6 @@ Hint Unfold subG_GΓ map_inG : GRA_index.
 
 Module MapMS. Section MapMS.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ}.
-  Context (u : univ_id).
 
   Definition pending : iProp Σ := own base_γ (Excl ()).
   Lemma pending_unique : pending -∗ pending -∗ False.
@@ -25,32 +24,28 @@ Module MapMS. Section MapMS.
   Qed.
 
   Definition init_spec : fspec :=
-    wsim_fspec u
-      (fspec_simple
-        (λ (sz : nat),
-          (λ varg, ⌜varg = [Vint sz]↑ ∧ (8 * sz < modulus_64)%Z⌝ ∗ pending,
-            λ vret, emp)))%I.
+    fspec_simple
+      (λ (sz : nat),
+        (λ varg, ⌜varg = [Vint sz]↑ ∧ (8 * sz < modulus_64)%Z⌝ ∗ pending,
+         λ vret, emp))%I.
 
   Definition get_spec : fspec := 
-    wsim_fspec u
-      (fspec_simple
-        (λ k,
-          (λ varg, ⌜varg = [Vint k]↑⌝,
-            λ vret, emp)))%I.
+    fspec_simple
+      (λ k,
+        (λ varg, ⌜varg = [Vint k]↑⌝,
+         λ vret, emp))%I.
 
   Definition set_spec : fspec :=
-    wsim_fspec u
-      (fspec_simple
-        (λ '(k, v),
-          (λ varg, ⌜varg = ([Vint k; Vint v])↑⌝,
-            λ vret, emp))%I).
+    fspec_simple
+      (λ '(k, v),
+        (λ varg, ⌜varg = ([Vint k; Vint v])↑⌝,
+         λ vret, emp))%I.
 
   Definition set_by_user_spec : fspec := 
-    wsim_fspec u
-      (fspec_simple
-        (λ k,
-          (λ varg, ⌜varg = [Vint k]↑⌝,
-            λ vret, emp))%I).
+    fspec_simple
+      (λ k,
+        (λ varg, ⌜varg = [Vint k]↑⌝,
+         λ vret, emp))%I.
 
   Definition sp : alist string fspec :=
     Seal.sealing CRIS
@@ -83,7 +78,6 @@ def set_by_user(k : int) ≡
 ***)
 Module MapM. Section MapM.
   Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ}.
-  Context (u : univ_id).
 
   Definition scopes := ["Map"].
   Definition v_size := "Map" ↯ "size".
@@ -119,10 +113,10 @@ Module MapM. Section MapM.
       ccallU MapHdr.set [Vint k; Vint v].
 
   Definition fnsems :=
-    [(MapHdr.init, (scopes, mk_specbody (MapMS.init_spec u) (cfunU init)));
-     (MapHdr.get, (scopes, mk_specbody (MapMS.get_spec u) (cfunU get)));
-     (MapHdr.set, (scopes, mk_specbody (MapMS.set_spec u) (cfunU set)));
-     (MapHdr.set_by_user, (scopes, mk_specbody (MapMS.set_by_user_spec u) (cfunU set_by_user)))].
+    [(MapHdr.init, (scopes, mk_specbody MapMS.init_spec (cfunU init)));
+     (MapHdr.get, (scopes, mk_specbody MapMS.get_spec (cfunU get)));
+     (MapHdr.set, (scopes, mk_specbody MapMS.set_spec (cfunU set)));
+     (MapHdr.set_by_user, (scopes, mk_specbody MapMS.set_by_user_spec (cfunU set_by_user)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
