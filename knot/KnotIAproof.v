@@ -50,7 +50,7 @@ Module KnotIA. Section KnotIA.
 
   Lemma simF_rec:
     HSim.sim_fun open KnotAMod KnotIMod IstFull KnotHdr.rec.
-  Proof using.
+  Proof using GEnvWF GEnvIncl RecInSp MemInSp APCInSp FunInPure PureInSp.
     init_simF 0 0.
 
     (* SKINCL - SkEnv id2blk *)
@@ -125,7 +125,7 @@ Module KnotIA. Section KnotIA.
 
   Lemma simF_knot:
     HSim.sim_fun open KnotAMod KnotIMod IstFull KnotHdr.knot.
-  Proof using.
+  Proof using GEnvWF GEnvIncl RecInSp MemInSp APCInSp FunInPure PureInSp.
     init_simF 0 0.
 
     (* SKINCL *)
@@ -181,7 +181,7 @@ Module KnotIA. Section KnotIA.
   Qed.
 
   Theorem sim : HSim.t open KnotAMod KnotIMod (KnotA.init_cond genv) IstFull.
-  Proof using.
+  Proof.
     init_sim.
     - iIntros "[VF FL]". iExists [], [], _, _. iSplit; et. iSplit; et.
       iSplit; et.
