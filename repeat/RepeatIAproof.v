@@ -7,7 +7,7 @@ Set Implicit Arguments.
 
 Module RepeatIA. Section RepeatIA.
   Import RepeatAS APC APCA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
   Context (genv : GEnv.t).
   Context (sp sp_pure sp_pure_fun : string → option fspec). (* sp_pure_fun stores fspecs which repeat use *)
@@ -31,7 +31,7 @@ Module RepeatIA. Section RepeatIA.
   Local Definition IstFull := (IstProd (IstSB RepeatA.(HMod.scopes) Ist) IstEq).
 
   Lemma simF_repeat : HSim.sim_fun open RepeatAMod RepeatIMod IstFull RepeatHdr.repeat.
-  Proof.
+  Proof using _sinvG APCInSpPure SpPureInSp SpPureFunInSpPure repeatInSpPure.
     (* Simulation Start *)
     init_simF 0 0.
 
@@ -114,8 +114,9 @@ Module RepeatIA. Section RepeatIA.
     - apply simF_repeat; eauto.
   Qed.
 End RepeatIA. 
+
 Section ctxr.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
   Definition ctxr (ge : GEnv.t) (sp sp_pure sp_pure_fun : string → option fspec)
         (APCInSpPure : sp_incl APCA.Sp sp_pure)

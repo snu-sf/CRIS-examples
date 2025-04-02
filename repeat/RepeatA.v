@@ -8,8 +8,7 @@ Set Implicit Arguments.
 
 (* Define Specification *)
 Module RepeatAS. Section RepeatAS.
-
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
   Context (genv : GEnv.t).
   Context (sp_pure : string → option fspec).
@@ -45,10 +44,9 @@ End RepeatAS. End RepeatAS.
 
 (* Define Module *)
 Module RepeatA. Section RepeatA.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
   Definition scopes := [RepeatHdr.mn].
-
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
 
   Definition fnsems genv sp_pure :=
     [(RepeatHdr.repeat, (scopes, mk_specbody (RepeatAS.repeat_spec sp_pure genv) pure_body))].

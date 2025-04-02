@@ -10,7 +10,8 @@ Local Open Scope nat_scope.
 
 (* Contextual Refinement Proof *)
 Module RingIA. Section RingIA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CellAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cellG: !cellG}.
 
   Definition CellIG start len :=
     HMod.addL (List.map CellI.t (seq start len)).
@@ -22,12 +23,11 @@ Module RingIA. Section RingIA.
        (RingA.InitCond max_size) ∗ ([∗ list] i↦x ∈ seq 0 max_size, CellA.InitCond i))%I
       ((CtrlI.t max_size)      ★ (CellIG 0 max_size),
        emp%I).
-  Proof.
+  Proof using _cellG.
     etrans.
     - eapply ctxr_cond_frameR.
       eapply main_adequacy.
       apply CtrlIA.sim.
-      exact 0.
     - rewrite hmod_addc_empty_l.
       eapply ctxr_frameL.
       induction max_size; i.
@@ -45,7 +45,7 @@ Module RingIA. Section RingIA.
           i. eauto.
         * s. rewrite !hmod_add_empty_r.
           etrans; cycle 1.
-          { eapply main_adequacy. eapply CellIA.sim. exact 0. }
+          { eapply main_adequacy. eapply CellIA.sim. }
           eapply ctxr_cond_strengthen.
           i. rewrite Nat.add_0_r length_seq. iIntros "(H &_)". eauto.
   Qed.

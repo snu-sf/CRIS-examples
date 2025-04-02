@@ -6,8 +6,10 @@ Require Import SchHeader SchA SchTactics.
 
 Module SpinLockIA. Section SpinLockIA.
   Import SpinLockAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !SpinLockAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_spinlockG: !spinlockG}.
 
   Context (u_a : univ_id). (* univ_id of the source/mem module *)
   Context (sp_s sp_user_s sp_mem : string → option fspec). (* sps of lock/sch/mem *)
@@ -24,7 +26,7 @@ Module SpinLockIA. Section SpinLockIA.
   Local Definition MI := (SpinLockI ★ MemA).
 
   Lemma newlock_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.newlock.
-  Proof.
+  Proof using SchInSp MemInSp.
     init_simF u_a 0.
     (* preprocess initial conditions *)
     steps_l. rename q1 into tid. destruct q2 as [n P]; s. iDestruct "ASM" as "[[TID P] ->]". hss.
@@ -53,7 +55,7 @@ Module SpinLockIA. Section SpinLockIA.
   (*FAST*)Qed.
 
   Lemma acquire_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.acquire.
-  Proof.
+  Proof using SchInSp MemInSp.
     init_simF u_a 0.
     (* process src precondition *)
     steps_l. iDestruct "ASM" as "[[% [TID #LOCK]] %]". hss.
@@ -119,6 +121,7 @@ Module SpinLockIA. Section SpinLockIA.
   (*FAST*)Qed.
 
   Lemma release_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.release.
+  Proof using SchInSp MemInSp.
     init_simF u_a 0.
     (* process src precondition *)
     steps_l.
@@ -161,9 +164,13 @@ Module SpinLockIA. Section SpinLockIA.
     { apply release_simF. }
   Qed.
 End SpinLockIA.
+
 Section SpinLockIA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !SpinLockAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_spinlockG: !spinlockG}.
+
   (* ctxr works as a unit in compositions of module simulations *)
   Lemma ctxr (u : univ_id) (sp_s sp_user_s sp_mem : string → option fspec)
       (SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s)

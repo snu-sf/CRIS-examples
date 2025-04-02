@@ -4,8 +4,9 @@ Require Import ImpPrelude MemHeader MemA.
 Require Import IncrementHeader IncrementI IncrementA.
 
 Module IncrementIA. Section IncrementIA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
@@ -43,7 +44,7 @@ Module IncrementIA. Section IncrementIA.
     end.
 
   Lemma increment_simF : HSim.sim_fun open MA MI IstFull IncrementHdr.increment.
-  Proof.
+  Proof using SchInSpS.
     init_simF u_s 0.
     steps_l. iDestruct "ASM" as "[TID [-> ->]]". rename q1 into tid, q3 into blk, q4 into ofs. hss_l.
     steps_l.
@@ -110,5 +111,5 @@ Module IncrementIA. Section IncrementIA.
         by_coind "CIH". iFrame.
       }
     }
-  (*FAST*) Admitted.
+  (*FAST*)Qed.
 End IncrementIA. End IncrementIA.

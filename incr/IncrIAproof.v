@@ -4,13 +4,15 @@ From iris Require Import frac_auth numbers.
 
 Module IncrIA. Section IncrIA.
   Import IncrAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !IncrAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_incrG: !incrG}.
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
   Context (u_s u_t : univ_id).
-  Context `{u_s > u_t}.
+  Context `{UGT: u_s > u_t}.
   Context (sp_s sp_t sp_user_s sp_mem : string → option fspec).
   Context (SchInSpS : sp_incl (SchAS.sp u_s sp_user_s) sp_s).
   Context (MemInSp : sp_incl MemA.sp sp_s).
@@ -43,7 +45,7 @@ Module IncrIA. Section IncrIA.
   Qed.
 
   Lemma incr_simF : HSim.sim_fun open MA MI IstFull IncrHdr.incr.
-  Proof.
+  Proof using UGT SchInSpS SchInSpT MemInSp MainInSp.
     init_simF u_s u_t.
 
     steps_l. iDestruct "ASM" as "[TID [[-> [C #INV]] ->]]". hss.
@@ -106,7 +108,7 @@ Module IncrIA. Section IncrIA.
   (*FAST*)Qed.
 
   Lemma main_simF : HSim.sim_fun open MA MI IstFull IncrHdr.main.
-  Proof.
+  Proof using UGT SchInSpS SchInSpT MemInSp MainInSp.
     init_simF u_s u_t.
 
     steps_l. iDestruct "ASM" as "[TID [-> ->]]". hss.
@@ -235,8 +237,10 @@ Module IncrIA. Section IncrIA.
 End IncrIA.
 
 Section ctxr.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !IncrAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_incrG: !incrG}.
 
   Definition ctxr (u_s u_t : univ_id) (sp_s sp_t sp_user_s sp_mem : string → option fspec)
       (SchInSpS : sp_incl (SchAS.sp u_s sp_user_s) sp_s)

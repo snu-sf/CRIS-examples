@@ -11,12 +11,11 @@ Local Open Scope nat_scope.
 
 (* Simulation Proof *)
 Module CtrlIA. Section CtrlIA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CellAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cellG: !cellG}.
 
   Variable max_size : nat.
 
-  (* An universe ID for Ring, Ctrl, and Cell modules *)
-  Context (u_s: univ_id).
   (* Spec tables *)
   Variable SpR : string -> option fspec.
   Variable SpC : string -> option fspec.
@@ -32,8 +31,6 @@ Module CtrlIA. Section CtrlIA.
   Local Definition CtrlI := (CtrlI.t max_size).
   Local Definition RingAMod := (RingA ★ CellGS).
   Local Definition RingIMod := (CtrlI ★ CellGS).
-
-  (* Lemmas *)
 
   (* Splits a cell group [CellG] ranging from [start] to [start+len-1] into three parts around an index [idx].
      Isolates a single cell [CellA idx] from other cells *)
@@ -114,8 +111,8 @@ Module CtrlIA. Section CtrlIA.
 
   Lemma simF_init:
     HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.init.
-  Proof.
-    init_simF u_s 0.
+  Proof using _cellG.
+    init_simF 0 0.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -150,8 +147,8 @@ Module CtrlIA. Section CtrlIA.
 
   Lemma simF_get_size:
     HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.get_size.
-  Proof.
-    init_simF u_s 0.
+  Proof using _cellG.
+    init_simF 0 0.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -173,9 +170,9 @@ Module CtrlIA. Section CtrlIA.
 
   Lemma simF_enqueue:
     HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.enqueue.
-  Proof.
+  Proof using _cellG.
     unfold RingAMod, RingIMod, CellGS.
-    init_simF u_s 0.
+    init_simF 0 0.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -234,9 +231,9 @@ Module CtrlIA. Section CtrlIA.
 
   Lemma simF_dequeue:
     HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.dequeue.
-  Proof.
+  Proof using _cellG.
     unfold RingAMod, RingIMod, CellGS.
-    init_simF u_s 0.
+    init_simF 0 0.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)

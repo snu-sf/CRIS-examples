@@ -7,7 +7,8 @@ Local Open Scope nat_scope.
 
 Module CannonIA. Section CannonIA.
   Import CannonAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CannonAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cannonG: !cannonG}.
 
   Context (Sp_s : string → option fspec).
 
@@ -21,7 +22,7 @@ Module CannonIA. Section CannonIA.
   Local Definition CannonIMod := (CannonI.t).
 
   Lemma simF_fire : HSim.sim_fun open CannonAMod CannonIMod Ist CannonHdr.fire.
-  Proof.
+  Proof using.
     init_simF 0 0.
 
     (* SRC: precondition *)
@@ -43,7 +44,7 @@ Module CannonIA. Section CannonIA.
   (*FAST*)Qed.
 
   Theorem sim : HSim.t open CannonAMod CannonIMod CannonA.init_cond Ist.
-  Proof.
+  Proof using.
     init_sim.
     - iIntros "IC". unfold Ist, CannonA.init_cond. iLeft. iFrame; eauto.
     - eapply simF_fire.
@@ -51,12 +52,12 @@ Module CannonIA. Section CannonIA.
 End CannonIA.
 
 Section ctxr.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!CannonAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cannonG: !cannonG}.
 
   Theorem ctxr (Sp_s : string → option fspec):
     ctx_refines
       (CannonA.t Sp_s, CannonA.init_cond)
       (CannonI.t, emp%I).
-  Proof. eapply main_adequacy, sim. Qed.
+  Proof using. eapply main_adequacy, sim. Qed.
 End ctxr. End CannonIA.

@@ -5,16 +5,25 @@ Require Import MapHeader MapM.
 Set Implicit Arguments.
 
 (* Resource algebra for MapM ⊆ MapA *)
-Local Definition RA : ucmra :=
-  prodUR (optionUR (exclR unitO)) (authUR (Z -d> optionUR (exclR ZO))).
-Class MapAGΓ (Γ : HRA) := { #[local] RA_inG :: inG RA Γ }.
-Definition MapAΓ : HRA := #[RA].
-Global Instance subG_GΓ {Γ : HRA} : subG MapAΓ Γ → MapAGΓ Γ.
-Proof. solve_inG. Defined.
-Hint Unfold subG_GΓ MapAΓ : GRA_index.
+Section RA.
+  Context `{!sinvG Γ Σ α β τ _I _S}.
+
+  Local Definition RA : ucmra :=
+    prodUR (optionUR (exclR unitO)) (authUR (Z -d> optionUR (exclR ZO))).
+
+  Class mapG `{!sinvG Γ Σ α β τ _I _S} := {
+      map_inG :: inG RA Γ
+    }.
+  Definition mapΓ : HRA := #[RA].
+  Global Instance subG_mapG : subG mapΓ Γ → mapG.
+  Proof. solve_inG. Defined.
+End RA.  
+Hint Unfold subG_mapG map_inG : GRA_index.
 
 Module MapAS. Section MapAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ, !MapAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_mapMG: !mapMG}.
+  Context `{_mapG: !mapG}.
 
   Definition pending : iProp Σ := own base_γ (Some (Excl ()), ε).
 
@@ -163,7 +172,9 @@ def set_by_user(k : int) ≡
 ***)
 
 Module MapA. Section MapA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ, !MapAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_mapMG: !mapMG}.
+  Context `{_mapG: !mapG}.
 
   Definition scopes := ["Map"].
   Definition v_map := "Map" ↯ "map".

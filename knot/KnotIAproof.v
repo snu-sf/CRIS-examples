@@ -8,8 +8,10 @@ Local Open Scope nat_scope.
 
 Module KnotIA. Section KnotIA.
   Import KnotA APC APCA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !memGΓ Γ, !KnotAGΓ Γ}.
-
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_knotG: !knotG}.
+                 
   (* 1. global environment *)
   Context (genv: GEnv.t).
   (* 3. spec tables *)
@@ -48,7 +50,7 @@ Module KnotIA. Section KnotIA.
 
   Lemma simF_rec:
     HSim.sim_fun open KnotAMod KnotIMod IstFull KnotHdr.rec.
-  Proof.
+  Proof using.
     init_simF 0 0.
 
     (* SKINCL - SkEnv id2blk *)
@@ -123,7 +125,7 @@ Module KnotIA. Section KnotIA.
 
   Lemma simF_knot:
     HSim.sim_fun open KnotAMod KnotIMod IstFull KnotHdr.knot.
-  Proof.
+  Proof using.
     init_simF 0 0.
 
     (* SKINCL *)
@@ -179,7 +181,7 @@ Module KnotIA. Section KnotIA.
   Qed.
 
   Theorem sim : HSim.t open KnotAMod KnotIMod (KnotA.init_cond genv) IstFull.
-  Proof.
+  Proof using.
     init_sim.
     - iIntros "[VF FL]". iExists [], [], _, _. iSplit; et. iSplit; et.
       iSplit; et.
@@ -191,8 +193,9 @@ Module KnotIA. Section KnotIA.
 End KnotIA.
 
 Section ctxr.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!memGΓ Γ, !KnotAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_knotG: !knotG}.
 
   Theorem ctxr (genv: GEnv.t)
     (SpRec SpFun Sp SpMem SpPure : string → option fspec)

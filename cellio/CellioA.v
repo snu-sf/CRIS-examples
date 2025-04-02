@@ -3,18 +3,24 @@ Require Import CellioHeader CtxHeader.
 
 Set Implicit Arguments.
 
-Local Definition RA : ucmra :=
-  authUR (optionUR (exclR ZO)).
-Class CellioAGΓ (Γ : HRA) := {
-  #[local] RA_inG :: inG RA Γ;
-}.
-Definition CellioAΓ : HRA := #[RA].
-Global Instance subG_GΓ {Γ : HRA} : subG CellioAΓ Γ → CellioAGΓ Γ.
-Proof. solve_inG. Defined.
-Hint Unfold subG_GΓ RA_inG : GRA_index.
+Section CellioRA.
+  Context `{!sinvG Γ Σ α β τ _I _S}.
+
+  Local Definition RA : ucmra :=
+    authUR (optionUR (exclR ZO)).
+
+  Class cellioG `{!sinvG Γ Σ α β τ _I _S} := {
+    cellio_inG :: inG RA Γ;
+  }.
+  Definition cellioΓ : HRA := #[RA].
+  Global Instance subG_cellioG : subG cellioΓ Γ → cellioG.
+  Proof. solve_inG. Defined.
+End CellioRA.  
+Hint Unfold subG_cellioG cellio_inG : GRA_index.
 
 Module CellioA. Section CellioA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CellioAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cellioG: !cellioG}.
 
   Definition auth (v : Z) : iProp Σ :=
     own base_γ (●E v).
@@ -24,7 +30,7 @@ Module CellioA. Section CellioA.
 
   Definition ir : DRA_mk RA := ●E 0%Z ⋅ ◯E 0%Z.
   Lemma ir_valid : ✓ ir. Proof. rewrite /ir. eapply excl_auth_valid. Qed.
-  Definition irΓ : CellioAΓ := *[Some ir].
+  Definition irΓ : cellioΓ := *[Some ir].
 
   Lemma cell_auth_get v v':
     cell v -∗ auth v' -∗ ⌜v = v'⌝.

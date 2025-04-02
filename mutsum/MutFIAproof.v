@@ -8,7 +8,7 @@ Set Implicit Arguments.
 
 Module MutFIA. Section MutFIA.
   Import MutAUX.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
   Context (Sp: string -> option fspec).
   Context (SpPure: string -> option fspec).
@@ -28,7 +28,7 @@ Module MutFIA. Section MutFIA.
 
   Lemma simF_mutf:
     HSim.sim_fun open MutFAMod MutFIMod IstFull MutHdr.mutf.
-  Proof.
+  Proof using _sinvG APCInSp GInPure PureInSp.
     init_simF 0 0.
 
     (* SRC: precondition *)
@@ -95,7 +95,7 @@ Module MutFIA. Section MutFIA.
 End MutFIA.
 
 Section ctxr.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
   Theorem ctxr (Sp SpPure: string → option fspec) 
     (APCInSp : sp_incl (APCA.Sp) Sp)

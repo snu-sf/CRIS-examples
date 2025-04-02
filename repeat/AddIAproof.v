@@ -9,7 +9,7 @@ Set Implicit Arguments.
 
 Module AddIA. Section AddIA.
   Import AddAS APC APCA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
   Context (genv : GEnv.t).
   Context (sp sp_pure sp_pure_fun : string -> option fspec).
@@ -55,7 +55,7 @@ Module AddIA. Section AddIA.
   Qed.
 
   Lemma simF_succ : HSim.sim_fun open AddAMod AddIMod IstFull AddHdr.succ.
-  Proof.
+  Proof using _sinvG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
     (* Simulation Start *)
     init_simF 0 0.
 
@@ -80,7 +80,7 @@ Module AddIA. Section AddIA.
   (*FAST*)Qed.
 
   Lemma simF_add : HSim.sim_fun open AddAMod AddIMod IstFull AddHdr.add.
-  Proof.
+  Proof using _sinvG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
     (* succ is in somewhere at CEnv *)
     pose proof (@CEnv.incl_incl_env AddGEnv.t genv) as INCLENV.
     eapply INCLENV in GEnvIncl; et.
@@ -141,8 +141,9 @@ Module AddIA. Section AddIA.
     - apply simF_add; et.
   Qed.
 End AddIA.
+
 Section ctxr.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
   Definition ctxr (ge : GEnv.t) (sp sp_pure sp_pure_fun : string → option fspec)
         (GEnvWF : GEnv.wf ge)

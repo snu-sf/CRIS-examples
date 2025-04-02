@@ -7,10 +7,10 @@ Require Import CellioIAproof MainIAproof.
 Module CellioAll. Section CellioAll.
   Import inv_instances.
 
-  Local Instance Γ : HRA := ##[invΓ; CellioAΓ].
-  Local Instance Σ : GRA := ##[invΣ; Γ].
+  Local Instance Γ : HRA := ##[invΓ; cellioΓ].
+  Local Instance Σ : GRA := ##[Γ; invΣ].
   Local Definition irΓ : Γ := **[ir_invΓ 1; CellioA.irΓ].
-  Local Definition irΣ : Σ := **[ir_invΣ 1; irΓ].
+  Local Definition irΣ : Σ := **[irΓ; ir_invΣ 1].
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof.
     solve_ir_valid.
@@ -19,6 +19,7 @@ Module CellioAll. Section CellioAll.
 
   Variable CtxA: SMod.t.
   Local Definition smod_src : SMod.t := MainA.Mod ☆ CtxA.
+
   Local Definition sp : string → option fspec := sp_from smod_src.
   Local Definition Ctx := Seal.sealing CRIS (SMod.to_hmod sp CtxA).
   Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
@@ -72,7 +73,9 @@ Module CellioAll. Section CellioAll.
       (* MainI ★ CellioA ⊆ MainA *)
       rewrite -[(SMod.to_hmod _ MainA.Mod)](Seal.sealing_eq CRIS).
       instantiate (1:= (MainI.t ★ (CellioA.t sp), (emp ∗ CellioA.InitCond)%I)).
-      eapply ctxr_cond_frameR, main_adequacy, MainIA.sim.
+      eapply ctxr_cond_frameR, main_adequacy.
+      (* assert (XXX := @MainIA.sim). *)
+      eapply MainIA.sim.
       eapply lib_sp_incl.
     }
     (* MainI ★ CellioI ⊆ MainI ★ CellioA 
@@ -102,7 +105,7 @@ Module CellioAll. Section CellioAll.
     destruct (H (irΣ ⋅ initial_resource_own_admin)).
     { apply irΣ_valid. }
     { clear H. simplify_res.
-      { iDestruct "H10" as "[H2 H3]".
+      { iDestruct "H12" as "[H2 H3]".
         iSplitL "H2".
         { iFrame. done. }
         { eauto. }

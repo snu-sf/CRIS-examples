@@ -5,7 +5,8 @@ Set Implicit Arguments.
 
 Module MainIA. Section MainIA.
   Import CellioA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CellioAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cellioG: !cellioG}.
 
   Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ _ st_src st_tgt, emp%I.
@@ -19,7 +20,7 @@ Module MainIA. Section MainIA.
 
   Lemma simF_main:
     HSim.sim_fun open MainA (MainI.t ★ CellioA) IstFull MainHdr.main.
-  Proof. 
+  Proof using CtxInSp.
     init_simF 0 0.
     
     (* Take cell(0) *)
@@ -66,7 +67,7 @@ Module MainIA. Section MainIA.
 
   Theorem sim :
     HSim.t open MainA (MainI.t ★ CellioA) MainA.InitCond IstFull.
-  Proof.
+  Proof using CtxInSp.
     init_sim.
     - iIntros "_". repeat iExists []. iSplit; eauto.
       repeat (iSplit; eauto); iPureIntro; prove_scope.

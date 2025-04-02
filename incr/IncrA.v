@@ -2,17 +2,23 @@ Require Import CRIS.
 Require Export ImpPrelude IncrHeader SchHeader SchA SchTactics MemHeader MemA.
 From iris Require Import frac_auth numbers.
 
-Class IncrAGΓ (Γ : HRA) := {
-  #[local] RA_inG :: inG (frac_authR ZR) Γ;
-}.
-Definition IncrAΓ : HRA := #[frac_authR ZR].
-Global Instance subG_GΓ {Γ : HRA} : subG IncrAΓ Γ → IncrAGΓ Γ.
-Proof. solve_inG. Defined.
-Hint Unfold subG_GΓ IncrAΓ : GRA_index.
+Section CellioRA.
+  Context `{!sinvG Γ Σ α β τ _I _S}.
+
+  Class incrG `{!sinvG Γ Σ α β τ _I _S} := {
+    incr_inG :: inG (frac_authR ZR) Γ;
+  }.
+  Definition incrΓ : HRA := #[frac_authR ZR].
+  Global Instance subG_incrG : subG incrΓ Γ → incrG.
+  Proof. solve_inG. Defined.
+End CellioRA.
+Hint Unfold subG_incrG incr_inG : GRA_index.
 
 Module IncrAS. Section IncrAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !IncrAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_incrG: !incrG}.
 
   Definition N_main : namespace := (nroot .@ IncrHdr.main).
 
@@ -58,9 +64,11 @@ Module IncrAS. Section IncrAS.
 End IncrAS. End IncrAS.
 
 Module IncrA. Section IncrA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !IncrAGΓ Γ}.
-
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_incrG: !incrG}.
+                
   Definition scopes : list string := [].
 
   Definition incr : list val → itree hmodE unit :=

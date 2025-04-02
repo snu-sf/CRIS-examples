@@ -7,8 +7,9 @@ Set Implicit Arguments.
 
 Module KnotMainA. Section KnotMainA.
   Import KnotA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !KnotAGΓ Γ, !memGΓ Γ}.
-  Local Existing Instance RA_inG.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_knotG: !knotG}.
 
   (* Specifications *)
 

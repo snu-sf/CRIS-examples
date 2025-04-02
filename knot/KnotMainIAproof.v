@@ -7,7 +7,9 @@ Set Implicit Arguments.
 
 Module KnotMainIA. Section KnotMainIA.
   Import KnotA KnotMainA APCA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !KnotAGΓ Γ, !memGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_knotG: !knotG}.
 
   (* 1. global environment *)
   Context (genv: GEnv.t).
@@ -41,7 +43,7 @@ Module KnotMainIA. Section KnotMainIA.
 
   Lemma simF_fib:
     HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainHdr.fib.
-  Proof.
+  Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     init_simF 0 0.
 
     steps_l. iDestruct "ASM" as "[[% INV] %]". des; subst. hss.
@@ -101,7 +103,7 @@ Module KnotMainIA. Section KnotMainIA.
 
   Lemma simF_main:
     HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainHdr.main.
-  Proof.
+  Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     init_simF 0 0.
 
     (* SKINCL *)
@@ -182,8 +184,9 @@ Module KnotMainIA. Section KnotMainIA.
 End KnotMainIA.
 
 Section ctxr.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!KnotAGΓ Γ, !memGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_knotG: !knotG}.
   
   Theorem ctxr (genv: GEnv.t)
     (SpRec SpFun SpPure Sp: string -> option fspec)

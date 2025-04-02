@@ -7,17 +7,17 @@ Require Import KnotIAproof KnotMainIAproof.
 
 Module KnotAll.
   Import inv_instances.
-  Local Instance Γ : HRA := ##[invΓ; memΓ; KnotAΓ].
-  Local Instance Σ : GRA := ##[invΣ; Γ].
-  
+
   (* mem *)
   Local Definition csl : string → bool := λ _, false.
   (* global environment *)
   Local Definition genv : GEnv.t := KnotGEnv.t ++ KnotMainGEnv.t.
-
+  
+  Local Instance Γ : HRA := ##[invΓ; memΓ; knotΓ].
+  Local Instance Σ : GRA := ##[Γ; invΣ].
   (* initial resource *)
   Local Definition irΓ : Γ := **[ir_invΓ 0; ir_memΓ csl genv; ir_knotAΓ].
-  Local Definition irΣ : Σ := **[ir_invΣ 0; irΓ].
+  Local Definition irΣ : Σ := **[irΓ; ir_invΣ 0].
 
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof.
@@ -145,8 +145,8 @@ Module KnotAll.
         rewrite /init_cond /KnotA.init_cond /KnotMainA.init_cond /MemA.init_cond.
         rewrite /KnotA.var_points_to /KnotA.knot_full /precond /mem_init_auth /main_fsp /KnotMainA.main_spec /KnotA.knot_init /= /KnotA.knot_frag.
         rewrite /ir_knotRA /knot_init_res /ir_memRA.
-        iDestruct "H12" as "[A F]". iFrame. iSplitL; eauto.
-        iDestruct "H14" as "[A F]". iFrame.
+        iDestruct "H14" as "[A F]". iFrame. iSplitL; eauto.
+        iDestruct "H16" as "[A F]". iFrame.
         rewrite /mem_points_to_singleton.
         assert (mem_init_frag_r csl genv ≡ mem_points_to_singleton_r (2, 0%Z) 1 (Vint 0)).
         { rewrite /mem_init_frag_r /mem_points_to_singleton_r /=. f_equiv.

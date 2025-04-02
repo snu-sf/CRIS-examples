@@ -6,8 +6,8 @@ Set Implicit Arguments.
 
 Module MainAS. Section MainAS.
   Import CannonAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CannonAGΓ Γ}.
-  Local Existing Instance cannon_inG.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cannonG: !cannonG}.
 
   Definition main_spec : fspec :=
     fspec_simple (λ _ : unit,
@@ -21,7 +21,8 @@ End MainAS. End MainAS.
 
 Module MainA. Section MainA.
   Import CannonAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CannonAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cannonG: !cannonG}.
 
   Variable num_fire : nat.
 

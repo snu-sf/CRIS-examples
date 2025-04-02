@@ -5,15 +5,20 @@ Require Import APCHeader APC.
 
 Set Implicit Arguments.
 
-Local Definition RA : ucmra :=
-  authUR (optionUR (exclR (optionO (natO -d> natO)))).
-Class KnotAGΓ (Γ: HRA) := {
-  #[local] RA_inG :: inG RA Γ;
-}.
-Definition KnotAΓ : HRA := #[RA].
-Global Instance subG_GΓ {Γ : HRA} : subG KnotAΓ Γ → KnotAGΓ Γ.
-Proof. solve_inG. Defined.
-Hint Unfold subG_GΓ RA_inG : GRA_index.
+Section RA.
+  Context `{!sinvG Γ Σ α β τ _I _S}.
+
+  Local Definition RA : ucmra :=
+    authUR (optionUR (exclR (optionO (natO -d> natO)))).
+
+  Class knotG `{!sinvG Γ Σ α β τ _I _S} := {
+    knot_inG :: inG RA Γ;
+  }.
+  Definition knotΓ : HRA := #[RA].
+  Global Instance subG_knotG : subG knotΓ Γ → knotG.
+  Proof. solve_inG. Defined.
+End RA.  
+Hint Unfold subG_knotG knot_inG : GRA_index.
 
 (* Initial Resource *)
 Definition knot_init_res : RA := (● (Excl' None) ⋅ ◯ (Excl' None)).
@@ -24,10 +29,12 @@ Definition ir_knotRA : DRA_mk RA := knot_init_res.
 Lemma ir_knotRA_valid : ✓ ir_knotRA.
 Proof. eapply knot_init_valid. Qed.
 
-Definition ir_knotAΓ : KnotAΓ := *[Some (ir_knotRA)].
+Definition ir_knotAΓ : knotΓ := *[Some (ir_knotRA)].
 
 Module KnotA. Section KnotA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !KnotAGΓ Γ, !memGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_knotG: !knotG}.
 
   (* Resources *)
 

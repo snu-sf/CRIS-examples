@@ -26,9 +26,8 @@ Global Hint Unfold Sp : stb.
 End RingAS.
 
 Module RingA. Section RingA.
-  (* Define Ring module *)
-
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CellAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cellG: !cellG}.
 
   (* A maximum size of the ring buffer *)
   Variable max_size : nat.

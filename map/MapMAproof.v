@@ -8,7 +8,9 @@ Local Open Scope nat_scope.
 
 Module MapMA. Section MapMA.
   Import MapAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapAGΓ Γ, !MapMGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_mapMG: !mapMG}.
+  Context `{_mapG: !mapG}.
 
   Context (sp_s sp_t : string → option fspec).
   Context (MapInSpS : sp_incl MapAS.sp sp_s).
@@ -29,7 +31,7 @@ Module MapMA. Section MapMA.
   Local Definition MapM := (MapM.t sp_t).
 
   Lemma simF_init : HSim.sim_fun open MapA MapM Ist MapHdr.init.
-  Proof.
+  Proof using MapInSpS MapInSpT.
     init_simF 0 0.
 
     steps_l.
@@ -58,7 +60,7 @@ Module MapMA. Section MapMA.
   (*FAST*)Qed.
 
   Lemma simF_get : HSim.sim_fun open MapA MapM Ist MapHdr.get.
-  Proof.
+  Proof using MapInSpS MapInSpT.
     init_simF 0 0.
 
     steps_l.
@@ -93,7 +95,7 @@ Module MapMA. Section MapMA.
   (*FAST*)Qed.
 
   Lemma simF_set : HSim.sim_fun open MapA MapM Ist MapHdr.set.
-  Proof.
+  Proof using MapInSpS MapInSpT.
     init_simF 0 0.
 
     (* SRC: handle the IST of Map and the precond of set *)
@@ -125,7 +127,7 @@ Module MapMA. Section MapMA.
   (*FAST*)Qed.
 
   Lemma simF_set_by_user : HSim.sim_fun open MapA MapM Ist MapHdr.set_by_user.
-  Proof.
+  Proof using MapInSpS MapInSpT.
     init_simF 0 0.
 
     (* SRC: handle the IST of Map and the precond of set_by_user *)
@@ -166,7 +168,7 @@ Module MapMA. Section MapMA.
   (*FAST*)Qed.
 
   Lemma sim : HSim.t open MapA MapM MapA.init_cond Ist.
-  Proof.
+  Proof using MapInSpS MapInSpT.
     init_sim.
     - iIntros "(IST & P)"; s.
       iExists _, _. iSplit; eauto. iLeft. iFrame. eauto.
@@ -178,7 +180,10 @@ Module MapMA. Section MapMA.
 End MapMA.
 
 Section MapMA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapAGΓ Γ, !MapMGΓ Γ, !memGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_mapMG: !mapMG}.
+  Context `{_mapG: !mapG}.
+
   Lemma ctxr sp_s sp_t
       (MapInSpS : sp_incl MapAS.sp sp_s)
       (MapInSpT : sp_incl MapMS.sp sp_t) :

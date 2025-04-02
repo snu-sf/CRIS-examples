@@ -7,8 +7,7 @@ Set Implicit Arguments.
 
 (* Define Specification *)
 Module AddAS. Section AddAS.
-
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
   (* mathematical succ *)
   Definition succ_fun n : Z :=
@@ -43,8 +42,7 @@ End AddAS. End AddAS.
 
 (* Define Module *)
 Module AddA. Section AddA.
-
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
   Definition scopes := [AddHdr.mn].
 

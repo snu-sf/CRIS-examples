@@ -6,10 +6,10 @@ Require Import CannonIAproof CannonMainIAproof.
 
 Module CannonAll.
   Import inv_instances.
-  Local Instance Γ : HRA := ##[invΓ; CannonAΓ].
-  Local Instance Σ : GRA := ##[invΣ; Γ].
+  Local Instance Γ : HRA := ##[invΓ; cannonΓ].
+  Local Instance Σ : GRA := ##[Γ; invΣ].
   Local Definition irΓ : Γ := **[ir_invΓ 1; CannonAS.irΓ].
-  Local Definition irΣ : Σ := **[ir_invΣ 1; irΓ].
+  Local Definition irΣ : Σ := **[irΓ; ir_invΣ 1].
 
   Local Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof.
@@ -77,7 +77,7 @@ Module CannonAll.
     { apply irΣ_valid. }
     { clear H. simplify_res.
       {
-        iPoseProof (CannonAS.ReadyBall with "[H10]") as "[R B]"; eauto.
+        iPoseProof (CannonAS.ReadyBall with "[H12]") as "[R B]"; eauto.
         iSplitL "R".
         { iFrame. }
         unfold_pre_post. iFrame. eauto.

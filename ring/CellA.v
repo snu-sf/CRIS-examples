@@ -5,17 +5,25 @@ Require Import RingHeader CellHeader.
 
 Set Implicit Arguments.
 
-Local Definition pendingUR := (nat -d> optionUR (exclR unitO)).
-Local Definition cellUR := (nat -d> optionUR (exclR ZO)).
-Local Definition RA : ucmra := prodUR pendingUR (authUR cellUR).
-Class CellAGΓ (Γ : HRA) := {
-  #[local] RA_inG :: inG RA Γ;
-}.
-Definition CellAΓ : HRA := #[RA].
+Section RA.
+  Context `{!sinvG Γ Σ α β τ _I _S}.
+  
+  Local Definition pendingUR := (nat -d> optionUR (exclR unitO)).
+  Local Definition cellUR := (nat -d> optionUR (exclR ZO)).
+  Local Definition RA : ucmra := prodUR pendingUR (authUR cellUR).
+  Class cellG `{!sinvG Γ Σ α β τ _I _S} := {
+    cell_inG :: inG RA Γ;
+  }.
+  Definition cellΓ : HRA := #[RA].
+  Global Instance subG_cellG : subG cellΓ Γ → cellG.
+  Proof. solve_inG. Defined.
+End RA.
+Hint Unfold subG_cellG cell_inG : GRA_index.
 
 Module CellAS. Section CellAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CellAGΓ Γ}.
-
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cellG: !cellG}.
+                 
   (* Index of this Cell *)
   Variable idx : nat.
 
@@ -109,8 +117,9 @@ Global Hint Unfold CellAS.Sp : sp.
 
 (* Define CellA Module *)
 Module CellA. Section CellA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CellAGΓ Γ}.
-
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cellG: !cellG}.
+                
   (* Index of this Cell *)
   Variable idx : nat.
 

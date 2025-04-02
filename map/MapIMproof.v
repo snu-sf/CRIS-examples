@@ -59,7 +59,9 @@ Qed.
 (* Simulation proof *)
 Module MapIM. Section MapIM.
   Import MapMS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ, !memGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_mapMG: !mapMG}.
+  Context `{_memG: !memG}.
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     (λ _ st_src st_tgt,
@@ -82,7 +84,7 @@ Module MapIM. Section MapIM.
   Local Definition IstFull := (IstProd (IstSB MapM.(HMod.scopes) Ist) IstEq).
 
   Lemma simF_init : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.init.
-  Proof.
+  Proof using MapInSp.
     init_simF 0 0.
 
     (* preprocess given assumptions *)
@@ -176,7 +178,7 @@ Module MapIM. Section MapIM.
   (*FAST*)Qed.
 
   Lemma simF_get : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.get.
-  Proof.
+  Proof using MapInSp.
     init_simF 0 0.
 
     (* SRC: handle the IST of Map and the precond of get *)
@@ -220,7 +222,7 @@ Module MapIM. Section MapIM.
   (*FAST*)Qed.
 
   Lemma simF_set : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.set.
-  Proof.
+  Proof using MapInSp.
     init_simF 0 0.
 
     steps_l.
@@ -266,7 +268,7 @@ Module MapIM. Section MapIM.
   (*FAST*)Qed.
 
   Lemma simF_set_by_user : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.set_by_user.
-  Proof.
+  Proof using MapInSp.
     init_simF 0 0.
 
     steps_l.
@@ -296,7 +298,7 @@ Module MapIM. Section MapIM.
   (*FAST*)Qed.
 
   Lemma sim : HSim.t open MapMMod MapIMod MapM.init_cond IstFull.
-  Proof.
+  Proof using MapInSp.
     init_sim.
     - iIntros "_". iExists _,_,[],[]. iSplit.
       { rewrite !app_nil_r. eauto. }
@@ -311,7 +313,10 @@ Module MapIM. Section MapIM.
 End MapIM.
 
 Section MapIM.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ, !memGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_mapMG: !mapMG}.
+  Context `{_memG: !memG}.
+                
   Lemma ctxr (sp_s sp_mem : string → option fspec)
       (INCL : sp_incl MapMS.sp sp_s) :
     ctx_refines

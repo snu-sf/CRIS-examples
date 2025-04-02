@@ -10,12 +10,11 @@ Local Open Scope nat_scope.
 (* Simulation Proof *)
 Module CellIA. Section CellIA.
   Import CellAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CellAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cellG: !cellG}.
 
   Variable idx : nat.
 
-  (* An universe for Cell module *)
-  Context (u_s: univ_id).
   (* A spec table *)
   Context (Sp_s : string → option fspec).
 
@@ -33,8 +32,8 @@ Module CellIA. Section CellIA.
   (*************)
 
   Lemma simF_get : HSim.sim_fun open CellA CellI Ist (CellHdr.get idx).
-  Proof.
-    init_simF u_s 0.
+  Proof using _cellG.
+    init_simF 0 0.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -58,8 +57,8 @@ Module CellIA. Section CellIA.
 
   Lemma simF_set:
     HSim.sim_fun open CellA CellI Ist (CellHdr.set idx).
-  Proof.
-    init_simF u_s 0.
+  Proof using _cellG.
+    init_simF 0 0.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)

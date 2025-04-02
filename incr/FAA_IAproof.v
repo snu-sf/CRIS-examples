@@ -3,8 +3,10 @@ Require Import ImpPrelude IncrHeader MemHeader MemA SchA SchTactics SchHeader.
 Require Import FAA_I FAA_A.
 
 Module FaaIA. Section FaaIA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+                
   Context (u_s : univ_id).
   Context (sp_s sp_mem sp_user_s : string → option fspec).
   Context (SchInSp : sp_incl (SchAS.sp u_s sp_user_s) sp_s).
@@ -19,7 +21,7 @@ Module FaaIA. Section FaaIA.
   Local Definition MI := (FaaI ★ MemA).
 
   Lemma faa2_simF : HSim.sim_fun open MA MI IstFull FaaHdr.faa2.
-  Proof.
+  Proof using SchInSp.
     init_simF u_s 0.
     steps_l. iDestruct "ASM" as "[TID [-> ->]]". hss. rename q3 into b, q4 into ofs, q1 into tid.
     steps_l. steps_r.

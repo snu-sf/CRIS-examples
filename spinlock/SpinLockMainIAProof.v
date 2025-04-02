@@ -7,8 +7,11 @@ From iris Require Import frac_auth numbers.
 
 Module SpinLockMainIA. Section SpinLockMainIA.
   Import SpinLockAS SpinLockMainAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!memGΓ Γ, !SchAGΣ Σ, !SchAGΓ Γ, !SpinLockMainAGΓ Γ, !SpinLockAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_spinlockG: !spinlockG}.
+  Context `{_spinlockmainG: !spinlockmainG}.
 
   Context (u_a : univ_id). (* univ_id of the source/mem module *)
   Context (sp_s sp_user_s sp_mem : string → option fspec). (* sps of lock/sch/mem *)
@@ -27,7 +30,7 @@ Module SpinLockMainIA. Section SpinLockMainIA.
   Local Definition MI := (SpinLockMainI ★ (MemA ★ SpinLockA)).
 
   Lemma incr_simF : HSim.sim_fun open MA MI IstFull SpinLockMainHdr.incr.
-  Proof.
+  Proof using SchInSp MemInSp MainInSp.
     init_simF u_a 0.
     (* process src precondition *)
     steps_l. iDestruct "ASM" as "[[-> [TID [%γ_l [#I F]]]] ->]". hss.
@@ -109,7 +112,7 @@ Module SpinLockMainIA. Section SpinLockMainIA.
       => clear nths NODS st_s NODD st_t; iIntros (nths st_s st_t NODS NODD) end.
 
   Lemma main_simF : HSim.sim_fun open MA MI IstFull SpinLockMainHdr.main.
-  Proof.
+  Proof using SchInSp MemInSp MainInSp.
     init_simF u_a 0.
     (* process src precondition *)
     steps_l. iDestruct "ASM" as "[[-> TID] ->]". hss.
@@ -241,8 +244,11 @@ Module SpinLockMainIA. Section SpinLockMainIA.
 End SpinLockMainIA.
 
 Section ctxr.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !SpinLockMainAGΓ Γ, !SpinLockAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_spinlockG: !spinlockG}.
+  Context `{_spinlockmainG: !spinlockmainG}.
 
   Definition ctxr (u : univ_id) (sp_s sp_user_s sp_mem : string → option fspec)
       (SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s)

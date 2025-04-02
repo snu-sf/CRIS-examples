@@ -8,7 +8,8 @@ Local Open Scope nat_scope.
 
 Module CellioIA. Section CellioIA.
   Import CellioA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CellioAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cellioG: !cellioG}.
 
   (* sp for src module *)
   Context (sp_s : string → option fspec).
@@ -22,7 +23,7 @@ Module CellioIA. Section CellioIA.
   Local Definition CellioA := (CellioA.t sp_s).
 
   Lemma simF_set : HSim.sim_fun open CellioA CellioI Ist CellioHdr.set.
-  Proof.
+  Proof using CtxInSp.
     init_simF 0 0.
 
     (* Take (x:Z) & cell(x) *)
@@ -50,7 +51,7 @@ Module CellioIA. Section CellioIA.
   (*FAST*)Qed.
   
   Lemma simF_get : HSim.sim_fun open CellioA CellioI Ist CellioHdr.get.
-  Proof.
+  Proof using CtxInSp.
     init_simF 0 0.
 
     (* Take (x:Z) & cell(x) *)
@@ -71,7 +72,7 @@ Module CellioIA. Section CellioIA.
   (*FAST*)Qed.
   
   Lemma sim : HSim.t open CellioA CellioI CellioA.InitCond Ist.
-  Proof.
+  Proof using CtxInSp.
     init_sim.
     - iIntros "H". iExists _. iFrame. eauto.
     - apply simF_set; eauto.

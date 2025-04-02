@@ -4,7 +4,7 @@ Require Import MutHeader MutMainHeader APCHeader APC.
 Set Implicit Arguments.
 
 Module MutMainA. Section MutMainA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
   Definition scopes := ["MutMain"].
 

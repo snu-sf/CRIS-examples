@@ -5,9 +5,10 @@ Require Import MemHeader MemA.
 Require Import IncrementHeader.
 
 Module IncrementA. Section IncrementA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ}.
-
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+                     
   Definition increment_spec u : fspec :=
     sch_fspec u
       (fspec_simple (λ '(blk, ofs),

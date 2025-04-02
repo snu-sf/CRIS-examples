@@ -2,8 +2,9 @@ Require Import CRIS.
 Require Import ImpPrelude IncrHeader MemHeader MemA SchA SchTactics SchHeader.
 
 Module FaaA. Section FaaA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !memGΓ Γ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
 
   Definition faa2_spec u : fspec :=
     sch_fspec u (fspec_simple (λ '(b, ofs), (λ arg, ⌜arg = [Vptr b ofs]↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.

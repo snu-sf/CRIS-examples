@@ -9,8 +9,8 @@ Local Open Scope nat_scope.
 
 Module CannonMainIA. Section CannonMainIA.
   Import CannonAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!CannonAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cannonG: !cannonG}.
 
   Context (SpMain : string → option fspec).
   Context (CannonInMain : sp_incl CannonAS.Sp SpMain).
@@ -22,7 +22,7 @@ Module CannonMainIA. Section CannonMainIA.
   Local Definition MainIMod := (MainI.t 1).
   
   Lemma simF_main : HSim.sim_fun open MainAMod MainIMod Ist MainHdr.main.
-  Proof.
+  Proof using SpMain CannonInMain.
     init_simF 0 0.
 
     (* SRC: precondition *)
@@ -45,7 +45,7 @@ Module CannonMainIA. Section CannonMainIA.
   (*FAST*)Qed.
 
   Theorem sim : HSim.t open MainAMod MainIMod MainA.init_cond Ist.
-  Proof.
+  Proof using SpMain CannonInMain.
     init_sim.
     - iIntros "IC". et.
     - apply simF_main; eauto.
@@ -53,8 +53,8 @@ Module CannonMainIA. Section CannonMainIA.
 End CannonMainIA.
 
 Section ctxr.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!CannonAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cannonG: !cannonG}.
 
   Theorem ctxr (SpMain : string → option fspec)
     (CannonInMain : sp_incl CannonAS.Sp SpMain)

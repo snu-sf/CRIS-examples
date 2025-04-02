@@ -6,25 +6,31 @@ Set Implicit Arguments.
 
 Set Implicit Arguments.
 
-Local Definition RA : ucmra := excl_authR unitO.
-Class CannonAGΓ (Γ : HRA) := {
-  #[local] cannon_inG :: inG (excl_authR unitO) Γ;
-}.
-Definition CannonAΓ : HRA := #[excl_authR unitO].
-Global Instance subG_GΓ {Γ : HRA} : subG CannonAΓ Γ → CannonAGΓ Γ.
-Proof. solve_inG. Defined.
-Hint Unfold subG_GΓ cannon_inG : GRA_index.
+Section RA.
+  Context `{!sinvG Γ Σ α β τ _I _S}.
+  
+  Local Definition RA : ucmra := excl_authR unitO.
+
+  Class cannonG `{!sinvG Γ Σ α β τ _I _S} := {
+    cannon_inG :: inG (excl_authR unitO) Γ;
+  }.
+  Definition cannonΓ : HRA := #[excl_authR unitO].
+  Global Instance subG_cannonG : subG cannonΓ Γ → cannonG.
+  Proof. solve_inG. Defined.
+End RA.
+Hint Unfold subG_cannonG cannon_inG : GRA_index.
 
 Module CannonAS. Section CannonAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CannonAGΓ Γ}.
-  
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cannonG: !cannonG}.
+                   
   Definition Ready : iProp Σ := own base_γ (●E tt).
   Definition Ball : iProp Σ := own base_γ (◯E tt).
   Definition Fired : iProp Σ := own base_γ ((●E tt) ⋅ (◯E tt)).
 
   Definition ir : DRA_mk RA := ●E tt ⋅ ◯E tt.
   Lemma ir_valid : ✓ ir. Proof. rewrite /ir. eapply excl_auth_valid. Qed.
-  Definition irΓ : CannonAΓ := *[Some ir].
+  Definition irΓ : cannonΓ := *[Some ir].
 
   Lemma ReadyBall : Ready ∗ Ball ⊣⊢ Fired.
   Proof.
@@ -60,7 +66,8 @@ End CannonAS. End CannonAS.
 
 Module CannonA. Section CannonA.
   Import CannonAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !CannonAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_cannonG: !cannonG}.
 
   Definition scopes := ["Cannon"].
   Definition v_lv := "Cannon" ↯ "lv".

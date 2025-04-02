@@ -5,16 +5,21 @@ Require Import MapHeader.
 Set Implicit Arguments.
 
 (* Resource algebra for MapI ⊆ MapM *)
-Class MapMGΓ (Γ : HRA) := {
-  #[local] map_inG :: inG (exclR unitO) Γ;
-}.
-Definition MapMΓ : HRA := #[exclR unitO].
-Global Instance subG_GΓ {Γ : HRA} : subG MapMΓ Γ → MapMGΓ Γ.
-Proof. solve_inG. Defined.
-Hint Unfold subG_GΓ map_inG : GRA_index.
+Section RA.
+  Context `{!sinvG Γ Σ α β τ _I _S}.
+  
+  Class mapMG `{!sinvG Γ Σ α β τ _I _S} := {
+    mapM_inG :: inG (exclR unitO) Γ;
+  }.
+  Definition mapMΓ : HRA := #[exclR unitO].
+  Global Instance subG_mapMG : subG mapMΓ Γ → mapMG.
+  Proof. solve_inG. Defined.
+End RA.
+Hint Unfold subG_mapMG mapM_inG : GRA_index.
 
 Module MapMS. Section MapMS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_mapMG: !mapMG}.
 
   Definition pending : iProp Σ := own base_γ (Excl ()).
   Lemma pending_unique : pending -∗ pending -∗ False.
@@ -77,7 +82,8 @@ def set_by_user(k : int) ≡
   set(k, input())
 ***)
 Module MapM. Section MapM.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !MapMGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_mapMG: !mapMG}.
 
   Definition scopes := ["Map"].
   Definition v_size := "Map" ↯ "size".

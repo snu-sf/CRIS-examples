@@ -9,25 +9,31 @@ From iris Require Import excl.
 (* Structure of the resource algebra definition is similar to that of iris,
   but few differences exist. *)
 (* HRAs are structs similar to GRAs, but for RAs that sProps can own. *)
-Class SpinLockAGΓ (Γ : HRA) := {
-  #[local] spinlock_inG :: inG (exclR unitO) Γ;
-}.
-Definition SpinLockΓ : HRA := #[exclR unitO].
-(* Be sure to annotate Γ as HRA, or tc search may not work properly. *)
-Global Instance subG_GΓ {Γ : HRA} : subG SpinLockΓ Γ → SpinLockAGΓ Γ.
-Proof. solve_inG. Defined.
-(* Be sure to add these two instances to hint database so that we can resolve inG instances
-  in the cancellation phase. *)
-Hint Unfold subG_GΓ spinlock_inG : GRA_index.
+Section RA.
+  Context `{!sinvG Γ Σ α β τ _I _S}.
+  
+  Class spinlockG `{!sinvG Γ Σ α β τ _I _S} := {
+    spinlock_inG :: inG (exclR unitO) Γ;
+  }.
+  Definition spinlockΓ : HRA := #[exclR unitO].
+  (* Be sure to annotate Γ as HRA, or tc search may not work properly. *)
+  Global Instance subG_spinlockG : subG spinlockΓ Γ → spinlockG.
+  Proof. solve_inG. Defined.
+  (* Be sure to add these two instances to hint database so that we can resolve inG instances
+    in the cancellation phase. *)
+End RA.
+Hint Unfold subG_spinlockG spinlock_inG : GRA_index.
 
 (* Spec definition *)
 (* Define 1) initial resource 2) function specs 3) sp here. *)
 Module SpinLockAS. Section SpinLockAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ, !memGΓ Γ, !SpinLockAGΓ Γ}.
-
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_spinlockG: !spinlockG}.
+  
   (* Initial resource *)
-  Definition ir : SpinLockΓ := *[None].
+  Definition ir : spinlockΓ := *[None].
 
   Definition N_SpinLockA := nroot .@ "spin_lock".
 
@@ -83,8 +89,10 @@ End SpinLockAS. End SpinLockAS.
   3) initial state (via Any.t)
 *)
 Module SpinLockA. Section SpinLockA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ, !memGΓ Γ, !SpinLockAGΓ Γ}.
-  Context `{!SchAGΣ Σ, !SchAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_spinlockG: !spinlockG}.
 
   Definition scopes : list string := [].
 

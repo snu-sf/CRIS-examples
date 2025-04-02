@@ -10,9 +10,9 @@ Module MutAll.
   Import inv_instances.
 
   Local Instance Γ : HRA := ##[invΓ].
-  Local Instance Σ : GRA := ##[invΣ; Γ].
+  Local Instance Σ : GRA := ##[Γ; invΣ].
   Definition irΓ : Γ := **[ir_invΓ 0].
-  Definition irΣ : Σ := **[ir_invΣ 0; irΓ].
+  Definition irΣ : Σ := **[irΓ; ir_invΣ 0].
 
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof. solve_ir_valid. Qed.
@@ -103,7 +103,10 @@ Module MutAll.
     clear H; intros [_ H].
     destruct (H (irΣ ⋅ initial_resource_own_admin)).
     { apply irΣ_valid. }
-    { iIntros; iSplit; et. }
+    { clear H. simplify_res.
+      { eauto. }
+      all: solve_res.
+    }
     { exists x; des; eauto. }
   Qed.
 End MutAll.

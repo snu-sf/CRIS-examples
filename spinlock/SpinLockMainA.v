@@ -5,23 +5,30 @@ From iris Require Import frac_auth numbers.
 (** Specification Module of SpinLockMainI *)
 
 (* Resource algebra - same as Counter.v example from iris *)
-Class SpinLockMainAGΓ (Γ : HRA) := {
-  #[local] RA_inG :: inG (frac_authR ZR) Γ;
-}.
-Definition SpinLockMainAΓ : HRA := #[frac_authR ZR].
-Global Instance subG_GΓ {Γ : HRA} : subG SpinLockMainAΓ Γ → SpinLockMainAGΓ Γ.
-Proof. solve_inG. Defined.
-Hint Unfold RA_inG subG_GΓ SpinLockMainAΓ : GRA_index.
+Section RA.
+  Context `{!sinvG Γ Σ α β τ _I _S}.
+
+  Class spinlockmainG `{!sinvG Γ Σ α β τ _I _S} := {
+    spinlockmain_inG :: inG (frac_authR ZR) Γ;
+  }.
+  Definition spinlockmainΓ : HRA := #[frac_authR ZR].
+  Global Instance subG_spinlockmainG : subG spinlockmainΓ Γ → spinlockmainG.
+  Proof. solve_inG. Defined.
+End RA.
+Hint Unfold subG_spinlockmainG spinlockmain_inG : GRA_index.
 
 (* Spec definition *)
 (* Define 1) initial resource 2) function specs 3) sp here. *)
 Module SpinLockMainAS. Section SpinLockMainAS.
   Import SpinLockAS.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!memGΓ Γ, !SchAGΣ Σ, !SchAGΓ Γ, !SpinLockMainAGΓ Γ, !SpinLockAGΓ Γ}.
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_spinlockG: !spinlockG}.
+  Context `{_spinlockmainG: !spinlockmainG}.
 
   (* initial resource *)
-  Definition ir : SpinLockMainAΓ := *[None].
+  Definition ir : spinlockmainΓ := *[None].
 
   Definition main_spec u : fspec :=
     wsim_fspec u
@@ -84,9 +91,12 @@ End SpinLockMainAS. End SpinLockMainAS.
   3) initial state (via Any.t)
 *)
 Module SpinLockMainA. Section SpinLockMainA.
-  Context `{!invG α Σ Γ, !subG Γ Σ, !sinvG Σ Γ α β τ}.
-  Context `{!memGΓ Γ, !SchAGΣ Σ, !SchAGΓ Γ, !SpinLockMainAGΓ Γ, !SpinLockAGΓ Γ}.
-
+  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_memG: !memG}.
+  Context `{_schG: !schG}.
+  Context `{_spinlockG: !spinlockG}.
+  Context `{_spinlockmainG: !spinlockmainG}.
+                        
   Definition scopes : list string := [].
 
   Definition main : unit → itree hmodE unit :=

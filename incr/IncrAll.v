@@ -10,20 +10,20 @@ Module IncrAll.
   Local Definition csl : string → bool := λ _, false.
   Local Definition genv : GEnv.t := GEnv.unit.
 
-  Local Instance Γ : HRA := ##[invΓ; memΓ; SchAΓ; IncrAΓ].
-  Local Instance Σ : GRA := ##[invΣ; SchAΣ; Γ].
+  Local Instance Γ : HRA := ##[invΓ; memΓ; schΓ; incrΓ].
+  Local Instance Σ : GRA := ##[Γ; invΣ; schΣ].
 
   Definition IRΓ : Γ :=
-    **[ir_invΓ u; ir_memΓ csl genv; SchAS.ir_SchAΓ; *[None]].
+    **[ir_invΓ u; ir_memΓ csl genv; SchAS.ir_schΓ; *[None]].
   Definition IRΣ : Σ :=
-    **[ir_invΣ u; SchAS.ir_SchAΣ; IRΓ].
+    **[IRΓ; ir_invΣ u; SchAS.ir_schΣ].
 
   Lemma IRΣ_valid : ✓ (IRΣ ⋅ initial_resource_own_admin).
   Proof.
     solve_ir_valid.
-    - apply SchAS.ir_threadsRA_valid.
     - apply ir_memRA_valid.
     - apply SchAS.ir_tidRA_valid.
+    - apply SchAS.ir_threadsRA_valid.
   Qed.
 
   (* source module *)
@@ -124,14 +124,13 @@ Module IncrAll.
     destruct (H (IRΣ ⋅ initial_resource_own_admin)).
     { apply IRΣ_valid. }
     { clear H. simplify_res.
-      {
-        iAssert (SchAS.tid_admin None) with "[H18]" as "TID".
+      { iAssert (SchAS.tid_admin None) with "[H22]" as "TID".
         { rewrite /SchAS.tid_admin. unseal "SchA". eauto. }
         iPoseProof (SchAS.tid_admin_none_split 0 with "TID") as "[TA TU]".
         iSplitR "U W H1 TU".
-        - rewrite /init_cond. iSplitL "H20".
-          { iAssert (mem_init csl genv) with "[H20]" as "[$ _]". eauto. }
-          iSplitL "H26".
+        - rewrite /init_cond. iSplitL "H24".
+          { iAssert (mem_init csl genv) with "[H24]" as "[$ _]". eauto. }
+          iSplitL "H8".
           { rewrite /SchAS.init_threads. unseal "SchA". eauto. }
           eauto.
         - iPoseProof (make_own_admin with "H1") as "$".

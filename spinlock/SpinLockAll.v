@@ -17,22 +17,22 @@ Module SpinLockAll.
   Local Definition genv : GEnv.t := GEnv.unit.
 
   (* HRA & GRA *)
-  Local Instance Γ : HRA := ##[invΓ; memΓ; SchAΓ; SpinLockΓ; SpinLockMainAΓ].
-  Local Instance Σ : GRA := ##[invΣ; SchAΣ; Γ].
+  Local Instance Γ : HRA := ##[invΓ; memΓ; schΓ; spinlockΓ; spinlockmainΓ].
+  Local Instance Σ : GRA := ##[Γ; invΣ; schΣ].
 
   (* initial resources for HRA & GRA *)
   Definition irΓ : Γ :=
-    **[ir_invΓ u; ir_memΓ csl genv; SchAS.ir_SchAΓ; SpinLockAS.ir; SpinLockMainAS.ir].
+    **[ir_invΓ u; ir_memΓ csl genv; SchAS.ir_schΓ; SpinLockAS.ir; SpinLockMainAS.ir].
   Definition irΣ : Σ :=
-    **[ir_invΣ u; SchAS.ir_SchAΣ; irΓ].
+    **[irΓ; ir_invΣ u; SchAS.ir_schΣ].
 
   (* validity lemma for the initial resource irΣ *)
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof.
     solve_ir_valid.
-    - apply SchAS.ir_threadsRA_valid.
     - apply ir_memRA_valid.
     - apply SchAS.ir_tidRA_valid.
+    - apply SchAS.ir_threadsRA_valid.
   Qed.
 
   (* the target module *)
@@ -165,15 +165,15 @@ Module SpinLockAll.
     { apply irΣ_valid. }
     (* initial condition constructions - wrap them by simplify_res and solve_res *)
     { clear H. simplify_res.
-      { iAssert (SchAS.tid_admin None) with "[H22]" as "TID".
+      { iAssert (SchAS.tid_admin None) with "[H26]" as "TID".
         { rewrite /SchAS.tid_admin. unseal "SchA". iFrame. }
         iPoseProof (SchAS.tid_admin_none_split 0 with "TID") as "[TID1 TID2]".
         { iSplitR "U W H1 TID2"; cycle 1.
           { iPoseProof (make_own_admin with "H1") as "$".
             unfold_pre_post; iFrame. eauto. }
-          rewrite /init_cond. iSplitL "H24".
-          { iAssert (mem_init csl genv) with "[H24]" as "[$ _]". eauto. }
-          iSplitL "H30".
+          rewrite /init_cond. iSplitL "H28".
+          { iAssert (mem_init csl genv) with "[H28]" as "[$ _]". eauto. }
+          iSplitL "H8".
           { rewrite /SchAS.init_threads. unseal "SchA". eauto. }
           { iFrame. }
         }
