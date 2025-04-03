@@ -53,7 +53,7 @@ Module CannonAll.
       i. rewrite /CannonAS.Sp. unseal CRIS. econs; first prove_nodup.
       ii; rewrite -FIND /sp /sp_from /smod_src //=; des_ifs; ss; des_ifs.
     }
-  Qed.
+  (*FAST*)Qed.
 
   Lemma cancel_tgt :
     refines (mod_cancel, (init_cond ∗ main_fsp.(precond) tt tt↑ tt↑)%I)
@@ -86,5 +86,5 @@ Module CannonAll.
     }
     { exists x; des; eauto. }
   Qed.
-End CannonAll.
+(*FAST*)End CannonAll.
 (* Print Assumptions CannonAll.behavioral_refinement. *)

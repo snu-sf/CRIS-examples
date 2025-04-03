@@ -81,7 +81,7 @@ Module MutAll.
     rewrite hmod_addc_empty_l -!hmod_add_assoc.
     eapply ctxr_frameL.
     eapply APCIA.ctxr.
-  Qed.
+  (*FAST*)Qed.
 
   Lemma cancel_tgt :
     refines (mod_cancel, (init_cond ∗ main_fsp.(precond) tt tt↑ tt↑)%I)
@@ -108,6 +108,6 @@ Module MutAll.
       all: solve_res.
     }
     { exists x; des; eauto. }
-  Qed.
+  (*FAST*)Qed.
 End MutAll.
 (* Print Assumptions MutAll.behavioral_refinement. *)

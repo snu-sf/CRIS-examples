@@ -83,7 +83,7 @@ Module CellioAll. Section CellioAll.
     rewrite -[(_, emp%I)]hmod_addc_empty_r.
     eapply ctxr_frameL, ctxr_cond_frameL, main_adequacy, CellioIA.sim.
     eapply lib_sp_incl.
-  Qed.
+  (*FAST*)Qed.
 
   Lemma cancel_tgt :
     refines (mod_cancel, (init_cond ∗ main_fsp.(precond) tt tt↑ tt↑)%I)
@@ -113,6 +113,6 @@ Module CellioAll. Section CellioAll.
       all: solve_res.
     }
     { exists x; des; eauto. }
-  Qed.
+  (*FAST*)Qed.
 End CellioAll. End CellioAll.
 (* Print Assumptions CellioAll.behavioral_refinement. *)

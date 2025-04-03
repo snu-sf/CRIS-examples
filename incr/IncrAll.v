@@ -101,7 +101,7 @@ Module IncrAll.
     { rewrite /sp_sub /sp_user_s /sp_s /IncrAS.sp /MemA.sp; unseal CRIS. ii; ss.
       des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
     }
-  Qed.
+  (*FAST*)Qed.
 
   Lemma cancel_tgt :
     refines (smod_cancel, (init_cond ∗ main_fsp.(precond) (0, tt) tt↑ tt↑)%I)
@@ -139,5 +139,5 @@ Module IncrAll.
       all: solve_res.
     }
     { exists x; des; eauto. }
-  Qed.
+  (*FAST*)Qed.
 End IncrAll.

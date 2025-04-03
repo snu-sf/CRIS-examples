@@ -139,7 +139,7 @@ Module SpinLockAll.
       { apply UserInSp. }
     }
     refl.
-  Qed.
+  (*FAST*)Qed.
 
   (* source HMod ⊆ source SMod ⊆ cancelled HMod *)
   Lemma cancel_tgt :
@@ -181,5 +181,5 @@ Module SpinLockAll.
       all: solve_res.
     }
     { exists x; des; eauto. }
-  Qed.
+  (*FAST*)Qed.
 End SpinLockAll.

@@ -115,7 +115,7 @@ Module KnotAll.
     eapply ctxr_compose_hor.
     { eapply MemIA.ctxr; prove_sp. }
     { eapply APCIA.ctxr; prove_sp. }
-  Qed.
+  (*FAST*)Qed.
 
   Lemma cancel_tgt :
     refines (mod_cancel, (init_cond ∗ main_fsp.(precond) tt tt↑ tt↑)%I)
@@ -159,7 +159,7 @@ Module KnotAll.
       all: solve_res.
     }
     { exists x; des; eauto. }
-  Qed.
+  (*FAST*)Qed.
 End KnotAll.
 
 (* Print Assumptions KnotAll.behavioral_refinement. *)
