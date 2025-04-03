@@ -29,7 +29,7 @@ Module MutFIA. Section MutFIA.
   Lemma simF_mutf:
     HSim.sim_fun open MutFAMod MutFIMod IstFull MutHdr.mutf.
   Proof using _sinvG APCInSp GInPure PureInSp.
-    init_simF 0 0.
+    init_simF.
 
     (* SRC: precondition *)
     steps_l. iDestruct "ASM" as "((%Y & %B) & %Q)". subst; hss.

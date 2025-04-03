@@ -44,7 +44,7 @@ Module KnotMainIA. Section KnotMainIA.
   Lemma simF_fib:
     HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainHdr.fib.
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
-    init_simF 0 0.
+    init_simF.
 
     steps_l. iDestruct "ASM" as "[[% INV] %]". des; subst. hss.
     steps_r. inv H3. des. rewrite FBLOCK; hss. steps_r.
@@ -104,7 +104,7 @@ Module KnotMainIA. Section KnotMainIA.
   Lemma simF_main:
     HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainHdr.main.
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
-    init_simF 0 0.
+    init_simF.
 
     (* SKINCL *)
     pose proof (@CEnv.incl_incl_env KnotMainGEnv.t genv) as INCLENV.

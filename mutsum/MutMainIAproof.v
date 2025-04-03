@@ -27,7 +27,7 @@ Module MutMainIA. Section MutMainIA.
   Lemma simF_main:
     HSim.sim_fun open MutMainAMod MutMainIMod IstFull MutMainHdr.main.
   Proof using _sinvG APCInSp FInPure PureInSp.
-    init_simF 0 0.
+    init_simF.
 
     (* SRC: precondition *)
     steps_l. iDestruct "ASM" as "%". des; subst; hss.

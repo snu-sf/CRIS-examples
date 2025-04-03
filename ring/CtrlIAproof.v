@@ -112,7 +112,7 @@ Module CtrlIA. Section CtrlIA.
   Lemma simF_init:
     HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.init.
   Proof using _cellG.
-    init_simF 0 0.
+    init_simF.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -148,7 +148,7 @@ Module CtrlIA. Section CtrlIA.
   Lemma simF_get_size:
     HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.get_size.
   Proof using _cellG.
-    init_simF 0 0.
+    init_simF.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -172,7 +172,7 @@ Module CtrlIA. Section CtrlIA.
     HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.enqueue.
   Proof using _cellG.
     unfold RingAMod, RingIMod, CellGS.
-    init_simF 0 0.
+    init_simF.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -233,7 +233,7 @@ Module CtrlIA. Section CtrlIA.
     HSim.sim_fun open RingAMod RingIMod IstFull RingHdr.dequeue.
   Proof using _cellG.
     unfold RingAMod, RingIMod, CellGS.
-    init_simF 0 0.
+    init_simF.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)

@@ -57,7 +57,7 @@ Module AddIA. Section AddIA.
   Lemma simF_succ : HSim.sim_fun open AddAMod AddIMod IstFull AddHdr.succ.
   Proof using _sinvG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
     (* Simulation Start *)
-    init_simF 0 0.
+    init_simF.
 
     (* SRC: handle the precond of succ *)
     steps_l. rename q into n.
@@ -90,7 +90,7 @@ Module AddIA. Section AddIA.
     pose proof (GEnvWF AddHdr.succ blk) as GEnvWF. apply GEnvWF in FIND as FIND'.
 
     (* Simulation Start *)
-    init_simF 0 0.
+    init_simF.
 
     (* SRC: handle the precond of add *)
     steps_l. rename q1 into n, q2 into m.

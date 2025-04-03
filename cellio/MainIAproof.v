@@ -21,7 +21,7 @@ Module MainIA. Section MainIA.
   Lemma simF_main:
     HSim.sim_fun open MainA (MainI.t ★ CellioA) IstFull MainHdr.main.
   Proof using CtxInSp.
-    init_simF 0 0.
+    init_simF.
     
     (* Take cell(0) *)
     steps_l; iDestruct "ASM" as "%"; subst.

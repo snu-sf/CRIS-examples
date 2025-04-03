@@ -24,7 +24,7 @@ Module CellioIA. Section CellioIA.
 
   Lemma simF_set : HSim.sim_fun open CellioA CellioI Ist CellioHdr.set.
   Proof using CtxInSp.
-    init_simF 0 0.
+    init_simF.
 
     (* Take (x:Z) & cell(x) *)
     steps_l. iDestruct "ASM" as "->".
@@ -52,7 +52,7 @@ Module CellioIA. Section CellioIA.
   
   Lemma simF_get : HSim.sim_fun open CellioA CellioI Ist CellioHdr.get.
   Proof using CtxInSp.
-    init_simF 0 0.
+    init_simF.
 
     (* Take (x:Z) & cell(x) *)
     steps_l. iDestruct "ASM" as "->".

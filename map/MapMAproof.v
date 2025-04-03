@@ -32,7 +32,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_init : HSim.sim_fun open MapA MapM Ist MapHdr.init.
   Proof using MapInSpS MapInSpT.
-    init_simF 0 0.
+    init_simF.
 
     steps_l.
     iDestruct "ASM" as "[[[-> %range] P] ->]".
@@ -61,7 +61,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_get : HSim.sim_fun open MapA MapM Ist MapHdr.get.
   Proof using MapInSpS MapInSpT.
-    init_simF 0 0.
+    init_simF.
 
     steps_l.
     iDestruct "ASM" as "((-> & MAP) & ->)".
@@ -96,7 +96,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_set : HSim.sim_fun open MapA MapM Ist MapHdr.set.
   Proof using MapInSpS MapInSpT.
-    init_simF 0 0.
+    init_simF.
 
     (* SRC: handle the IST of Map and the precond of set *)
     do 2 step_l.
@@ -128,7 +128,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_set_by_user : HSim.sim_fun open MapA MapM Ist MapHdr.set_by_user.
   Proof using MapInSpS MapInSpT.
-    init_simF 0 0.
+    init_simF.
 
     (* SRC: handle the IST of Map and the precond of set_by_user *)
     do 2 step_l. destruct q as [k w]. steps_l.

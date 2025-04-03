@@ -85,7 +85,7 @@ Module MapIM. Section MapIM.
 
   Lemma simF_init : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.init.
   Proof using MapInSp.
-    init_simF 0 0.
+    init_simF.
 
     (* preprocess given assumptions *)
     steps_l.
@@ -179,7 +179,7 @@ Module MapIM. Section MapIM.
 
   Lemma simF_get : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.get.
   Proof using MapInSp.
-    init_simF 0 0.
+    init_simF.
 
     (* SRC: handle the IST of Map and the precond of get *)
     steps_l.
@@ -223,7 +223,7 @@ Module MapIM. Section MapIM.
 
   Lemma simF_set : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.set.
   Proof using MapInSp.
-    init_simF 0 0.
+    init_simF.
 
     steps_l.
     iDestruct "ASM" as "[-> ->]". hss. inv G0. steps_l.
@@ -269,7 +269,7 @@ Module MapIM. Section MapIM.
 
   Lemma simF_set_by_user : HSim.sim_fun open MapMMod MapIMod IstFull MapHdr.set_by_user.
   Proof using MapInSp.
-    init_simF 0 0.
+    init_simF.
 
     steps_l.
     iDestruct "ASM" as "[-> ->]".

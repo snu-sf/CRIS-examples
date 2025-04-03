@@ -23,7 +23,7 @@ Module CannonMainIA. Section CannonMainIA.
   
   Lemma simF_main : HSim.sim_fun open MainAMod MainIMod Ist MainHdr.main.
   Proof using SpMain CannonInMain.
-    init_simF 0 0.
+    init_simF.
 
     (* SRC: precondition *)
     steps_l. iDestruct "ASM" as "((%Y & B) & %Q)". subst. hss.

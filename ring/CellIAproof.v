@@ -33,7 +33,7 @@ Module CellIA. Section CellIA.
 
   Lemma simF_get : HSim.sim_fun open CellA CellI Ist (CellHdr.get idx).
   Proof using _cellG.
-    init_simF 0 0.
+    init_simF.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -58,7 +58,7 @@ Module CellIA. Section CellIA.
   Lemma simF_set:
     HSim.sim_fun open CellA CellI Ist (CellHdr.set idx).
   Proof using _cellG.
-    init_simF 0 0.
+    init_simF.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)

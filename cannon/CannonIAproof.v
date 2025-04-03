@@ -23,7 +23,7 @@ Module CannonIA. Section CannonIA.
 
   Lemma simF_fire : HSim.sim_fun open CannonAMod CannonIMod Ist CannonHdr.fire.
   Proof using.
-    init_simF 0 0.
+    init_simF.
 
     (* SRC: precondition *)
     steps_l. iDestruct "ASM" as "((%Y & B) & %Q)". subst. hss.

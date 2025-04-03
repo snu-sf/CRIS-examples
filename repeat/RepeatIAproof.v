@@ -33,7 +33,7 @@ Module RepeatIA. Section RepeatIA.
   Lemma simF_repeat : HSim.sim_fun open RepeatAMod RepeatIMod IstFull RepeatHdr.repeat.
   Proof using _sinvG APCInSpPure SpPureInSp SpPureFunInSpPure repeatInSpPure.
     (* Simulation Start *)
-    init_simF 0 0.
+    init_simF.
 
     (* SRC: handle the precond of repeat *)
     steps_l. rename q2 into f_sem, q3 into n, q4 into x.
