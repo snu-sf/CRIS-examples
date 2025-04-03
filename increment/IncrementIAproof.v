@@ -22,31 +22,10 @@ Module IncrementIA. Section IncrementIA.
   Local Definition MA := (IncrementA ★ MemA).
   Local Definition MI := (IncrementI ★ MemA).
 
-  Ltac hss_r :=
-    try lazymatch goal with
-    | [ |- environments.envs_entails ?env (wsim ?fl_src ?tl_tgt ?Ist ?t ?u ?v ?E ?r ?g ?R_s ?R_t ?RR ?ps ?pt ?nths (?st_src, ?itr_src) (?st_tgt, ?itr_tgt)) ] =>
-        match itr_tgt with
-        | @ITree.bind _ _ _ ?itr ?ktr =>
-            match itr with
-            | context [(?A ↑) ↓] => rewrite (Any.upcast_downcast A)
-            end
-        end
-    end.
-  Ltac hss_l :=
-    try lazymatch goal with
-    | [ |- environments.envs_entails ?env (wsim ?fl_src ?tl_tgt ?Ist ?t ?u ?v ?E ?r ?g ?R_s ?R_t ?RR ?ps ?pt ?nths (?st_src, ?itr_src) (?st_tgt, ?itr_tgt)) ] =>
-        match itr_src with
-        | @ITree.bind _ _ _ ?itr ?ktr =>
-            match itr with
-            | context [(?A ↑) ↓] => rewrite (Any.upcast_downcast A)
-            end
-        end
-    end.
-
   Lemma increment_simF : HSim.sim_fun open MA MI IstFull IncrementHdr.increment.
   Proof using SchInSpS.
     init_simF u_s 0.
-    steps_l. iDestruct "ASM" as "[TID [-> ->]]". rename q1 into tid, q3 into blk, q4 into ofs. hss_l.
+    steps_l. iDestruct "ASM" as "[TID [-> ->]]". rename q1 into tid, q3 into blk, q4 into ofs. hss.
     steps_l.
     {
       rewrite /IncrementA.increment2.
