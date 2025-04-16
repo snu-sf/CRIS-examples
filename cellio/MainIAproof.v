@@ -63,7 +63,7 @@ Module MainIA. Section MainIA.
     steps_r. step. iFrame. eauto.
 
     Unshelve. all:(exact ()).
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
 
   Theorem sim :
     HSim.t open MainA (MainI.t ★ CellioA) MainA.InitCond IstFull.

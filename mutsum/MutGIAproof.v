@@ -82,7 +82,7 @@ Module MutGIA. Section MutGIA.
     Unshelve. all: ss.
     { eapply mut_max_intrange; eauto. }
     { exact (0↑). }
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
 
   Theorem sim:
     HSim.t open MutGAMod MutGIMod MutGA.init_cond IstFull.

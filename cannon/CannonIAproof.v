@@ -41,7 +41,7 @@ Module CannonIA. Section CannonIA.
     rewrite /alist_upd /_alist_upd /=. replace (1 - 1)%Z with 0%Z by nia.
     steps_l. forces_l. iSplitR; eauto. step.
     iSplit; eauto. iRight. iApply ReadyBall; iFrame.
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
 
   Theorem sim : HSim.t open CannonAMod CannonIMod CannonA.init_cond Ist.
   Proof using.

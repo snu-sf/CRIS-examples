@@ -104,7 +104,7 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     (* both terminate *)
     steps_l. step. iFrame. eauto.
     Unshelve. all: eauto.
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
 
   Ltac reintro nths :=
     match goal with
@@ -232,7 +232,7 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     (* terminate both *)
     step. iSplit; eauto.
   Unshelve. all:eauto.
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
 
   Lemma sim : HSim.t open MA MI emp%I IstFull.
   Proof.

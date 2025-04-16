@@ -48,7 +48,7 @@ Module CellioIA. Section CellioIA.
     step.
     iSplitL ""; eauto.
     iExists _. iFrame. eauto.
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
   
   Lemma simF_get : HSim.sim_fun open CellioA CellioI Ist CellioHdr.get.
   Proof using CtxInSp.
@@ -69,7 +69,7 @@ Module CellioIA. Section CellioIA.
 
     step. iSplit; eauto.
     iExists _. iFrame. eauto.
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
   
   Lemma sim : HSim.t open CellioA CellioI CellioA.InitCond Ist.
   Proof using CtxInSp.

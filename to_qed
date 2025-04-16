@@ -1,7 +1,7 @@
 #!/bin/sh
 
-s_word="(\*FAST\*)Admitted"
-t_word="(\*FAST\*)Qed"
+s_word="(\*SLOW\*)Admitted"
+t_word="(\*SLOW\*)Qed"
 
 for file in `find . -name "*.v"`
 do

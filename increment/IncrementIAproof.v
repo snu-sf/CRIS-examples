@@ -90,5 +90,5 @@ Module IncrementIA. Section IncrementIA.
         by_coind "CIH". iFrame.
       }
     }
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
 End IncrementIA. End IncrementIA.

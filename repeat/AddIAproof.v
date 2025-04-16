@@ -77,7 +77,7 @@ Module AddIA. Section AddIA.
     (* prove the IST *)
     step. by iSplit.
     Unshelve. et. exact (0↑).
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
 
   Lemma simF_add : HSim.sim_fun open AddAMod AddIMod IstFull AddHdr.add.
   Proof using _sinvG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
@@ -130,7 +130,7 @@ Module AddIA. Section AddIA.
     iPureIntro. do 2 f_equal.
     apply add_succ_repeat_fun; et.
     Unshelve. et.
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
 
   Theorem sim : HSim.t open AddAMod AddIMod AddA.init_cond IstFull.
   Proof.

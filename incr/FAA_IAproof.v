@@ -71,7 +71,7 @@ Module FaaIA. Section FaaIA.
     steps_r.
     (* src yield & terminate *)
     sch_yield_l. steps_l. forces_l. iFrame. iSplit; eauto. steps_l. step. iFrame. done.
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
 
   Lemma sim : HSim.t open MA MI emp%I IstFull.
   Proof.

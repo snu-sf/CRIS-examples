@@ -105,7 +105,7 @@ Module IncrIA. Section IncrIA.
     iSplitL "TID C".
     { iFrame. replace (v + 1 + 1)%Z with (v + 2)%Z by lia. iFrame. eauto. }
     steps_l. step; eauto.
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
 
   Lemma main_simF : HSim.sim_fun open MA MI IstFull IncrHdr.main.
   Proof using UGT SchInSpS SchInSpT MemInSp MainInSp.
@@ -225,7 +225,7 @@ Module IncrIA. Section IncrIA.
     steps_l. force_l. steps_l. force_l. iSplitL "TID"; eauto.
     steps_l. steps_r.
     step. eauto.
-  (*FAST*)Qed.
+  (*SLOW*)Qed.
 
   Lemma sim : HSim.t open MA MI emp%I IstFull.
   Proof.
