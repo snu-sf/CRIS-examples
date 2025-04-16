@@ -21,41 +21,22 @@ Module IncrementA. Section IncrementA.
 
   Definition scopes : list string := [].
 
-  (* Definition increment1 : list val → itree hmodE val :=
-    λ arg,
-      '(blk, ofs) : mblock * ptrofs <- (pargs [Tptr] arg)!;;
-      𝒴;;;
-        ITree.iter (λ _ : unit,
-          𝒴;;;
-          v <- trigger (Take Z);;
-          trigger (Assume ((blk, ofs) ↦ Vint v));;;
-          trigger (Guarantee ((blk, ofs) ↦ Vint v));;;
-          𝒴;;;
-          v2 <- trigger (Take Z);;
-          trigger (Assume ((blk, ofs) ↦ Vint v2));;;
-          if (decide (v = v2))
-          then trigger (Guarantee ((blk, ofs) ↦ Vint (1 + v2)));;; 𝒴;;; Ret (inr (Vint v2))
-          else trigger (Guarantee ((blk, ofs) ↦ Vint v2));;; 𝒴;;; Ret (inl tt)
-        ) (). *)
-
   Definition increment2 : list val → itree hmodE val :=
     λ arg,
       '(blk, ofs) : mblock * ptrofs <- (pargs [Tptr] arg)!;;
       𝒴;;;
-        ITree.iter (λ _ : unit,
-          𝒴;;;
-          v <- trigger (Take Z);;
-          trigger (Assume ((blk, ofs) ↦ Vint v));;;
-          'b : bool <- trigger (Choose bool);;
-          if b
-          then trigger (Guarantee ((blk, ofs) ↦ Vint (v + 1)));;; 𝒴;;; Ret (inr (Vint v))
-          else trigger (Guarantee ((blk, ofs) ↦ Vint v));;; 𝒴;;; Ret (inl tt)
-        ) ().
+      ITree.iter (λ _ : unit,
+        𝒴;;;
+        v <- trigger (Take Z);;
+        trigger (Assume ((blk, ofs) ↦ Vint v));;;
+        'b : bool <- trigger (Choose bool);;
+        if b
+        then trigger (Guarantee ((blk, ofs) ↦ Vint (v + 1)));;; 𝒴;;; Ret (inr (Vint v))
+        else trigger (Guarantee ((blk, ofs) ↦ Vint v));;; 𝒴;;; Ret (inl tt)
+      ) ().
 
   Definition increment : list val → itree hmodE val :=
     λ arg, increment2 arg.
-      (* 'b : bool <- trigger (Take bool);; *)
-      (* if b then (increment1 arg) else (increment2 arg). *)
 
   Definition fnsems u :=
     [(IncrementHdr.increment, (scopes, mk_specbody (increment_spec u) (cfunN increment)))].
