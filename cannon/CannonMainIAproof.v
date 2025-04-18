@@ -29,7 +29,7 @@ Module CannonMainIA. Section CannonMainIA.
     steps_l. iDestruct "ASM" as "((%Y & B) & %Q)". subst. hss.
 
     (* SRC: prove the precondition of "fire" *)
-    steps_r. unfold HoareCall. force_l. instantiate (1:=()). force_l.
+    steps_r. force_l. instantiate (1:=()). force_l.
     force_l. iSplitL "B"; et. steps_l.
 
     (* SRC, TGT; call "fire" and take a postcondition *)
