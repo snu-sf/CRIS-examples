@@ -68,10 +68,10 @@ Module MapIM. Section MapIM.
       ⌜st_src = [(MapM.v_size, 0%Z↑); (MapM.v_map, (λ _ : Z, 0%Z)↑)]
         ∧ st_tgt = [(MapI.v_hptr, Vnullptr↑)]⌝
       ∨ pending
-        ∗ ∃ blk ofs (f : Z → Z) (sz : Z),
+        ∗ ∃ bofs (f : Z → Z) (sz : Z),
           ⌜st_src = [(MapM.v_size,sz↑);(MapM.v_map,f↑)]
-            ∧ st_tgt = [(MapI.v_hptr,(Vptr blk ofs)↑)]⌝
-          ∗ (blk, ofs) |-> (fun_to_list f (Z.to_nat sz)))%I.
+            ∧ st_tgt = [(MapI.v_hptr,(Vptr bofs)↑)]⌝
+          ∗ bofs |-> (fun_to_list f (Z.to_nat sz)))%I.
 
   (* sps of src/mem modules *)
   Context (sp_s sp_mem : string → option fspec).
@@ -129,7 +129,7 @@ Module MapIM. Section MapIM.
       step. repeat (iSplit; eauto).
       iExists [_;_], [_], _, _.
       repeat iSplit; eauto.
-      iRight. iFrame. iExists _, _, _, _. iSplitR; eauto. inv G0.
+      iRight. iFrame. iExists _, _, _. iSplitR; eauto. inv G0.
       rewrite app_nil_r Nat.sub_0_r fun_to_list_repeat Nat2Z.id //=.
     }
 
@@ -146,7 +146,7 @@ Module MapIM. Section MapIM.
 
       (* TGT: prove the precond of store *)
       force_r (_, (sz - S n')%Z, _).
-      force_r ([Vptr _ (sz - (S n'))%Z; _]↑).
+      force_r ([Vptr (_, (sz - (S n'))%Z); _]↑).
       force_r.
       iPoseProof (big_sepL_insert_acc with "PTS") as "(PT & CTN)".
       { instantiate (2:= (sz - (S n'))).
@@ -157,9 +157,9 @@ Module MapIM. Section MapIM.
       (* , Zpos_P_of_succ_nat, <-Nat2Z.inj_succ, Nat2Z.inj_sub; try nia. *)
       iSplitL "PT".
       { iSplitL; cycle 1.
-        { iPureIntro. do 3 f_equal. rewrite Z.div_mul; nia. }
+        { iPureIntro. do 3 f_equal. rewrite Z.div_mul; eauto. }
         iExists Vundef. iFrame.
-        iPureIntro. do 3 f_equal. rewrite Z.div_mul; nia.
+        iPureIntro. do 3 f_equal. rewrite Z.div_mul; eauto.
       }
 
       (* TGT: handle the postcond of store *)
@@ -185,10 +185,10 @@ Module MapIM. Section MapIM.
     steps_l.
     iDestruct "ASM" as "[-> ->]". hss.
     iDestruct "IST" as (? ? ? ?) "(%& (% & [%|(P & IST)]) &%)";
-      [|iDestruct "IST" as (? ? ? ?) "(% & M)"];
+      [|iDestruct "IST" as (? ? ?) "(% & M)"];
       des; hss.
     { nia. }
-    inv G0.
+    destruct bofs as [blk ofs]. inv G0.
     rename q2 into idx.
     
     (* SRC: prove the postcond of get *)
@@ -217,7 +217,7 @@ Module MapIM. Section MapIM.
     step. repeat (iSplit; eauto).
     iExists [_;_], [_], _, _.
     do 3 (iSplit; eauto).
-    iRight. iFrame. iExists _, _, _, _. iSplit; eauto.
+    iRight. iFrame. iExists _, _, _. iSplit; eauto.
     iPoseProof ("M" with "GRT") as "M". iFrame.
   (*SLOW*)Qed.
 
@@ -230,9 +230,10 @@ Module MapIM. Section MapIM.
 
     (* SRC: handle the IST of Map and the precond of set *)
     iDestruct "IST" as (? ? ? ?) "(%& (% & [%|(P & IST)]) &%)";
-      [|iDestruct "IST" as (? ? ? ?) "(% & M)"];
+      [|iDestruct "IST" as (? ? ?) "(% & M)"];
       des; hss.
     { nia. }
+    destruct bofs as [blk ofs].
     rename q1 into idx.
 
     (* TGT : compute the input to store *)
@@ -262,7 +263,7 @@ Module MapIM. Section MapIM.
     step. repeat (iSplit; eauto).
     iExists [_;_], [_], _, _.
     do 3 (iSplit; eauto).
-    iRight. iFrame. iExists _, _, _, _. iSplit; eauto.
+    iRight. iFrame. iExists _, _, _. iSplit; eauto.
     iPoseProof ("M" with "GRT") as "M".
     rewrite -> fun_to_list_update, Z2Nat.id; try nia. iFrame.
   (*SLOW*)Qed.

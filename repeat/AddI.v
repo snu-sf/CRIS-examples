@@ -19,7 +19,7 @@ Module AddI. Section AddI.
     λ varg,
       '(n, m): _ <- ((pargs [Tint; Tint] varg)?);;
       fb <- ((cenv.(CEnv.id2blk) AddHdr.succ)?);;
-      ccallU RepeatHdr.repeat [Vptr fb 0; Vint n; Vint m].
+      ccallU RepeatHdr.repeat [Vptr (fb, 0%Z); Vint n; Vint m].
 
   Definition fnsems (genv: GEnv.t) :=
     [(AddHdr.succ, (scopes, cfunU succ));

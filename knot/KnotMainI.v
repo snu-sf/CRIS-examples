@@ -24,7 +24,7 @@ Module KnotMainI. Section KnotMainI.
   Definition mainF genv : () -> itree pmodE val :=
     fun '() =>
       fibb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotMainHdr.fib)?;;
-      'fb: val <- ccallU KnotHdr.knot [Vptr fibb 0];; 'fb: mblock <- (unblk fb)?;;
+      'fb: val <- ccallU KnotHdr.knot [Vptr (fibb, 0%Z)];; 'fb: mblock <- (unblk fb)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
       ccallU fn [Vint 10].
 

@@ -31,7 +31,7 @@ Module KnotIA. Section KnotIA.
     (∃ (f': optionO (natO -d> natO)) (fb': val),
         (⌜∀ f (EQ: f' ≡ (Some f: optionO (natO -d> natO))),
             ∃ fb,
-              (<<BLK: fb' = Vptr fb 0>>) /\
+              (<<BLK: fb' = Vptr (fb, 0%Z)>>) /\
               (<<FN: fb_has_spec genv SpFun fb (fun_gen genv SpRec f)>>)⌝)
           ∗ (knot_full f')
           ∗ (var_points_to genv KnotHdr._f fb'))%I.
@@ -83,7 +83,7 @@ Module KnotIA. Section KnotIA.
 
     (* TGT: load the function at the block of _f by inlining "load" *)
     inline_r. steps_r.
-    force_r. instantiate (1:=(blk0, 0%Z, (Vptr fb 0), 1%Qp)). force_r.
+    force_r. instantiate (1:=(blk0, 0%Z, (Vptr (fb, 0%Z)), 1%Qp)). force_r.
     force_r. iSplitL "VF".
     { iSplit; eauto. iSplitR; eauto. unfold var_points_to. rewrite FIND0. iFrame. }
     steps_r. iDestruct "GRT" as "((VF & %) & %)". des; subst. hss.
@@ -155,7 +155,7 @@ Module KnotIA. Section KnotIA.
     
     (* TGT: save a function by calling "store" *)
     steps_r. inline_r. steps_r.
-    force_r. instantiate (1:=(blk0, 0%Z, Vptr fb 0)). force_r. force_r. iSplitL "VF".
+    force_r. instantiate (1:=(blk0, 0%Z, Vptr (fb, 0%Z))). force_r. force_r. iSplitL "VF".
     { iSplit; et. unfold var_points_to. rewrite FIND0; eauto. }
     steps_r. iDestruct "GRT" as "[[VF %] %]"; des; subst.
 

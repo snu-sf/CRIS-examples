@@ -26,13 +26,13 @@ Module IncrAS. Section IncrAS.
   Definition counter_syn {n} γ q (v : Z) : GTerm.t n := <own> γ (◯F{q} v).
   Definition counter_auth γ (v : Z) : iProp Σ := own γ (●F v).
 
-  Definition ccounter_syn n γ blk ofs : GTerm.t n :=
+  Definition ccounter_syn n γ bofs : GTerm.t n :=
     (∃ v : τ{Z, n},
-      <own> base_γ (mem_points_to_singleton_r (blk, ofs) 1%Qp (Vint v))
+      <own> base_γ (mem_points_to_singleton_r bofs 1%Qp (Vint v))
       ∗ <own> γ (frac_auth_auth v))%SAT.
 
-  Definition incr_inv u n γ blk ofs : iProp Σ :=
-    inv u n N_main (ccounter_syn n γ blk ofs).
+  Definition incr_inv u n γ bofs : iProp Σ :=
+    inv u n N_main (ccounter_syn n γ bofs).
 
   (* rules *)
   Lemma counter_op γ v1 q1 v2 q2 :
@@ -50,8 +50,8 @@ Module IncrAS. Section IncrAS.
 
   Definition incr_spec u : fspec :=
     sch_fspec u
-      (fspec_simple (λ '(blk, ofs, v, γ),
-        (λ varg, ⌜varg = ([Vptr blk ofs]↑↑)↑⌝ ∗ counter γ (1/2) v ∗ incr_inv u 0 γ blk ofs,
+      (fspec_simple (λ '(bofs, v, γ),
+        (λ varg, ⌜varg = ([Vptr bofs]↑↑)↑⌝ ∗ counter γ (1/2) v ∗ incr_inv u 0 γ bofs,
         λ vret, ⌜vret = (tt↑↑)↑⌝ ∗ counter γ (1/2) (v + 2))
       ))%I.
 

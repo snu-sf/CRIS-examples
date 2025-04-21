@@ -23,7 +23,8 @@ Module FaaIA. Section FaaIA.
   Lemma faa2_simF : HSim.sim_fun open MA MI IstFull FaaHdr.faa2.
   Proof using SchInSp.
     init_simF u_s 0.
-    steps_l. iDestruct "ASM" as "[TID [-> ->]]". hss. rename q3 into b, q4 into ofs, q1 into tid.
+    steps_l. iDestruct "ASM" as "[TID [-> ->]]". hss.
+    destruct q2 as [b ofs]. rename q1 into tid.
     steps_l. steps_r.
 
     (* tgt yield *)

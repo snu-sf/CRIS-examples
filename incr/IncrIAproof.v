@@ -26,17 +26,17 @@ Module IncrIA. Section IncrIA.
   Local Definition MA := (IncrA ★ MemA).
   Local Definition MI := ((IncrI ★ FaaA.t u_t sp_t) ★ MemA).
 
-  Lemma f_spawnable γ v blk ofs :
+  Lemma f_spawnable γ v bofs :
     SchAS.fspec_spawnable u_s (IncrAS.incr_spec u_s)
       (λ varg arg,
-        ⌜varg = arg ∧ varg = ([Vptr blk ofs]↑↑)⌝
+        ⌜varg = arg ∧ varg = ([Vptr bofs]↑↑)⌝
         ∗ counter γ (1/2) v
-        ∗ incr_inv u_s 0 γ blk ofs)%I
+        ∗ incr_inv u_s 0 γ bofs)%I
       (λ vret ret,
         existT 0 ((⌜vret = ret ∧ vret = tt↑↑⌝ ∗ counter_syn γ (1/2) (v + 2))%SAT)).
   Proof.
     rewrite /SchAS.fspec_spawnable /wsim_fspec /fspec_virtual /precond /postcond /incr_spec /=.
-    ii; ss. eexists (x_src, (blk, ofs, v, γ)); split; red; ii.
+    ii; ss. eexists (x_src, (bofs, v, γ)); split; red; ii.
     - rewrite /precond /sch_fspec /fspec_simple /wsim_fspec /precond /=.
       iIntros "[W [% [-> [TID [% [-> [[-> ->] [C #INV]]]]]]]]". iFrame. eauto.
     - rewrite /postcond /sch_fspec /fspec_simple /wsim_fspec /postcond /=.
@@ -49,7 +49,7 @@ Module IncrIA. Section IncrIA.
     init_simF u_s u_t.
 
     steps_l. iDestruct "ASM" as "[TID [[-> [C #INV]] ->]]". hss.
-    rename q7 into b, q8 into ofs. rename q4 into γ, q6 into v. rename q1 into tid.
+    destruct q5 as [b ofs]. rename q1 into tid, q4 into γ, q6 into v.
 
     steps_l. hss. steps_l.
     steps_r. hss. steps_r.
@@ -150,7 +150,7 @@ Module IncrIA. Section IncrIA.
     { apply frac_auth_valid; ss. }
 
     iIntros "[%γc [A F]]".
-    iMod (inv_alloc (ccounter_syn 0 γc b 0%Z) _ _ _ N_main with "[PT A]") as "#I"; eauto.
+    iMod (inv_alloc (ccounter_syn 0 γc (b, 0%Z)) _ _ _ N_main with "[PT A]") as "#I"; eauto.
     { rewrite /ccounter_syn; SL_red; iExists 0; SL_red; iFrame. }
     iPoseProof (counter_op with "[F]") as "[F1 F2]".
     { rewrite -Qp.half_half -{2}(Z.add_0_r 0%Z). iApply "F". }

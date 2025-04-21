@@ -9,12 +9,12 @@ Module IncrementI. Section IncrementI.
 
   Definition increment : list val → itree pmodE val :=
     λ arg,
-      𝒴;;; '(blk, ofs) : (mblock * ptrofs) <- (pargs [Tptr] arg)?;;
+      𝒴;;; bofs <- (pargs [Tptr] arg)?;;
       𝒴;;;
         ITree.iter (λ _ : unit,
-          𝒴;;; 'v_raw : val <- ccallU MemHdr.load [Vptr blk ofs];;
+          𝒴;;; 'v_raw : val <- ccallU MemHdr.load [Vptr bofs];;
           𝒴;;; 'v : Z <- (pargs [Tint] [v_raw])?;;
-          𝒴;;; 's_raw : val <- ccallU MemHdr.cas [Vptr blk ofs; Vint v; Vint (v + 1)];;
+          𝒴;;; 's_raw : val <- ccallU MemHdr.cas [Vptr bofs; Vint v; Vint (v + 1)];;
           𝒴;;; 's : Z <- (pargs [Tint] [s_raw])?;;
           𝒴;;;
             if (decide (s = 1))

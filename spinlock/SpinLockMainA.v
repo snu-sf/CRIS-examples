@@ -41,11 +41,11 @@ Module SpinLockMainAS. Section SpinLockMainAS.
 
   Definition incr_spec u : fspec :=
     wsim_fspec u
-      (fspec_simple (λ '(tid, blk_l, ofs_l, blk_v, ofs_v, γ_v),
+      (fspec_simple (λ '(tid, bofs_l, bofs_v, γ_v),
         ((λ arg,
-          ⌜arg = ([Vptr blk_l ofs_l; Vptr blk_v ofs_v]↑↑)↑⌝
+          ⌜arg = ([Vptr bofs_l; Vptr bofs_v]↑↑)↑⌝
           ∗ SchAS.tid_user tid
-          ∗ (∃ γ_l, is_lock u γ_l (Vptr blk_l ofs_l) (lock_P (blk_v, ofs_v) γ_v)
+          ∗ (∃ γ_l, is_lock u γ_l (Vptr bofs_l) (lock_P bofs_v γ_v)
           ∗ own γ_v (◯F{1/2} 0%Z))),
         (λ ret,
           ⌜ret = ((Vundef)↑↑)↑⌝
@@ -54,22 +54,22 @@ Module SpinLockMainAS. Section SpinLockMainAS.
       ))%I.
 
   (* pre/postconditions for threads to be spawned *)
-  Definition incr_pre u blk_l ofs_l blk_v ofs_v γ_v : SAny.t → SAny.t → iProp Σ :=
+  Definition incr_pre u bofs_l bofs_v γ_v : SAny.t → SAny.t → iProp Σ :=
     λ varg arg,
       (⌜varg = arg⌝
-      ∗ (⌜varg = [Vptr blk_l ofs_l; Vptr blk_v ofs_v]↑↑⌝
-      ∗ ∃ γ_l, is_lock u γ_l (Vptr blk_l ofs_l) (lock_P (blk_v, ofs_v) γ_v)
+      ∗ (⌜varg = [Vptr bofs_l; Vptr bofs_v]↑↑⌝
+      ∗ ∃ γ_l, is_lock u γ_l (Vptr bofs_l) (lock_P bofs_v γ_v)
           ∗ own γ_v (◯F{1/2} 0%Z)))%I.
 
   Definition incr_post γ_v : SAny.t → SAny.t → SynDepO :=
     (λ _ _, existT 0 (<own> γ_v (◯F{1/2} 1%Z)))%SAT.
 
-  Lemma incr_spawnable u blk_l ofs_l blk_v ofs_v γ_v :
+  Lemma incr_spawnable u bofs_l bofs_v γ_v :
     SchAS.fspec_spawnable u (incr_spec u)
-      (incr_pre u blk_l ofs_l blk_v ofs_v γ_v) (incr_post γ_v).
+      (incr_pre u bofs_l bofs_v γ_v) (incr_post γ_v).
   Proof.
     intros x_s; ss.
-    exists (x_s, blk_l, ofs_l, blk_v, ofs_v, γ_v); split.
+    exists (x_s, bofs_l, bofs_v, γ_v); split.
     { intros varg arg. unfold_pre_post.
       iIntros "[W [%va [-> [TID [%sarg [-> [-> [-> P]]]]]]]]".
       iFrame. iModIntro. iSplit; eauto.

@@ -23,7 +23,7 @@ Module RepeatAS. Section RepeatAS.
   Definition repeat_spec (genv: GEnv.t) : fspec :=
     fspec_apc (λ '(n, x, f_sem), OrdArith.add Ord.omega (n:nat)%ord)
       (λ '(n, x, f_sem),
-        ((λ arg, ⌜∃ (fn:string) (fptr:mblock), arg = [Vptr fptr 0; Vint (Z.of_nat n); Vint x]↑
+        ((λ arg, ⌜∃ (fn:string) (fptr:mblock), arg = [Vptr (fptr, 0%Z); Vint (Z.of_nat n); Vint x]↑
                         ∧ (intrange_64 (Z.of_nat n))
                         ∧ CEnv.blk2id (CEnv.load_genv genv) fptr = Some fn
                         ∧ fn_has_spec sp_pure fn

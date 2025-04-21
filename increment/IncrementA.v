@@ -11,8 +11,8 @@ Module IncrementA. Section IncrementA.
                      
   Definition increment_spec u : fspec :=
     sch_fspec u
-      (fspec_simple (λ '(blk, ofs),
-        ((λ varg, ⌜varg = [Vptr blk ofs]↑⌝),
+      (fspec_simple (λ bofs,
+        ((λ varg, ⌜varg = [Vptr bofs]↑⌝),
         (λ vret, True))
       ))%I.
 
@@ -23,16 +23,16 @@ Module IncrementA. Section IncrementA.
 
   Definition increment2 : list val → itree hmodE val :=
     λ arg,
-      '(blk, ofs) : mblock * ptrofs <- (pargs [Tptr] arg)!;;
+      bofs <- (pargs [Tptr] arg)!;;
       𝒴;;;
       ITree.iter (λ _ : unit,
         𝒴;;;
         v <- trigger (Take Z);;
-        trigger (Assume ((blk, ofs) ↦ Vint v));;;
+        trigger (Assume (bofs ↦ Vint v));;;
         'b : bool <- trigger (Choose bool);;
         if b
-        then trigger (Guarantee ((blk, ofs) ↦ Vint (v + 1)));;; 𝒴;;; Ret (inr (Vint v))
-        else trigger (Guarantee ((blk, ofs) ↦ Vint v));;; 𝒴;;; Ret (inl tt)
+        then trigger (Guarantee (bofs ↦ Vint (v + 1)));;; 𝒴;;; Ret (inr (Vint v))
+        else trigger (Guarantee (bofs ↦ Vint v));;; 𝒴;;; Ret (inl tt)
       ) ().
 
   Definition increment : list val → itree hmodE val :=

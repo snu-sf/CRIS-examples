@@ -118,7 +118,7 @@ Section KnotAS.
   Definition fun_gen (f: nat -> nat): fspec :=
     fspec_apc (λ n: nat, (2 * n)%ord)
       (fun n => 
-        ((fun varg => (⌜∃ fb, varg = [Vptr fb 0; Vint (Z.of_nat n)]↑ ∧ (intrange_64 n) ∧
+        ((fun varg => (⌜∃ fb, varg = [Vptr (fb, 0%Z); Vint (Z.of_nat n)]↑ ∧ (intrange_64 n) ∧
                         fb_has_spec genv SpRec fb rec_spec⌝
                         ∗ knot_frag (Some f))%I),
           (fun vret => (⌜vret = (Vint (Z.of_nat (f n)))↑⌝ ∗ knot_frag (Some f))%I))).
@@ -129,10 +129,10 @@ Section KnotAS.
   Definition knot_spec : fspec :=
     fspec_simple (X:=(nat -> nat))
       (fun f => 
-        ((fun varg => (⌜∃ fb, varg = [Vptr fb 0]↑ ∧ 
+        ((fun varg => (⌜∃ fb, varg = [Vptr (fb, 0%Z)]↑ ∧ 
                         fb_has_spec genv SpFun fb (fun_gen f)⌝
                         ∗ (∃ old, knot_frag old))%I,
-          (fun vret => (⌜∃ fb, vret = (Vptr fb 0)↑ ∧
+          (fun vret => (⌜∃ fb, vret = (Vptr (fb, 0%Z))↑ ∧
                         fb_has_spec genv SpRec fb rec_spec⌝
                         ∗ knot_frag (Some f))%I)))).
 

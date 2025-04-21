@@ -43,11 +43,11 @@ Module SpinLockIA. Section SpinLockIA.
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
     (* src/tgt yield *)
     sch_yield_r. iFrame. clear nths st_s st_t NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST TID".
-    sch_yield_l. force_l (Vptr blk 0). steps_l. force_l. steps_l.
+    sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l. force_l. steps_l.
     (* prove source postcondition *)
     (* alloc invariant *)
     iApply (wsim_own_alloc (Excl ())); ss. iIntros "[%γ TKN]".
-    iMod (inv_alloc (SpinLockAS.lock_inv blk 0 P γ) u_a _ _ N_SpinLockA with "[P PT TKN]") as "#I"; eauto.
+    iMod (inv_alloc (SpinLockAS.lock_inv (blk, 0%Z) P γ) u_a _ _ N_SpinLockA with "[P PT TKN]") as "#I"; eauto.
     { rewrite /lock_inv /=; SL_red; iRight; iFrame. }
     forces_l. iFrame. iSplit; eauto.
     { iSplit; eauto. rewrite /is_lock. iExists _, _; iSplit; eauto. }
@@ -59,7 +59,7 @@ Module SpinLockIA. Section SpinLockIA.
     init_simF u_a 0.
     (* process src precondition *)
     steps_l. iDestruct "ASM" as "[[% [TID #LOCK]] %]". hss.
-    iDestruct "LOCK" as (? ?) "[% LOCK]". steps_r.
+    iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs]. steps_r.
     (* start coinduction for lock acquire/failure *)
     iApply wsim_reset.
     iStopProof. revert nths. combine_quant NODS. combine_quant NODD.
@@ -77,10 +77,8 @@ Module SpinLockIA. Section SpinLockIA.
     iDestruct "I" as "[FAIL|SUCC]".
     { (* fail case *)
       (* tgt inline - mem cas *)
-      inline_r. forces_r. 
-      instantiate (1:= existT _ _). hss. instantiate (2:= 1). ss.
-      instantiate (1:= (_, _, _, _, _)). hss. 
-      iSplitL "FAIL". iFrame. et.
+      inline_r. force_r (existT 1 (_, _, _, _, _)). forces_r. hss.
+      iSplitL "FAIL". { iFrame. et. }
       steps_r.
       iDestruct "GRT" as "[[POINTS_TO %] %]".
       hss. steps_r.
@@ -98,9 +96,8 @@ Module SpinLockIA. Section SpinLockIA.
     { (* success case *)
       (* tgt inline - mem cas *)
       iDestruct "SUCC" as "[POINTS_TO [Q TKN]]".
-      inline_r. forces_r.
-      instantiate (1:= existT _ _). ss. instantiate (2:= 0). ss.  
-      instantiate (1:= (_, _, _, _)). hss. iSplitL "POINTS_TO"; iFrame; et. 
+      inline_r. force_r (existT 0 (_, _, _, _)). forces_r. hss.
+      iSplitL "POINTS_TO". { iFrame; et. }
       steps_r.
       iDestruct "GRT" as "[[POINTS_TO ->] ->]". hss.
       steps_r.
@@ -126,7 +123,7 @@ Module SpinLockIA. Section SpinLockIA.
     (* process src precondition *)
     steps_l.
     iDestruct "ASM" as "[(% & TID & #LOCK & TKN & Q) %]".
-    iDestruct "LOCK" as (? ?) "[% LOCK]".
+    iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs].
     hss.
     steps_r.
     (* tgt yield *)
@@ -136,8 +133,7 @@ Module SpinLockIA. Section SpinLockIA.
     iInv "LOCK" as "I" "Hcl". SL_red.
     iDestruct "I" as "[LOCKED|UNLOCKED]".
     { (* locked case *)
-      inline_r. steps_r. forces_r. instantiate (1:= (_, _)).
-      ss. instantiate (2:=(_, _)). ss.
+      inline_r. steps_r. force_r (_,_,_). forces_r. hss.
       iSplitL "LOCKED"; iFrame; et.
       steps_r. iDestruct "GRT" as "[[POINTS_TO %] %]". hss.
       steps_r.

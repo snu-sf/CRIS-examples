@@ -14,13 +14,13 @@ Module IncrI. Section IncrI.
   Definition main : unit → itree pmodE unit :=
     λ _,
       𝒴;;; 'ptr_raw : val <- ccallU MemHdr.alloc [Vint 1%Z];;
-      𝒴;;; '(blk, ofs) : mblock * ptrofs <- (pargs [Tptr] [ptr_raw])?;;
-      𝒴;;; '_ : val <- ccallU MemHdr.store [Vptr blk ofs; Vint 0%Z];;
-      𝒴;;; tid1 <- Sch.spawn (IncrHdr.incr, [Vptr blk ofs]↑↑);;
-      𝒴;;; tid2 <- Sch.spawn (IncrHdr.incr, [Vptr blk ofs]↑↑);;
+      𝒴;;; bofs <- (pargs [Tptr] [ptr_raw])?;;
+      𝒴;;; '_ : val <- ccallU MemHdr.store [Vptr bofs; Vint 0%Z];;
+      𝒴;;; tid1 <- Sch.spawn (IncrHdr.incr, [Vptr bofs]↑↑);;
+      𝒴;;; tid2 <- Sch.spawn (IncrHdr.incr, [Vptr bofs]↑↑);;
       𝒴;;; Sch.join tid1;;;
       𝒴;;; Sch.join tid2;;;
-      𝒴;;; 'v_raw : val <- ccallU MemHdr.load [Vptr blk ofs];;
+      𝒴;;; 'v_raw : val <- ccallU MemHdr.load [Vptr bofs];;
       𝒴;;; 'v : Z <- (pargs [Tint] [v_raw])?;;
       𝒴;;; '_ : unit <- trigger (IO "OUT" v);;
       𝒴;;; Ret tt.

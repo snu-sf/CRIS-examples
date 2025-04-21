@@ -39,12 +39,12 @@ Module SpinLockAS. Section SpinLockAS.
 
   Definition token n γ : GTerm.t n := <own> γ (Excl ()).
 
-  Definition lock_inv {n} blk ofs (P : GTerm.t n) γ : GTerm.t n :=
-    (blk, ofs) ↦ (Vint 1)
-    ∨ (blk, ofs) ↦ (Vint 0) ∗ P ∗ token n γ.
+  Definition lock_inv {n} bofs (P : GTerm.t n) γ : GTerm.t n :=
+    bofs ↦ (Vint 1)
+    ∨ bofs ↦ (Vint 0) ∗ P ∗ token n γ.
 
   Definition is_lock {n} u γ val P : iProp Σ :=
-    ∃ blk ofs, ⌜val = Vptr blk ofs⌝ ∗ inv u n N_SpinLockA (lock_inv blk ofs P γ).
+    ∃ bofs, ⌜val = Vptr bofs⌝ ∗ inv u n N_SpinLockA (lock_inv bofs P γ).
 
   (* Function specs *)
   Definition newlock_spec u : fspec :=

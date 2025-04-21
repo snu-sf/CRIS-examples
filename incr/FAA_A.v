@@ -7,7 +7,7 @@ Module FaaA. Section FaaA.
   Context `{_schG: !schG}.
 
   Definition faa2_spec u : fspec :=
-    sch_fspec u (fspec_simple (λ '(b, ofs), (λ arg, ⌜arg = [Vptr b ofs]↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
+    sch_fspec u (fspec_simple (λ bofs, (λ arg, ⌜arg = [Vptr bofs]↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
 
   Definition sp u : alist string fspec :=
     [(FaaHdr.faa2, faa2_spec u)].

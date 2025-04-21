@@ -44,7 +44,7 @@ Section KnotMainAS.
   Definition fib_spec : fspec :=
     fspec_apc (λ '(n, INV), (2 * (n: nat))%ord)
       (fun '(n, INV) => 
-        ((fun varg => (⌜∃ fb, varg = [Vptr fb 0; Vint (Z.of_nat n)]↑ ∧ (intrange_64 n) ∧
+        ((fun varg => (⌜∃ fb, varg = [Vptr (fb, 0%Z); Vint (Z.of_nat n)]↑ ∧ (intrange_64 n) ∧
                           fb_has_spec genv SpRec fb (mrec_spec Fib INV)⌝ ∗ INV)%I),
          (fun vret => (⌜vret = (Vint (Z.of_nat (Fib n)))↑⌝ ∗ INV)%I))).
 

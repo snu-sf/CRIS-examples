@@ -28,14 +28,12 @@ Module SpinLockMainI. Section SpinLockMainI.
 
   Definition incr : list val → itree pmodE val :=
     λ arg,
-      𝒴;;; '(lb, lo, (vb, vo)) : (mblock * ptrofs * (mblock * ptrofs)) <- (pargs [Tptr; Tptr] arg)?;;
-      let l := Vptr lb lo in
-      let v := Vptr vb vo in
-      𝒴;;; '_ : val <- ccallU SpinLockHdr.acquire [l];;
-      𝒴;;; 'x : val <- ccallU MemHdr.load [v];;
+      𝒴;;; '(l, v): _ <- (pargs [Tptr; Tptr] arg)?;;
+      𝒴;;; '_ : val <- ccallU SpinLockHdr.acquire [Vptr l];;
+      𝒴;;; 'x : val <- ccallU MemHdr.load [Vptr v];;
       𝒴;;; 'x : Z <- (pargs [Tint] [x])?;;
-      𝒴;;; '_ : val <- ccallU MemHdr.store [v; Vint (x + 1)];;
-      𝒴;;; '_ : val <- ccallU SpinLockHdr.release [l];;
+      𝒴;;; '_ : val <- ccallU MemHdr.store [Vptr v; Vint (x + 1)];;
+      𝒴;;; '_ : val <- ccallU SpinLockHdr.release [Vptr l];;
       𝒴;;; Ret Vundef.
 
   Definition fnsems :=

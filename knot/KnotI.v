@@ -14,19 +14,19 @@ Module KnotI. Section KnotI.
     fun varg =>
       fb <- (pargs [Tblk] varg)?;;
       blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;
-      '_: val <- ccallU MemHdr.store [Vptr blk 0; Vptr fb 0];;
+      '_: val <- ccallU MemHdr.store [Vptr (blk, 0%Z); Vptr (fb, 0%Z)];;
       rb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr.rec)?;;
-      Ret (Vptr rb 0)
+      Ret (Vptr (rb, 0%Z))
   .
 
   Definition recF genv : list val -> itree pmodE val :=
     fun varg =>
       n <- (pargs [Tint] varg)?;;
       blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;
-      'fb: val <- ccallU MemHdr.load [Vptr blk 0];; fb <- (unblk fb)?;;
+      'fb: val <- ccallU MemHdr.load [Vptr (blk, 0%Z)];; fb <- (unblk fb)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
       rb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr.rec)?;;
-      ccallU fn [Vptr rb 0; Vint n]
+      ccallU fn [Vptr (rb, 0%Z); Vint n]
   .
 
   Definition fnsems genv :=

@@ -18,7 +18,7 @@ Module RepeatI. Section RepeatI.
       else
         fn <- (cenv.(CEnv.blk2id) fb)?;;
         v <- ccallU fn [Vint x];;
-        ccallU RepeatHdr.repeat [Vptr fb 0; Vint (n - 1); v].
+        ccallU RepeatHdr.repeat [Vptr (fb, 0%Z); Vint (n - 1); v].
 
   Definition fnsems (genv: GEnv.t) :=
     [(RepeatHdr.repeat, (scopes, cfunU (repeat (CEnv.load_genv genv: CEnv.t))))].

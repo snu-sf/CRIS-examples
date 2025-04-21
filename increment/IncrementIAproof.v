@@ -25,7 +25,8 @@ Module IncrementIA. Section IncrementIA.
   Lemma increment_simF : HSim.sim_fun open MA MI IstFull IncrementHdr.increment.
   Proof using SchInSpS.
     init_simF u_s 0.
-    steps_l. iDestruct "ASM" as "[TID [-> ->]]". rename q1 into tid, q3 into blk, q4 into ofs. hss.
+    steps_l. iDestruct "ASM" as "[TID [-> ->]]".
+    destruct q2 as [blk ofs]. rename q1 into tid. hss.
     steps_l.
     {
       rewrite /IncrementA.increment2.
