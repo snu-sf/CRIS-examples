@@ -25,8 +25,8 @@ Module SpinLockI. Section SpinLockI.
           𝒴;;; 'b_raw : val <- ccallU MemHdr.cas (x ++ [Vint 0; Vint 1]);;
           𝒴;;; 'b : Z <- (pargs [Tint] [b_raw])?;;
           𝒴;;;
-            if (decide (b = 0)) then Ret (inl tt)
-            else if (decide (b = 1)) then Ret (inr tt)
+            if (decide (b = 1)) then Ret (inl tt)
+            else if (decide (b = 0)) then Ret (inr tt)
             else triggerUB
         ) tt);;;
       𝒴;;; Ret Vundef.

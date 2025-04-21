@@ -64,7 +64,7 @@ Module IncrementIA. Section IncrementIA.
       sch_yield_l. steps_l.
 
       inline_r.
-      destruct (decide (q = q0)); first subst q.
+      destruct (decide (q0 = q)) eqn: _EQ; first subst q.
       { force_r (existT 0 (_, _, _, _)).
         steps_r. forces_r. iFrame "ASM". iSplit; eauto.
         steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss_r. steps_r.
@@ -73,7 +73,8 @@ Module IncrementIA. Section IncrementIA.
         sch_yield_r. iFrame "IST TID".
         clear nths st_s st_t; iIntros (nths st_s st_t _ _) "IST TID". steps_r.
         sch_yield_r. iFrame "IST TID".
-        clear nths st_s st_t; iIntros (nths st_s st_t _ _) "IST TID". steps_r.
+        clear nths st_s st_t; iIntros (nths st_s st_t _ _) "IST TID".
+        rewrite _EQ. steps_r.
 
         sch_yield_l. steps_l. forces_l. iFrame "TID"; iSplit; first eauto.
         steps_l. step. iFrame. done.
@@ -87,7 +88,8 @@ Module IncrementIA. Section IncrementIA.
         sch_yield_r. iFrame "IST TID".
         clear nths st_s st_t; iIntros (nths st_s st_t _ _) "IST TID". steps_r.
         sch_yield_r. iFrame "IST TID".
-        clear nths st_s st_t; iIntros (nths st_s st_t _ _) "IST TID". steps_r. sch_yield_l. steps_l.
+        clear nths st_s st_t; iIntros (nths st_s st_t _ _) "IST TID".
+        rewrite _EQ. steps_r. sch_yield_l. steps_l.
         by_coind "CIH". iFrame.
       }
     }

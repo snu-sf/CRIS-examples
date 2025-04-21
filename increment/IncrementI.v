@@ -17,12 +17,9 @@ Module IncrementI. Section IncrementI.
           𝒴;;; 's_raw : val <- ccallU MemHdr.cas [Vptr bofs; Vint v; Vint (v + 1)];;
           𝒴;;; 's : Z <- (pargs [Tint] [s_raw])?;;
           𝒴;;;
-            if (decide (s = 1))
+            if (decide (s = v))
             then Ret (inr (Vint v))
-            else
-             if (decide (s = 0))
-             then Ret (inl tt)
-             else triggerUB
+            else Ret (inl tt)
         ) ().
 
   Definition fnsems := [(IncrementHdr.increment, (scopes, cfunU increment))].
