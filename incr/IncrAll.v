@@ -30,7 +30,7 @@ Module IncrAll.
   Local Definition sp_user_s : string → option fspec :=
     to_sp (IncrAS.sp u ++ MemA.sp).
   Local Definition smod_src : SMod.t :=
-    (IncrA.Mod u) ☆ (MemA.Mod) ☆ (SchA.Mod u sp_user_s ☆ SchA_link.Mod u).
+    (IncrA.Mod u) ☆ (MemA.Mod) ☆ (SchA.Mod u sp_user_s ☆ SchAPure.Mod u).
   Local Definition sp_s : string → option fspec := sp_from smod_src.
 
   Local Definition smod_cancel : HMod.t := SModCancel.to_hmod smod_src.
@@ -95,7 +95,7 @@ Module IncrAll.
     eapply main_adequacy.
     replace (SMod.to_hmod _ (SchA.Mod u sp_user_s)) with (SchA.t u sp_s sp_user_s); cycle 1.
     { rewrite /SchA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod _ (SchA_link.Mod _)) with (SchA_link.t u sp_s); cycle 1.
+    replace (SMod.to_hmod _ (SchAPure.Mod _)) with (SchAPure.t u sp_s); cycle 1.
     { unfold_hmod; ss. }
     eapply SchIA.sim; eauto using SchInSp.
     { rewrite /sp_sub /sp_user_s /sp_s /IncrAS.sp /MemA.sp; unseal CRIS. ii; ss.

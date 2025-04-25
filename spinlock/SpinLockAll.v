@@ -44,7 +44,7 @@ Module SpinLockAll.
 
   (* the source SMod *)
   Local Definition smod_src : SMod.t :=
-    SpinLockMainA.Mod u ☆ MemA.Mod ☆ (SchA.Mod u sp_user_s ☆ SchA_link.Mod u) ☆ SpinLockA.Mod u.
+    SpinLockMainA.Mod u ☆ MemA.Mod ☆ (SchA.Mod u sp_user_s ☆ SchAPure.Mod u) ☆ SpinLockA.Mod u.
   (* the source sp *)
   Local Definition sp_s : string → option fspec :=
     sp_from smod_src.
@@ -131,7 +131,7 @@ Module SpinLockAll.
     etrans.
     { replace (SMod.to_hmod _ (SchA.Mod _ _)) with (SchA.t u sp_s sp_user_s); cycle 1.
       { unfold_hmod; ss. }
-      replace (SMod.to_hmod _ (SchA_link.Mod _)) with (SchA_link.t u sp_s); cycle 1.
+      replace (SMod.to_hmod _ (SchAPure.Mod _)) with (SchAPure.t u sp_s); cycle 1.
       { unfold_hmod; ss. }
       rewrite hmod_addc_empty_l.
       eapply SchIA.ctxr.
