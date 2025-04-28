@@ -50,10 +50,10 @@ Module CellioAll. Section CellioAll.
     destruct inputInCtx, fooInCtx. des.
     ii; rewrite -FIND /sp /sp_from /smod_src //=. des_ifs; ss; des_ifs.
     { rewrite eq_rel_dec_correct in Heq0. des_ifs.
-      rewrite /option_map. des_ifs.
+      rewrite /to_sp alist_find_map /o_map. des_ifs.
     }
     { rewrite eq_rel_dec_correct in Heq1. des_ifs.
-      rewrite /option_map. des_ifs.
+      rewrite /to_sp alist_find_map /o_map. des_ifs.
     }
   Qed.
 

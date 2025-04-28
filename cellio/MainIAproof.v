@@ -29,7 +29,7 @@ Module MainIA. Section MainIA.
     inline_r.
     (* Give cell(0) *)
     steps_r. forces_r. iSplitL ""; eauto.
-    forces_r. steps_r. forces_r. iSplitL "ASM'"; eauto.
+    forces_r. iSplitL "ASM'"; eauto.
 
     (* Call Input() simultaneously *)
     steps_r. forces_l. iSplitL "GRT"; eauto.
@@ -48,8 +48,7 @@ Module MainIA. Section MainIA.
     inline_r.
     (* Give cell(i) *)
     step_r. forces_r. iSplitL ""; eauto.
-    forces_r. steps_r. forces_r.
-    iSplitL "GRT"; eauto.
+    forces_r. iSplitL "GRT"; eauto.
 
     (* Take cell(i) *)
     steps_r. iDestruct "GRT'" as "%". subst. hss.

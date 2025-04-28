@@ -52,7 +52,7 @@ Module MutMainIA. Section MutMainIA.
     (* SRC: jump APC *)
     apc_l. steps_l. steps_r. hss. steps_r.
     forces_l. iSplitR; first done.
-    steps_l. forces_l. steps_l. forces_l. iSplitR; eauto.
+    steps_l. forces_l. iSplitR; eauto.
 
     (* SRC, TGT: prove the IST *)
     step. iSplitR "IST"; eauto.

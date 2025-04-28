@@ -40,8 +40,7 @@ Module MutGIA. Section MutGIA.
     (* destruct cases of the number of recursive call *)
     destruct q; s.
     { (* f(0) *)
-      steps_r. force_l. steps_l.
-      forces_l. iSplitR; et. steps_l. 
+      steps_r. steps_l. forces_l. iSplitR; et. steps_l.
 
       (* SRC: inlining APC *)
       inline_l. steps_l. iDestruct "ASM" as "[-> <-]"; hss. steps_l.
