@@ -33,7 +33,7 @@ Module MapI. Section MapI.
       'sz : Z <- (pargs [Tint] varg)?;;
       'hptr : val <- ccallU MemHdr.alloc [Vint sz];;
       cput v_hptr hptr;;;
-      (ITree.iter
+      (iterC
          (fun i =>
             if (Z_lt_le_dec i sz)
             then

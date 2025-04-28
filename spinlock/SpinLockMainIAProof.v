@@ -190,7 +190,7 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     revert nths. combine_quant NODS. combine_quant NODD. combine_quant st_s. combine_quant st_t.
     eapply wsim_coind.
     iIntros (g' [st_t [st_s [nths [NODS NODD]]]]) "[#I [W1 [W2 IST]]] _ #CIH /=".
-    unfold_iter_r. unfold_iter_l. steps_r.
+    unfold_iter_r. unfold_iter_l. steps_r. steps_l.
     (* tgt yield *)
     sch_yield_r.
     iSplitL "IST"; ss; clear nths st_s st_t NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST".

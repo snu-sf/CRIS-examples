@@ -11,7 +11,7 @@ Module IncrementI. Section IncrementI.
     λ arg,
       𝒴;;; bofs <- (pargs [Tptr] arg)?;;
       𝒴;;;
-        ITree.iter (λ _ : unit,
+        iterC (λ _ : unit,
           𝒴;;; 'v_raw : val <- ccallU MemHdr.load [Vptr bofs];;
           𝒴;;; 'v : Z <- (pargs [Tint] [v_raw])?;;
           𝒴;;; 's_raw : val <- ccallU MemHdr.cas [Vptr bofs; Vint v; Vint (v + 1)];;

@@ -106,14 +106,14 @@ Module SpinLockMainA. Section SpinLockMainA.
       𝒴;;; 't2 : nat <- Sch.spawn ("incr", [l; v]↑↑);;
       𝒴;;; '_ : SAny.t <- Sch.join t1;;
       𝒴;;; '_ : SAny.t <- Sch.join t2;;
-      (ITree.iter
+      (iterC
         (λ _, 𝒴;;; 'x : bool <- trigger (Choose bool);; Ret (if x then inr tt else inl tt)) tt);;;
       𝒴;;; '_ : unit <- trigger (IO "printf" 2%Z);;
       𝒴;;; Ret tt.
 
   Definition incr : list val → itree hmodE val :=
     λ _,
-      (ITree.iter (λ _,
+      (iterC (λ _,
         𝒴;;; 'x : bool <- trigger (Choose bool);;
         Ret (if x then inr tt else inl tt)
       ) tt);;;

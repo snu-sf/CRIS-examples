@@ -99,7 +99,7 @@ Module SpinLockA. Section SpinLockA.
   Definition newlock : list val → itree hmodE val := λ _, 𝒴;;; trigger (Choose val).
   Definition acquire : list val → itree hmodE val :=
     λ _,
-      (ITree.iter (λ _,
+      (iterC (λ _,
         𝒴;;; 'x : bool <- trigger (Choose bool);;
         Ret (if x then inr tt else inl tt)) tt
       );;;

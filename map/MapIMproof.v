@@ -116,7 +116,7 @@ Module MapIM. Section MapIM.
     (* prepare and start an induction *)
     replace (repeat Vundef sz) with (repeat (Vint 0) (sz-sz) ++ repeat Vundef sz); cycle 1.
     { rewrite Nat.sub_diag. eauto. }
-    rewrite // -[X in ITree.iter _ X](Z.sub_diag (sz%Z)).
+    rewrite // -[X in iterC _ X](Z.sub_diag (sz%Z)).
     iStopProof. cut (sz <= sz); [|lia].
     generalize sz at 1 4 5 10. intros n'.
     induction n'; i; iIntros "(PD & PTS)".

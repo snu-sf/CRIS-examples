@@ -25,7 +25,7 @@ Module IncrementA. Section IncrementA.
     λ arg,
       bofs <- (pargs [Tptr] arg)!;;
       𝒴;;;
-      ITree.iter (λ _ : unit,
+      iterC (λ _ : unit,
         𝒴;;;
         v <- trigger (Take Z);;
         trigger (Assume (bofs ↦ Vint v));;;
