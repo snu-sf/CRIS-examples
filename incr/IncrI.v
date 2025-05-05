@@ -26,8 +26,8 @@ Module IncrI. Section IncrI.
       𝒴;;; Ret tt.
 
   Definition fnsems :=
-    [(IncrHdr.incr, (scopes, cfunU (sfunU incr)));
-     (IncrHdr.main, (scopes, cfunU main))].
+    [(IncrHdr.incr, (wmask_all, scopes, cfunU (sfunU incr)));
+     (IncrHdr.main, (wmask_all, scopes, cfunU main))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

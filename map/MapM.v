@@ -119,10 +119,10 @@ Module MapM. Section MapM.
       ccallU MapHdr.set [Vint k; Vint v].
 
   Definition fnsems :=
-    [(MapHdr.init, (scopes, mk_specbody MapMS.init_spec (cfunU init)));
-     (MapHdr.get, (scopes, mk_specbody MapMS.get_spec (cfunU get)));
-     (MapHdr.set, (scopes, mk_specbody MapMS.set_spec (cfunU set)));
-     (MapHdr.set_by_user, (scopes, mk_specbody MapMS.set_by_user_spec (cfunU set_by_user)))].
+    [(MapHdr.init, (wmask_all, scopes, mk_specbody MapMS.init_spec (cfunU init)));
+     (MapHdr.get, (wmask_all, scopes, mk_specbody MapMS.get_spec (cfunU get)));
+     (MapHdr.set, (wmask_all, scopes, mk_specbody MapMS.set_spec (cfunU set)));
+     (MapHdr.set_by_user, (wmask_all, scopes, mk_specbody MapMS.set_by_user_spec (cfunU set_by_user)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

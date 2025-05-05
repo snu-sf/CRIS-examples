@@ -21,7 +21,7 @@ Module MutMainA. Section MutMainA.
     Seal.sealing CRIS [(MutMainHdr.main, main_spec)].
 
   Definition fnsems :=
-    [(MutMainHdr.main, (scopes, mk_specbody main_spec main_body))].
+    [(MutMainHdr.main, (wmask_all, scopes, mk_specbody main_spec main_body))].
 
   Program Definition Mod: SMod.t :=
   {|

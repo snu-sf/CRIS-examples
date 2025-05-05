@@ -47,8 +47,8 @@ Module AddA. Section AddA.
   Definition scopes := [AddHdr.mn].
 
   Definition fnsems :=
-    [(AddHdr.succ, (scopes, mk_specbody AddAS.succ_spec pure_body));
-     (AddHdr.add, (scopes, mk_specbody AddAS.add_spec pure_body))].
+    [(AddHdr.succ, (wmask_all, scopes, mk_specbody AddAS.succ_spec pure_body));
+     (AddHdr.add, (wmask_all, scopes, mk_specbody AddAS.add_spec pure_body))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

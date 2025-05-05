@@ -18,8 +18,8 @@ Module MainA. Section MainA.
       '_: unit <- trigger (IO "Print" i);;
       Ret tt↑.
   
-  Definition fnsems : alist string (list string * fspecbody) :=
-    [(MainHdr.main, (scopes, mk_specbody fspec_trivial main))].
+  Definition fnsems :=
+    [(MainHdr.main, (wmask_all, scopes, mk_specbody fspec_trivial main))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

@@ -67,9 +67,9 @@ Module CellioA. Section CellioA.
 
   Definition scopes := [CellioHdr.mn].
   
-  Definition fnsems : alist string (list string * fspecbody) :=
-    [(CellioHdr.set, (scopes, mk_specbody fspec_trivial set));
-     (CellioHdr.get, (scopes, mk_specbody fspec_trivial get))].
+  Definition fnsems :=
+    [(CellioHdr.set, (wmask_all, scopes, mk_specbody fspec_trivial set));
+     (CellioHdr.get, (wmask_all, scopes, mk_specbody fspec_trivial get))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

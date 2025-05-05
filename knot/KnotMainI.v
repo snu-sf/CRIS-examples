@@ -29,8 +29,8 @@ Module KnotMainI. Section KnotMainI.
       ccallU fn [Vint 10].
 
   Definition fnsems genv :=
-    [(KnotMainHdr.fib, (scopes, cfunU (fibF genv)));
-     (KnotMainHdr.main, (scopes, cfunU (mainF genv)))].
+    [(KnotMainHdr.fib, (wmask_all, scopes, cfunU (fibF genv)));
+     (KnotMainHdr.main, (wmask_all, scopes, cfunU (mainF genv)))].
   
   Program Definition Mod genv: PMod.t :=
   {|

@@ -26,7 +26,7 @@ Module MutFI. Section MutFI.
   .
 
   Definition fnsems :=
-    [(MutHdr.mutf, (scopes, cfunU fF))].
+    [(MutHdr.mutf, (wmask_all, scopes, cfunU fF))].
   
   Program Definition Mod: PMod.t :=
   {|

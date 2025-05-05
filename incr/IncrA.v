@@ -85,8 +85,8 @@ Module IncrA. Section IncrA.
       𝒴;;; Ret tt.
 
   Definition fnsems u :=
-    [(IncrHdr.incr, (scopes, mk_specbody (IncrAS.incr_spec u) (cfunN (sfunN incr))));
-     (IncrHdr.main, (scopes, mk_specbody (IncrAS.main_spec u) (cfunN main)))].
+    [(IncrHdr.incr, (wmask_all, scopes, mk_specbody (IncrAS.incr_spec u) (cfunN (sfunN incr))));
+     (IncrHdr.main, (wmask_all, scopes, mk_specbody (IncrAS.main_spec u) (cfunN main)))].
 
   Program Definition Mod u : SMod.t := {|
     SMod.scopes := scopes;

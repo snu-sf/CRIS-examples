@@ -26,7 +26,7 @@ Module MainI. Section MainI.
     λ _, main_repeat num_fire.
 
   Definition fnsems :=
-    [(MainHdr.main, (scopes, cfunU main))].
+    [(MainHdr.main, (wmask_all, scopes, cfunU main))].
   
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

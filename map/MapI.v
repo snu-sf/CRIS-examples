@@ -67,10 +67,10 @@ Module MapI. Section MapI.
       ccallU MapHdr.set [Vint k; Vint v].
 
   Definition fnsems :=
-    [(MapHdr.init, (scopes, cfunU init));
-     (MapHdr.get,  (scopes, cfunU get));
-     (MapHdr.set,  (scopes, cfunU set));
-     (MapHdr.set_by_user, (scopes, cfunU set_by_user))].
+    [(MapHdr.init, (wmask_all, scopes, cfunU init));
+     (MapHdr.get,  (wmask_all, scopes, cfunU get));
+     (MapHdr.set,  (wmask_all, scopes, cfunU set));
+     (MapHdr.set_by_user, (wmask_all, scopes, cfunU set_by_user))].
   
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

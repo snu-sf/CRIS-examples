@@ -22,8 +22,8 @@ Module AddI. Section AddI.
       ccallU RepeatHdr.repeat [Vptr (fb, 0%Z); Vint n; Vint m].
 
   Definition fnsems (genv: GEnv.t) :=
-    [(AddHdr.succ, (scopes, cfunU succ));
-     (AddHdr.add, (scopes, cfunU (add (CEnv.load_genv genv))))].
+    [(AddHdr.succ, (wmask_all, scopes, cfunU succ));
+     (AddHdr.add, (wmask_all, scopes, cfunU (add (CEnv.load_genv genv))))].
 
   Program Definition Mod (genv: GEnv.t) : PMod.t := {|
     PMod.scopes := scopes;

@@ -22,7 +22,7 @@ Module IncrementI. Section IncrementI.
             else Ret (inl tt)
         ) ().
 
-  Definition fnsems := [(IncrementHdr.increment, (scopes, cfunU increment))].
+  Definition fnsems := [(IncrementHdr.increment, (wmask_all, scopes, cfunU increment))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

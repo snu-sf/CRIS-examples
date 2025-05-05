@@ -24,7 +24,7 @@ Module CannonI. Section CannonI.
       Ret r.
 
   Definition fnsems :=
-    [(CannonHdr.fire, (scopes, cfunU fire))].
+    [(CannonHdr.fire, (wmask_all, scopes, cfunU fire))].
   
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

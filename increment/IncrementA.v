@@ -39,7 +39,7 @@ Module IncrementA. Section IncrementA.
     λ arg, increment2 arg.
 
   Definition fnsems u :=
-    [(IncrementHdr.increment, (scopes, mk_specbody (increment_spec u) (cfunN increment)))].
+    [(IncrementHdr.increment, (wmask_all, scopes, mk_specbody (increment_spec u) (cfunN increment)))].
 
   Program Definition Mod u : SMod.t := {|
     SMod.scopes := scopes;

@@ -149,8 +149,8 @@ Section KnotA.
   Definition scopes := ["Knot"].
 
   Definition fnsems genv SpRec SpFun :=
-    [(KnotHdr.rec, (scopes, mk_specbody rec_spec pure_body));
-     (KnotHdr.knot, (scopes, mk_specbody (knot_spec genv SpRec SpFun) fbody_trivial))].
+    [(KnotHdr.rec, (wmask_all, scopes, mk_specbody rec_spec pure_body));
+     (KnotHdr.knot, (wmask_all, scopes, mk_specbody (knot_spec genv SpRec SpFun) fbody_trivial))].
 
   Program Definition Mod genv SpRec SpFun : SMod.t :=
   {|

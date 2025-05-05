@@ -26,7 +26,7 @@ Module MutGI. Section MutGI.
   .
 
   Definition fnsems :=
-    [(MutHdr.mutg, (scopes, cfunU gF))].
+    [(MutHdr.mutg, (wmask_all, scopes, cfunU gF))].
   
   Program Definition Mod: PMod.t :=
   {|

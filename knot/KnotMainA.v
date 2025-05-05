@@ -70,8 +70,8 @@ Section KnotMainA.
   Definition scopes := ["KnotMain"].
 
   Definition fnsems genv SpRec :=
-    [(KnotMainHdr.fib, (scopes, mk_specbody (fib_spec genv SpRec) pure_body));
-     (KnotMainHdr.main, (scopes, mk_specbody main_spec main_body))].
+    [(KnotMainHdr.fib, (wmask_all, scopes, mk_specbody (fib_spec genv SpRec) pure_body));
+     (KnotMainHdr.main, (wmask_all, scopes, mk_specbody main_spec main_body))].
 
   Program Definition Mod genv SpRec : SMod.t :=
   {|

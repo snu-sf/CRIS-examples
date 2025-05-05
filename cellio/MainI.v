@@ -17,7 +17,7 @@ Module MainI. Section MainI.
       Ret tt↑.
   
   Definition fnsems :=
-    [(MainHdr.main, (scopes, main))].
+    [(MainHdr.main, (wmask_all, scopes, main))].
 
   Program Definition Mod: PMod.t := {|
     PMod.scopes := scopes;

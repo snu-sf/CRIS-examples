@@ -37,9 +37,9 @@ Module SpinLockI. Section SpinLockI.
       𝒴;;; Ret Vundef.
 
   Definition fnsems :=
-    [(SpinLockHdr.newlock, (scopes, cfunU newlock));
-     (SpinLockHdr.acquire, (scopes, cfunU acquire));
-     (SpinLockHdr.release, (scopes, cfunU release))].
+    [(SpinLockHdr.newlock, (wmask_all, scopes, cfunU newlock));
+     (SpinLockHdr.acquire, (wmask_all, scopes, cfunU acquire));
+     (SpinLockHdr.release, (wmask_all, scopes, cfunU release))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

@@ -49,7 +49,7 @@ Module RepeatA. Section RepeatA.
   Definition scopes := [RepeatHdr.mn].
 
   Definition fnsems genv sp_pure :=
-    [(RepeatHdr.repeat, (scopes, mk_specbody (RepeatAS.repeat_spec sp_pure genv) pure_body))].
+    [(RepeatHdr.repeat, (wmask_all, scopes, mk_specbody (RepeatAS.repeat_spec sp_pure genv) pure_body))].
 
   Program Definition Mod genv sp_pure : SMod.t := {|
     SMod.scopes := scopes;

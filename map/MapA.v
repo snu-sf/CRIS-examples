@@ -199,10 +199,10 @@ Module MapA. Section MapA.
       ccallN MapHdr.set [Vint k; Vint v].
 
   Definition fnsems :=
-    [(MapHdr.init, (scopes, mk_specbody MapAS.init_spec fbody_trivial));
-     (MapHdr.get, (scopes, mk_specbody MapAS.get_spec (cfunN get)));
-     (MapHdr.set, (scopes, mk_specbody MapAS.set_spec (cfunN set)));
-     (MapHdr.set_by_user, (scopes, mk_specbody MapAS.set_by_user_spec (cfunN set_by_user)))].
+    [(MapHdr.init, (wmask_all, scopes, mk_specbody MapAS.init_spec fbody_trivial));
+     (MapHdr.get, (wmask_all, scopes, mk_specbody MapAS.get_spec (cfunN get)));
+     (MapHdr.set, (wmask_all, scopes, mk_specbody MapAS.set_spec (cfunN set)));
+     (MapHdr.set_by_user, (wmask_all, scopes, mk_specbody MapAS.set_by_user_spec (cfunN set_by_user)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

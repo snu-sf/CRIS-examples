@@ -27,7 +27,7 @@ Module FaaA. Section FaaA.
         trigger (Guarantee ((b, ofs) ↦ Vint (v + 1)));;;
       𝒴;;; Ret tt.
 
-  Definition fnsems u := [(FaaHdr.faa2, (scopes, mk_specbody (faa2_spec u) (cfunN faa2)))].
+  Definition fnsems u := [(FaaHdr.faa2, (wmask_all, scopes, mk_specbody (faa2_spec u) (cfunN faa2)))].
 
   Program Definition Mod u : SMod.t := {|
     SMod.scopes := scopes;

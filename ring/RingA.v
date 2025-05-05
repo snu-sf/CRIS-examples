@@ -66,10 +66,10 @@ Module RingA. Section RingA.
   .
 
   Definition fnsems :=
-    [(RingHdr.init, (scopes,mk_specbody fspec_trivial (cfunU init)));
-     (RingHdr.get_size, (scopes,mk_specbody fspec_trivial (cfunU get_size)));
-     (RingHdr.enqueue, (scopes,mk_specbody fspec_trivial (cfunU enqueue)));
-     (RingHdr.dequeue, (scopes,mk_specbody fspec_trivial (cfunU dequeue)))].
+    [(RingHdr.init, (wmask_all, scopes,mk_specbody fspec_trivial (cfunU init)));
+     (RingHdr.get_size, (wmask_all, scopes,mk_specbody fspec_trivial (cfunU get_size)));
+     (RingHdr.enqueue, (wmask_all, scopes,mk_specbody fspec_trivial (cfunU enqueue)));
+     (RingHdr.dequeue, (wmask_all, scopes,mk_specbody fspec_trivial (cfunU dequeue)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

@@ -120,8 +120,8 @@ Module SpinLockMainA. Section SpinLockMainA.
       Ret Vundef.
 
   Definition fnsems u :=
-    [(SpinLockMainHdr.main, (scopes, mk_specbody (SpinLockMainAS.main_spec u) (cfunN main)));
-     (SpinLockMainHdr.incr, (scopes, mk_specbody (SpinLockMainAS.incr_spec u) (cfunN (sfunN incr))))].
+    [(SpinLockMainHdr.main, (wmask_all, scopes, mk_specbody (SpinLockMainAS.main_spec u) (cfunN main)));
+     (SpinLockMainHdr.incr, (wmask_all, scopes, mk_specbody (SpinLockMainAS.incr_spec u) (cfunN (sfunN incr))))].
 
   Program Definition Mod u : SMod.t := {|
     SMod.scopes := [];

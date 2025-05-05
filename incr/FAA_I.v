@@ -12,7 +12,7 @@ Module FaaI. Section FaaI.
       𝒴;;; '_ : val <- MemHdr.faa arg;;
       𝒴;;; Ret tt.
 
-  Definition fnsems := [(FaaHdr.faa2, (scopes, cfunU faa2))].
+  Definition fnsems := [(FaaHdr.faa2, (wmask_all, scopes, cfunU faa2))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

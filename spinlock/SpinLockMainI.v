@@ -37,8 +37,8 @@ Module SpinLockMainI. Section SpinLockMainI.
       𝒴;;; Ret Vundef.
 
   Definition fnsems :=
-    [(SpinLockMainHdr.main, (scopes, cfunU main));
-     (SpinLockMainHdr.incr, (scopes, cfunU (sfunU incr)))].
+    [(SpinLockMainHdr.main, (wmask_all, scopes, cfunU main));
+     (SpinLockMainHdr.incr, (wmask_all, scopes, cfunU (sfunU incr)))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

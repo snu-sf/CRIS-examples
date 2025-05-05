@@ -79,7 +79,7 @@ Module CannonA. Section CannonA.
       Ret r.
 
   Definition fnsems :=
-    [(CannonHdr.fire, (scopes, mk_specbody CannonAS.fire_spec (cfunU fire)))].
+    [(CannonHdr.fire, (wmask_all, scopes, mk_specbody CannonAS.fire_spec (cfunU fire)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

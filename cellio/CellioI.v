@@ -22,8 +22,8 @@ Module CellioI. Section CellioI.
       Ret (i:Z)↑.
 
   Definition fnsems :=
-    [(CellioHdr.set, (scopes, set));
-     (CellioHdr.get, (scopes, get))].
+    [(CellioHdr.set, (wmask_all, scopes, set));
+     (CellioHdr.get, (wmask_all, scopes, get))].
 
   Program Definition Mod: PMod.t := {|
     PMod.scopes := scopes;

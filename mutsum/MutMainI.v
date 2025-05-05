@@ -18,7 +18,7 @@ Module MutMainI. Section MutMainI.
   .
 
   Definition fnsems :=
-    [(MutMainHdr.main, (scopes, cfunU mainF))].
+    [(MutMainHdr.main, (wmask_all, scopes, cfunU mainF))].
   
   Program Definition Mod: PMod.t :=
   {|

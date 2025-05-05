@@ -30,8 +30,8 @@ Module KnotI. Section KnotI.
   .
 
   Definition fnsems genv :=
-    [(KnotHdr.rec, (scopes, cfunU (recF genv)));
-     (KnotHdr.knot, (scopes, cfunU (knotF genv)))].
+    [(KnotHdr.rec, (wmask_all, scopes, cfunU (recF genv)));
+     (KnotHdr.knot, (wmask_all, scopes, cfunU (knotF genv)))].
   
   Program Definition Mod genv : PMod.t :=
   {|

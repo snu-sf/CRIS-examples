@@ -39,10 +39,10 @@ Module CellioAll. Section CellioAll.
   Local Definition trivial_specbody body := {|fsb_fspec := fspec_trivial; fsb_body := body|}.
 
   Hypothesis ModulesWF : HMod.wf mod_tgt.
-  Hypothesis inputInCtx : ∃ sc input (SCP: incl sc CtxA.(SMod.scopes)),
-    alist_find CtxHdr.input (SMod.fnsems CtxA) = Some (sc, trivial_specbody input).
-  Hypothesis fooInCtx : ∃ sc foo (SCP: incl sc CtxA.(SMod.scopes)),
-    alist_find CtxHdr.foo (SMod.fnsems CtxA) = Some (sc, trivial_specbody foo).
+  Hypothesis inputInCtx : ∃ msk sc input (SCP: incl sc CtxA.(SMod.scopes)),
+    alist_find CtxHdr.input (SMod.fnsems CtxA) = Some (msk, sc, trivial_specbody input).
+  Hypothesis fooInCtx : ∃ msk sc foo (SCP: incl sc CtxA.(SMod.scopes)),
+    alist_find CtxHdr.foo (SMod.fnsems CtxA) = Some (msk, sc, trivial_specbody foo).
 
   Lemma lib_sp_incl: sp_incl CtxAS.sp sp.
   Proof.

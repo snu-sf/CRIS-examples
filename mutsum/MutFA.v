@@ -19,7 +19,7 @@ Module MutFA. Section MutFA.
     Seal.sealing CRIS [(MutHdr.mutf, f_spec)].
 
   Definition fnsems :=
-    [(MutHdr.mutf, (scopes, mk_specbody f_spec pure_body))].
+    [(MutHdr.mutf, (wmask_all, scopes, mk_specbody f_spec pure_body))].
 
   Program Definition Mod: SMod.t :=
   {|

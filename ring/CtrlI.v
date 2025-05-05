@@ -57,10 +57,10 @@ Module CtrlI. Section CtrlI.
   .
 
   Definition fnsems :=
-    [(RingHdr.init, (scopes, cfunU init));
-     (RingHdr.get_size, (scopes, cfunU get_size));
-     (RingHdr.enqueue, (scopes, cfunU enqueue));
-     (RingHdr.dequeue, (scopes, cfunU dequeue))].
+    [(RingHdr.init, (wmask_all, scopes, cfunU init));
+     (RingHdr.get_size, (wmask_all, scopes, cfunU get_size));
+     (RingHdr.enqueue, (wmask_all, scopes, cfunU enqueue));
+     (RingHdr.dequeue, (wmask_all, scopes, cfunU dequeue))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;

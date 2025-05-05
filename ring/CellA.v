@@ -126,9 +126,9 @@ Module CellA. Section CellA.
   (* Scopes *)
   Definition scopes := [CellHdr.mn idx].
 
-  Definition fnsems : alist string (list string * fspecbody) :=
-    [(CellHdr.get idx, ([], mk_specbody (CellAS.get_spec idx) fbody_trivial));
-     (CellHdr.set idx, ([], mk_specbody (CellAS.set_spec idx) fbody_trivial))].
+  Definition fnsems :=
+    [(CellHdr.get idx, (wmask_all, scopes, mk_specbody (CellAS.get_spec idx) fbody_trivial));
+     (CellHdr.set idx, (wmask_all, scopes, mk_specbody (CellAS.set_spec idx) fbody_trivial))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

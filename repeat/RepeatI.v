@@ -21,7 +21,7 @@ Module RepeatI. Section RepeatI.
         ccallU RepeatHdr.repeat [Vptr (fb, 0%Z); Vint (n - 1); v].
 
   Definition fnsems (genv: GEnv.t) :=
-    [(RepeatHdr.repeat, (scopes, cfunU (repeat (CEnv.load_genv genv: CEnv.t))))].
+    [(RepeatHdr.repeat, (wmask_all, scopes, cfunU (repeat (CEnv.load_genv genv: CEnv.t))))].
 
   Program Definition Mod (genv: GEnv.t) : PMod.t := {|
     PMod.scopes := scopes;

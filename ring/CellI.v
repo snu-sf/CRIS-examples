@@ -28,8 +28,8 @@ Module CellI. Section CellI.
       Ret ().
 
   Definition fnsems :=
-    [(CellHdr.get idx, (scopes, cfunU get));
-     (CellHdr.set idx, (scopes, cfunU set))].
+    [(CellHdr.get idx, (wmask_all, scopes, cfunU get));
+     (CellHdr.set idx, (wmask_all, scopes, cfunU set))].
 
   Program Definition Mod : PMod.t := {|
     PMod.scopes := scopes;
