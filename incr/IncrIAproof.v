@@ -252,7 +252,9 @@ Section ctxr.
       (IncrA.t u_s sp_s          ★ (MemA.t sp_mem), emp%I)
       (IncrI.t ★ FaaA.t u_t sp_t ★ (MemA.t sp_mem), emp%I).
   Proof.
-    ctxr_norm. ctxr_grp.
+    etrans; cycle 1. { do 2 ctxr_rotate. ctxr_refl. }
+    eset (GRP := IncrI.t ★ _).
+    etrans; cycle 1. { ctxr_rotate. ctxr_refl. }
     eapply main_adequacy, sim; try solve_sch_sp; eauto.
   Qed.
 End ctxr. End IncrIA.
