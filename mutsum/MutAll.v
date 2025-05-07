@@ -45,42 +45,46 @@ Module MutAll.
   Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
   Proof.
     eapply ctxr_refines.
-    unfold mod_src, mod_tgt. rewrite !add_interp_comm.
-    do 2 rewrite -hmod_add_assoc.
-    etrans. { eapply ctxr_comm. }
-    etrans.
-    { rewrite -hmod_addc_empty_l. eapply ctxr_cond_frameR.
-      replace (SMod.to_hmod sp APCC.Mod) with (APCC.t sp); cycle 1.
-      { unfold APCC.t. unseal CRIS. ss. }
-      eapply APCAC.ctxr.
-      { instantiate (1:=sp). prove_sp. }
-      { instantiate (1:=sp_pure). prove_sp. } 
-      { prove_sp. }
+    rewrite /mod_src /mod_tgt !add_interp_comm.
+
+    (* abstraction of APCI to APCA *)
+    etrans; cycle 1.
+    { do 3 ctxr_drop.
+      eapply APCIA.ctxr.
     }
-    etrans. { eapply ctxr_comm. }
-    rewrite !hmod_add_assoc. rewrite -(hmod_add_assoc (SMod.to_hmod sp MutFA.Mod)).
-    etrans.
-    { eapply ctxr_compose_mix.
-      { replace (SMod.to_hmod sp MutMainA.Mod) with (MutMainA.t sp); cycle 1.
-        { unfold MutMainA.t. unseal CRIS. ss. }
-        eapply MutMainIA.ctxr; prove_sp.
-      }
-      { replace (SMod.to_hmod sp MutFA.Mod) with (MutFA.t sp); cycle 1.
-        { unfold MutFA.t. unseal CRIS. ss. }
-        replace (SMod.to_hmod sp MutGA.Mod) with (MutGA.t sp); cycle 1.
-        { unfold MutGA.t. unseal CRIS. ss. }
-        rewrite !hmod_add_assoc.
-        etrans.
-        { eapply ctxr_compose_mix.
-          { eapply MutFIA.ctxr; prove_sp. }
-          { eapply MutGIA.ctxr; prove_sp. }
-        }
-        rewrite hmod_addc_empty_l -hmod_add_assoc. refl.
-      }
+
+    (* abstraction of MutF *)
+    etrans; cycle 1.
+    { ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
+      eapply MutFIA.ctxr with (Sp:=sp) (SpPure:=sp_pure); try prove_sp.
     }
-    rewrite hmod_addc_empty_l -!hmod_add_assoc.
-    eapply ctxr_frameL.
-    eapply APCIA.ctxr.
+
+    (* abstraction of MutG *)
+    etrans; cycle 1.
+    { ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
+      eapply MutGIA.ctxr with (Sp:=sp) (SpPure:=sp_pure); try prove_sp.
+    }
+
+    (* abstraction of MutMain *)
+    etrans; cycle 1.
+    { ctxr_rotate. do 2 ctxr_drop. ctxr_rotate.
+      eapply MutMainIA.ctxr with (Sp:=sp) (SpPure:=sp_pure); try prove_sp.
+    }
+    
+    (* abstraction of APCA to APCC *)
+    etrans; cycle 1.
+    { do 2 ctxr_rotate. ctxr_drop. eapply APCAC.ctxr.
+      - prove_sp.
+      - prove_sp.
+      - rewrite /MutFA.t /MutGA.t. unseal CRIS. prove_sp.
+    }
+
+    etrans; cycle 1.
+    { ctxr_swap. ctxr_rotate. ctxr_refl. }
+
+    rewrite /MutMainA.t /MutFA.t /MutGA.t /APCC.t. unseal CRIS.
+    eapply ctxr_cond_strengthen.
+    iIntros "[? ?]". iFrame.
   (*SLOW*)Qed.
 
   Lemma cancel_tgt :

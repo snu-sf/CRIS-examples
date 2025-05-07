@@ -90,55 +90,52 @@ Module SpinLockAll.
   Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
   Proof.
     apply ctxr_refines.
-    rewrite /mod_src /smod_src /mod_tgt /init_cond ?add_interp_comm.
-    etrans.
-    { do 2 eapply ctxr_frameL. eapply ctxr_comm. }
-    do 2 rewrite -hmod_add_assoc.
-    etrans.
-    { eapply ctxr_frameR.
-      replace (SMod.to_hmod _ (SpinLockMainA.Mod _)) with (SpinLockMainA.t u sp_s); cycle 1.
-      { unfold_hmod; ss. }
-      replace (SMod.to_hmod _ (MemA.Mod)) with (MemA.t sp_s); cycle 1.
-      { unfold_hmod; ss. }
-      replace (SMod.to_hmod _ (SpinLockA.Mod _)) with (SpinLockA.t u sp_s); cycle 1.
-      { unfold_hmod; ss. }
-      rewrite hmod_add_assoc -hmod_addc_empty_l.
-      etrans; first eapply ctxr_cond_frameR.
-      { eapply SpinLockMainIA.ctxr; eauto.
-        { apply SchInSp. }
-        { apply MainInSp. }
-        { apply MemInSp. }
-      }
-      rewrite hmod_addc_empty_l. refl.
+    rewrite /mod_src /smod_src /mod_tgt /init_cond !add_interp_comm.
+
+    (* abstraction of Sch *)
+    etrans; cycle 1.
+    { do 3 ctxr_rotate. do 3 ctxr_drop.
+      eapply main_adequacy, SchIA.sim.
+      - apply SchInSp.
+      - rewrite /sp_sub /sp_user_s /sp_s /SpinLockMainAS.sp /MemA.sp; unseal CRIS.
+        ii; ss. des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
     }
-    rewrite hmod_add_assoc. eapply ctxr_frameL.
-    etrans.
-    { eapply ctxr_frameR. rewrite -hmod_addc_empty_l. eapply ctxr_cond_frameR.
-      etrans; first eapply ctxr_comm.
-      eapply SpinLockIA.ctxr.
-      { apply SchInSp. }
-      { apply MemInSp. }
-    }
-    rewrite hmod_add_assoc.
-    etrans; first eapply ctxr_comm. rewrite -hmod_add_assoc.
-    etrans.
-    { do 2 eapply ctxr_frameR.
-      rewrite hmod_addc_empty_l. eapply ctxr_frameR, ctxr_cond_frameR. eapply MemIA.ctxr.
+
+    (* abstraction of Mem *)
+    etrans; cycle 1.
+    { do 3 ctxr_rotate. do 3 ctxr_drop.
+      eapply MemIA.ctxr.
       apply MemInSp.
     }
-    rewrite -hmod_add_assoc. eapply ctxr_frameR.
-    rewrite hmod_add_assoc. eapply ctxr_frameL.
-    etrans.
-    { replace (SMod.to_hmod _ (SchA.Mod _ _)) with (SchA.t u sp_s sp_user_s); cycle 1.
-      { unfold_hmod; ss. }
-      replace (SMod.to_hmod _ (SchAPure.Mod _)) with (SchAPure.t u sp_s); cycle 1.
-      { unfold_hmod; ss. }
-      rewrite hmod_addc_empty_l.
-      eapply SchIA.ctxr.
-      { apply SchInSp. }
-      { apply UserInSp. }
+
+    (* abstraction of SpinLock *)
+    etrans; cycle 1.
+    { ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
+      eapply SpinLockIA.ctxr.
+      - apply SchInSp.
+      - apply MemInSp.
     }
-    refl.
+    
+    (* abstraction of SpinLockMain *)
+    etrans; cycle 1.
+    { ctxr_drop. ctxr_rotate. ctxr_swap. do 2 ctxr_rotate.
+      eapply SpinLockMainIA.ctxr.
+      - apply SchInSp.
+      - apply MainInSp.
+      - apply MemInSp.
+    }
+
+    etrans; cycle 1.
+    { do 2 ctxr_rotate. ctxr_swap. do 3 ctxr_rotate. ctxr_swap. ctxr_rotate.
+      ctxr_refl. }
+    
+    rewrite /SchIAproof.SchIA.SchAMod.
+    rewrite /SchIAproof.SchIA.SchA /SchIAproof.SchIA.SchAPure.
+    rewrite /SchA.t /SchAPure.t /SpinLockA.t /SpinLockMainA.t /MemA.t.
+    unseal CRIS.
+    
+    eapply ctxr_cond_strengthen.
+    { iIntros "[? ?]". iFrame. }
   (*SLOW*)Qed.
 
   (* source HMod ⊆ source SMod ⊆ cancelled HMod *)

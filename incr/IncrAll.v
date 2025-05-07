@@ -35,8 +35,12 @@ Module IncrAll.
 
   Local Definition smod_cancel : HMod.t := SModCancel.to_hmod smod_src.
   Local Definition mod_src : HMod.t := SMod.to_hmod sp_s smod_src.
-  Local Definition mod_tgt : HMod.t := (IncrI.t ★ FaaI.t) ★ (MemI.t csl genv) ★ (SchI.t).
+  Local Definition mod_tgt : HMod.t := IncrI.t ★ FaaI.t ★ (MemI.t csl genv) ★ (SchI.t).
 
+  Local Definition SchInSp0: sp_incl (SchAS.sp 0 (to_sp [])) (to_sp (SchAS.sp 0 (to_sp []))).
+  Proof.
+    split; [|refl]. rewrite /SchAS.sp; unseal CRIS. prove_nodup.
+  Qed.
   Local Definition SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s.
   Proof.
     ii; rewrite /sp_s /SchAS.sp /MemA.sp /IncrAS.sp; unseal CRIS; split; [prove_nodup|ii].
@@ -65,42 +69,54 @@ Module IncrAll.
   (* Refinement between spec/impl of whole program (linked module) *)
   Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
   Proof.
-    hexploit (IncrIA.ctxr u 0 sp_s (to_sp (SchAS.sp 0 (to_sp []))) sp_user_s sp_s).
-    all: eauto using SchInSp, MainInSp, MemInSp.
-    { rewrite /SchAS.sp; unseal CRIS. split; ii; ss. prove_nodup. }
-    i; eapply ctxr_refines.
-    rewrite -[(mod_src, _)]hmod_addc_empty_l.
-    rewrite -[(mod_tgt, _)]hmod_addc_empty_r.
-    rewrite /mod_src /mod_tgt ?add_interp_comm /init_cond.
-    rewrite -?hmod_add_assoc. rewrite hmod_add_assoc.
-    rewrite assoc. eapply ctxr_compose_hor.
-    { etrans.
-      { eapply ctxr_cond_frameR.
-        replace (SMod.to_hmod _ (IncrA.Mod u)) with (IncrA.t u sp_s); cycle 1.
-        { rewrite /IncrA.t; unseal CRIS; ss. }
-        replace (SMod.to_hmod _ MemA.Mod) with (MemA.t sp_s); cycle 1.
-        { rewrite /MemA.t; unseal CRIS; ss. }
-        eauto.
-      }
-      { rewrite ?hmod_add_assoc. eapply ctxr_frameL.
-        etrans.
-        { eapply ctxr_cond_frameR. eapply main_adequacy, FaaIA.sim. instantiate (1:=to_sp []).
-          rewrite /SchAS.sp; unseal CRIS. split; ii; ss. prove_nodup.
-        }
-        etrans.
-        { eapply ctxr_cond_frameL, ctxr_frameL, MemIA.ctxr. eauto using MemInSp. }
-        { eapply ctxr_cond_strengthen; eauto. }
-      }
+    eapply ctxr_refines.
+    rewrite /mod_src /mod_tgt /smod_src !add_interp_comm.
+
+    (* abstraction of Sch *)
+    etrans; cycle 1.
+    { do 3 ctxr_drop.
+      eapply main_adequacy, SchIA.sim.
+      - apply SchInSp.
+      - rewrite /sp_sub /sp_user_s /sp_s /IncrAS.sp /MemA.sp; unseal CRIS.
+        ii; ss. des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
     }
-    eapply main_adequacy.
-    replace (SMod.to_hmod _ (SchA.Mod u sp_user_s)) with (SchA.t u sp_s sp_user_s); cycle 1.
-    { rewrite /SchA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod _ (SchAPure.Mod _)) with (SchAPure.t u sp_s); cycle 1.
-    { unfold_hmod; ss. }
-    eapply SchIA.sim; eauto using SchInSp.
-    { rewrite /sp_sub /sp_user_s /sp_s /IncrAS.sp /MemA.sp; unseal CRIS. ii; ss.
-      des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
+
+    (* abstraction of Mem *)
+    etrans; cycle 1.
+    { do 3 ctxr_rotate. do 3 ctxr_drop.
+      eapply MemIA.ctxr.
+      apply MemInSp.
     }
+
+    (* abstraction of Faa *)
+    etrans; cycle 1.
+    { do 2 ctxr_drop.
+      eapply main_adequacy, FaaIA.sim.
+      apply SchInSp0.
+    }
+    rewrite /FAA_IAproof.FaaIA.MA.
+    
+    (* abstraction of Incr *)
+    etrans; cycle 1.
+    { ctxr_drop.
+      eapply IncrIA.ctxr.
+      - apply SchInSp.
+      - apply SchInSp0.
+      - apply MainInSp.
+      - apply MemInSp.
+      - unfold u. nia.
+    }
+
+    etrans; cycle 1.
+    { ctxr_rotate. ctxr_refl. }
+    
+    rewrite /SchIAproof.SchIA.SchAMod.
+    rewrite /SchIAproof.SchIA.SchA /SchIAproof.SchIA.SchAPure.
+    rewrite /SchA.t /SchAPure.t /IncrA.t /MemA.t.
+    unseal CRIS.
+    
+    eapply ctxr_cond_strengthen.
+    { iIntros "[? ?]". iFrame. }
   (*SLOW*)Qed.
 
   Lemma cancel_tgt :

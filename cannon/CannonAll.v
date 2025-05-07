@@ -39,20 +39,22 @@ Module CannonAll.
   (* Refinement between spec/impl of whole program (linked module) *)
   Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
   Proof.
-    eapply ctxr_refines. 
-    rewrite -[(mod_tgt, _)]hmod_addc_empty_r.
-    unfold mod_src, mod_tgt. rewrite add_interp_comm.
-    eapply ctxr_compose_hor.
-    { replace (SMod.to_hmod _ CannonA.Mod) with (CannonA.t sp); cycle 1.
-      { unfold CannonA.t. unseal CRIS. ss. }
-      eapply CannonIA.ctxr.
-    }
-    { replace (SMod.to_hmod _ (MainA.Mod 1)) with (MainA.t 1 sp); cycle 1.
-      { unfold MainA.t. unseal CRIS. ss. }
-      eapply CannonMainIA.ctxr.
-      i. rewrite /CannonAS.Sp. unseal CRIS. econs; first prove_nodup.
+    eapply ctxr_refines.
+    rewrite /mod_src /mod_tgt /smod_src add_interp_comm.
+
+    etrans; cycle 1.
+    { ctxr_rotate. ctxr_drop. eapply CannonIA.ctxr. }
+
+    etrans; cycle 1.
+    { ctxr_rotate. ctxr_drop. eapply CannonMainIA.ctxr.
+      instantiate (1:=sp).
+      rewrite /CannonAS.Sp. unseal CRIS. econs; first prove_nodup.
       ii; rewrite -FIND /sp /sp_from /smod_src //=; des_ifs; ss; des_ifs.
     }
+
+    rewrite /CannonA.t /MainA.t /init_cond. unseal CRIS. 
+    eapply ctxr_cond_strengthen.
+    iIntros "[? ?]". et.
   (*SLOW*)Qed.
 
   Lemma cancel_tgt :

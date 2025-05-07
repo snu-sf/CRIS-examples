@@ -11,13 +11,13 @@ Module IncrIA. Section IncrIA.
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
-  Context (u_s u_t : univ_id).
+  Context (u_s: univ_id).
   Context `{UGT: u_s > u_t}.
-  Context (sp_s sp_t sp_user_s sp_mem : string → option fspec).
+  Context (sp_s sp_t sp_user_s sp_user_t sp_mem : string → option fspec).
   Context (SchInSpS : sp_incl (SchAS.sp u_s sp_user_s) sp_s).
+  Context (SchInSpT : sp_incl (SchAS.sp u_t sp_user_t) sp_t).
   Context (MemInSp : sp_incl MemA.sp sp_s).
   Context (MainInSp : sp_incl (IncrAS.sp u_s) sp_user_s).
-  Context (SchInSpT : sp_incl (SchAS.sp u_t (to_sp [])) sp_t).
 
   Local Definition MemA := (MemA.t sp_mem).
   Local Definition IncrA := (IncrA.t u_s sp_s).
@@ -242,14 +242,17 @@ Section ctxr.
   Context `{_schG: !schG}.
   Context `{_incrG: !incrG}.
 
-  Definition ctxr (u_s u_t : univ_id) (sp_s sp_t sp_user_s sp_mem : string → option fspec)
+  Definition ctxr (u_s u_t : univ_id) (sp_s sp_t sp_user_s sp_user_t sp_mem : string → option fspec)
       (SchInSpS : sp_incl (SchAS.sp u_s sp_user_s) sp_s)
-      (SchInSpT : sp_incl (SchAS.sp u_t (to_sp [])) sp_t)
+      (SchInSpT : sp_incl (SchAS.sp u_t sp_user_t) sp_t)
       (MainInSp : sp_incl (IncrAS.sp u_s) sp_user_s)
       (MemInSp : sp_incl MemA.sp sp_s)
       (Univ : u_s > u_t) :
     ctx_refines
-      ((IncrA.t u_s sp_s)            ★ (MemA.t sp_mem), emp%I)
-      ((IncrI.t ★ FaaA.t u_t sp_t)   ★ (MemA.t sp_mem), emp%I).
-  Proof. eapply main_adequacy, sim; try solve_sch_sp; eauto. Qed.
+      (IncrA.t u_s sp_s          ★ (MemA.t sp_mem), emp%I)
+      (IncrI.t ★ FaaA.t u_t sp_t ★ (MemA.t sp_mem), emp%I).
+  Proof.
+    ctxr_norm. ctxr_grp.
+    eapply main_adequacy, sim; try solve_sch_sp; eauto.
+  Qed.
 End ctxr. End IncrIA.

@@ -32,7 +32,7 @@ Module KnotAll.
   Local Definition sp_fun : string → option fspec :=
     to_sp (KnotMainA.MainFunSp genv sp_rec).
   Local Definition sp_pure : string → option fspec :=
-    to_sp (KnotA.KnotRecSp ++ (KnotMainA.MainFunSp genv sp_rec)).
+    to_sp ((KnotMainA.MainFunSp genv sp_rec) ++ KnotA.KnotRecSp).
 
   Local Definition smod_src : SMod.t :=
     (KnotMainA.Mod genv sp_rec) ☆ (KnotA.Mod genv sp_rec sp_fun)
@@ -74,47 +74,49 @@ Module KnotAll.
   Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
   Proof.
     eapply ctxr_refines.
-    unfold mod_src, mod_tgt. rewrite !add_interp_comm.
+    rewrite /mod_src /mod_tgt !add_interp_comm.
 
-    replace (SMod.to_hmod sp (KnotMainA.Mod _ _)) with (KnotMainA.t genv sp_rec sp); cycle 1.
-    { unfold KnotMainA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod sp (KnotA.Mod _ _ _)) with (KnotA.t genv sp_rec sp_fun sp); cycle 1.
-    { unfold KnotA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod sp MemA.Mod) with (MemA.t sp); cycle 1.
-    { unfold MemA.t; unseal CRIS; ss. }
-    replace (SMod.to_hmod sp APCC.Mod) with (APCC.t sp); cycle 1.
-    { unfold APCC.t; unseal CRIS; ss. }
+    (* abstraction of Mem *)
+    etrans; cycle 1.
+    { do 3 ctxr_rotate. do 3 ctxr_drop.
+      eapply MemIA.ctxr.
+      instantiate (1:=sp). prove_sp.
+    }
 
-    rewrite -!hmod_add_assoc.
-    etrans. { eapply ctxr_comm. }
-    etrans. 
-    { rewrite !hmod_add_assoc. rewrite -hmod_addc_empty_l. eapply ctxr_cond_frameR.
+    (* abstraction of APCI to APCA *)
+    etrans; cycle 1.
+    { ctxr_rotate. do 3 ctxr_drop.
+      eapply APCIA.ctxr.
+    }
+
+    (* abstraction of Knot *)
+    etrans; cycle 1.
+    { ctxr_drop.
+      eapply KnotIA.ctxr with (Sp:=sp) (SpPure:=sp_pure) (SpRec:=sp_rec) (SpFun:=sp_fun); try prove_sp.
+      rewrite /genv /incl; ss. i; des; ss; tauto.
+    }
+
+    (* abstraction of KnotMain *)
+    etrans; cycle 1.
+    { ctxr_norm. eapply KnotMainIA.ctxr; try prove_sp.
+      rewrite /genv /incl; ss. i; des; ss; tauto.
+    }
+
+    (* abstraction of APCA to APCC *)
+    etrans; cycle 1.
+    { do 2 ctxr_rotate. ctxr_drop.
       eapply APCAC.ctxr.
-      { instantiate (1:=sp). prove_sp. }
-      { instantiate (1:=sp_pure). prove_sp. }
-      { prove_sp; rewrite /KnotMainA.t /KnotA.t /= alist_find_map_snd /o_map; unseal CRIS; ss. }
+      - prove_sp.
+      - prove_sp.
+      - rewrite /KnotMainA.t /KnotA.t. unseal CRIS. prove_sp.
     }
-    rewrite !hmod_add_assoc.
-    etrans. { eapply ctxr_comm. }
-    etrans.
-    { rewrite !hmod_add_assoc hmod_addc_empty_l /init_cond.
-      eapply ctxr_cond_frameR.
-      eapply KnotMainIA.ctxr; try prove_sp.
-      rewrite /genv /incl; ss. i; des; ss; tauto.
-    }
-    eapply ctxr_frameL.
-    etrans.
-    { rewrite hmod_addc_empty_l.
-      eapply ctxr_cond_frameR.
-      eapply KnotIA.ctxr; try prove_sp.
-      rewrite /genv /incl; ss. i; des; ss; tauto.
-    }
-    eapply ctxr_frameL. unfold KnotIAproof.KnotIA.MemA.
-    rewrite hmod_addc_empty_l.
-    rewrite -hmod_addc_empty_r -[(MemI.t csl genv ★ _, emp%I)]hmod_addc_empty_r.
-    eapply ctxr_compose_hor.
-    { eapply MemIA.ctxr; prove_sp. }
-    { eapply APCIA.ctxr; prove_sp. }
+
+    etrans; cycle 1.
+    { do 2 ctxr_rotate. ctxr_refl. }
+
+    rewrite /KnotMainA.t /KnotA.t /MemA.t /APCC.t. unseal CRIS.
+    eapply ctxr_cond_strengthen.
+    iIntros "[? [? ?]]". iFrame.
   (*SLOW*)Qed.
 
   Lemma cancel_tgt :
