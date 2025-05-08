@@ -17,7 +17,7 @@ Module MutAll.
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof. solve_ir_valid. Qed.
 
-  Local Definition smod_src : SMod.t := MutMainA.Mod ☆ MutFA.Mod ☆ MutGA.Mod ☆ APCC.Mod.
+  Local Definition smod_src : SMod.t := MutMainA.Mod false ☆ MutFA.Mod ☆ MutGA.Mod ☆ APCC.Mod.
   Local Definition sp : string → option fspec := sp_from smod_src.
 
   Local Definition smod_pure : SMod.t := MutFA.Mod ☆ MutGA.Mod.
@@ -79,8 +79,14 @@ Module MutAll.
       - rewrite /MutFA.t /MutGA.t. unseal CRIS. prove_sp.
     }
 
+    (* elimination of pure call *)
     etrans; cycle 1.
-    { ctxr_swap. ctxr_rotate. ctxr_refl. }
+    { do 2 ctxr_rotate. do 2 ctxr_drop.
+      eapply MutMainIA.ctxr_close with (Sp:=sp) (SpPure:=sp_pure); try prove_sp.
+    }
+
+    etrans; cycle 1.
+    { do 2 ctxr_rotate. ctxr_swap. ctxr_rotate. ctxr_refl. }
 
     rewrite /MutMainA.t /MutFA.t /MutGA.t /APCC.t. unseal CRIS.
     eapply ctxr_cond_strengthen.

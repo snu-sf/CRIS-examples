@@ -35,7 +35,7 @@ Module KnotAll.
     to_sp ((KnotMainA.MainFunSp genv sp_rec) ++ KnotA.KnotRecSp).
 
   Local Definition smod_src : SMod.t :=
-    (KnotMainA.Mod genv sp_rec) ☆ (KnotA.Mod genv sp_rec sp_fun)
+    (KnotMainA.Mod false genv sp_rec) ☆ (KnotA.Mod genv sp_rec sp_fun)
     ☆ MemA.Mod ☆ APCC.Mod.
   Local Definition sp : string → option fspec := sp_from smod_src.
 
@@ -111,8 +111,15 @@ Module KnotAll.
       - rewrite /KnotMainA.t /KnotA.t. unseal CRIS. prove_sp.
     }
 
+    (* elimination of pure call *)
     etrans; cycle 1.
-    { do 2 ctxr_rotate. ctxr_refl. }
+    { do 3 ctxr_rotate. do 2 ctxr_drop. ctxr_rotate.
+      eapply KnotMainIA.ctxr_close with (Sp:=sp) (SpPure:=sp_pure); try prove_sp.
+      rewrite /genv /incl; ss. i; des; ss; tauto.
+    }    
+
+    etrans; cycle 1.
+    { do 2 ctxr_rotate. ctxr_swap. ctxr_rotate. ctxr_refl. }
 
     rewrite /KnotMainA.t /KnotA.t /MemA.t /APCC.t. unseal CRIS.
     eapply ctxr_cond_strengthen.

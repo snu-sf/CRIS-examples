@@ -1,7 +1,7 @@
 Require Import CRIS.
 
 Require Import KnotHeader KnotMainHeader KnotMainI KnotMainA KnotA KnotI KnotIAproof.
-Require Import APCHeader APC APCA APCTactics.
+Require Import APCHeader APC APCA APCC APCTactics.
 
 Set Implicit Arguments.
 
@@ -33,7 +33,7 @@ Module KnotMainIA. Section KnotMainIA.
   Local Definition MemA := (MemA.t Sp).
   Local Definition KnotA := (KnotA.t genv SpRec SpFun Sp).
   Local Definition KnotAMod := (KnotA ★ MemA ★ APCA).
-  Local Definition KnotMainA := (KnotMainA.t genv SpRec Sp).
+  Local Definition KnotMainA := (KnotMainA.t true genv SpRec Sp).
   Local Definition KnotMainI := (KnotMainI.t genv).
   Local Definition KnotMainAMod := (KnotMainA ★ KnotAMod).
   Local Definition KnotMainIMod := (KnotMainI ★ KnotAMod).
@@ -181,25 +181,10 @@ Module KnotMainIA. Section KnotMainIA.
     - eapply simF_fib; et.
     - eapply simF_main; et.
   Qed.
-End KnotMainIA.
 
-Section ctxr.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_memG: !memG}.
-  Context `{_knotG: !knotG}.
-  
-  Theorem ctxr (genv: GEnv.t)
-    (SpRec SpFun SpPure Sp: string -> option fspec)
-    (GEnvWF: GEnv.wf genv)
-    (GEnvIncl: incl KnotMainGEnv.t genv)
-    (MainInFun: sp_incl (KnotMainA.MainFunSp genv SpRec) SpFun)
-    (KnotInSp: sp_incl KnotA.KnotRecSp Sp)
-    (APCInSp: sp_incl APCA.Sp Sp)
-    (RecInSpPure: sp_sub SpRec SpPure)
-    (PureInGlobal : sp_sub SpPure Sp)
-  :
+  Theorem ctxr :
     ctx_refines
-      (KnotMainA.t genv SpRec Sp
+      (KnotMainA.t true genv SpRec Sp
         ★ KnotA.t genv SpRec SpFun Sp
         ★ MemA.t Sp
         ★ APCA.t SpPure Sp,
@@ -210,4 +195,34 @@ Section ctxr.
         ★ APCA.t SpPure Sp,
       emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
-End ctxr. End KnotMainIA.
+
+  Theorem ctxr_close:
+    ctx_refines
+      (KnotMainA.t false genv SpRec Sp ★ APCC.t Sp, emp%I)
+      (KnotMainA.t true  genv SpRec Sp ★ APCC.t Sp, emp%I).
+  Proof using _sinvG _memG APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
+    eapply main_adequacy with (Ist := IstProd (IstSB _ IstEq) (IstSB _ IstEq)).
+    init_sim.
+    { iIntros "_". iPureIntro. eexists [],[],[],[]. esplits; ii; ss. }
+    { ii. revert FIND. alist_find_simpl. i. depdes FIND.
+      alist_find_simpl. esplits; et.
+      eapply isim_reflL; cycle 1.
+      - refl.
+      - i. iIntros "[% ->]". et.
+      - i. iIntros "[% ->]". des. iPureIntro.
+        esplits; et; rewrite state_scopes_update; et.
+      - instantiate (1:=[]). prove_nodup.
+    }
+    { init_simF.
+      steps_l. hss. iDestruct "ASM" as "((% & H) & %)". hss.
+      force_r (). forces_r. iSplitL "H";  et.
+      rewrite /pure. hss. steps_r. inline_r. forces_r.
+      iDestruct "GRT" as "(% & %)". hss. iSplitR; et.
+      steps_r. forces_r. iSplitR; et.
+      steps_r. forces_l. iSplitR; et. step.
+      iDestruct "GRT'" as "[% ?]". et.
+    }
+  Unshelve. all: et.
+  (*SLOW*)Qed.
+
+End KnotMainIA. End KnotMainIA.

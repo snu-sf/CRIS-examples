@@ -1,6 +1,4 @@
 Require Import CRIS.
-
-Require Import NormITree.
 Require Import MutHeader MutGI MutGA MutFA.
 Require Import APCHeader APC APCA APCTactics.
 

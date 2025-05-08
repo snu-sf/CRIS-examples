@@ -6,16 +6,18 @@ Set Implicit Arguments.
 Module MutMainA. Section MutMainA.
   Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
 
+  Variable with_pure: bool.
+  
   Definition scopes := ["MutMain"].
 
   Definition main_body : Any.t → itree hmodE Any.t :=
-    λ _, pure;;; trigger (Choose Any.t).
+    λ _, (if with_pure then pure else Ret ()↑);;; Ret (Vint 55)↑.
 
   Definition main_spec: fspec :=
     fspec_simple
       (fun (_: unit) =>
         ((λ varg, (⌜varg = tt↑⌝)%I),
-         (λ vret, (⌜vret = (Vint 55)↑⌝)%I))).
+          (λ vret, (⌜True⌝)%I))).
 
   Definition Sp: alist string fspec :=
     Seal.sealing CRIS [(MutMainHdr.main, main_spec)].

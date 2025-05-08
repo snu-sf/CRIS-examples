@@ -52,14 +52,11 @@ Section KnotMainAS.
     Seal.sealing CRIS
       [(KnotMainHdr.fib, fib_spec)].
 
-  Definition main_body: Any.t → itree hmodE Any.t :=
-    λ _, pure;;; trigger (Choose _).
-
   Definition main_spec: fspec :=
     fspec_simple
       (fun '() =>
         ((fun varg => (⌜varg = tt↑⌝ ∗ knot_init)%I),
-         (fun vret => (⌜vret = (Vint (Z.of_nat (Fib 10)))↑⌝)%I))).
+         (fun vret => emp%I))).
 
   Definition MainSp : alist string fspec :=
     Seal.sealing CRIS
@@ -69,9 +66,14 @@ End KnotMainAS.
 Section KnotMainA.
   Definition scopes := ["KnotMain"].
 
+  Variable with_pure: bool.  
+  
+  Definition main_body: () → itree hmodE val :=
+    λ _, (if with_pure then pure else Ret ()↑);;; Ret (Vint (Z.of_nat (Fib 10))).
+
   Definition fnsems genv SpRec :=
     [(KnotMainHdr.fib, (wmask_all, scopes, mk_specbody (fib_spec genv SpRec) pure_body));
-     (KnotMainHdr.main, (wmask_all, scopes, mk_specbody main_spec main_body))].
+     (KnotMainHdr.main, (wmask_all, scopes, mk_specbody main_spec (cfunU main_body)))].
 
   Program Definition Mod genv SpRec : SMod.t :=
   {|

@@ -2,7 +2,7 @@ Require Import CRIS.
 
 Require Import MutFA MutGA.
 Require Import MutHeader MutMainHeader MutMainI MutMainA.
-Require Import APCHeader APC APCA APCTactics.
+Require Import APCHeader APC APCA APCC APCTactics.
 
 Set Implicit Arguments.
 
@@ -18,9 +18,9 @@ Module MutMainIA. Section MutMainIA.
   Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ _ _ _, (True)%I.
 
-  Local Definition MutMainAMod := ((MutMainA.t Sp) ★ APCA.t SpPure Sp).
+  Local Definition MutMainAMod := ((MutMainA.t true Sp) ★ APCA.t SpPure Sp).
   Local Definition MutMainIMod := ((MutMainI.t) ★ APCA.t SpPure Sp).
-  Local Definition IstFull := (IstProd (IstSB (MutMainA.t Sp).(HMod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB (MutMainA.t true Sp).(HMod.scopes) Ist) IstEq).
   
   (*************)
 
@@ -67,18 +67,32 @@ Module MutMainIA. Section MutMainIA.
       iSplit; et. iSplit; et. iPureIntro. esplits; ss.
     - apply simF_main; eauto.
   Qed.
-End MutMainIA.
 
-Section ctxr.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-
-  Theorem ctxr (Sp SpPure: string → option fspec)
-    (APCInSp : sp_incl (APCA.Sp) Sp)
-    (FInPure : sp_incl (MutFA.SpF) SpPure)
-    (PureInSp : sp_sub SpPure Sp)
-  :
+  Theorem ctxr:
     ctx_refines
-      (MutMainA.t Sp ★ APCA.t SpPure Sp, emp%I)
+      (MutMainA.t true Sp ★ APCA.t SpPure Sp, emp%I)
       (MutMainI.t ★ APCA.t SpPure Sp, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
-End ctxr. End MutMainIA.
+
+  Theorem ctxr_close:
+    ctx_refines
+      (MutMainA.t false Sp ★ APCC.t Sp, emp%I)
+      (MutMainA.t true  Sp ★ APCC.t Sp, emp%I).
+  Proof using _sinvG APCInSp FInPure PureInSp.
+    eapply main_adequacy
+      with (Ist := IstProd (IstSB MutMainA.scopes IstEq) IstEq).
+    init_sim.
+    { iIntros "_". iPureIntro. eexists [],[],[],[]. esplits; ii; ss. }
+    { init_simF.
+      steps_l. forces_r.
+      iDestruct "ASM" as "(% & %)". subst. iSplitR; et.
+      rewrite /pure. steps_r. inline_r. forces_r.
+      iDestruct "GRT" as "(% & %)". subst. iSplitR; et.
+      hss. steps_r. forces_r. iSplitR; et.
+      steps_r. forces_l. iSplitR; et. step.
+      iDestruct "GRT'" as "[% ?]". et.
+    }
+  Unshelve. all: et.
+  Qed.
+
+End MutMainIA. End MutMainIA.
