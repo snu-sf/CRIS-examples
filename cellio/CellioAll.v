@@ -35,30 +35,28 @@ Module CellioAll. Section CellioAll.
   Hypothesis fooInCtx : ∃ msk sc foo (SCP: incl sc CtxA.(SMod.scopes)),
     alist_find CtxHdr.foo (SMod.fnsems CtxA) = Some (msk, sc, with_trivial_spec foo).
 
-  Local Definition main_fsp : fspec := fspec_trivial.
+  Local Definition main_cond : iProp Σ := MainA.main_spec.(precond) tt ()↑ ()↑.
   Local Definition init_cond : iProp Σ := MainA.InitCond ∗ CellioA.InitCond.
 
   Hypothesis CtxInitCondConsistent:
-    ∀ rs, ✓ rs → (Own rs ⊢ init_cond) →
-    ∃ rs', ✓ rs' ∧ (Own rs' ⊢ init_cond ∗ CtxInitCond).
+    ∀ rs, ✓ rs → (Own rs ⊢ init_cond ∗ main_cond) →
+    ∃ rs', ✓ rs' ∧ (Own rs' ⊢ init_cond ∗ main_cond ∗ CtxInitCond).
 
   (* Apply cancellation to linked spec module *)
-  Lemma cancel_from_src :
-    refines (mod_cancel, ((init_cond ∗ CtxInitCond) ∗ main_fsp.(precond) tt tt↑ tt↑)%I) 
+  Lemma cancel_from_src:
+    refines (mod_cancel, ((init_cond ∗ CtxInitCond) ∗ main_cond)%I) 
             (mod_src, init_cond ∗ CtxInitCond)%I.
-  Proof. eapply cancellation; try by econs. i. iIntros "%POST". iPureIntro. des; eauto. Qed.
+  Proof.
+    eapply cancellation; try by econs.
+    i. iIntros "%POST". iPureIntro. des; eauto.
+  Qed.
 
   Lemma lib_sp_incl: sp_incl CtxAS.sp sp.
   Proof.
     i. rewrite /CtxAS.sp. unseal CRIS. econs; first prove_nodup.
-    destruct inputInCtx, fooInCtx. des.
-    ii; rewrite -FIND /sp /sp_from /smod_src //=. des_ifs; ss; des_ifs.
-    { rewrite eq_rel_dec_correct in Heq0. des_ifs.
-      rewrite /to_sp alist_find_map /o_map. des_ifs.
-    }
-    { rewrite eq_rel_dec_correct in Heq1. des_ifs.
-      rewrite /to_sp alist_find_map /o_map. des_ifs.
-    }
+    destruct inputInCtx, fooInCtx. des. intros ? ?.
+    rewrite /sp /sp_from /smod_src /to_sp alist_find_map /o_map //=.
+    rewrite !eq_rel_dec_correct. des_ifs.
   Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
@@ -97,7 +95,7 @@ Module CellioAll. Section CellioAll.
   (*SLOW*)Qed.
 
   Lemma cancel_from_tgt :
-    refines (mod_cancel, ((init_cond ∗ CtxInitCond) ∗ main_fsp.(precond) tt tt↑ tt↑)%I)
+    refines (mod_cancel, ((init_cond ∗ CtxInitCond) ∗ main_cond)%I)
             (mod_tgt, emp%I).
   Proof.
     etrans.
@@ -114,18 +112,21 @@ Module CellioAll. Section CellioAll.
     hexploit (H ModulesWF).
     clear H; intros [WF H].
 
-    assert (∃ rs, ✓ rs ∧ (Own rs ⊢ init_cond)).
+    assert (∃ rs, ✓ rs ∧ (Own rs ⊢ init_cond ∗ main_cond)).
     { exists (irΣ ⋅ initial_resource_own_admin). split.
       - apply irΣ_valid.
       - rewrite /init_cond /MainA.InitCond /CellioA.InitCond.
         simplify_res.
-        { iDestruct "H12" as "[H2 H3]". et. }
+        { iDestruct "H12" as "[H2 H3]".
+          rewrite /CellioA.auth /main_cond /MainA.main_spec /precond. s.
+          rewrite /CellioA.cell. s. iFrame. et.
+        }
         all: solve_res.
     }
     des. eapply CtxInitCondConsistent in H1; et. des.
-    
+
     destruct (H rs'); et.
-    { iIntros "H". iPoseProof (H2 with "H") as "H". iFrame. et. }
+    { iIntros "H". iPoseProof (H2 with "H") as "[? [? ?]]". iFrame. }
     { des. et. }
   (*SLOW*)Qed.
 End CellioAll. End CellioAll.

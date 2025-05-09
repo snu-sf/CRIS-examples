@@ -10,16 +10,21 @@ Module MainA. Section MainA.
                 
   Definition scopes := [MainHdr.mn].
 
+  Definition main_spec : fspec :=
+    fspec_simple (λ _ : unit,
+          ((λ arg, cell 0),
+           (λ ret, emp))
+    )%I.
+
   Definition main: Any.t -> itree hmodE Any.t :=
     λ _,
-      trigger (Assume (cell 0));;;
       'i: Z <- ccallU CtxHdr.input tt;;
       '_: unit <- ccallU CtxHdr.foo tt;;
       '_: unit <- trigger (IO "Print" i);;
       Ret tt↑.
   
   Definition fnsems :=
-    [(MainHdr.main, (wmask_all, scopes, mk_specbody fspec_trivial main))].
+    [(MainHdr.main, (wmask_all, scopes, mk_specbody main_spec main))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
