@@ -36,7 +36,7 @@ Module IncrIA. Section IncrIA.
         existT 0 ((⌜vret = ret ∧ vret = tt↑↑⌝ ∗ counter_syn γ (1/2) (v + 2))%SAT)).
   Proof.
     rewrite /SchAS.fspec_spawnable /wsim_fspec /fspec_virtual /precond /postcond /incr_spec /=.
-    ii; ss. eexists (x_src, (bofs, v, γ)); split; red; ii.
+    ii; ss. eexists (x0, (bofs, v, γ)); split; red; ii.
     - rewrite /precond /sch_fspec /fspec_simple /wsim_fspec /precond /=.
       iIntros "[W [% [-> [TID [% [-> [[-> ->] [C #INV]]]]]]]]". iFrame. eauto.
     - rewrite /postcond /sch_fspec /fspec_simple /wsim_fspec /postcond /=.

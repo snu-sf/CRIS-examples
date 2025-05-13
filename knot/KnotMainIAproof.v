@@ -131,13 +131,13 @@ Module KnotMainIA. Section KnotMainIA.
       eapply fn_has_spec_weaker.
       { econs; [|refl]. apply MainInFun. unfold MainFunSp. unseal CRIS. ss. }
       { unfold fspec_weaker, precond, postcond, fun_gen, fib_spec, fun_gen, fib_spec, fspec_apc; ss. 
-        ii. exists (x_src, (knot_frag (Some Fib))%I). split; red.
+        ii. exists (x0, (knot_frag (Some Fib))%I). split; red.
         { i. iIntros "[[% FG] %]". unfold precond, fun_gen, fib_spec; ss.
           des; subst; hss. iModIntro. iSplit; et. iSplit; et; cycle 1.
           iPureIntro. exists fb. esplits; et. inv H5. econs; et. eapply fn_has_spec_weaker; et.
           unfold fspec_weaker, precond, postcond, fun_gen, fib_spec, fun_gen, fib_spec, fspec_apc; ss.
           ii. eexists. split; red.
-          { red. instantiate (1:=(_, x_src0)). ss. iIntros; iFrame; et. }
+          { red. instantiate (1:=(_, x1)). ss. iIntros; iFrame; et. }
           { i. ss. iIntros; et. } 
         }
         { i. ss. iIntros; et. }

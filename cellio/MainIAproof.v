@@ -24,12 +24,12 @@ Module MainIA. Section MainIA.
     init_simF.
     
     (* Take cell(0) *)
-    steps_l; iDestruct "ASM" as "%"; subst.
+    steps_l; iDestruct "ASM" as "[ASM %]"; subst.
 
     inline_r.
     (* Give cell(0) *)
     steps_r. forces_r. iSplitL ""; eauto.
-    forces_r. iSplitL "ASM'"; eauto.
+    forces_r. iSplitL "ASM"; eauto.
 
     (* Call Input() simultaneously *)
     steps_r. forces_l. iSplitL "GRT"; eauto.

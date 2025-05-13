@@ -113,7 +113,7 @@ Module AddIA. Section AddIA.
       - exists AddHdr.succ, blk. rewrite Z2Nat.id; et. hrepeat split; et. unfold_intrange_64; des_ifs_safe; hrepeat destruct Z_le_gt_dec; ss; try lia.
         (* succ has sufficient spec *)
         econs; et. unfold succ_spec, fspec_weaker.
-        ii. exists x_src. split; r; ii; iIntros; iModIntro; hss.
+        ii. exists x0. split; r; ii; iIntros; iModIntro; hss.
         iPureIntro. split; ss. exists vo. split; et. eapply Ord.le_trans; et. apply Ord.lt_le. apply Ord.omega_upperbound.
       - exists (Ord.omega + (Z.to_nat n))%ord. split; et. apply Ord.le_refl. }
     unfold postcond. ss.
