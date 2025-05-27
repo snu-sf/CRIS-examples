@@ -10,13 +10,13 @@ Module CellioI. Section CellioI.
   Definition scopes := [CellioHdr.mn].
   Definition v_cv := (CellioHdr.mn) ↯ "cv".
 
-  Definition set: Any.t -> itree pmodE Any.t :=
+  Definition set: Any.t -> itree hmodE Any.t :=
     λ _,
       'i: Z <- ccallU CtxHdr.input tt;;
       cput v_cv i;;;
       Ret tt↑.
 
-  Definition get: Any.t -> itree pmodE Any.t :=
+  Definition get: Any.t -> itree hmodE Any.t :=
     λ _,
       i <- cgetU v_cv;;
       Ret (i:Z)↑.

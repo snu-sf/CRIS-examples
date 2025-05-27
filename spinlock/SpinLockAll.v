@@ -40,11 +40,11 @@ Module SpinLockAll.
 
   (* sp of source module (scheduler spec excluded) *)
   Local Definition sp_user_s : string → option fspec :=
-    to_sp (SpinLockMainAS.sp u ++ MemA.sp ++ SpinLockAS.sp u).
+    to_sp (SpinLockMainAS.sp u ++ SpinLockAS.sp u).
 
   (* the source SMod *)
   Local Definition smod_src : SMod.t :=
-    SpinLockMainA.Mod u ☆ MemA.Mod ☆ (SchA.Mod u sp_user_s ☆ SchAPure.Mod u) ☆ SpinLockA.Mod u.
+    SpinLockMainA.Mod u ☆ SpinLockA.Mod u ☆ (SchA.Mod u sp_user_s ☆ SchAPure.Mod u).
   (* the source sp *)
   Local Definition sp_s : string → option fspec :=
     sp_from smod_src.
@@ -52,7 +52,7 @@ Module SpinLockAll.
   Local Definition mod_src : HMod.t := SMod.to_hmod sp_s smod_src.
 
   (* initial condition for the source *)
-  Local Definition init_cond : iProp Σ := (MemA.init_cond csl genv ∗ SchA.init_cond)%I.
+  Local Definition init_cond : iProp Σ := (MemP.init_cond csl genv ∗ SchA.init_cond)%I.
 
   (* source module after cancellation *)
   Local Definition smod_cancel : HMod.t := SModCancel.to_hmod smod_src.
@@ -68,17 +68,12 @@ Module SpinLockAll.
     rewrite /sp_user_s /SpinLockMainAS.sp /sp_s /smod_src; unseal CRIS. split; first prove_nodup.
     ii. ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
-  Lemma MemInSp : sp_incl (MemA.sp) sp_s.
-  Proof.
-    rewrite /sp_user_s /MemA.sp /sp_s /smod_src; unseal CRIS. split; first prove_nodup.
-    ii. ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
-  Qed.
   Lemma UserInSp : sp_sub sp_user_s sp_s.
   Proof.
-    rewrite /sp_user_s /sp_s /MemA.sp; unseal CRIS.
+    rewrite /sp_user_s /sp_s ; unseal CRIS.
     ii; ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
-    
+
   (* Refinement between smod_cancel and smod_src *)
   Local Definition main_fsp : fspec := SpinLockMainAS.main_spec u.
   Lemma cancel_src :
@@ -95,43 +90,44 @@ Module SpinLockAll.
     (* abstraction of Sch *)
     etrans; cycle 1.
     { do 3 ctxr_rotate. do 3 ctxr_drop.
-      eapply main_adequacy, SchIA.sim.
+      eapply SchIA.ctxr.
       - apply SchInSp.
-      - rewrite /sp_sub /sp_user_s /sp_s /SpinLockMainAS.sp /MemA.sp; unseal CRIS.
+      - rewrite /sp_sub /sp_user_s /sp_s /SpinLockMainAS.sp; unseal CRIS.
         ii; ss. des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
     }
 
     (* abstraction of Mem *)
     etrans; cycle 1.
-    { do 3 ctxr_rotate. do 3 ctxr_drop.
-      eapply MemIA.ctxr.
-      apply MemInSp.
+    { do 3 ctxr_rotate. do 4 ctxr_drop.
+      eapply MemIP.ctxr.
     }
 
     (* abstraction of SpinLock *)
     etrans; cycle 1.
-    { ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
-      eapply SpinLockIA.ctxr.
-      - apply SchInSp.
-      - apply MemInSp.
+    { do 2 ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
+      eapply SpinLockIA.ctxr. apply SchInSp.
     }
     
     (* abstraction of SpinLockMain *)
     etrans; cycle 1.
-    { ctxr_drop. ctxr_rotate. ctxr_swap. do 2 ctxr_rotate.
+    { do 2 ctxr_drop. ctxr_swap. ctxr_rotate.
       eapply SpinLockMainIA.ctxr.
       - apply SchInSp.
       - apply MainInSp.
-      - apply MemInSp.
     }
 
+    (* elimination of MemP *)
     etrans; cycle 1.
-    { do 2 ctxr_rotate. ctxr_swap. do 3 ctxr_rotate. ctxr_swap. ctxr_rotate.
+    { do 4 ctxr_rotate. do 4 ctxr_drop. eapply CFilter.elim_module. }
+    rewrite hmod_add_empty_r.
+    
+    etrans; cycle 1.
+    { do 3 ctxr_rotate.
       ctxr_refl. }
     
     rewrite /SchIAproof.SchIA.SchAMod.
     rewrite /SchIAproof.SchIA.SchA /SchIAproof.SchIA.SchAPure.
-    rewrite /SchA.t /SchAPure.t /SpinLockA.t /SpinLockMainA.t /MemA.t.
+    rewrite /SchA.t /SchAPure.t /SpinLockA.t /SpinLockMainA.t.
     unseal CRIS.
     
     eapply ctxr_cond_strengthen.

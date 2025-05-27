@@ -85,7 +85,6 @@ Module IncrAll.
     etrans; cycle 1.
     { do 3 ctxr_rotate. do 3 ctxr_drop.
       eapply MemIA.ctxr.
-      apply MemInSp.
     }
 
     (* abstraction of Faa *)

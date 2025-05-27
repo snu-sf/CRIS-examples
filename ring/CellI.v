@@ -17,12 +17,12 @@ Module CellI. Section CellI.
   Definition v_cv := (CellHdr.mn idx) ↯ "cv".
 
   (* Implementations of get and set *)
-  Definition get : unit -> itree pmodE Z :=
+  Definition get : unit -> itree hmodE Z :=
     λ _,
       cv <- cgetU v_cv;;
       Ret cv.
 
-  Definition set : Z -> itree pmodE unit :=
+  Definition set : Z -> itree hmodE unit :=
     λ x,
       cput v_cv x;;;
       Ret ().

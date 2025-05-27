@@ -9,7 +9,7 @@ Module RepeatI. Section RepeatI.
 
   Definition scopes := [RepeatHdr.mn].
 
-  Definition repeat (cenv: CEnv.t): list val → itree pmodE val :=
+  Definition repeat (cenv: CEnv.t): list val → itree hmodE val :=
     λ varg, 
       '(fb, (n, x)) : _ <- (pargs [Tblk; Tint; Tint] varg)?;;
       assume(intrange_64 n);;;

@@ -11,7 +11,7 @@ Module MutMainI. Section MutMainI.
   (***
     main() := return f(10)
   ***)
-  Definition mainF: () -> itree pmodE val :=
+  Definition mainF: () -> itree hmodE val :=
     fun _ =>
       'r: val <- ccallU MutHdr.mutf [Vint 10];;
       Ret r

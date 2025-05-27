@@ -13,7 +13,7 @@ Module MainI. Section MainI.
 
   Definition scopes := ["Main"].
 
-  Fixpoint main_repeat (n : nat) : itree pmodE unit :=
+  Fixpoint main_repeat (n : nat) : itree hmodE unit :=
     match n with
     | 0 => Ret tt
     | S n' =>
@@ -22,7 +22,7 @@ Module MainI. Section MainI.
       main_repeat n'
     end.
 
-  Definition main : list val → itree pmodE unit :=
+  Definition main : list val → itree hmodE unit :=
     λ _, main_repeat num_fire.
 
   Definition fnsems :=

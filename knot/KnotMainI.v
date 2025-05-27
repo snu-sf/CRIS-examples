@@ -9,7 +9,7 @@ Module KnotMainI. Section KnotMainI.
 
   Definition scopes := ["KnotMain"].
 
-  Definition fibF genv : list val -> itree pmodE val :=
+  Definition fibF genv : list val -> itree hmodE val :=
     fun varg =>
       '(fb, n):_ <- (pargs [Tblk; Tint] varg)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
@@ -21,7 +21,7 @@ Module KnotMainI. Section KnotMainI.
         'n1: val <- ccallU fn [Vint (n - 2)];; 'n1: Z <- (unint n1)?;;
         Ret (Vint (n0 + n1)).
 
-  Definition mainF genv : () -> itree pmodE val :=
+  Definition mainF genv : () -> itree hmodE val :=
     fun '() =>
       fibb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotMainHdr.fib)?;;
       'fb: val <- ccallU KnotHdr.knot [Vptr (fibb, 0%Z)];; 'fb: mblock <- (unblk fb)?;;

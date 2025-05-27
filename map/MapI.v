@@ -28,7 +28,7 @@ Module MapI. Section MapI.
   Definition scopes := ["Map"].
   Definition v_hptr := "Map" ↯ "hptr".
 
-  Definition init : list val → itree pmodE val :=
+  Definition init : list val → itree hmodE val :=
     λ varg,
       'sz : Z <- (pargs [Tint] varg)?;;
       'hptr : val <- ccallU MemHdr.alloc [Vint sz];;
@@ -44,7 +44,7 @@ Module MapI. Section MapI.
               Ret (inr tt)) 0%Z);;;
       Ret Vundef.
 
-  Definition get : list val → itree pmodE val :=
+  Definition get : list val → itree hmodE val :=
     λ varg,
       k <- (pargs [Tint] varg)?;;
       hptr <- cgetU v_hptr;;
@@ -52,7 +52,7 @@ Module MapI. Section MapI.
       'r : val <- ccallU MemHdr.load [vptr];; r <- (unint r)?;;
       Ret (Vint r).
 
-  Definition set : list val → itree pmodE val :=
+  Definition set : list val → itree hmodE val :=
     λ varg,
       '(k, v):_ <- (pargs [Tint; Tint] varg)?;;
       hptr <- cgetU v_hptr;; 
@@ -60,7 +60,7 @@ Module MapI. Section MapI.
       'u : val <- ccallU MemHdr.store [vptr; Vint v];;
       Ret Vundef.
 
-  Definition set_by_user : list val → itree pmodE val :=
+  Definition set_by_user : list val → itree hmodE val :=
     λ varg,
       k <- (pargs [Tint] varg)?;;
       v <- trigger (IO "input" ());;

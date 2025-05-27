@@ -8,7 +8,7 @@ Module MainI. Section MainI.
 
   Definition scopes := [MainHdr.mn].
 
-  Definition main: Any.t -> itree pmodE Any.t :=
+  Definition main: Any.t -> itree hmodE Any.t :=
     λ _,
       ccallU (Y:=unit) CellioHdr.set tt;;;
       ccallU (Y:=unit) CtxHdr.foo tt;;;

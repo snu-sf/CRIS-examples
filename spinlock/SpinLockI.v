@@ -12,13 +12,13 @@ Module SpinLockI. Section SpinLockI.
 
   Definition scopes : list string := [].
 
-  Definition newlock : list val → itree pmodE val :=
+  Definition newlock : list val → itree hmodE val :=
     λ _,
       𝒴;;; 'loc : val <- ccallU MemHdr.alloc [Vint 1];;
       𝒴;;; '_ : val <- ccallU MemHdr.store [loc; Vint 0];;
       𝒴;;; Ret loc.
 
-  Definition acquire : list val → itree pmodE val :=
+  Definition acquire : list val → itree hmodE val :=
     λ x,
       (iterC
         (λ _,
@@ -31,7 +31,7 @@ Module SpinLockI. Section SpinLockI.
         ) tt);;;
       𝒴;;; Ret Vundef.
 
-  Definition release : list val → itree pmodE val :=
+  Definition release : list val → itree hmodE val :=
     λ x,
       𝒴;;; '_ : val <- ccallU MemHdr.store (x ++ [Vint 0]);;
       𝒴;;; Ret Vundef.

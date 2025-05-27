@@ -18,20 +18,20 @@ Module CtrlI. Section CtrlI.
   Definition v_tl := "Ring" ↯ "tl".
 
   (* Implementations of init, get_size, enqueue, dequeue *)
-  Definition init : unit -> itree pmodE unit :=
+  Definition init : unit -> itree hmodE unit :=
     λ _,
       cput v_hd 0;;;
       cput v_tl 0
   .
 
-  Definition get_size : unit -> itree pmodE nat :=
+  Definition get_size : unit -> itree hmodE nat :=
     λ _,
       'hd : nat <- cgetU v_hd;;
       'tl : nat <- cgetU v_tl;;
       Ret (hd - tl)
   .
 
-  Definition enqueue : Z -> itree pmodE unit :=
+  Definition enqueue : Z -> itree hmodE unit :=
     λ x,
       'hd : nat <- cgetU v_hd;;
       'tl : nat <- cgetU v_tl;;
@@ -43,7 +43,7 @@ Module CtrlI. Section CtrlI.
         trigger (@IO _ void "error" "enqueue failed: queue reached its maximum capacity");;; Ret tt
   .
 
-  Definition dequeue : unit -> itree pmodE Z :=
+  Definition dequeue : unit -> itree hmodE Z :=
     λ _,
       'hd : nat <- cgetU v_hd;;
       'tl : nat <- cgetU v_tl;;

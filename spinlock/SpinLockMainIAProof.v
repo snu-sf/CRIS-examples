@@ -14,23 +14,22 @@ Module SpinLockMainIA. Section SpinLockMainIA.
   Context `{_spinlockmainG: !spinlockmainG}.
 
   Context (u_a : univ_id). (* univ_id of the source/mem module *)
-  Context (sp_s sp_user_s sp_mem : string → option fspec). (* sps of lock/sch/mem *)
+  Context (sp_s sp_user_s : string → option fspec). (* sps of lock/sch/mem *)
   Context (SchInSp : sp_incl (SchAS.sp u_a sp_user_s) sp_s).
-  Context (MemInSp : sp_incl MemA.sp sp_s).
   Context (MainInSp : sp_incl (SpinLockMainAS.sp u_a) sp_user_s).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
-  Local Definition MemA := (MemA.t sp_mem).
+  Local Definition MemP := MemP.t.
   Local Definition SpinLockA := (SpinLockA.t u_a sp_s).
   Local Definition SpinLockMainA := (SpinLockMainA.t u_a sp_s).
   Local Definition SpinLockMainI := (SpinLockMainI.t).
   Local Definition IstFull := (IstProd (IstSB SpinLockMainA.(HMod.scopes) Ist) IstEq).
-  Local Definition MA := (SpinLockMainA ★ (MemA ★ SpinLockA)).
-  Local Definition MI := (SpinLockMainI ★ (MemA ★ SpinLockA)).
+  Local Definition MA := (SpinLockMainA ★ (MemP ★ SpinLockA)).
+  Local Definition MI := (SpinLockMainI ★ (MemP ★ SpinLockA)).
 
   Lemma incr_simF : HSim.sim_fun open MA MI IstFull SpinLockMainHdr.incr.
-  Proof using SchInSp MemInSp MainInSp.
+  Proof using SchInSp MainInSp.
     init_simF u_a 0.
     (* process src precondition *)
     steps_l. iDestruct "ASM" as "[[-> [TID [%γ_l [#I F]]]] ->]". hss.
@@ -71,16 +70,16 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST TID".
     rewrite /lock_P; SL_red; iDestruct "P" as "[TKN [%x P]]"; SL_red; iDestruct "P" as "[PT P]".
     (* tgt inline - mem load *)
-    inline_r. force_r (blk_v, ofs_v, Vint x, 1%Qp). forces_r. iSplitL "PT"; iFrame; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
+    inline_r. force_r (blk_v, ofs_v, 1%Qp, Vint x). iSplitL "PT"; iFrame; eauto.
+    iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[PT ->]". hss. steps_r.
     (* tgt yield *)
     sch_yield_r; iFrame.
     clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST TID".
     sch_yield_r; iFrame.
     clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST TID".
     (* tgt inline - mem store *)
-    inline_r. force_r (blk_v, ofs_v, Vint (x + 1)). forces_r. iSplitL "PT"; iFrame; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
+    inline_r. force_r (blk_v, ofs_v, _, Vint (x + 1)). iSplitL "PT"; iFrame; et.
+    iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[PT ->]". hss. steps_r.
     sch_yield_r; iFrame.
     clear st_s st_t NODS NODD nths; iIntros (nths st_s st_t NODS NODD) "IST TID".
     iCombine "P F" as "C". iMod (own_update with "C") as "[F C]".
@@ -113,26 +112,28 @@ Module SpinLockMainIA. Section SpinLockMainIA.
       => clear nths NODS st_s NODD st_t; iIntros (nths st_s st_t NODS NODD) end.
 
   Lemma main_simF : HSim.sim_fun open MA MI IstFull SpinLockMainHdr.main.
-  Proof using SchInSp MemInSp MainInSp.
+  Proof using SchInSp MainInSp.
     init_simF u_a 0.
     (* process src precondition *)
     steps_l. iDestruct "ASM" as "[[-> TID] ->]". hss.
     (* tgt yield *)
     steps_r. sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     (* tgt inline - mem alloc - counter allocation *)
-    inline_r. force_r 1. forces_r. iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[[%blk [-> [GRT _]]] ->]". hss. steps_r.
-    steps_r. sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
+    inline_r. force_r 1. iSplit; eauto.
+    iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[%blk [-> [GRT _]]]".
+    hss. steps_r.
+    sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     (* tgt inline - mem store - counter initialization *)
-    inline_r. force_r (blk, 0%Z, Vint 0). forces_r. iFrame; iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
-    steps_r. sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
+    inline_r. force_r (blk, 0%Z, _, Vint 0). iFrame; iSplit; eauto.
+    iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[PT ->]". hss. steps_r.
+    sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     (* create lock-guarded proposition *)
     iApply (wsim_own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)).
     { eapply frac_auth_valid; ss. }
     iIntros "[%γ [B W]]".
     (* tgt inline - newlock *)
-    inline_r. force_r (0, existT 0 (lock_P (blk, 0%Z) γ)). forces_r. iSplitL "TID B PT"; eauto.
+    inline_r. force_r (0, existT 0 (lock_P (blk, 0%Z) γ)). forces_r.
+    iSplitL "TID B PT"; eauto.
     { SL_red; iSplit; eauto. iFrame. iExists _; SL_red; iFrame. }
     steps_r. hss. steps_r.
     (* src/tgt yields *)
@@ -197,9 +198,9 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     steps_r. destruct q; cycle 1.
     { (* fail case *)
       steps_r. sch_yield_l. force_l false. steps_l.
-  iApply wsim_progress. iApply wsim_base_t.
-  iSpecialize ("CIH" $! _).
-  (hrepeat do 1 unshelve first[instantiate (1:= (_,_))|instantiate (1:= existT _ _)]); [..|s; grind; iIntrosFresh "I"; iApply "CIH"]; try eassumption.
+      iApply wsim_progress. iApply wsim_base_t.
+      iSpecialize ("CIH" $! _).
+      (hrepeat do 1 unshelve first[instantiate (1:= (_,_))|instantiate (1:= existT _ _)]); [..|s; grind; iIntrosFresh "I"; iApply "CIH"]; try eassumption.
       hss. iFrame. eauto.
     }
     (* success case *)
@@ -208,8 +209,8 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     iCombine "B W" gives %WF%frac_auth_agree. inv WF.
     sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     (* tgt inline - mem load *)
-    inline_r. force_r (blk, 0%Z, Vint 2%Z, 1%Qp). forces_r. iSplitL "PT"; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
+    inline_r. force_r (blk, 0%Z, 1%Qp, Vint 2%Z); s. iSplitL "PT"; eauto.
+    iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[PT ->]". hss. steps_r.
     (* tgt yield *)
     sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
     sch_yield_r. iFrame; reintro nths. iIntros "IST TID".
@@ -240,21 +241,10 @@ Module SpinLockMainIA. Section SpinLockMainIA.
     { eapply main_simF. }
     { eapply incr_simF. }
   Qed.
-End SpinLockMainIA.
 
-Section ctxr.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_memG: !memG}.
-  Context `{_schG: !schG}.
-  Context `{_spinlockG: !spinlockG}.
-  Context `{_spinlockmainG: !spinlockmainG}.
-
-  Definition ctxr (u : univ_id) (sp_s sp_user_s sp_mem : string → option fspec)
-      (SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s)
-      (MainInSp : sp_incl (SpinLockMainAS.sp u) sp_user_s)
-      (MemInSp : sp_incl MemA.sp sp_s) :
+  Definition ctxr:
     ctx_refines
-      ((SpinLockMainA.t u sp_s) ★ (MemA.t sp_mem ★ (SpinLockA.t u sp_s)), emp%I)
-      ((SpinLockMainI.t)         ★ (MemA.t sp_mem ★ (SpinLockA.t u sp_s)), emp%I).
+      ((SpinLockMainA.t u_a sp_s) ★ (MemP.t ★ (SpinLockA.t u_a sp_s)), emp%I)
+      ((SpinLockMainI.t)          ★ (MemP.t ★ (SpinLockA.t u_a sp_s)), emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
-End ctxr. End SpinLockMainIA.
+End SpinLockMainIA. End SpinLockMainIA.

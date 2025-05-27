@@ -37,11 +37,11 @@ Module FaaIA. Section FaaIA.
     (* tgt inline - load *)
     rewrite /MemHdr.faa. inline_r.
     (* tgt prove preconditions for load *)
-    force_r (b, ofs, Vint v, 1%Qp). forces_r. iFrame. iSplit; first eauto.
+    force_r (b, ofs, 1%Qp, Vint v). forces_r. iFrame. iSplit; first eauto.
     (* tgt get postconditions from load *)
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
     (* tgt inline - store *)
-    inline_r. force_r (b, ofs, Vint (v + 1)). forces_r. iFrame. iSplit; first eauto.
+    inline_r. force_r (b, ofs, _, Vint (v + 1)). forces_r. iFrame. iSplit; first eauto.
     (* tgt get postconditions from store *)
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
     (* src give pointsto *)
@@ -56,11 +56,11 @@ Module FaaIA. Section FaaIA.
     (* tgt inline - load *)
     rewrite /MemHdr.faa. inline_r.
     (* tgt prove preconditions for load *)
-    force_r (b, ofs, Vint v, 1%Qp). forces_r. iFrame. iSplit; first eauto.
+    force_r (b, ofs, 1%Qp, Vint v). forces_r. iFrame. iSplit; first eauto.
     (* tgt get postconditions from load *)
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
     (* tgt inline - store *)
-    inline_r. force_r (b, ofs, Vint (v + 1)). forces_r. iFrame. iSplit; first eauto.
+    inline_r. force_r (b, ofs, _, Vint (v + 1)). forces_r. iFrame. iSplit; first eauto.
     (* tgt get postconditions from store *)
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
     (* src give pointsto *)

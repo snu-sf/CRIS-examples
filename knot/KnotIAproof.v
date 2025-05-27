@@ -21,7 +21,6 @@ Module KnotIA. Section KnotIA.
   Context (GEnvIncl: incl KnotGEnv.t genv).
   (* 5. hypotheses for sp *)
   Context (RecInSp: sp_incl KnotRecSp SpRec).
-  Context (MemInSp: sp_incl MemA.sp Sp).
   Context (APCInSp: sp_incl APCA.Sp Sp).
   (* 6. hypotheses for pure sp *)
   Context (FunInPure: sp_sub SpFun SpPure).
@@ -40,17 +39,17 @@ Module KnotIA. Section KnotIA.
     λ _ _ _, inv.
 
   Local Definition APCA := (APCA.t SpPure Sp).
-  Local Definition MemA := (MemA.t SpMem).
+  Local Definition MemP := MemP.t.
   Local Definition KnotA := (KnotA.t genv SpRec SpFun Sp).
-  Local Definition KnotAMod := (KnotA ★ MemA ★ APCA).
-  Local Definition KnotIMod := ((KnotI.t genv) ★ MemA ★ APCA).
+  Local Definition KnotAMod := (KnotA ★ MemP ★ APCA).
+  Local Definition KnotIMod := ((KnotI.t genv) ★ MemP ★ APCA).
   Local Definition IstFull := (IstProd (IstSB KnotA.(HMod.scopes) Ist) IstEq).
   
   (*************)
 
   Lemma simF_rec:
     HSim.sim_fun open KnotAMod KnotIMod IstFull KnotHdr.rec.
-  Proof using GEnvWF GEnvIncl RecInSp MemInSp APCInSp FunInPure PureInSp.
+  Proof using GEnvWF GEnvIncl RecInSp APCInSp FunInPure PureInSp.
     init_simF.
 
     (* SKINCL - SkEnv id2blk *)
@@ -82,11 +81,11 @@ Module KnotIA. Section KnotIA.
     rewrite FIND0. hss. steps_r.
 
     (* TGT: load the function at the block of _f by inlining "load" *)
-    inline_r. steps_r.
-    force_r. instantiate (1:=(blk0, 0%Z, (Vptr (fb, 0%Z)), 1%Qp)). force_r.
-    force_r. iSplitL "VF".
-    { iSplit; eauto. iSplitR; eauto. unfold var_points_to. rewrite FIND0. iFrame. }
-    steps_r. iDestruct "GRT" as "((VF & %) & %)". des; subst. hss.
+    inline_r. steps_r. force_r (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))).
+    iSplitL "VF".
+    { iSplit; eauto. unfold var_points_to. rewrite FIND0. iFrame. }
+    iIntros (?) "Q".
+    steps_r. iMod ("Q" with "GRT") as "[VF %]". des; subst; hss.
     steps_r. inv H2. steps_l.
 
     (* TGT: get blocks of the function pointer and "rec" *)
@@ -125,7 +124,7 @@ Module KnotIA. Section KnotIA.
 
   Lemma simF_knot:
     HSim.sim_fun open KnotAMod KnotIMod IstFull KnotHdr.knot.
-  Proof using GEnvWF GEnvIncl RecInSp MemInSp APCInSp FunInPure PureInSp.
+  Proof using GEnvWF GEnvIncl RecInSp APCInSp FunInPure PureInSp.
     init_simF.
 
     (* SKINCL *)
@@ -155,9 +154,9 @@ Module KnotIA. Section KnotIA.
     
     (* TGT: save a function by calling "store" *)
     steps_r. inline_r. steps_r.
-    force_r. instantiate (1:=(blk0, 0%Z, Vptr (fb, 0%Z))). force_r. force_r. iSplitL "VF".
+    force_r (blk0, 0%Z, _, Vptr (fb, 0%Z)). iSplitL "VF".
     { iSplit; et. unfold var_points_to. rewrite FIND0; eauto. }
-    steps_r. iDestruct "GRT" as "[[VF %] %]"; des; subst.
+    iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[VF %]". des; subst.
 
     (* RA: update spec *)
     hss. steps_r. rewrite FINDR; hss. steps_r.
@@ -190,27 +189,14 @@ Module KnotIA. Section KnotIA.
     - apply simF_rec; et.
     - apply simF_knot; et.
   Qed.
-End KnotIA.
 
-Section ctxr.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_memG: !memG}.
-  Context `{_knotG: !knotG}.
-
-  Theorem ctxr (genv: GEnv.t)
-    (SpRec SpFun Sp SpMem SpPure : string → option fspec)
-    (GEnvWF: GEnv.wf genv)
-    (GEnvIncl: incl KnotGEnv.t genv)
-    (RecInSp: sp_incl KnotA.KnotRecSp SpRec)
-    (MemInSp: sp_incl MemA.sp Sp)
-    (APCInSp: sp_incl APCA.Sp Sp)
-    (FunInPure: sp_sub SpFun SpPure)
-    (PureInSp : sp_sub SpPure Sp)   
-  :
+  Theorem ctxr
+    :
     ctx_refines
-      (KnotA.t genv SpRec SpFun Sp ★ MemA SpMem ★ APCA.t SpPure Sp,
+      (KnotA.t genv SpRec SpFun Sp ★ MemP ★ APCA.t SpPure Sp,
         KnotA.init_cond genv)
-      (KnotI.t genv ★ MemA SpMem ★ APCA.t SpPure Sp,
+      (KnotI.t genv ★ MemP ★ APCA.t SpPure Sp,
         emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
-End ctxr. End KnotIA.
+
+End KnotIA. End KnotIA.

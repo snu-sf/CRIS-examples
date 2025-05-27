@@ -7,7 +7,7 @@ Module IncrementI. Section IncrementI.
 
   Definition scopes : list string := [].
 
-  Definition increment : list val → itree pmodE val :=
+  Definition increment : list val → itree hmodE val :=
     λ arg,
       𝒴;;; bofs <- (pargs [Tptr] arg)?;;
       𝒴;;;

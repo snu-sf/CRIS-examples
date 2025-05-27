@@ -12,21 +12,20 @@ Module SpinLockIA. Section SpinLockIA.
   Context `{_spinlockG: !spinlockG}.
 
   Context (u_a : univ_id). (* univ_id of the source/mem module *)
-  Context (sp_s sp_user_s sp_mem : string → option fspec). (* sps of lock/sch/mem *)
+  Context (sp_s sp_user_s : string → option fspec). (* sps of lock/sch/mem *)
   Context (SchInSp : sp_incl (SchAS.sp u_a sp_user_s) sp_s).
-  Context (MemInSp : sp_incl MemA.sp sp_s).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
-  Local Definition MemA := (MemA.t sp_mem).
+  Local Definition MemP := MemP.t.
   Local Definition SpinLockA := (SpinLockA.t u_a sp_s).
   Local Definition SpinLockI := (SpinLockI.t).
   Local Definition IstFull := (IstProd (IstSB SpinLockA.(HMod.scopes) Ist) IstEq).
-  Local Definition MA := (SpinLockA ★ MemA).
-  Local Definition MI := (SpinLockI ★ MemA).
+  Local Definition MA := (SpinLockA ★ MemP).
+  Local Definition MI := (SpinLockI ★ MemP).
 
   Lemma newlock_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.newlock.
-  Proof using SchInSp MemInSp.
+  Proof using SchInSp.
     init_simF u_a 0.
     (* preprocess initial conditions *)
     steps_l. rename q1 into tid. destruct q2 as [n P]; s. iDestruct "ASM" as "[[TID P] ->]". hss.
@@ -34,13 +33,15 @@ Module SpinLockIA. Section SpinLockIA.
     (* tgt yield *)
     sch_yield_r. iFrame. clear nths NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST TID".
     (* tgt inline - mem alloc *)
-    inline_r. force_r 1. forces_r. iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[[%blk [-> [PT _]]] ->]". hss. steps_r.
+    inline_r. force_r 1. iSplit; eauto.
+    iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[%blk [-> [PT _]]]".
+    hss. steps_r.
     (* tgt yield *)
     sch_yield_r. iFrame. clear nths st_s st_t NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST TID".
     (* tgt inline - mem store *)
-    inline_r. force_r (blk, 0%Z, Vint 0). steps_r. forces_r. iSplitL "PT"; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
+    inline_r. force_r (blk, 0%Z, _, Vint 0). iSplitL "PT"; s; et.
+    iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[PT ->]".
+    hss. steps_r.
     (* src/tgt yield *)
     sch_yield_r. iFrame. clear nths st_s st_t NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST TID".
     sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l. force_l. steps_l.
@@ -55,7 +56,7 @@ Module SpinLockIA. Section SpinLockIA.
   (*SLOW*)Qed.
 
   Lemma acquire_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.acquire.
-  Proof using SchInSp MemInSp.
+  Proof using SchInSp.
     init_simF u_a 0.
     (* process src precondition *)
     steps_l. iDestruct "ASM" as "[[% [TID #LOCK]] %]". hss.
@@ -77,12 +78,11 @@ Module SpinLockIA. Section SpinLockIA.
     iDestruct "I" as "[FAIL|SUCC]".
     { (* fail case *)
       (* tgt inline - mem cas *)
-      inline_r. force_r (existT 1 (_, _, _, _, _)). forces_r. hss.
+      inline_r. force_r (_,_,_,_,_,_,_,_,_,_); s.
       iSplitL "FAIL". { iFrame. et. }
-      steps_r.
-      iDestruct "GRT" as "[[POINTS_TO %] %]".
+      iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[% [POINTS_TO _]]".
       hss. steps_r.
-      iMod ("Hcl" with "[POINTS_TO]") as "_". iFrame.
+      iMod ("Hcl" with "[POINTS_TO]") as "_". { iFrame. }
       (* tgt yields *)
       sch_yield_r. iFrame.
       clear nths st_t st_s NODD NODS; iIntros (nths st_s st_t NODD NODS) "IST TID".
@@ -96,12 +96,11 @@ Module SpinLockIA. Section SpinLockIA.
     { (* success case *)
       (* tgt inline - mem cas *)
       iDestruct "SUCC" as "[POINTS_TO [Q TKN]]".
-      inline_r. force_r (existT 0 (_, _, _, _)). forces_r. hss.
+      inline_r. force_r (_,_,_,_,_,_,_,_,_,_); s.
       iSplitL "POINTS_TO". { iFrame; et. }
-      steps_r.
-      iDestruct "GRT" as "[[POINTS_TO ->] ->]". hss.
-      steps_r.
-      iMod ("Hcl" with "[POINTS_TO]") as "_". iFrame.
+      iIntros (?) "Q'". steps_r. iMod ("Q'" with "GRT") as "[% [POINTS_TO _]]".
+      hss. steps_r.
+      iMod ("Hcl" with "[POINTS_TO]") as "_". { iFrame. }
       (* tgt yields *)
       sch_yield_r. iFrame.
       clear nths st_t st_s NODD NODS; iIntros (nths st_s st_t NODD NODS) "IST TID".
@@ -114,11 +113,11 @@ Module SpinLockIA. Section SpinLockIA.
       (* both terminate *)
       step; eauto.
     }
-    Unshelve. all: eauto.
+    Unshelve. all: eauto. all: try exact 1%Qp. all: try exact Vundef.
   (*SLOW*)Qed.
 
   Lemma release_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.release.
-  Proof using SchInSp MemInSp.
+  Proof using SchInSp.
     init_simF u_a 0.
     (* process src precondition *)
     steps_l.
@@ -133,10 +132,9 @@ Module SpinLockIA. Section SpinLockIA.
     iInv "LOCK" as "I" "Hcl". SL_red.
     iDestruct "I" as "[LOCKED|UNLOCKED]".
     { (* locked case *)
-      inline_r. steps_r. force_r (_,_,_). forces_r. hss.
-      iSplitL "LOCKED"; iFrame; et.
-      steps_r. iDestruct "GRT" as "[[POINTS_TO %] %]". hss.
-      steps_r.
+      inline_r. force_r (_,_,_,_). iSplitL "LOCKED"; iFrame; et.
+      iIntros (?) "Q'". steps_r. iMod ("Q'" with "GRT") as "[POINTS_TO %]".
+      hss. steps_r.
       iMod ("Hcl" with "[POINTS_TO Q TKN]") as "_". iRight. iFrame.
       (* tgt yield *)
       sch_yield_r. iFrame.
@@ -159,20 +157,11 @@ Module SpinLockIA. Section SpinLockIA.
     { apply acquire_simF. }
     { apply release_simF. }
   Qed.
-End SpinLockIA.
-
-Section SpinLockIA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_memG: !memG}.
-  Context `{_schG: !schG}.
-  Context `{_spinlockG: !spinlockG}.
 
   (* ctxr works as a unit in compositions of module simulations *)
-  Lemma ctxr (u : univ_id) (sp_s sp_user_s sp_mem : string → option fspec)
-      (SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s)
-      (MemInSp : sp_incl MemA.sp sp_s) :
+  Lemma ctxr:
     ctx_refines
-      (SpinLockA.t u sp_s ★ MemA.t sp_mem, emp%I)
-      (SpinLockI.t         ★ MemA.t sp_mem, emp%I).
+      (SpinLockA.t u_a sp_s ★ MemP.t, emp%I)
+      (SpinLockI.t          ★ MemP.t, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End SpinLockIA. End SpinLockIA.

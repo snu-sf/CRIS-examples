@@ -15,7 +15,7 @@ Module CannonI. Section CannonI.
   Definition div (n m : Z) : option Z :=
     if Z_zerop m then None else Some (Z.div n m).
 
-  Definition fire: list val -> itree pmodE Z :=
+  Definition fire: list val -> itree hmodE Z :=
     λ _,
       powder <- cgetU v_lv;;
       r <- (div 1 powder)?;;

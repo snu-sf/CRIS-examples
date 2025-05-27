@@ -12,7 +12,7 @@ Module MutFI. Section MutFI.
   (***
     f(n) := if (n == 0) then 0 else (n + g(n - 1))
   ***)
-  Definition fF: list val -> itree pmodE val :=
+  Definition fF: list val -> itree hmodE val :=
     fun varg =>
       'n: Z <- (pargs [Tint] varg)?;;
       assume (intrange_64 n);;;

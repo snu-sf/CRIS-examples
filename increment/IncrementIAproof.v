@@ -65,11 +65,11 @@ Module IncrementIA. Section IncrementIA.
 
       inline_r.
       destruct (decide (q0 = q)) eqn: _EQ; first subst q.
-      { force_r (existT 0 (_, _, _, _)).
-        steps_r. forces_r. iFrame "ASM". iSplit; eauto.
-        steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss_r. steps_r.
-
-        force_l true. steps_l. forces_l; iFrame "PT". steps_l.
+      { force_r (_,_,_,_,_,_,_,_,_,_).
+        steps_r. hss. forces_r. iFrame "ASM".
+        iSplitL "". { repeat (iSplitL; et). s. des_ifs. }
+        steps_r. iDestruct "GRT" as "[[% [PT _]] %]". hss_r. steps_r. des_ifs.
+        force_l true. steps_l. forces_l. iFrame "PT". steps_l.
         sch_yield_r. iFrame "IST TID".
         clear nths st_s st_t; iIntros (nths st_s st_t _ _) "IST TID". steps_r.
         sch_yield_r. iFrame "IST TID".
@@ -79,11 +79,10 @@ Module IncrementIA. Section IncrementIA.
         sch_yield_l. steps_l. forces_l. iFrame "TID"; iSplit; first eauto.
         steps_l. step. iFrame. done.
       }
-      { force_r (existT 1 (_, _, _, _, _)).
-        forces_r. iFrame "ASM". instantiate (2:= Vint q). iSplit.
-        { iSplit; last eauto. iPureIntro; splits; eauto. intros H; inv H; clarify. }
-        steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss_r. steps_r.
-
+      { force_r (_,_,_,_,_,_,_,_,_,_).
+        forces_r. iFrame "ASM". iSplitL "".
+        { repeat iSplitL; et. s. des_ifs. }
+        steps_r. iDestruct "GRT" as "[[% [PT _]] %]". hss_r. steps_r. des_ifs.
         force_l false; steps_l. force_l; iFrame "PT". steps_l.
         sch_yield_r. iFrame "IST TID".
         clear nths st_s st_t; iIntros (nths st_s st_t _ _) "IST TID". steps_r.
@@ -93,5 +92,6 @@ Module IncrementIA. Section IncrementIA.
         by_coind "CIH". iFrame.
       }
     }
+  Unshelve. all: try exact 1%Qp. all: try exact Vundef.
   (*SLOW*)Qed.
 End IncrementIA. End IncrementIA.

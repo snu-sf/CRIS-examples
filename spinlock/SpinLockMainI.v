@@ -8,9 +8,11 @@ Require Import ImpPrelude SchHeader MemHeader SpinLockHeader SpinLockMainHeader.
   3) initial state (via Any.t)
 *)
 Module SpinLockMainI. Section SpinLockMainI.
+  Context `{Σ: GRA}.
+                        
   Definition scopes : list string := [].
 
-  Definition main : unit → itree pmodE unit :=
+  Definition main : unit → itree hmodE unit :=
     λ _,
       𝒴;;; 'v : val <- ccallU MemHdr.alloc [Vint 1];;
       𝒴;;; '_ : val <- ccallU MemHdr.store [v; Vint 0];;
@@ -26,7 +28,7 @@ Module SpinLockMainI. Section SpinLockMainI.
       𝒴;;; '_ : unit <- trigger (IO "printf" x);;
       𝒴;;; Ret tt.
 
-  Definition incr : list val → itree pmodE val :=
+  Definition incr : list val → itree hmodE val :=
     λ arg,
       𝒴;;; '(l, v): _ <- (pargs [Tptr; Tptr] arg)?;;
       𝒴;;; '_ : val <- ccallU SpinLockHdr.acquire [Vptr l];;
@@ -48,5 +50,5 @@ Module SpinLockMainI. Section SpinLockMainI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Defined.
 
-  Definition t {Σ : GRA} : HMod.t := Seal.sealing CRIS (PMod.to_hmod Mod).
+  Definition t : HMod.t := Seal.sealing CRIS (PMod.to_hmod Mod).
 End SpinLockMainI. End SpinLockMainI.

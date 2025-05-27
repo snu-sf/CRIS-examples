@@ -136,7 +136,7 @@ Module IncrIA. Section IncrIA.
     clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
 
     (* tgt store *)
-    inline_r. steps_r. force_r (b, 0%Z, Vint 0%Z). steps_r.
+    inline_r. steps_r. force_r (b, 0%Z, _, Vint 0%Z). steps_r.
     force_r. steps_r. force_r. iSplitL "PT".
     { iFrame. eauto. }
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
@@ -202,7 +202,7 @@ Module IncrIA. Section IncrIA.
     iCombine "C Q Q2" as "C" gives %[_ WF%frac_auth_agree]. inv WF; ss.
     iDestruct "C" as "[CA CF]".
 
-    inline_r. steps_r. force_r (b, 0%Z, (Vint 4), 1%Qp). steps_r. forces_r.
+    inline_r. steps_r. force_r (b, 0%Z, 1%Qp, (Vint 4)). steps_r. forces_r.
     iSplitL "PT"; eauto.
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
 

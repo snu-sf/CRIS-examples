@@ -145,7 +145,7 @@ Module MapIM. Section MapIM.
       inline_r. steps_r.
 
       (* TGT: prove the precond of store *)
-      force_r (_, (sz - S n')%Z, _).
+      force_r (_, (sz - S n')%Z, _, _).
       force_r ([Vptr (_, (sz - (S n'))%Z); _]↑).
       force_r.
       iPoseProof (big_sepL_insert_acc with "PTS") as "(PT & CTN)".
@@ -158,8 +158,7 @@ Module MapIM. Section MapIM.
       iSplitL "PT".
       { iSplitL; cycle 1.
         { iPureIntro. do 3 f_equal. rewrite Z.div_mul; eauto. }
-        iExists Vundef. iFrame.
-        iPureIntro. do 3 f_equal. rewrite Z.div_mul; eauto.
+        iSplit; et. rewrite Z.div_mul; eauto.
       }
 
       (* TGT: handle the postcond of store *)
@@ -204,7 +203,7 @@ Module MapIM. Section MapIM.
     inline_r.
 
     (* TGT: prove the precond of load *)
-    step_r. force_r (_, (ofs + _)%Z, _, 1%Qp). force_r. force_r.
+    step_r. force_r (_, (ofs + _)%Z, 1%Qp, _). force_r. force_r.
     iPoseProof (big_sepL_lookup_acc with "M") as "(IP & M)".
     { apply fun_to_list_lookup with (i:=Z.to_nat idx). nia. }
     rewrite Z2Nat.id; try nia.
@@ -247,7 +246,7 @@ Module MapIM. Section MapIM.
     inline_r.
 
     (* TGT: prove the precond of store *)
-    step_r. force_r (blk, (ofs + idx)%Z, _). force_r. force_r.
+    step_r. force_r (blk, (ofs + idx)%Z, _, _). force_r. force_r.
     iPoseProof (big_sepL_insert_acc with "M") as "(IP & M)".
     { apply fun_to_list_lookup with (i:=Z.to_nat idx). hss. nia. }
     rewrite Z2Nat.id; try nia.

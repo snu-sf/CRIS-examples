@@ -30,9 +30,9 @@ Module KnotMainIA. Section KnotMainIA.
     λ _ _ _, True%I.  
 
   Local Definition APCA := (APCA.t SpPure Sp).
-  Local Definition MemA := (MemA.t Sp).
+  Local Definition MemP := MemP.t.
   Local Definition KnotA := (KnotA.t genv SpRec SpFun Sp).
-  Local Definition KnotAMod := (KnotA ★ MemA ★ APCA).
+  Local Definition KnotAMod := (KnotA ★ MemP ★ APCA).
   Local Definition KnotMainA := (KnotMainA.t true genv SpRec Sp).
   Local Definition KnotMainI := (KnotMainI.t genv).
   Local Definition KnotMainAMod := (KnotMainA ★ KnotAMod).
@@ -186,12 +186,12 @@ Module KnotMainIA. Section KnotMainIA.
     ctx_refines
       (KnotMainA.t true genv SpRec Sp
         ★ KnotA.t genv SpRec SpFun Sp
-        ★ MemA.t Sp
+        ★ MemP.t
         ★ APCA.t SpPure Sp,
       KnotMainA.init_cond)
       (KnotMainI.t genv
         ★ KnotA.t genv SpRec SpFun Sp
-        ★ MemA.t Sp
+        ★ MemP.t
         ★ APCA.t SpPure Sp,
       emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.

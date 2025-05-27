@@ -10,12 +10,12 @@ Module AddI. Section AddI.
 
   Definition scopes := [AddHdr.mn].
 
-  Definition succ : list val → itree pmodE val :=
+  Definition succ : list val → itree hmodE val :=
     λ varg,
       'm : Z <- (pargs [Tint] varg)?;;
       Ret (Vint (m + 1)).
 
-  Definition add (cenv: CEnv.t): list val → itree pmodE val :=
+  Definition add (cenv: CEnv.t): list val → itree hmodE val :=
     λ varg,
       '(n, m): _ <- ((pargs [Tint; Tint] varg)?);;
       fb <- ((cenv.(CEnv.id2blk) AddHdr.succ)?);;

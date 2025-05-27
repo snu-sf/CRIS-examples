@@ -6,7 +6,7 @@ Module FaaI. Section FaaI.
 
   Definition scopes : list string := [].
 
-  Definition faa2 : list val → itree pmodE unit :=
+  Definition faa2 : list val → itree hmodE unit :=
     λ arg,
       𝒴;;; '_ : val <- MemHdr.faa arg;;
       𝒴;;; '_ : val <- MemHdr.faa arg;;

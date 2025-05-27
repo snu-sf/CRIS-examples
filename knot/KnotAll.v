@@ -1,4 +1,4 @@
-Require Import CRIS Cancel.
+Require Import CRIS Cancel CallFilter.
 Require Import MemHeader MemI MemA MemIAproof.
 Require Import APCHeader APC APCI APCA APCC APCACproof APCIAproof.
 Require Import KnotHeader KnotMainHeader KnotI KnotMainI.
@@ -36,7 +36,7 @@ Module KnotAll.
 
   Local Definition smod_src : SMod.t :=
     (KnotMainA.Mod false genv sp_rec) ☆ (KnotA.Mod genv sp_rec sp_fun)
-    ☆ MemA.Mod ☆ APCC.Mod.
+    ☆ APCC.Mod.
   Local Definition sp : string → option fspec := sp_from smod_src.
 
   Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
@@ -52,7 +52,7 @@ Module KnotAll.
   Proof. cbn. prove_nodup. Qed.
 
   Local Definition init_cond : iProp Σ :=
-    KnotMainA.init_cond ∗ (KnotA.init_cond genv) ∗ (MemA.init_cond csl genv).
+    KnotMainA.init_cond ∗ (KnotA.init_cond genv) ∗ (MemP.init_cond csl genv).
 
   Lemma cancel_src :
     refines (mod_cancel, (init_cond ∗ main_fsp.(precond) tt tt↑ tt↑)%I)
@@ -64,7 +64,7 @@ Module KnotAll.
   Qed.
 
   Ltac prove_sp :=
-    rewrite /MemA.sp /APCA.Sp /KnotA.KnotRecSp /KnotA.KnotSp /KnotMainA.MainFunSp /KnotMainA.MainSp;
+    rewrite /APCA.Sp /KnotA.KnotRecSp /KnotA.KnotSp /KnotMainA.MainFunSp /KnotMainA.MainSp;
     rewrite /sp /sp_pure /sp_fun /sp_rec /smod_src /sp_pure /sp_incl /sp_sub /find_body /pure_specbody /sp_from /option_map;
     rewrite /sp_fun /sp_rec /APCA.Sp /KnotA.KnotRecSp /KnotA.KnotSp /KnotMainA.MainFunSp /KnotMainA.MainSp;
     try unseal CRIS; try prove_nodup;
@@ -79,8 +79,7 @@ Module KnotAll.
     (* abstraction of Mem *)
     etrans; cycle 1.
     { do 3 ctxr_rotate. do 3 ctxr_drop.
-      eapply MemIA.ctxr.
-      instantiate (1:=sp). prove_sp.
+      eapply MemIP.ctxr.
     }
 
     (* abstraction of APCI to APCA *)
@@ -116,10 +115,15 @@ Module KnotAll.
     { do 3 ctxr_rotate. do 2 ctxr_drop. ctxr_rotate.
       eapply KnotMainIA.ctxr_close with (Sp:=sp) (SpPure:=sp_pure); try prove_sp.
       rewrite /genv /incl; ss. i; des; ss; tauto.
-    }    
+    }
+
+    (* elimination of mem *)
+    etrans; cycle 1.
+    { do 2 ctxr_rotate. do 3 ctxr_drop. eapply CFilter.elim_module. }
+    rewrite hmod_add_empty_r.
 
     etrans; cycle 1.
-    { do 2 ctxr_rotate. ctxr_swap. ctxr_rotate. ctxr_refl. }
+    { ctxr_swap. ctxr_rotate. ctxr_refl. }
 
     rewrite /KnotMainA.t /KnotA.t /MemA.t /APCC.t. unseal CRIS.
     eapply ctxr_cond_strengthen.

@@ -10,7 +10,7 @@ Module KnotI. Section KnotI.
 
   Definition scopes := ["Knot"].
 
-  Definition knotF genv : list val -> itree pmodE val :=
+  Definition knotF genv : list val -> itree hmodE val :=
     fun varg =>
       fb <- (pargs [Tblk] varg)?;;
       blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;
@@ -19,7 +19,7 @@ Module KnotI. Section KnotI.
       Ret (Vptr (rb, 0%Z))
   .
 
-  Definition recF genv : list val -> itree pmodE val :=
+  Definition recF genv : list val -> itree hmodE val :=
     fun varg =>
       n <- (pargs [Tint] varg)?;;
       blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;

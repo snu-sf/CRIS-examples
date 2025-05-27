@@ -25,10 +25,10 @@ Module CellioIA. Section CellioIA.
   Lemma simF_set : HSim.sim_fun open CellioA CellioI Ist CellioHdr.set.
   Proof using CtxInSp.
     init_simF.
-
+  
     (* Take (x:Z) & cell(x) *)
     steps_l. iDestruct "ASM" as "->".
-    
+
     (* Call Input() simultaneously *)
     force_l tt. forces_l. iSplit; first eauto.
     call "IST"; eauto.

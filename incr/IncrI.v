@@ -6,12 +6,12 @@ Module IncrI. Section IncrI.
 
   Definition scopes : list string := [].
 
-  Definition incr : list val → itree pmodE unit :=
+  Definition incr : list val → itree hmodE unit :=
     λ arg,
       𝒴;;; '_ : unit <- ccallU FaaHdr.faa2 arg;;
       𝒴;;; Ret tt.
 
-  Definition main : unit → itree pmodE unit :=
+  Definition main : unit → itree hmodE unit :=
     λ _,
       𝒴;;; 'ptr_raw : val <- ccallU MemHdr.alloc [Vint 1%Z];;
       𝒴;;; bofs <- (pargs [Tptr] [ptr_raw])?;;
