@@ -28,16 +28,16 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R $(CRISMODULE)/apc $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/imp_system $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/extract $(CRISMODULE)"; \
-	 echo "-R cannon $(COQMODULE)"; \
-	 echo "-R cellio $(COQMODULE)"; \
-	 echo "-R incr $(COQMODULE)"; \
-	 echo "-R knot $(COQMODULE)"; \
-	 echo "-R map $(COQMODULE)"; \
-	 echo "-R mutsum $(COQMODULE)"; \
-	 echo "-R repeat $(COQMODULE)"; \
-	 echo "-R ring $(COQMODULE)"; \
-	 echo "-R spinlock $(COQMODULE)"; \
-	 echo "-R increment $(COQMODULE)"; \
+	 echo "-R cannon $(CRISMODULE).cannon"; \
+	 echo "-R cellio $(CRISMODULE).cellio"; \
+	 echo "-R incr $(CRISMODULE).incr"; \
+	 echo "-R knot $(CRISMODULE).knot"; \
+	 echo "-R map $(CRISMODULE).map"; \
+	 echo "-R mutsum $(CRISMODULE).mutsum"; \
+	 echo "-R repeat $(CRISMODULE).repeat"; \
+	 echo "-R ring $(CRISMODULE).ring"; \
+	 echo "-R spinlock $(CRISMODULE).spinlock"; \
+	 echo "-R increment $(CRISMODULE).increment"; \
 	 echo $(COQTHEORIES)) > _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 

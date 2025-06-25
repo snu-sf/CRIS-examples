@@ -1,8 +1,9 @@
 Require Import CRIS.
-Require Export ImpPrelude IncrHeader SchHeader SchA SchTactics MemHeader MemA.
+Require Export ImpPrelude SchHeader SchA SchTactics MemA.
+From CRIS.incr Require Import Header.
 From iris Require Import frac_auth numbers.
 
-Section CellioRA.
+Section RA.
   Context `{!sinvG Γ Σ α β τ _I _S}.
 
   Class incrG `{!sinvG Γ Σ α β τ _I _S} := {
@@ -11,10 +12,10 @@ Section CellioRA.
   Definition incrΓ : HRA := #[frac_authR ZR].
   Global Instance subG_incrG : subG incrΓ Γ → incrG.
   Proof. solve_inG. Defined.
-End CellioRA.
+End RA.
 Hint Unfold subG_incrG incr_inG : GRA_index.
 
-Module IncrAS. Section IncrAS.
+Module ClientA. Section ClientA.
   Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
   Context `{_memG: !memG}.
   Context `{_schG: !schG}.
@@ -31,8 +32,8 @@ Module IncrAS. Section IncrAS.
       <own> base_γ (mem_points_to_singleton_r bofs 1%Qp (Vint v))
       ∗ <own> γ (frac_auth_auth v))%SAT.
 
-  Definition incr_inv u n γ bofs : iProp Σ :=
-    inv u n N_main (ccounter_syn n γ bofs).
+  Definition incr_inv n γ bofs : iProp Σ :=
+    inv n N_main (ccounter_syn n γ bofs).
 
   (* rules *)
   Lemma counter_op γ v1 q1 v2 q2 :
@@ -48,27 +49,21 @@ Module IncrAS. Section IncrAS.
     iFrame; done.
   Qed.
 
-  Definition incr_spec u : fspec :=
-    sch_fspec u
+  Definition incr_spec E : fspec :=
+    fspec_sch E
       (fspec_simple (λ '(bofs, v, γ),
-        (λ varg, ⌜varg = ([Vptr bofs]↑↑)↑⌝ ∗ counter γ (1/2) v ∗ incr_inv u 0 γ bofs,
+        (λ varg, ⌜varg = ([Vptr bofs]↑↑)↑⌝ ∗ counter γ (1/2) v ∗ incr_inv 0 γ bofs,
         λ vret, ⌜vret = (tt↑↑)↑⌝ ∗ counter γ (1/2) (v + 2))
       ))%I.
 
-  Definition main_spec u : fspec :=
-    sch_fspec u (fspec_simple (λ _ : unit, (λ arg, ⌜arg = tt↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
+  Definition main_spec E : fspec :=
+    fspec_sch E (fspec_simple (λ _ : unit, (λ arg, ⌜arg = tt↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
 
-  Definition sp u : alist string fspec :=
-    [(IncrHdr.incr, incr_spec u);
-     (IncrHdr.main, main_spec u)].
-End IncrAS. End IncrAS.
+  Definition sp E : alist string fspec :=
+    [(IncrHdr.incr, incr_spec E);
+     (IncrHdr.main, main_spec E)].
 
-Module IncrA. Section IncrA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_memG: !memG}.
-  Context `{_schG: !schG}.
-  Context `{_incrG: !incrG}.
-                
+  (* Module definition *)
   Definition scopes : list string := [].
 
   Definition incr : list val → itree hmodE unit :=
@@ -76,7 +71,7 @@ Module IncrA. Section IncrA.
 
   Definition main : unit → itree hmodE unit :=
     λ _,
-      𝒴;;; 'ptr_raw : val <- ccallU MemHdr.alloc [Vint 1%Z];;
+      𝒴;;; 'ptr_raw : val <- trigger (Choose val);;
       𝒴;;; tid1 <- Sch.spawn (IncrHdr.incr, [ptr_raw]↑↑);;
       𝒴;;; tid2 <- Sch.spawn (IncrHdr.incr, [ptr_raw]↑↑);;
       𝒴;;; Sch.join tid1;;;
@@ -84,18 +79,17 @@ Module IncrA. Section IncrA.
       𝒴;;; trigger (IO (O:=unit) "OUT" 4%Z);;;
       𝒴;;; Ret tt.
 
-  Definition fnsems u :=
-    [(IncrHdr.incr, (wmask_all, scopes, mk_specbody (IncrAS.incr_spec u) (cfunN (sfunN incr))));
-     (IncrHdr.main, (wmask_all, scopes, mk_specbody (IncrAS.main_spec u) (cfunN main)))].
+  Definition fnsems E :=
+    [(IncrHdr.incr, (wmask_all, scopes, mk_specbody (incr_spec E) (cfunN (sfunN incr))));
+     (IncrHdr.main, (wmask_all, scopes, mk_specbody (main_spec E) (cfunN main)))].
 
-  Program Definition Mod u : SMod.t := {|
+  Program Definition Mod E : SMod.t := {|
     SMod.scopes := scopes;
-    SMod.fnsems := fnsems u;
+    SMod.fnsems := fnsems E;
     SMod.initial_st := [];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t u sp : HMod.t :=
-    Seal.sealing CRIS (SMod.to_hmod sp (Mod u)).
-End IncrA. End IncrA.
+  Definition t E sp : HMod.t := Seal.sealing CRIS (SMod.to_hmod sp (Mod E)).
+End ClientA. End ClientA.

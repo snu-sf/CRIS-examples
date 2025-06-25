@@ -1,9 +1,9 @@
 Require Import CRIS Cancel.
 Require Import MemI MemA MemIAproof ImpPrelude.
-Require Import IncrHeader IncrI IncrA IncrIAproof FAA_I FAA_A FAA_IAproof.
+From CRIS.incr Require Import Header ClientI ClientA ClientIA FaaI FaaA FaaIA.
 Require Import SchHeader SchI SchA SchIAproof SchTactics.
 
-Module IncrAll.
+Module ClientAll.
   Import inv_instances.
   Local Definition u : univ_id := 1.
 
@@ -28,14 +28,14 @@ Module IncrAll.
 
   (* source module *)
   Local Definition sp_user_s : string → option fspec :=
-    to_sp (IncrAS.sp u ++ MemA.sp).
+    to_sp (ClientAS.sp u ++ MemA.sp).
   Local Definition smod_src : SMod.t :=
-    (IncrA.Mod u) ☆ (MemA.Mod) ☆ (SchA.Mod u sp_user_s ☆ SchAPure.Mod u).
+    (ClientA.Mod u) ☆ (MemA.Mod) ☆ (SchA.Mod u sp_user_s ☆ SchAPure.Mod u).
   Local Definition sp_s : string → option fspec := sp_from smod_src.
 
   Local Definition smod_cancel : HMod.t := SModCancel.to_hmod smod_src.
   Local Definition mod_src : HMod.t := SMod.to_hmod sp_s smod_src.
-  Local Definition mod_tgt : HMod.t := IncrI.t ★ FaaI.t ★ (MemI.t csl genv) ★ (SchI.t).
+  Local Definition mod_tgt : HMod.t := ClientI.t ★ FaaI.t ★ (MemI.t csl genv) ★ (SchI.t).
 
   Local Definition SchInSp0: sp_incl (SchAS.sp 0 (to_sp [])) (to_sp (SchAS.sp 0 (to_sp []))).
   Proof.
@@ -43,22 +43,22 @@ Module IncrAll.
   Qed.
   Local Definition SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s.
   Proof.
-    ii; rewrite /sp_s /SchAS.sp /MemA.sp /IncrAS.sp; unseal CRIS; split; [prove_nodup|ii].
+    ii; rewrite /sp_s /SchAS.sp /MemA.sp /ClientAS.sp; unseal CRIS; split; [prove_nodup|ii].
     ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
-  Local Definition MainInSp : sp_incl (IncrAS.sp u) sp_user_s.
+  Local Definition MainInSp : sp_incl (ClientAS.sp u) sp_user_s.
   Proof.
-    ii; rewrite /sp_s /SchAS.sp /MemA.sp /IncrAS.sp; unseal CRIS; split; [prove_nodup|ii].
+    ii; rewrite /sp_s /SchAS.sp /MemA.sp /ClientAS.sp; unseal CRIS; split; [prove_nodup|ii].
     ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
   Local Definition MemInSp : sp_incl MemA.sp sp_s.
   Proof.
-    ii; rewrite /sp_s /SchAS.sp /MemA.sp /IncrAS.sp; unseal CRIS; split; [prove_nodup|ii].
+    ii; rewrite /sp_s /SchAS.sp /MemA.sp /ClientAS.sp; unseal CRIS; split; [prove_nodup|ii].
     ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
 
   Local Definition init_cond : iProp Σ := MemA.init_cond csl genv ∗ SchA.init_cond.
-  Local Definition main_fsp : fspec := IncrAS.main_spec u.
+  Local Definition main_fsp : fspec := ClientAS.main_spec u.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
@@ -77,7 +77,7 @@ Module IncrAll.
     { do 3 ctxr_drop.
       eapply main_adequacy, SchIA.sim.
       - apply SchInSp.
-      - rewrite /sp_sub /sp_user_s /sp_s /IncrAS.sp /MemA.sp; unseal CRIS.
+      - rewrite /sp_sub /sp_user_s /sp_s /ClientAS.sp /MemA.sp; unseal CRIS.
         ii; ss. des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
     }
 
@@ -93,12 +93,12 @@ Module IncrAll.
       eapply main_adequacy, FaaIA.sim.
       apply SchInSp0.
     }
-    rewrite /FAA_IAproof.FaaIA.MA.
+    rewrite /FaaIAproof.FaaIA.MA.
     
     (* abstraction of Incr *)
     etrans; cycle 1.
     { ctxr_drop.
-      eapply IncrIA.ctxr.
+      eapply ClientIA.ctxr.
       - apply SchInSp.
       - apply SchInSp0.
       - apply MainInSp.
@@ -111,7 +111,7 @@ Module IncrAll.
     
     rewrite /SchIAproof.SchIA.SchAMod.
     rewrite /SchIAproof.SchIA.SchA /SchIAproof.SchIA.SchAPure.
-    rewrite /SchA.t /SchAPure.t /IncrA.t /MemA.t.
+    rewrite /SchA.t /SchAPure.t /ClientA.t /MemA.t.
     unseal CRIS.
     
     eapply ctxr_cond_strengthen.
@@ -134,7 +134,7 @@ Module IncrAll.
   Proof.
     move: (cancel_tgt)=>H; rewrite /refines in H; ss.
     hexploit H.
-    { rewrite /mod_tgt /IncrI.t /MemI.t /SchI.t /FaaI.t; unseal CRIS; prove_nodup. }
+    { rewrite /mod_tgt /ClientI.t /MemI.t /SchI.t /FaaI.t; unseal CRIS; prove_nodup. }
     clear H; intros [WF H].
     destruct (H (IRΣ ⋅ initial_resource_own_admin)).
     { apply IRΣ_valid. }
@@ -155,4 +155,4 @@ Module IncrAll.
     }
     { exists x; des; eauto. }
   (*SLOW*)Qed.
-End IncrAll.
+End ClientAll.

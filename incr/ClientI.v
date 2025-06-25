@@ -1,7 +1,8 @@
 Require Import CRIS.
-Require Import ImpPrelude IncrHeader MemHeader SchHeader.
+Require Import ImpPrelude MemHeader SchHeader.
+From CRIS.incr Require Import Header.
 
-Module IncrI. Section IncrI.
+Module ClientI. Section ClientI.
   Context {Σ : GRA}.
 
   Definition scopes : list string := [].
@@ -38,4 +39,4 @@ Module IncrI. Section IncrI.
   Next Obligation. prove_nodup. Qed.
 
   Definition t : HMod.t := Seal.sealing CRIS (PMod.to_hmod Mod).
-End IncrI. End IncrI.
+End ClientI. End ClientI.
