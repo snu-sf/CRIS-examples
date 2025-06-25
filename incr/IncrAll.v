@@ -5,7 +5,7 @@ Require Import SchHeader SchI SchA SchIAproof SchTactics.
 
 Module ClientAll.
   Import inv_instances.
-  Local Definition u : univ_id := 1.
+  (* Local Definition u : univ_id := 1. *)
 
   Local Definition csl : string → bool := λ _, false.
   Local Definition genv : GEnv.t := GEnv.unit.
@@ -14,51 +14,53 @@ Module ClientAll.
   Local Instance Σ : GRA := ##[Γ; invΣ; schΣ].
 
   Definition IRΓ : Γ :=
-    **[ir_invΓ u; ir_memΓ csl genv; SchAS.ir_schΓ; *[None]].
+    **[ir_invΓ; ir_memΓ csl genv; SchAS.ir_schΓ; *[None]].
   Definition IRΣ : Σ :=
-    **[IRΓ; ir_invΣ u; SchAS.ir_schΣ].
+    **[IRΓ; ir_invΣ; SchAS.ir_schΣ].
 
   Lemma IRΣ_valid : ✓ (IRΣ ⋅ initial_resource_own_admin).
   Proof.
     solve_ir_valid.
+    - apply ir_ownERA_valid.
     - apply ir_memRA_valid.
     - apply SchAS.ir_tidRA_valid.
+    - apply ir_ownIRA_valid.
     - apply SchAS.ir_threadsRA_valid.
   Qed.
 
   (* source module *)
   Local Definition sp_user_s : string → option fspec :=
-    to_sp (ClientAS.sp u ++ MemA.sp).
+    to_sp (ClientA.sp ⊤ ++ MemA.sp).
   Local Definition smod_src : SMod.t :=
-    (ClientA.Mod u) ☆ (MemA.Mod) ☆ (SchA.Mod u sp_user_s ☆ SchAPure.Mod u).
+    (ClientA.Mod ⊤) ☆ (MemA.Mod) ☆ (SchA.Mod ⊤ sp_user_s ☆ SchAPure.Mod ⊤).
   Local Definition sp_s : string → option fspec := sp_from smod_src.
 
   Local Definition smod_cancel : HMod.t := SModCancel.to_hmod smod_src.
   Local Definition mod_src : HMod.t := SMod.to_hmod sp_s smod_src.
   Local Definition mod_tgt : HMod.t := ClientI.t ★ FaaI.t ★ (MemI.t csl genv) ★ (SchI.t).
 
-  Local Definition SchInSp0: sp_incl (SchAS.sp 0 (to_sp [])) (to_sp (SchAS.sp 0 (to_sp []))).
+  Local Definition SchInSp0: sp_incl (SchAS.sp ⊤ (to_sp [])) (to_sp (SchAS.sp ⊤ (to_sp []))).
   Proof.
     split; [|refl]. rewrite /SchAS.sp; unseal CRIS. prove_nodup.
   Qed.
-  Local Definition SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s.
+  Local Definition SchInSp : sp_incl (SchAS.sp ⊤ sp_user_s) sp_s.
   Proof.
-    ii; rewrite /sp_s /SchAS.sp /MemA.sp /ClientAS.sp; unseal CRIS; split; [prove_nodup|ii].
+    ii; rewrite /sp_s /SchAS.sp /MemA.sp /ClientA.sp; unseal CRIS; split; [prove_nodup|ii].
     ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
-  Local Definition MainInSp : sp_incl (ClientAS.sp u) sp_user_s.
+  Local Definition MainInSp : sp_incl (ClientA.sp ⊤) sp_user_s.
   Proof.
-    ii; rewrite /sp_s /SchAS.sp /MemA.sp /ClientAS.sp; unseal CRIS; split; [prove_nodup|ii].
+    ii; rewrite /sp_s /SchAS.sp /MemA.sp /ClientA.sp; unseal CRIS; split; [prove_nodup|ii].
     ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
   Local Definition MemInSp : sp_incl MemA.sp sp_s.
   Proof.
-    ii; rewrite /sp_s /SchAS.sp /MemA.sp /ClientAS.sp; unseal CRIS; split; [prove_nodup|ii].
+    ii; rewrite /sp_s /SchAS.sp /MemA.sp /ClientA.sp; unseal CRIS; split; [prove_nodup|ii].
     ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
 
   Local Definition init_cond : iProp Σ := MemA.init_cond csl genv ∗ SchA.init_cond.
-  Local Definition main_fsp : fspec := ClientAS.main_spec u.
+  Local Definition main_fsp : fspec := ClientA.main_spec ⊤.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
@@ -77,7 +79,7 @@ Module ClientAll.
     { do 3 ctxr_drop.
       eapply main_adequacy, SchIA.sim.
       - apply SchInSp.
-      - rewrite /sp_sub /sp_user_s /sp_s /ClientAS.sp /MemA.sp; unseal CRIS.
+      - rewrite /sp_sub /sp_user_s /sp_s /ClientA.sp /MemA.sp; unseal CRIS.
         ii; ss. des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
     }
 
@@ -91,19 +93,20 @@ Module ClientAll.
     etrans; cycle 1.
     { do 2 ctxr_drop.
       eapply main_adequacy, FaaIA.sim.
-      apply SchInSp0.
+      (* apply SchInSp0. *)
     }
-    rewrite /FaaIAproof.FaaIA.MA.
+    rewrite /FaaIA.FaaIA.MA.
     
     (* abstraction of Incr *)
     etrans; cycle 1.
     { ctxr_drop.
       eapply ClientIA.ctxr.
-      - apply SchInSp.
-      - apply SchInSp0.
+      - instantiate (1:=⊤). set_solver.
       - apply MainInSp.
+      - apply SchInSp.
+      (* - apply SchInSp0.
       - apply MemInSp.
-      - unfold u. nia.
+      - unfold u. nia. *)
     }
 
     etrans; cycle 1.
@@ -142,14 +145,15 @@ Module ClientAll.
       { iAssert (SchAS.tid_admin None) with "[H22]" as "TID".
         { rewrite /SchAS.tid_admin. unseal "SchA". eauto. }
         iPoseProof (SchAS.tid_admin_none_split 0 with "TID") as "[TA TU]".
-        iSplitR "U W H1 TU".
+        iSplitR "H1 TU H10 H26".
         - rewrite /init_cond. iSplitL "H24".
           { iAssert (mem_init csl genv) with "[H24]" as "[$ _]". eauto. }
           iSplitL "H8".
           { rewrite /SchAS.init_threads. unseal "SchA". eauto. }
           eauto.
         - iPoseProof (make_own_admin with "H1") as "$".
-          unfold_pre_post; iFrame. eauto.
+          unfold_pre_post; iFrame. iSplit; last done. iExists 0; iSplitL "H10"; ss. rewrite /wsatl //=.
+          (* eauto. *)
       }
       all: solve_res.
     }
