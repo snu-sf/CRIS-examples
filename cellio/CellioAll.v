@@ -1,16 +1,15 @@
 Require Import CRIS Cancel.
 Require Import ImpPrelude.
-Require Import CellioHeader MainHeader.
-Require Import CellioA CellioI MainA MainI CtxA.
-Require Import CellioIAproof MainIAproof.
+Require Import MainHeader.
+From CRIS.cellio Require Import CellioHeader CellioA CellioI MainA MainI CtxA CellioIAproof MainIAproof.
 
 Module CellioAll. Section CellioAll.
   Import inv_instances.
 
   Local Instance Γ : HRA := ##[invΓ; cellioΓ].
   Local Instance Σ : GRA := ##[Γ; invΣ].
-  Local Definition irΓ : Γ := **[ir_invΓ 1; CellioA.irΓ].
-  Local Definition irΣ : Σ := **[irΓ; ir_invΣ 1].
+  Local Definition irΓ : Γ := **[ir_invΓ; CellioA.irΓ].
+  Local Definition irΣ : Σ := **[irΓ; ir_invΣ].
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof.
     solve_ir_valid.

@@ -1,6 +1,6 @@
-Require Import CRIS.
+Require Import CRIS MemA.
 
-Require Import MapHeader MapA MapM MapI ModSim MapIMproof MapMAproof MemA.
+From CRIS.map Require Import Header MapA MapM MapI  MapIMproof MapMAproof.
 
 Module MapIA. Section MapIA.
   Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.

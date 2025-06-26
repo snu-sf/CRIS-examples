@@ -16,8 +16,8 @@ Module KnotAll.
   Local Instance Γ : HRA := ##[invΓ; memΓ; knotΓ].
   Local Instance Σ : GRA := ##[Γ; invΣ].
   (* initial resource *)
-  Local Definition irΓ : Γ := **[ir_invΓ 0; ir_memΓ csl genv; ir_knotAΓ].
-  Local Definition irΣ : Σ := **[irΓ; ir_invΣ 0].
+  Local Definition irΓ : Γ := **[ir_invΓ; ir_memΓ csl genv; ir_knotAΓ].
+  Local Definition irΣ : Σ := **[irΓ; ir_invΣ].
 
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof.

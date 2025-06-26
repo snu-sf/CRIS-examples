@@ -1,7 +1,7 @@
 Require Import CRIS.
 
 Require Import MemA.
-Require Import MapHeader MapI MapM.
+From CRIS.map Require Import Header MapI MapM.
 
 Set Implicit Arguments.
 

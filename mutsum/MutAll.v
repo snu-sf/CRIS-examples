@@ -11,8 +11,8 @@ Module MutAll.
 
   Local Instance Γ : HRA := ##[invΓ].
   Local Instance Σ : GRA := ##[Γ; invΣ].
-  Definition irΓ : Γ := **[ir_invΓ 0].
-  Definition irΣ : Σ := **[irΓ; ir_invΣ 0].
+  Definition irΓ : Γ := **[ir_invΓ].
+  Definition irΣ : Σ := **[irΓ; ir_invΣ].
 
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
   Proof. solve_ir_valid. Qed.

@@ -21,10 +21,8 @@ Module ClientAll.
   Lemma IRΣ_valid : ✓ (IRΣ ⋅ initial_resource_own_admin).
   Proof.
     solve_ir_valid.
-    - apply ir_ownERA_valid.
     - apply ir_memRA_valid.
     - apply SchAS.ir_tidRA_valid.
-    - apply ir_ownIRA_valid.
     - apply SchAS.ir_threadsRA_valid.
   Qed.
 
@@ -145,15 +143,14 @@ Module ClientAll.
       { iAssert (SchAS.tid_admin None) with "[H22]" as "TID".
         { rewrite /SchAS.tid_admin. unseal "SchA". eauto. }
         iPoseProof (SchAS.tid_admin_none_split 0 with "TID") as "[TA TU]".
-        iSplitR "H1 TU H10 H26".
+        iSplitR "H1 TU U W".
         - rewrite /init_cond. iSplitL "H24".
           { iAssert (mem_init csl genv) with "[H24]" as "[$ _]". eauto. }
           iSplitL "H8".
           { rewrite /SchAS.init_threads. unseal "SchA". eauto. }
           eauto.
         - iPoseProof (make_own_admin with "H1") as "$".
-          unfold_pre_post; iFrame. iSplit; last done. iExists 0; iSplitL "H10"; ss. rewrite /wsatl //=.
-          (* eauto. *)
+          unfold_pre_post; iFrame. done.
       }
       all: solve_res.
     }

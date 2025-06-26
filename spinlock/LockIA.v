@@ -1,34 +1,33 @@
 Require Import CRIS.
-
-Require Import ImpPrelude.
-Require Import SpinLockHeader SpinLockI SpinLockA MemA.
+From CRIS.spinlock Require Import Header LockI LockA.
+Require Import ImpPrelude MemA.
 Require Import SchHeader SchA SchTactics.
 
-Module SpinLockIA. Section SpinLockIA.
-  Import SpinLockAS.
+Module LockIA. Section LockIA.
+  Import LockAS.
   Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
   Context `{_memG: !memG}.
   Context `{_schG: !schG}.
   Context `{_spinlockG: !spinlockG}.
 
-  Context (u_a : univ_id). (* univ_id of the source/mem module *)
+  Context (E : coPset) (Hsub : ↑N_SpinLockA ⊆ E). (* univ_id of the source/mem module *)
   Context (sp_s sp_user_s : string → option fspec). (* sps of lock/sch/mem *)
-  Context (SchInSp : sp_incl (SchAS.sp u_a sp_user_s) sp_s).
+  Context (SchInSp : sp_incl (SchAS.sp E sp_user_s) sp_s).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
   Local Definition MemP := MemP.t.
-  Local Definition SpinLockA := (SpinLockA.t u_a sp_s).
+  Local Definition SpinLockA := (SpinLockA.t E sp_s).
   Local Definition SpinLockI := (SpinLockI.t).
   Local Definition IstFull := (IstProd (IstSB SpinLockA.(HMod.scopes) Ist) IstEq).
   Local Definition MA := (SpinLockA ★ MemP).
   Local Definition MI := (SpinLockI ★ MemP).
 
   Lemma newlock_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.newlock.
-  Proof using SchInSp.
-    init_simF u_a 0.
+  Proof using SchInSp Hsub.
+    init_simF.
     (* preprocess initial conditions *)
-    steps_l. rename q1 into tid. destruct q2 as [n P]; s. iDestruct "ASM" as "[[TID P] ->]". hss.
+    steps_l. rename q1 into tid. destruct q2 as [n P]; s. iDestruct "ASM" as "[TID [P ->]]". hss.
     steps_r.
     (* tgt yield *)
     sch_yield_r. iFrame. clear nths NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST TID".
@@ -39,7 +38,7 @@ Module SpinLockIA. Section SpinLockIA.
     (* tgt yield *)
     sch_yield_r. iFrame. clear nths st_s st_t NODS NODD; iIntros (nths st_s st_t NODS NODD) "IST TID".
     (* tgt inline - mem store *)
-    inline_r. force_r (blk, 0%Z, _, Vint 0). iSplitL "PT"; s; et.
+    inline_r. force_r (blk, 0%Z, _, Vint 0). s. iSplitL "PT"; s; et.
     iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[PT ->]".
     hss. steps_r.
     (* src/tgt yield *)
@@ -48,7 +47,7 @@ Module SpinLockIA. Section SpinLockIA.
     (* prove source postcondition *)
     (* alloc invariant *)
     iApply (wsim_own_alloc (Excl ())); ss. iIntros "[%γ TKN]".
-    iMod (inv_alloc (SpinLockAS.lock_inv (blk, 0%Z) P γ) u_a _ _ N_SpinLockA with "[P PT TKN]") as "#I"; eauto.
+    iMod (inv_alloc (LockAS.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA with "[P PT TKN]") as "#I"; eauto.
     { rewrite /lock_inv /=; SL_red; iRight; iFrame. }
     forces_l. iFrame. iSplit; eauto.
     { iSplit; eauto. rewrite /is_lock. iExists _, _; iSplit; eauto. }
@@ -56,10 +55,10 @@ Module SpinLockIA. Section SpinLockIA.
   (*SLOW*)Qed.
 
   Lemma acquire_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.acquire.
-  Proof using SchInSp.
-    init_simF u_a 0.
+  Proof using SchInSp Hsub.
+    init_simF.
     (* process src precondition *)
-    steps_l. iDestruct "ASM" as "[[% [TID #LOCK]] %]". hss.
+    steps_l. iDestruct "ASM" as "[TID [[-> #LOCK] ->]]". hss.
     iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs]. steps_r.
     (* start coinduction for lock acquire/failure *)
     iApply wsim_reset.
@@ -117,11 +116,11 @@ Module SpinLockIA. Section SpinLockIA.
   (*SLOW*)Qed.
 
   Lemma release_simF : HSim.sim_fun open MA MI IstFull SpinLockHdr.release.
-  Proof using SchInSp.
-    init_simF u_a 0.
+  Proof using SchInSp Hsub.
+    init_simF.
     (* process src precondition *)
     steps_l.
-    iDestruct "ASM" as "[(% & TID & #LOCK & TKN & Q) %]".
+    iDestruct "ASM" as "[TID [(% & #LOCK & TKN & Q) %]]".
     iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs].
     hss.
     steps_r.
@@ -159,9 +158,9 @@ Module SpinLockIA. Section SpinLockIA.
   Qed.
 
   (* ctxr works as a unit in compositions of module simulations *)
-  Lemma ctxr:
+  Lemma ctxr :
     ctx_refines
-      (SpinLockA.t u_a sp_s ★ MemP.t, emp%I)
-      (SpinLockI.t          ★ MemP.t, emp%I).
+      (SpinLockA.t E sp_s ★ MemP.t, emp%I)
+      (SpinLockI.t        ★ MemP.t, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
-End SpinLockIA. End SpinLockIA.
+End LockIA. End LockIA.

@@ -1,6 +1,6 @@
 Require Import CRIS.
 
-Require Import MapHeader.
+From CRIS.map Require Import Header.
 
 Set Implicit Arguments.
 

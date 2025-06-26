@@ -1,5 +1,6 @@
 Require Import CRIS.
-Require Import ImpPrelude SchHeader SchA MemHeader MemA SpinLockMainHeader SpinLockA.
+From CRIS.spinlock Require Import Header LockA.
+Require Import ImpPrelude SchHeader SchA MemHeader MemA.
 From iris Require Import frac_auth numbers.
 
 (** Specification Module of SpinLockMainI *)
@@ -19,8 +20,8 @@ Hint Unfold subG_spinlockmainG spinlockmain_inG : GRA_index.
 
 (* Spec definition *)
 (* Define 1) initial resource 2) function specs 3) sp here. *)
-Module SpinLockMainAS. Section SpinLockMainAS.
-  Import SpinLockAS.
+Module MainAS. Section MainAS.
+  Import LockAS.
   Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
   Context `{_memG: !memG}.
   Context `{_schG: !schG}.
@@ -30,59 +31,58 @@ Module SpinLockMainAS. Section SpinLockMainAS.
   (* initial resource *)
   Definition ir : spinlockmainΓ := *[None].
 
-  Definition main_spec u : fspec :=
-    wsim_fspec u
+  Definition main_spec E : fspec :=
+    fspec_sch E
       (fspec_simple (λ _ : unit,
-        (λ arg, ⌜arg = tt↑⌝ ∗ SchAS.tid_user 0,
+        (λ arg, ⌜arg = tt↑⌝,
         λ ret, ⌜ret = tt↑⌝)))%I.
 
   Definition lock_P loc γ : GTerm.t 0 :=
     ∃ v : τ{Z}%SAT, loc ↦ (Vint v) ∗ <own> γ (●F v).
 
-  Definition incr_spec u : fspec :=
-    wsim_fspec u
-      (fspec_simple (λ '(tid, bofs_l, bofs_v, γ_v),
+  Definition incr_spec E : fspec :=
+    fspec_sch E
+      (fspec_simple (λ '(bofs_l, bofs_v, γ_v),
         ((λ arg,
-          ⌜arg = ([Vptr bofs_l; Vptr bofs_v]↑↑)↑⌝
-          ∗ SchAS.tid_user tid
-          ∗ (∃ γ_l, is_lock u γ_l (Vptr bofs_l) (lock_P bofs_v γ_v)
-          ∗ own γ_v (◯F{1/2} 0%Z))),
+          ⌜arg = ([Vptr bofs_l; Vptr bofs_v]↑↑)↑⌝ ∗
+          (∃ γ_l, is_lock γ_l (Vptr bofs_l) (lock_P bofs_v γ_v) ∗
+          own γ_v (◯F{1/2} 0%Z))),
         (λ ret,
           ⌜ret = ((Vundef)↑↑)↑⌝
-          ∗ SchAS.tid_user tid
           ∗ own γ_v (◯F{1/2} 1%Z)))
       ))%I.
 
   (* pre/postconditions for threads to be spawned *)
-  Definition incr_pre u bofs_l bofs_v γ_v : SAny.t → SAny.t → iProp Σ :=
+  Definition incr_pre bofs_l bofs_v γ_v : SAny.t → SAny.t → iProp Σ :=
     λ varg arg,
       (⌜varg = arg⌝
       ∗ (⌜varg = [Vptr bofs_l; Vptr bofs_v]↑↑⌝
-      ∗ ∃ γ_l, is_lock u γ_l (Vptr bofs_l) (lock_P bofs_v γ_v)
+      ∗ ∃ γ_l, is_lock γ_l (Vptr bofs_l) (lock_P bofs_v γ_v)
           ∗ own γ_v (◯F{1/2} 0%Z)))%I.
 
   Definition incr_post γ_v : SAny.t → SAny.t → SynDepO :=
     (λ _ _, existT 0 (<own> γ_v (◯F{1/2} 1%Z)))%SAT.
 
-  Lemma incr_spawnable u bofs_l bofs_v γ_v :
-    SchAS.fspec_spawnable u (incr_spec u)
-      (incr_pre u bofs_l bofs_v γ_v) (incr_post γ_v).
+  Lemma incr_spawnable E bofs_l bofs_v γ_v :
+    SchAS.fspec_spawnable E (incr_spec E)
+      (incr_pre bofs_l bofs_v γ_v) (incr_post γ_v).
   Proof.
     intros x_s; ss.
-    exists (x_s, bofs_l, bofs_v, γ_v); split.
+    exists (x_s, (bofs_l, bofs_v, γ_v)); split.
     { intros varg arg. unfold_pre_post.
       iIntros "[W [%va [-> [TID [%sarg [-> [-> [-> P]]]]]]]]".
       iFrame. iModIntro. iSplit; eauto.
     }
-    { iIntros (vret ret); rewrite /postcond /incr_spec /=; iIntros "[$ [[-> [TID R]] ->]] /=".
+    { iIntros (vret ret); rewrite /postcond /incr_spec /=.
+      iIntros "[$ [$ [[-> F] ->]]]".
       iFrame. iModIntro; iExists _; iSplit; eauto. iExists _. iSplit; eauto. SL_red; done.
     }
   Qed.
 
-  Definition sp u : alist string fspec :=
-    [(SpinLockMainHdr.main, main_spec u);
-     (SpinLockMainHdr.incr, incr_spec u)].
-End SpinLockMainAS. End SpinLockMainAS.
+  Definition sp E : alist string fspec :=
+    [(SpinLockMainHdr.main, main_spec E);
+     (SpinLockMainHdr.incr, incr_spec E)].
+End MainAS. End MainAS.
 
 (* Module definition *)
 (* Define three components for a module:
@@ -120,8 +120,8 @@ Module SpinLockMainA. Section SpinLockMainA.
       Ret Vundef.
 
   Definition fnsems u :=
-    [(SpinLockMainHdr.main, (wmask_all, scopes, mk_specbody (SpinLockMainAS.main_spec u) (cfunN main)));
-     (SpinLockMainHdr.incr, (wmask_all, scopes, mk_specbody (SpinLockMainAS.incr_spec u) (cfunN (sfunN incr))))].
+    [(SpinLockMainHdr.main, (wmask_all, scopes, mk_specbody (MainAS.main_spec u) (cfunN main)));
+     (SpinLockMainHdr.incr, (wmask_all, scopes, mk_specbody (MainAS.incr_spec u) (cfunN (sfunN incr))))].
 
   Program Definition Mod u : SMod.t := {|
     SMod.scopes := [];

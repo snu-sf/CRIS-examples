@@ -5,3 +5,8 @@ Module SpinLockHdr.
   Definition acquire := "acquire".
   Definition release := "release".
 End SpinLockHdr.
+
+Module SpinLockMainHdr.
+  Definition main := "CRIS_init".
+  Definition incr := "incr".
+End SpinLockMainHdr.

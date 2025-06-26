@@ -1,5 +1,6 @@
 Require Import CRIS.
-Require Import ImpPrelude MemHeader MemA SpinLockHeader.
+From CRIS.spinlock Require Import Header.
+Require Import ImpPrelude MemHeader MemA.
 Require Import SchHeader SchA.
 From iris Require Import excl.
 
@@ -26,7 +27,7 @@ Hint Unfold subG_spinlockG spinlock_inG : GRA_index.
 
 (* Spec definition *)
 (* Define 1) initial resource 2) function specs 3) sp here. *)
-Module SpinLockAS. Section SpinLockAS.
+Module LockAS. Section LockAS.
   Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
   Context `{_memG: !memG}.
   Context `{_schG: !schG}.
@@ -43,44 +44,42 @@ Module SpinLockAS. Section SpinLockAS.
     bofs ↦ (Vint 1)
     ∨ bofs ↦ (Vint 0) ∗ P ∗ token n γ.
 
-  Definition is_lock {n} u γ val P : iProp Σ :=
-    ∃ bofs, ⌜val = Vptr bofs⌝ ∗ inv u n N_SpinLockA (lock_inv bofs P γ).
+  Definition is_lock {n} γ val P : iProp Σ :=
+    ∃ bofs, ⌜val = Vptr bofs⌝ ∗ inv n N_SpinLockA (lock_inv bofs P γ).
 
   (* Function specs *)
-  Definition newlock_spec u : fspec :=
-    wsim_fspec u
-      (fspec_simple (X := nat * {n & GTerm.t n})
-        (λ '(tid, (existT n P)),
-          ((λ _, SchAS.tid_user tid ∗ ⟦P⟧),
-          (λ ret, SchAS.tid_user tid ∗ ∃ val γ, ⌜ret = val↑⌝ ∗ is_lock u γ val P))
+  Definition newlock_spec E : fspec :=
+    fspec_sch E
+      (fspec_simple (X := {n & GTerm.t n})
+        (λ '(existT n P),
+          ((λ _, ⟦P⟧),
+          (λ ret, ∃ val γ, ⌜ret = val↑⌝ ∗ is_lock γ val P))
       ))%I.
 
-  Definition acquire_spec u : fspec :=
-    wsim_fspec u
-      (fspec_simple (X := nat * gname * val * {n & GTerm.t n})
-        (λ '(tid, γ, val, P),
-          ((λ arg, ⌜arg = [val]↑⌝ ∗ SchAS.tid_user tid ∗ is_lock u γ val (projT2 P)),
-          (λ ret, ⌜ret = Vundef↑⌝ ∗ SchAS.tid_user tid ∗ ⟦token (projT1 P) γ⟧ ∗ ⟦projT2 P⟧))
+  Definition acquire_spec E : fspec :=
+    fspec_sch E
+      (fspec_simple (X := gname * val * {n & GTerm.t n})
+        (λ '(γ, val, P),
+          ((λ arg, ⌜arg = [val]↑⌝ ∗ is_lock γ val (projT2 P)),
+          (λ ret, ⌜ret = Vundef↑⌝ ∗ ⟦token (projT1 P) γ⟧ ∗ ⟦projT2 P⟧))
       ))%I.
 
-  Definition release_spec u : fspec :=
-    wsim_fspec u
-      (fspec_simple (X := nat * gname * val * {n & GTerm.t n})
-        (λ '(tid, γ, val, P),
+  Definition release_spec E : fspec :=
+    fspec_sch E
+      (fspec_simple (X := gname * val * {n & GTerm.t n})
+        (λ '(γ, val, P),
           ((λ arg, ⌜arg = [val]↑⌝
-            ∗ SchAS.tid_user tid
-            ∗ is_lock u γ val (projT2 P)
+            ∗ is_lock γ val (projT2 P)
             ∗ ⟦token (projT1 P) γ⟧
             ∗ ⟦projT2 P⟧),
-          (λ ret, ⌜ret = Vundef↑⌝
-            ∗ SchAS.tid_user tid))
+          (λ ret, ⌜ret = Vundef↑⌝))
       ))%I.
 
-  Definition sp u : alist string fspec :=
-    [(SpinLockHdr.newlock, newlock_spec u);
-     (SpinLockHdr.acquire, acquire_spec u);
-     (SpinLockHdr.release, release_spec u)].
-End SpinLockAS. End SpinLockAS.
+  Definition sp E : alist string fspec :=
+    [(SpinLockHdr.newlock, newlock_spec E);
+     (SpinLockHdr.acquire, acquire_spec E);
+     (SpinLockHdr.release, release_spec E)].
+End LockAS. End LockAS.
 
 (* Module definition *)
 (* Define three components for a module:
@@ -107,9 +106,9 @@ Module SpinLockA. Section SpinLockA.
   Definition release : list val → itree hmodE val := λ _, 𝒴;;; Ret Vundef.
 
   Definition fnsems u :=
-    [(SpinLockHdr.newlock, (wmask_all, scopes, mk_specbody (SpinLockAS.newlock_spec u) (cfunU newlock)));
-     (SpinLockHdr.acquire, (wmask_all, scopes, mk_specbody (SpinLockAS.acquire_spec u) (cfunU acquire)));
-     (SpinLockHdr.release, (wmask_all, scopes, mk_specbody (SpinLockAS.release_spec u) (cfunU release)))].
+    [(SpinLockHdr.newlock, (wmask_all, scopes, mk_specbody (LockAS.newlock_spec u) (cfunU newlock)));
+     (SpinLockHdr.acquire, (wmask_all, scopes, mk_specbody (LockAS.acquire_spec u) (cfunU acquire)));
+     (SpinLockHdr.release, (wmask_all, scopes, mk_specbody (LockAS.release_spec u) (cfunU release)))].
 
   Program Definition Mod u : SMod.t := {|
     SMod.scopes := [];

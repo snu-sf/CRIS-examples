@@ -1,6 +1,6 @@
 Require Import CRIS.
 
-Require Import MapHeader MapM MapA.
+From CRIS.map Require Import Header MapM MapA.
 
 Set Implicit Arguments.
 
@@ -79,7 +79,7 @@ Module MapMA. Section MapMA.
     (* TGT : handle the body of get *)
     hss. steps_r. hss. steps_r.
     iPoseProof (auth_unallocated_points_to with "U MAP") as "%".
-    force_r; first eauto.
+    force_r; iSplit; first eauto.
 
     (* TGT: handle the postcond of get *)
     steps_r. hss. steps_r. iDestruct "GRT" as "(_ & <-)".
@@ -112,7 +112,7 @@ Module MapMA. Section MapMA.
     (* TGT : handle the body of set *)
     hss. steps_r. hss. steps_r.
     iPoseProof (auth_unallocated_points_to with "U MAP") as "%".
-    force_r; first done. steps_r. hss. steps_r.
+    force_r; iSplit; first done. steps_r. hss. steps_r.
 
     (* TGT: handle the postcond of set *)
     iDestruct "GRT" as "(_ & <-)".

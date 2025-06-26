@@ -1,16 +1,12 @@
 Require Import CRIS.
+From CRIS.spinlock Require Import Header LockI LockA LockIA MainI MainA MainIA.
 Require Import ImpPrelude MemI MemA MemIAproof.
-Require Import SpinLockHeader SpinLockI SpinLockA SpinLockIAProof.
-Require Import SpinLockMainHeader SpinLockMainI SpinLockMainA SpinLockMainIAProof.
 Require Import SchHeader SchI SchA SchIAproof.
 Require Import ElimRel SModCancel Cancellation.
 
 (* Cancellation *)
-Module SpinLockAll.
+Module MainAll.
   Import inv_instances.
-
-  (* univ_id for the source module *)
-  Local Definition u : univ_id := 1.
 
   (* initialization parameters for memory module *)
   Local Definition csl : string → bool := λ _, false.
@@ -22,9 +18,9 @@ Module SpinLockAll.
 
   (* initial resources for HRA & GRA *)
   Definition irΓ : Γ :=
-    **[ir_invΓ u; ir_memΓ csl genv; SchAS.ir_schΓ; SpinLockAS.ir; SpinLockMainAS.ir].
+    **[ir_invΓ; ir_memΓ csl genv; SchAS.ir_schΓ; LockAS.ir; MainAS.ir].
   Definition irΣ : Σ :=
-    **[irΓ; ir_invΣ u; SchAS.ir_schΣ].
+    **[irΓ; ir_invΣ; SchAS.ir_schΣ].
 
   (* validity lemma for the initial resource irΣ *)
   Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
@@ -40,11 +36,11 @@ Module SpinLockAll.
 
   (* sp of source module (scheduler spec excluded) *)
   Local Definition sp_user_s : string → option fspec :=
-    to_sp (SpinLockMainAS.sp u ++ SpinLockAS.sp u).
+    to_sp (MainAS.sp ⊤ ++ LockAS.sp ⊤).
 
   (* the source SMod *)
   Local Definition smod_src : SMod.t :=
-    SpinLockMainA.Mod u ☆ SpinLockA.Mod u ☆ (SchA.Mod u sp_user_s ☆ SchAPure.Mod u).
+    SpinLockMainA.Mod ⊤ ☆ SpinLockA.Mod ⊤ ☆ (SchA.Mod ⊤ sp_user_s ☆ SchAPure.Mod ⊤).
   (* the source sp *)
   Local Definition sp_s : string → option fspec :=
     sp_from smod_src.
@@ -58,14 +54,14 @@ Module SpinLockAll.
   Local Definition smod_cancel : HMod.t := SModCancel.to_hmod smod_src.
 
   (* Some assumptions on sp inclusion *)
-  Lemma SchInSp : sp_incl (SchAS.sp u sp_user_s) sp_s.
+  Lemma SchInSp : sp_incl (SchAS.sp ⊤ sp_user_s) sp_s.
   Proof.
     rewrite /sp_user_s /SchAS.sp /sp_s /smod_src; unseal CRIS. split; first prove_nodup.
     ii. ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
-  Lemma MainInSp : sp_incl (SpinLockMainAS.sp u) sp_user_s.
+  Lemma MainInSp : sp_incl (MainAS.sp ⊤) sp_user_s.
   Proof.
-    rewrite /sp_user_s /SpinLockMainAS.sp /sp_s /smod_src; unseal CRIS. split; first prove_nodup.
+    rewrite /sp_user_s /MainAS.sp /sp_s /smod_src; unseal CRIS. split; first prove_nodup.
     ii. ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
   Lemma UserInSp : sp_sub sp_user_s sp_s.
@@ -75,11 +71,11 @@ Module SpinLockAll.
   Qed.
 
   (* Refinement between smod_cancel and smod_src *)
-  Local Definition main_fsp : fspec := SpinLockMainAS.main_spec u.
+  Local Definition main_fsp : fspec := MainAS.main_spec ⊤.
   Lemma cancel_src :
-    refines (smod_cancel, init_cond ∗ main_fsp.(precond) tt tt↑ tt↑)%I
+    refines (smod_cancel, init_cond ∗ main_fsp.(precond) (0, tt) tt↑ tt↑)%I
             (mod_src,     init_cond).
-  Proof. eapply cancellation; try by econs. i. unfold_pre_post. iIntros "[_ [-> ->]]". done. Qed.
+  Proof. eapply cancellation; try by econs. i. unfold_pre_post. iIntros "[_ [_ [-> ->]]]". done. Qed.
 
   (* Refinement between smod_src and mod_tgt *)
   Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
@@ -92,7 +88,7 @@ Module SpinLockAll.
     { do 3 ctxr_rotate. do 3 ctxr_drop.
       eapply SchIA.ctxr.
       - apply SchInSp.
-      - rewrite /sp_sub /sp_user_s /sp_s /SpinLockMainAS.sp; unseal CRIS.
+      - rewrite /sp_sub /sp_user_s /sp_s /MainAS.sp; unseal CRIS.
         ii; ss. des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
     }
 
@@ -105,13 +101,15 @@ Module SpinLockAll.
     (* abstraction of SpinLock *)
     etrans; cycle 1.
     { do 2 ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
-      eapply SpinLockIA.ctxr. apply SchInSp.
+      eapply LockIA.ctxr.
+      { instantiate (1:=⊤). set_solver. }
+      apply SchInSp.
     }
     
     (* abstraction of SpinLockMain *)
     etrans; cycle 1.
     { do 2 ctxr_drop. ctxr_swap. ctxr_rotate.
-      eapply SpinLockMainIA.ctxr.
+      eapply MainIA.ctxr.
       - apply SchInSp.
       - apply MainInSp.
     }
@@ -136,7 +134,7 @@ Module SpinLockAll.
 
   (* source HMod ⊆ source SMod ⊆ cancelled HMod *)
   Lemma cancel_tgt :
-    refines (smod_cancel, (init_cond ∗ (main_fsp).(precond) tt tt↑ tt↑)%I)
+    refines (smod_cancel, (init_cond ∗ (main_fsp).(precond) (0, tt) tt↑ tt↑)%I)
             (mod_tgt, emp%I).
   Proof.
     etrans.
@@ -161,9 +159,10 @@ Module SpinLockAll.
       { iAssert (SchAS.tid_admin None) with "[H26]" as "TID".
         { rewrite /SchAS.tid_admin. unseal "SchA". iFrame. }
         iPoseProof (SchAS.tid_admin_none_split 0 with "TID") as "[TID1 TID2]".
-        { iSplitR "U W H1 TID2"; cycle 1.
+        { iSplitR "H1 U W TID2"; cycle 1.
           { iPoseProof (make_own_admin with "H1") as "$".
-            unfold_pre_post; iFrame. eauto. }
+            unfold_pre_post; iFrame. done.
+          }
           rewrite /init_cond. iSplitL "H28".
           { iAssert (mem_init csl genv) with "[H28]" as "[$ _]". eauto. }
           iSplitL "H8".
@@ -175,4 +174,4 @@ Module SpinLockAll.
     }
     { exists x; des; eauto. }
   (*SLOW*)Qed.
-End SpinLockAll.
+End MainAll.
