@@ -7,10 +7,10 @@ Local Open Scope nat_scope.
 
 Module CannonIA. Section CannonIA.
   Import CannonAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cannonG: !cannonG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cannonG}.
 
-  Context (Sp_s : string → option fspec).
+  Context (Sp_s : sp_type).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     (λ _ st_s st_t,
@@ -21,7 +21,7 @@ Module CannonIA. Section CannonIA.
   Local Definition CannonAMod := (CannonA.t Sp_s).
   Local Definition CannonIMod := (CannonI.t).
 
-  Lemma simF_fire : HSim.sim_fun open CannonAMod CannonIMod Ist CannonHdr.fire.
+  Lemma simF_fire : HSim.sim_fun open CannonAMod CannonIMod CannonA.init_cond Ist (Some CannonHdr.fire).
   Proof using.
     init_simF.
 
@@ -46,14 +46,14 @@ Module CannonIA. Section CannonIA.
   Theorem sim : HSim.t open CannonAMod CannonIMod CannonA.init_cond Ist.
   Proof using.
     init_sim.
-    - iIntros "IC". unfold Ist, CannonA.init_cond. iLeft. iFrame; eauto.
+    - split; eauto. iIntros "IC". unfold Ist, CannonA.init_cond. iLeft. iFrame; eauto.
     - eapply simF_fire.
   Qed.
 End CannonIA.
 
 Section ctxr.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cannonG: !cannonG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cannonG}.
 
   Theorem ctxr (Sp_s : string → option fspec):
     ctx_refines

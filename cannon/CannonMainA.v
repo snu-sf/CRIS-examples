@@ -6,8 +6,8 @@ Set Implicit Arguments.
 
 Module MainAS. Section MainAS.
   Import CannonAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cannonG: !cannonG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cannonG}.
 
   Definition main_spec : fspec :=
     fspec_simple (λ _ : unit,
@@ -15,14 +15,14 @@ Module MainAS. Section MainAS.
       (λ ret, ⌜ret = tt↑⌝))
     )%I.
 
-  Definition Sp : alist string fspec :=
-    Seal.sealing CRIS [(MainHdr.main, main_spec)].
+  Definition Sp : spl_type :=
+    Seal.sealing CRIS [(None, Some main_spec)].
 End MainAS. End MainAS.
 
 Module MainA. Section MainA.
   Import CannonAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cannonG: !cannonG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cannonG}.
 
   Variable num_fire : nat.
 
@@ -40,8 +40,8 @@ Module MainA. Section MainA.
   Definition main : list val → itree hmodE unit :=
     λ _, main_repeat num_fire.
 
-  Definition fnsems :=
-    [(MainHdr.main, (wmask_all, scopes, mk_specbody MainAS.main_spec (cfunU main)))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(None, (true, wmask_all, scopes, (Some MainAS.main_spec, cfunU main)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

@@ -8,6 +8,5 @@ Definition fire := "Cannon.fire".
 End CannonHdr.
 
 Module MainHdr.
-  Definition main := "CRIS_init".
-  (* Definition main := "Main.main". *)
+  Definition main: option string := None.
 End MainHdr.

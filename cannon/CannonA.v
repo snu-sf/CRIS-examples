@@ -7,11 +7,11 @@ Set Implicit Arguments.
 Set Implicit Arguments.
 
 Section RA.
-  Context `{!sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
   
   Local Definition RA : ucmra := excl_authR unitO.
 
-  Class cannonG `{!sinvG Γ Σ α β τ _I _S} := {
+  Class cannonG `{!crisG Γ Σ α β τ _I _S} := {
     cannon_inG :: inG (excl_authR unitO) Γ;
   }.
   Definition cannonΓ : HRA := #[excl_authR unitO].
@@ -21,8 +21,8 @@ End RA.
 Hint Unfold subG_cannonG cannon_inG : GRA_index.
 
 Module CannonAS. Section CannonAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cannonG: !cannonG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cannonG}.
                    
   Definition Ready : iProp Σ := own base_γ (●E tt).
   Definition Ball : iProp Σ := own base_γ (◯E tt).
@@ -57,8 +57,8 @@ Module CannonAS. Section CannonAS.
       (λ ret, (⌜ret = (1: Z)%Z↑⌝)))
     )%I.
 
-  Definition Sp : alist string fspec :=
-    Seal.sealing CRIS [(CannonHdr.fire, fire_spec)].
+  Definition Sp : spl_type :=
+    Seal.sealing CRIS [(Some CannonHdr.fire, Some fire_spec)].
 
   Lemma Sp_nodup : List.NoDup (List.map fst Sp).
   Proof. unfold Sp. unseal CRIS. prove_nodup. Qed.
@@ -66,8 +66,8 @@ End CannonAS. End CannonAS.
 
 Module CannonA. Section CannonA.
   Import CannonAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cannonG: !cannonG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cannonG}.
 
   Definition scopes := ["Cannon"].
   Definition v_lv := "Cannon" ↯ "lv".
@@ -78,8 +78,8 @@ Module CannonA. Section CannonA.
       _ <- trigger (@IO _ unit "print" [r]↑);;
       Ret r.
 
-  Definition fnsems :=
-    [(CannonHdr.fire, (wmask_all, scopes, mk_specbody CannonAS.fire_spec (cfunU fire)))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some CannonHdr.fire, (true, wmask_all, scopes, (Some CannonAS.fire_spec, cfunU fire)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

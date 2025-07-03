@@ -23,16 +23,16 @@ Module CannonI. Section CannonI.
       cput v_lv (powder - 1)%Z;;;
       Ret r.
 
-  Definition fnsems :=
-    [(CannonHdr.fire, (wmask_all, scopes, cfunU fire))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some CannonHdr.fire, (false, wmask_all, scopes, (None, cfunU fire)))].
   
-  Program Definition Mod : PMod.t := {|
-    PMod.scopes := scopes;
-    PMod.fnsems := fnsems;
-    PMod.initial_st := [(v_lv, 1%Z↑)];
+  Program Definition Mod : SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems;
+    SMod.initial_st := [(v_lv, 1%Z↑)];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t := Seal.sealing CRIS (PMod.to_hmod Mod).
+  Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
 End CannonI. End CannonI.

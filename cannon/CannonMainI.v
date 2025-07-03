@@ -25,16 +25,16 @@ Module MainI. Section MainI.
   Definition main : list val → itree hmodE unit :=
     λ _, main_repeat num_fire.
 
-  Definition fnsems :=
-    [(MainHdr.main, (wmask_all, scopes, cfunU main))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(None, (false, wmask_all, scopes, (None, cfunU main)))].
   
-  Program Definition Mod : PMod.t := {|
-    PMod.scopes := scopes;
-    PMod.fnsems := fnsems;
-    PMod.initial_st := [];
+  Program Definition Mod : SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems;
+    SMod.initial_st := [];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t := Seal.sealing CRIS (PMod.to_hmod Mod).
+  Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
 End MainI. End MainI.

@@ -9,10 +9,10 @@ Local Open Scope nat_scope.
 
 Module CannonMainIA. Section CannonMainIA.
   Import CannonAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cannonG: !cannonG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cannonG}.
 
-  Context (SpMain : string → option fspec).
+  Context (SpMain : sp_type).
   Context (CannonInMain : sp_incl CannonAS.Sp SpMain).
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
@@ -21,7 +21,7 @@ Module CannonMainIA. Section CannonMainIA.
   Local Definition MainAMod := (MainA.t 1 SpMain).
   Local Definition MainIMod := (MainI.t 1).
   
-  Lemma simF_main : HSim.sim_fun open MainAMod MainIMod Ist MainHdr.main.
+  Lemma simF_main : HSim.sim_fun open MainAMod MainIMod MainA.init_cond Ist None.
   Proof using SpMain CannonInMain.
     init_simF.
 
@@ -47,14 +47,14 @@ Module CannonMainIA. Section CannonMainIA.
   Theorem sim : HSim.t open MainAMod MainIMod MainA.init_cond Ist.
   Proof using SpMain CannonInMain.
     init_sim.
-    - iIntros "IC". et.
-    - apply simF_main; eauto.
+    - exfalso. rewrite /MainI.t in H1. revert H1. unseal CRIS. i; ss.
+    - eapply simF_main.
   Qed.
 End CannonMainIA.
 
 Section ctxr.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cannonG: !cannonG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cannonG}.
 
   Theorem ctxr (SpMain : string → option fspec)
     (CannonInMain : sp_incl CannonAS.Sp SpMain)
