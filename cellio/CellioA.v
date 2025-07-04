@@ -4,12 +4,12 @@ Require Import CellioHeader CtxHeader.
 Set Implicit Arguments.
 
 Section CellioRA.
-  Context `{!sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
 
   Local Definition RA : ucmra :=
     authUR (optionUR (exclR ZO)).
 
-  Class cellioG `{!sinvG Γ Σ α β τ _I _S} := {
+  Class cellioG `{!crisG Γ Σ α β τ _I _S} := {
     cellio_inG :: inG RA Γ;
   }.
   Definition cellioΓ : HRA := #[RA].
@@ -19,7 +19,7 @@ End CellioRA.
 Hint Unfold subG_cellioG cellio_inG : GRA_index.
 
 Module CellioA. Section CellioA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
   Context `{_cellioG: !cellioG}.
 
   Definition auth (v : Z) : iProp Σ :=
@@ -67,9 +67,9 @@ Module CellioA. Section CellioA.
 
   Definition scopes := [CellioHdr.mn].
   
-  Definition fnsems :=
-    [(CellioHdr.set, (wmask_all, scopes, mk_specbody fspec_trivial set));
-     (CellioHdr.get, (wmask_all, scopes, mk_specbody fspec_trivial get))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some CellioHdr.set, (true, wmask_all, scopes, (Some fspec_trivial, set)));
+     (Some CellioHdr.get, (true, wmask_all, scopes, (Some fspec_trivial, get)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
@@ -81,8 +81,6 @@ Module CellioA. Section CellioA.
 
   Definition InitCond : iProp Σ :=
     CellioA.auth 0.
-
-  Definition InitRes : Σ := own.iRes_singleton base_γ (●E 0%Z).
 
   Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
 End CellioA. End CellioA.

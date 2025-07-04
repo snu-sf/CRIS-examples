@@ -5,10 +5,10 @@ Set Implicit Arguments.
 
 Module MainA. Section MainA.
   Import CellioA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
   Context `{_cellioG: !cellioG}.
                 
-  Definition scopes := [MainHdr.mn].
+  Definition scopes := ["Main"].
 
   Definition main_spec : fspec :=
     fspec_simple (λ _ : unit,
@@ -24,7 +24,7 @@ Module MainA. Section MainA.
       Ret tt↑.
   
   Definition fnsems :=
-    [(MainHdr.main, (wmask_all, scopes, mk_specbody main_spec main))].
+    [(MainHdr.main, (true, wmask_all, scopes, (Some main_spec, main)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
@@ -35,8 +35,6 @@ Module MainA. Section MainA.
   Next Obligation. prove_nodup. Qed.
 
   Definition InitCond : iProp Σ := emp%I.
-
-  Definition InitRes : Σ := ε.
 
   Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
 

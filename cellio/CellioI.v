@@ -21,17 +21,17 @@ Module CellioI. Section CellioI.
       i <- cgetU v_cv;;
       Ret (i:Z)↑.
 
-  Definition fnsems :=
-    [(CellioHdr.set, (wmask_all, scopes, set));
-     (CellioHdr.get, (wmask_all, scopes, get))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some CellioHdr.set, (false, wmask_all, scopes, (None, set)));
+     (Some CellioHdr.get, (false, wmask_all, scopes, (None, get)))].
 
-  Program Definition Mod: PMod.t := {|
-    PMod.scopes := scopes;
-    PMod.fnsems := fnsems;
-    PMod.initial_st := [(v_cv, (0%Z)↑)];
+  Program Definition Mod: SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems;
+    SMod.initial_st := [(v_cv, (0%Z)↑)];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
   
-  Definition t := Seal.sealing CRIS (PMod.to_hmod Mod).
+  Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
 End CellioI. End CellioI.

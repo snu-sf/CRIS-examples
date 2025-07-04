@@ -1,12 +1,6 @@
 Require Import CRIS.
 
 Module MainHdr.
-
-  Definition mn := "Main".
-    
-  Definition fn (method: string) :=
-    mn +:+ "." +:+ method.
-  
-  Definition main := "CRIS_init".
+  Definition main : option string := None.
 
 End MainHdr.
