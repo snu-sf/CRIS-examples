@@ -6,12 +6,13 @@ Require Import RingHeader CellHeader.
 Set Implicit Arguments.
 
 Section RA.
-  Context `{!sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
   
   Local Definition pendingUR := (nat -d> optionUR (exclR unitO)).
   Local Definition cellUR := (nat -d> optionUR (exclR ZO)).
   Local Definition RA : ucmra := prodUR pendingUR (authUR cellUR).
-  Class cellG `{!sinvG Γ Σ α β τ _I _S} := {
+  
+  Class cellG `{!crisG Γ Σ α β τ _I _S} := {
     cell_inG :: inG RA Γ;
   }.
   Definition cellΓ : HRA := #[RA].
@@ -21,9 +22,9 @@ End RA.
 Hint Unfold subG_cellG cell_inG : GRA_index.
 
 Module CellAS. Section CellAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cellG: !cellG}.
-                 
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cellG}.
+
   (* Index of this Cell *)
   Variable idx : nat.
 
@@ -65,8 +66,8 @@ Module CellAS. Section CellAS.
     rr in FALSE0; specialize (FALSE0 idx); des_ifs.
   Qed.
 
-
-  (* Fragmental assertion [cell v'] combined with authoritative assertion [auth v] implies equality [v = v']. *)
+  (* Fragmental assertion [cell v'] combined with authoritative assertion [auth v] 
+     implies equality [v = v']. *)
   Lemma cell_auth_get v v':
     cell v' -∗ auth v -∗ ⌜v = v'⌝.
   Proof.
@@ -102,46 +103,39 @@ Module CellAS. Section CellAS.
      ((fun arg => ⌜arg = v↑⌝ ∗ (pending ∨ cell v0)),
       (fun ret => ⌜ret = tt↑⌝ ∗ cell v)))%I.
 
-  Definition Sp : alist string fspec :=
-    Seal.sealing CRIS [(CellHdr.get idx, get_spec);
-                       (CellHdr.set idx, set_spec)].
+  Definition Sp : spl_type :=
+    Seal.sealing CRIS [(Some (CellHdr.get idx), Some get_spec);
+                       (Some (CellHdr.set idx), Some set_spec)].
 
   Lemma Sp_nodup : List.NoDup (List.map fst Sp).
-  Proof.
-    unfold Sp. unseal CRIS. prove_nodup.
-  Qed.
-
+  Proof. unfold Sp. unseal CRIS. prove_nodup. Qed.
 End CellAS. End CellAS.
-
-Global Hint Unfold CellAS.Sp : sp.
 
 (* Define CellA Module *)
 Module CellA. Section CellA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cellG: !cellG}.
-                
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cellG}.
+    
   (* Index of this Cell *)
   Variable idx : nat.
 
   (* Scopes *)
   Definition scopes := [CellHdr.mn idx].
 
-  Definition fnsems :=
-    [(CellHdr.get idx, (wmask_all, scopes, mk_specbody (CellAS.get_spec idx) fbody_trivial));
-     (CellHdr.set idx, (wmask_all, scopes, mk_specbody (CellAS.set_spec idx) fbody_trivial))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some (CellHdr.get idx), (true, wmask_all, scopes, (Some (CellAS.get_spec idx), fbody_trivial)));
+     (Some (CellHdr.set idx), (true, wmask_all, scopes, (Some (CellAS.set_spec idx), fbody_trivial)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [];
-  |}
-  .
+  |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition InitCond : iProp Σ :=
+  Definition init_cond : iProp Σ :=
     (∃ v, CellAS.cell idx v ∗ CellAS.auth idx v)%I.
 
-  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod Sp Mod).
-
+  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
 End CellA. End CellA.

@@ -56,21 +56,20 @@ Module CtrlI. Section CtrlI.
         trigger (@IO _ void "error" "dequeue failed: cannot dequeue from an empty queue");;; Ret 0%Z
   .
 
-  Definition fnsems :=
-    [(RingHdr.init, (wmask_all, scopes, cfunU init));
-     (RingHdr.get_size, (wmask_all, scopes, cfunU get_size));
-     (RingHdr.enqueue, (wmask_all, scopes, cfunU enqueue));
-     (RingHdr.dequeue, (wmask_all, scopes, cfunU dequeue))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some RingHdr.init, (false, wmask_all, scopes, (None, cfunU init)));
+     (Some RingHdr.get_size, (false, wmask_all, scopes, (None, cfunU get_size)));
+     (Some RingHdr.enqueue, (false, wmask_all, scopes, (None, cfunU enqueue)));
+     (Some RingHdr.dequeue, (false, wmask_all, scopes, (None, cfunU dequeue)))].
 
-  Program Definition Mod : PMod.t := {|
-    PMod.scopes := scopes;
-    PMod.fnsems := fnsems;
-    PMod.initial_st := [(v_hd,0↑);(v_tl,0↑)];
-  |}
-  .
+  Program Definition Mod : SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems;
+    SMod.initial_st := [(v_hd,0↑);(v_tl,0↑)];
+  |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t := Seal.sealing CRIS (PMod.to_hmod Mod).
+  Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
 
 End CtrlI. End CtrlI.

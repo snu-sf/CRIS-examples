@@ -1,7 +1,6 @@
 Require Import CRIS.
 
 Require Import ImpPrelude.
-Require Import RingHeader.
 Require Import CellHeader.
 
 Set Implicit Arguments.
@@ -27,17 +26,17 @@ Module CellI. Section CellI.
       cput v_cv x;;;
       Ret ().
 
-  Definition fnsems :=
-    [(CellHdr.get idx, (wmask_all, scopes, cfunU get));
-     (CellHdr.set idx, (wmask_all, scopes, cfunU set))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some (CellHdr.get idx), (false, wmask_all, scopes, (None, cfunU get)));
+     (Some (CellHdr.set idx), (false, wmask_all, scopes, (None, cfunU set)))].
 
-  Program Definition Mod : PMod.t := {|
-    PMod.scopes := scopes;
-    PMod.fnsems := fnsems;
-    PMod.initial_st := [(v_cv,tt↑)];
+  Program Definition Mod : SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems;
+    SMod.initial_st := [(v_cv,tt↑)];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t := Seal.sealing CRIS (PMod.to_hmod Mod).
+  Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
 End CellI. End CellI.
