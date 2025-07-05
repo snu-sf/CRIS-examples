@@ -29,18 +29,18 @@ Module KnotI. Section KnotI.
       ccallU fn [Vptr (rb, 0%Z); Vint n]
   .
 
-  Definition fnsems genv :=
-    [(KnotHdr.rec, (wmask_all, scopes, cfunU (recF genv)));
-     (KnotHdr.knot, (wmask_all, scopes, cfunU (knotF genv)))].
+  Definition fnsems genv : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some KnotHdr.rec, (false, wmask_all, scopes, (None, cfunU (recF genv))));
+     (Some KnotHdr.knot, (false, wmask_all, scopes, (None, cfunU (knotF genv))))].
   
-  Program Definition Mod genv : PMod.t :=
+  Program Definition Mod genv : SMod.t :=
   {|
-    PMod.scopes := scopes;
-    PMod.fnsems := fnsems genv;
-    PMod.initial_st := [];
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems genv;
+    SMod.initial_st := [];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t genv := Seal.sealing CRIS (PMod.to_hmod (Mod genv)).
+  Definition t genv := Seal.sealing CRIS (SMod.to_hmod sp_none (Mod genv)).
 End KnotI. End KnotI.

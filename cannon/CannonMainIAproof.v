@@ -26,21 +26,20 @@ Module CannonMainIA. Section CannonMainIA.
     init_simF.
 
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "((%Y & B) & %Q)". subst. hss.
+    steps_l. iDestruct "IST" as "[% B]"; des; hss.
 
     (* SRC: prove the precondition of "fire" *)
     steps_r. force_l. instantiate (1:=()). force_l.
     force_l. iSplitL "B"; et. steps_l.
 
     (* SRC, TGT; call "fire" and take a postcondition *)
-    call "IST"; et. steps_l. iDestruct "ASM" as "[% %]"; des; subst. hss.
+    call ""; et. steps_l. iDestruct "ASM" as "[% %]"; des; subst. hss.
     steps_r. hss. steps_r.
     
     (* SRC, TGT: print 1 *)
-    step. steps_l. steps_r. force_l.
+    step. steps_l. steps_r.
 
     (* SRC: prove the postcondition & IST *)
-    force_l. iSplitR; et. steps_l.
     step. iFrame; et.
   (*SLOW*)Qed.
 

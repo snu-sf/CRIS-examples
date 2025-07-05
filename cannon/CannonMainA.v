@@ -7,16 +7,9 @@ Set Implicit Arguments.
 Module MainAS. Section MainAS.
   Import CannonAS.
   Context `{!crisG Γ Σ α β τ _I _S}.
-  Context `{!cannonG}.
-
-  Definition main_spec : fspec :=
-    fspec_simple (λ _ : unit,
-      ((λ arg, ⌜arg = tt↑⌝ ∗ Ball),
-      (λ ret, ⌜ret = tt↑⌝))
-    )%I.
 
   Definition Sp : spl_type :=
-    Seal.sealing CRIS [(None, Some main_spec)].
+    Seal.sealing CRIS [(None, None)].
 End MainAS. End MainAS.
 
 Module MainA. Section MainA.
@@ -41,7 +34,7 @@ Module MainA. Section MainA.
     λ _, main_repeat num_fire.
 
   Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
-    [(None, (true, wmask_all, scopes, (Some MainAS.main_spec, cfunU main)))].
+    [(None, (true, wmask_all, scopes, (None, cfunU main)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
@@ -51,7 +44,7 @@ Module MainA. Section MainA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition init_cond : iProp Σ := True%I.
+  Definition init_cond : iProp Σ := Ball.
 
   Definition t Sp := Seal.sealing CRIS (SMod.to_hmod Sp Mod).
 End MainA. End MainA.

@@ -6,18 +6,18 @@ Require Import APCHeader APC.
 Set Implicit Arguments.
 
 Section RA.
-  Context `{!sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
 
   Local Definition RA : ucmra :=
     authUR (optionUR (exclR (optionO (natO -d> natO)))).
 
-  Class knotG `{!sinvG Γ Σ α β τ _I _S} := {
+  Class knotG `{!crisG Γ Σ α β τ _I _S} := {
     knot_inG :: inG RA Γ;
   }.
   Definition knotΓ : HRA := #[RA].
   Global Instance subG_knotG : subG knotΓ Γ → knotG.
   Proof. solve_inG. Defined.
-End RA.  
+End RA.
 Hint Unfold subG_knotG knot_inG : GRA_index.
 
 (* Initial Resource *)
@@ -32,7 +32,7 @@ Proof. eapply knot_init_valid. Qed.
 Definition ir_knotAΓ : knotΓ := *[Some (ir_knotRA)].
 
 Module KnotA. Section KnotA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
   Context `{_memG: !memG}.
   Context `{_knotG: !knotG}.
 
@@ -93,9 +93,9 @@ Module KnotA. Section KnotA.
 Section KnotAS.
 
   Variable genv: GEnv.t.
-  Variable SpRec: string → option fspec.
-  Variable SpFun: string → option fspec.
-  Variable SpPure: string → option fspec.
+  Variable SpRec: spl_type.
+  Variable SpFun: spl_type.
+  Variable SpPure: spl_type.
 
   Definition var_points_to (var: string) (v: val): iProp Σ :=
     match ((CEnv.load_genv genv).(CEnv.id2blk) var) with
@@ -119,27 +119,27 @@ Section KnotAS.
     fspec_apc (λ n: nat, (2 * n)%ord)
       (fun n => 
         ((fun varg => (⌜∃ fb, varg = [Vptr (fb, 0%Z); Vint (Z.of_nat n)]↑ ∧ (intrange_64 n) ∧
-                        fb_has_spec genv SpRec fb rec_spec⌝
+                        fb_has_spec_in genv SpRec fb rec_spec⌝
                         ∗ knot_frag (Some f))%I),
           (fun vret => (⌜vret = (Vint (Z.of_nat (f n)))↑⌝ ∗ knot_frag (Some f))%I))).
 
-  Definition KnotRecSp: alist string fspec :=
-    Seal.sealing CRIS [(KnotHdr.rec, rec_spec)].
+  Definition KnotRecSp: spl_type :=
+    Seal.sealing CRIS [(Some KnotHdr.rec, Some rec_spec)].
 
   Definition knot_spec : fspec :=
     fspec_simple (X:=(nat -> nat))
       (fun f => 
         ((fun varg => (⌜∃ fb, varg = [Vptr (fb, 0%Z)]↑ ∧ 
-                        fb_has_spec genv SpFun fb (fun_gen f)⌝
+                        fb_has_spec_in genv SpFun fb (fun_gen f)⌝
                         ∗ (∃ old, knot_frag old))%I,
           (fun vret => (⌜∃ fb, vret = (Vptr (fb, 0%Z))↑ ∧
-                        fb_has_spec genv SpRec fb rec_spec⌝
+                        fb_has_spec_in genv SpRec fb rec_spec⌝
                         ∗ knot_frag (Some f))%I)))).
 
-  Definition KnotSp : alist string fspec :=
+  Definition KnotSp : spl_type :=
     Seal.sealing CRIS 
-      [(KnotHdr.rec, rec_spec); 
-      (KnotHdr.knot, knot_spec)].
+      [(Some KnotHdr.rec, Some rec_spec); 
+      (Some KnotHdr.knot, Some knot_spec)].
 
 End KnotAS.
 
@@ -148,9 +148,9 @@ Section KnotA.
 
   Definition scopes := ["Knot"].
 
-  Definition fnsems genv SpRec SpFun :=
-    [(KnotHdr.rec, (wmask_all, scopes, mk_specbody rec_spec pure_body));
-     (KnotHdr.knot, (wmask_all, scopes, mk_specbody (knot_spec genv SpRec SpFun) fbody_trivial))].
+  Definition fnsems genv SpRec SpFun : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some KnotHdr.rec, (true, wmask_all, scopes, (Some rec_spec, pure_body)));
+     (Some KnotHdr.knot, (true, wmask_all, scopes, (Some (knot_spec genv SpRec SpFun), fbody_trivial)))].
 
   Program Definition Mod genv SpRec SpFun : SMod.t :=
   {|

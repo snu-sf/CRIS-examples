@@ -18,22 +18,23 @@ Module CannonAll.
   Qed.
 
   Local Definition smod_src : SMod.t := CannonA.Mod ☆ (MainA.Mod 1).
-  Local Definition sp : string → option fspec := sp_from smod_src.
-  Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
+  Local Definition sp : sp_type := ElimRel.sp_from smod_src.
+  Local Definition mod_cancel : HMod.t := (SMod.to_hmod sp_none (SMod.cancel smod_src)).
   Local Definition mod_src : HMod.t := SMod.to_hmod sp smod_src.
   Local Definition mod_tgt : HMod.t := CannonI.t ★ (MainI.t 1).
 
-  Local Definition main_fsp : fspec := MainAS.main_spec.
   Local Definition init_cond : iProp Σ := CannonA.init_cond ∗ MainA.init_cond.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
-    refines (mod_cancel, (init_cond ∗ main_fsp.(precond) tt tt↑ tt↑)%I) 
+    refines (mod_cancel, init_cond)
             ((mod_src, init_cond) : HMod.modc).
   Proof.
-    eapply cancellation; try by econs.
-    i. iIntros "%POST". iPureIntro.
-    des; eauto.
+    eapply Cancel.cancellation.
+    - ii; des; subst; inv FIND; ss; rewrite !eq_rel_dec_correct in H0; des_ifs.
+    - econs; [refl|]; i; inv NS; des; inv H; des; inv H1;
+      rewrite !eq_rel_dec_correct in H2; des_ifs.
+    - econs; unfold_hmod; ss; prove_nodup.
   Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
@@ -49,16 +50,18 @@ Module CannonAll.
     { ctxr_rotate. ctxr_drop. eapply CannonMainIA.ctxr.
       instantiate (1:=sp).
       rewrite /CannonAS.Sp. unseal CRIS. econs; first prove_nodup.
-      ii; rewrite -FIND /sp /sp_from /smod_src //=; des_ifs; ss; des_ifs.
+      ii. inv H. des_ifs.
+      unfold dec, option_Dec, AList.option_Dec_obligation_1 in Heq.
+      des_ifs.
     }
 
     rewrite /CannonA.t /MainA.t /init_cond. unseal CRIS. 
     eapply ctxr_cond_strengthen.
-    iIntros "[? ?]". et.
+    iIntros "[? ?]". iFrame.
   (*SLOW*)Qed.
 
   Lemma cancel_tgt :
-    refines (mod_cancel, (init_cond ∗ main_fsp.(precond) tt tt↑ tt↑)%I)
+    refines (mod_cancel, init_cond)
             (mod_tgt, emp%I).
   Proof.
     etrans.
@@ -81,7 +84,7 @@ Module CannonAll.
       { iPoseProof (CannonAS.ReadyBall with "[H12]") as "[R B]"; eauto.
         iSplitL "R".
         { iFrame. }
-        unfold_pre_post. iFrame. eauto.
+        unfold_pre_post. iFrame.
       }
       all: solve_res.
     }
