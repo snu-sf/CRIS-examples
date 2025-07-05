@@ -1,19 +1,20 @@
 Require Import CRIS.
 
 Require Import MutFA MutGA.
-Require Import MutHeader MutMainHeader MutMainI MutMainA.
+Require Import MutHeader MutMainI MutMainA.
 Require Import APCHeader APC APCA APCC APCTactics.
 
 Set Implicit Arguments.
 
 Module MutMainIA. Section MutMainIA.
   Import MutAUX.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
 
-  Context (Sp SpPure: string -> option fspec).
-  Context (APCInSp : sp_incl (APCA.Sp) Sp).
-  Context (FInPure : sp_incl (MutFA.SpF) SpPure).
-  Context (PureInSp : sp_sub SpPure Sp).
+  Context (Sp : sp_type).
+  Context (SpPure: spl_type).
+  Context (APCInSp : sp_incl APCA.Sp Sp).
+  Context (FInPure : spl_sub MutFA.SpF SpPure).
+  Context (PureInSp : sp_incl SpPure Sp).
 
   Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ _ _ _, (True)%I.
@@ -25,12 +26,12 @@ Module MutMainIA. Section MutMainIA.
   (*************)
 
   Lemma simF_main:
-    HSim.sim_fun open MutMainAMod MutMainIMod IstFull MutMainHdr.main.
-  Proof using _sinvG APCInSp FInPure PureInSp.
+    HSim.sim_fun open MutMainAMod MutMainIMod MutMainA.init_cond IstFull None.
+  Proof using _crisG APCInSp FInPure PureInSp.
     init_simF.
 
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "%". des; subst; hss.
+    steps_l. iDestruct "IST" as "%"; des; hss.
 
     (* SRC: handle pure (APC) *)
     rewrite /pure.
@@ -42,17 +43,20 @@ Module MutMainIA. Section MutMainIA.
     steps_l. rewrite /APC. force_l 1. steps_l.
 
     (* SRC, TGT: call mutg using APC tactic *)
-    steps_r. apc_call "IST"; eauto.
+    steps_r. apc_call ""; eauto.
     { instantiate (1:=0). eapply OrdArith.lt_from_nat. nia. }
     { instantiate (1:=10). eapply OrdArith.lt_from_nat. nia. }
     { eapply FInPure. rewrite /MutFA.SpF. unseal CRIS. ss. }
-    { instantiate (1:=10). iSplitR; eauto. iPureIntro. esplits; eauto; [unfold mut_max; nia|refl]. }
+    { instantiate (1:=10). iSplit; eauto. 
+      { iPureIntro. esplits; eauto; [unfold mut_max; nia|refl]. }
+      { do 4 iExists _. iSplit; iPureIntro; esplits; eauto; unfold_hmod; ss. }
+    }
     iDestruct "ISTPOST" as "[IST ->]".
     
     (* SRC: jump APC *)
     apc_l. steps_l. steps_r. hss. steps_r.
     forces_l. iSplitR; first done.
-    steps_l. forces_l. iSplitR; eauto.
+    steps_l. forces_l.
 
     (* SRC, TGT: prove the IST *)
     step. iSplitR "IST"; eauto.
@@ -63,8 +67,7 @@ Module MutMainIA. Section MutMainIA.
     HSim.t open MutMainAMod MutMainIMod MutMainA.init_cond IstFull.
   Proof.
     init_sim.
-    - iIntros "IC". iExists [], [], [], []. iSplitR; et.
-      iSplit; et. iSplit; et. iPureIntro. esplits; ss.
+    - inv H.
     - apply simF_main; eauto.
   Qed.
 
@@ -78,19 +81,18 @@ Module MutMainIA. Section MutMainIA.
     ctx_refines
       (MutMainA.t false Sp ★ APCC.t Sp, emp%I)
       (MutMainA.t true  Sp ★ APCC.t Sp, emp%I).
-  Proof using _sinvG APCInSp FInPure PureInSp.
+  Proof using _crisG APCInSp FInPure PureInSp.
     eapply main_adequacy
       with (Ist := IstProd (IstSB MutMainA.scopes IstEq) IstEq).
     init_sim.
-    { iIntros "_". iPureIntro. eexists [],[],[],[]. esplits; ii; ss. }
+    { inv H. }
     { init_simF.
       steps_l. forces_r.
-      iDestruct "ASM" as "(% & %)". subst. iSplitR; et.
+      iDestruct "IST" as "%"; des; hss.
       rewrite /pure. steps_r. inline_r. forces_r.
       iDestruct "GRT" as "(% & %)". subst. iSplitR; et.
       hss. steps_r. forces_r. iSplitR; et.
-      steps_r. forces_l. iSplitR; et. step.
-      iDestruct "GRT'" as "[% ?]". et.
+      steps_r. forces_l. step. eauto.
     }
   Unshelve. all: et.
   Qed.
