@@ -20,7 +20,7 @@ Module RingIA. Section RingIA.
     :
     ctx_refines
       ((RingA.t max_size SpR) ★ (CtrlIA.CellG SpC 0 max_size),
-       (RingA.InitCond max_size) ∗ ([∗ list] i↦x ∈ seq 0 max_size, CellA.InitCond i))%I
+       (RingA.init_cond max_size) ∗ ([∗ list] i↦x ∈ seq 0 max_size, CellA.init_cond i))%I
       ((CtrlI.t max_size)      ★ (CellIG 0 max_size),
        emp%I).
   Proof using.
