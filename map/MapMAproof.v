@@ -8,13 +8,14 @@ Local Open Scope nat_scope.
 
 Module MapMA. Section MapMA.
   Import MapAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_mapMG: !mapMG}.
-  Context `{_mapG: !mapG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!mapMG}.
+  Context `{!mapG}.
 
-  Context (sp_s sp_t : string → option fspec).
+  Context (sp_s sp_t : sp_type).
   Context (MapInSpS : sp_incl MapAS.sp sp_s).
   Context (MapInSpT : sp_incl MapMS.sp sp_t).
+
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     (λ _ st_src st_tgt,
@@ -30,7 +31,7 @@ Module MapMA. Section MapMA.
   Local Definition MapA := (MapA.t sp_s).
   Local Definition MapM := (MapM.t sp_t).
 
-  Lemma simF_init : HSim.sim_fun open MapA MapM Ist MapHdr.init.
+  Lemma simF_init : HSim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.init).
   Proof using MapInSpS MapInSpT.
     init_simF.
 
@@ -59,7 +60,7 @@ Module MapMA. Section MapMA.
     iExists _, _. iSplitR; eauto. iRight. iFrame.
   (*SLOW*)Qed.
 
-  Lemma simF_get : HSim.sim_fun open MapA MapM Ist MapHdr.get.
+  Lemma simF_get : HSim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.get).
   Proof using MapInSpS MapInSpT.
     init_simF.
 
@@ -94,7 +95,7 @@ Module MapMA. Section MapMA.
     iExists _, _. iSplit; eauto. iRight. iFrame.
   (*SLOW*)Qed.
 
-  Lemma simF_set : HSim.sim_fun open MapA MapM Ist MapHdr.set.
+  Lemma simF_set : HSim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.set).
   Proof using MapInSpS MapInSpT.
     init_simF.
 
@@ -126,7 +127,7 @@ Module MapMA. Section MapMA.
     iExists _, _. iSplit; eauto. iRight. iFrame.
   (*SLOW*)Qed.
 
-  Lemma simF_set_by_user : HSim.sim_fun open MapA MapM Ist MapHdr.set_by_user.
+  Lemma simF_set_by_user : HSim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.set_by_user).
   Proof using MapInSpS MapInSpT.
     init_simF.
 
@@ -170,7 +171,7 @@ Module MapMA. Section MapMA.
   Lemma sim : HSim.t open MapA MapM MapA.init_cond Ist.
   Proof using MapInSpS MapInSpT.
     init_sim.
-    - iIntros "(IST & P)"; s.
+    - split; eauto. iIntros "(IST & P)"; s.
       iExists _, _. iSplit; eauto. iLeft. iFrame. eauto.
     - apply simF_init; eauto.
     - apply simF_get; eauto.
@@ -180,9 +181,9 @@ Module MapMA. Section MapMA.
 End MapMA.
 
 Section MapMA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_mapMG: !mapMG}.
-  Context `{_mapG: !mapG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!mapMG}.
+  Context `{!mapG}.
 
   Lemma ctxr sp_s sp_t
       (MapInSpS : sp_incl MapAS.sp sp_s)

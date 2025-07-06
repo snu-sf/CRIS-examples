@@ -6,12 +6,12 @@ Set Implicit Arguments.
 
 (* Resource algebra for MapM ⊆ MapA *)
 Section RA.
-  Context `{!sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
 
   Local Definition RA : ucmra :=
     prodUR (optionUR (exclR unitO)) (authUR (Z -d> optionUR (exclR ZO))).
 
-  Class mapG `{!sinvG Γ Σ α β τ _I _S} := {
+  Class mapG `{!crisG Γ Σ α β τ _I _S} := {
       map_inG :: inG RA Γ
     }.
   Definition mapΓ : HRA := #[RA].
@@ -21,9 +21,9 @@ End RA.
 Hint Unfold subG_mapG map_inG : GRA_index.
 
 Module MapAS. Section MapAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_mapMG: !mapMG}.
-  Context `{_mapG: !mapG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!mapMG}.
+  Context `{!mapG}.
 
   Definition pending : iProp Σ := own base_γ (Some (Excl ()), ε).
 
@@ -143,12 +143,12 @@ Module MapAS. Section MapAS.
           (λ varg, ⌜varg = [Vint k]↑⌝ ∗ points_to k w,
            λ vret, ⌜vret = Vundef↑⌝ ∗ ∃ v, points_to k v))%I.
     
-    Definition sp : alist string fspec :=
+    Definition sp : spl_type :=
       Seal.sealing CRIS
-        [(MapHdr.init, init_spec);
-        (MapHdr.get, get_spec);
-        (MapHdr.set, set_spec);
-        (MapHdr.set_by_user, set_by_user_spec)].
+        [(Some MapHdr.init, Some init_spec);
+        (Some MapHdr.get, Some get_spec);
+        (Some MapHdr.set, Some set_spec);
+        (Some MapHdr.set_by_user, Some set_by_user_spec)].
     
     Lemma sp_nodup : List.NoDup (List.map fst sp).
     Proof. unfold sp. unseal CRIS. prove_nodup. Qed.
@@ -172,9 +172,9 @@ def set_by_user(k : int) ≡
 ***)
 
 Module MapA. Section MapA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_mapMG: !mapMG}.
-  Context `{_mapG: !mapG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!mapMG}.
+  Context `{!mapG}.
 
   Definition scopes := ["Map"].
   Definition v_map := "Map" ↯ "map".
@@ -198,11 +198,11 @@ Module MapA. Section MapA.
       v <- trigger (IO "input" ());;
       ccallN MapHdr.set [Vint k; Vint v].
 
-  Definition fnsems :=
-    [(MapHdr.init, (wmask_all, scopes, mk_specbody MapAS.init_spec fbody_trivial));
-     (MapHdr.get, (wmask_all, scopes, mk_specbody MapAS.get_spec (cfunN get)));
-     (MapHdr.set, (wmask_all, scopes, mk_specbody MapAS.set_spec (cfunN set)));
-     (MapHdr.set_by_user, (wmask_all, scopes, mk_specbody MapAS.set_by_user_spec (cfunN set_by_user)))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some MapHdr.init, (true, wmask_all, scopes, (Some MapAS.init_spec, fbody_trivial)));
+     (Some MapHdr.get,  (true, wmask_all, scopes, (Some MapAS.get_spec, cfunN get)));
+     (Some MapHdr.set,  (true, wmask_all, scopes, (Some MapAS.set_spec, cfunN set)));
+     (Some MapHdr.set_by_user, (true, wmask_all, scopes, (Some MapAS.set_by_user_spec, cfunN set_by_user)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

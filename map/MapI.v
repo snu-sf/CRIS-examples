@@ -66,19 +66,19 @@ Module MapI. Section MapI.
       v <- trigger (IO "input" ());;
       ccallU MapHdr.set [Vint k; Vint v].
 
-  Definition fnsems :=
-    [(MapHdr.init, (wmask_all, scopes, cfunU init));
-     (MapHdr.get,  (wmask_all, scopes, cfunU get));
-     (MapHdr.set,  (wmask_all, scopes, cfunU set));
-     (MapHdr.set_by_user, (wmask_all, scopes, cfunU set_by_user))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some MapHdr.init, (false, wmask_all, scopes, (None, cfunU init)));
+     (Some MapHdr.get,  (false, wmask_all, scopes, (None, cfunU get)));
+     (Some MapHdr.set,  (false, wmask_all, scopes, (None, cfunU set)));
+     (Some MapHdr.set_by_user, (false, wmask_all, scopes, (None, cfunU set_by_user)))].
   
-  Program Definition Mod : PMod.t := {|
-    PMod.scopes := scopes;
-    PMod.fnsems := fnsems;
-    PMod.initial_st := [(v_hptr, Vnullptr↑)];
+  Program Definition Mod : SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems;
+    SMod.initial_st := [(v_hptr, Vnullptr↑)];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t : HMod.t := Seal.sealing CRIS (PMod.to_hmod Mod).
+  Definition t : HMod.t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
 End MapI. End MapI.
