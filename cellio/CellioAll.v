@@ -1,7 +1,7 @@
 Require Import CRIS Cancel.
 Require Import ImpPrelude.
 Require Import MainHeader.
-From CRIS.cellio Require Import CellioHeader CellioA CellioI MainA MainI CtxA CellioIAproof MainIAproof.
+From CRIS.cellio Require Import CellioHeader CellioA CellioI MainA MainI CtxHeader CtxA CellioIAproof MainIAproof.
 
 Module CellioAll. Section CellioAll.
   Import inv_instances.
@@ -21,18 +21,18 @@ Module CellioAll. Section CellioAll.
   Variable CtxInitCond : iProp Σ.
   
   Local Definition smod_src : SMod.t := MainA.Mod ☆ CtxA.
-  Local Definition sp : string → option fspec := sp_from smod_src.
-  Local Definition mod_cancel : HMod.t := SModCancel.to_hmod smod_src.
+  Local Definition sp : string → option fspec := ElimRel.sp_from smod_src.
+  Local Definition mod_cancel : HMod.t := SMod.to_hmod sp_none (SMod.cancel smod_src).
   Local Definition mod_src : HMod.t := SMod.to_hmod sp smod_src.
   Local Definition mod_tgt : HMod.t := MainI.t ★ CellioI.t ★ CtxI.
-  Local Definition with_trivial_spec body := {|fsb_fspec := fspec_trivial; fsb_body := body|}.
+  Local Definition with_trivial_spec body : (option fspec) * fbody  := (Some fspec_trivial, body).
   
   Hypothesis ModulesWF : HMod.wf mod_tgt.
   Hypothesis CtxCorrect: ctx_refines (SMod.to_hmod sp CtxA, CtxInitCond) (CtxI, emp%I).
   Hypothesis inputInCtx : ∃ msk sc input (SCP: incl sc CtxA.(SMod.scopes)),
-    alist_find CtxHdr.input (SMod.fnsems CtxA) = Some (msk, sc, with_trivial_spec input).
+    alist_find (Some CtxHdr.input) (SMod.fnsems CtxA) = Some (true, msk, sc, with_trivial_spec input).
   Hypothesis fooInCtx : ∃ msk sc foo (SCP: incl sc CtxA.(SMod.scopes)),
-    alist_find CtxHdr.foo (SMod.fnsems CtxA) = Some (msk, sc, with_trivial_spec foo).
+    alist_find (Some CtxHdr.foo) (SMod.fnsems CtxA) = Some (true, msk, sc, with_trivial_spec foo).
 
   Local Definition main_cond : iProp Σ := MainA.main_spec.(precond) tt ()↑ ()↑.
   Local Definition init_cond : iProp Σ := MainA.InitCond ∗ CellioA.InitCond.
@@ -43,11 +43,15 @@ Module CellioAll. Section CellioAll.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_from_src:
-    refines (mod_cancel, ((init_cond ∗ CtxInitCond) ∗ main_cond)%I) 
+    refines (mod_cancel, ((init_cond ∗ CtxInitCond))%I) 
             (mod_src, init_cond ∗ CtxInitCond)%I.
   Proof.
-    eapply cancellation; try by econs.
-    i. iIntros "%POST". iPureIntro. des; eauto.
+    eapply Cancel.cancellation.
+    - ii; des; subst; inv FIND; admit.
+     (* ss. rewrite !eq_rel_dec_correct in H0; des_ifs. *)
+    - econs; [refl|]; i; inv NS; des; inv H; des; inv H1;
+      rewrite !eq_rel_dec_correct in H2; des_ifs.
+    - econs; unfold_hmod; ss; prove_nodup.
   Qed.
 
   Lemma lib_sp_incl: sp_incl CtxAS.sp sp.

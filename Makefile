@@ -30,6 +30,7 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R $(CRISMODULE)/extract $(CRISMODULE)"; \
 	 echo "-R cannon $(CRISMODULE).cannon"; \
 	 echo "-R cellio $(CRISMODULE).cellio"; \
+	 echo "-R celliocb $(CRISMODULE).celliocb"; \
 	 echo "-R incr $(CRISMODULE).incr"; \
 	 echo "-R knot $(CRISMODULE).knot"; \
 	 echo "-R map $(CRISMODULE).map"; \
