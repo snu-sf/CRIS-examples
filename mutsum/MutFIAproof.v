@@ -6,14 +6,14 @@ Set Implicit Arguments.
 
 Module MutFIA. Section MutFIA.
   Import MutAUX.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
 
-  Context (Sp: string -> option fspec).
-  Context (SpPure: string -> option fspec).
+  Context (Sp: sp_type).
+  Context (SpPure: spl_type).
 
-  Context (APCInSp : sp_incl (APCA.Sp) Sp).
-  Context (GInPure : sp_incl (MutGA.SpG) SpPure).
-  Context (PureInSp : sp_sub SpPure Sp).
+  Context (APCInSp : sp_incl APCA.Sp Sp).
+  Context (GInPure : spl_sub MutGA.SpG SpPure).
+  Context (PureInSp : sp_incl SpPure Sp).
 
   Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ _ _ _, (True)%I.
@@ -25,8 +25,8 @@ Module MutFIA. Section MutFIA.
   (*************)
 
   Lemma simF_mutf:
-    HSim.sim_fun open MutFAMod MutFIMod IstFull MutHdr.mutf.
-  Proof using _sinvG APCInSp GInPure PureInSp.
+    HSim.sim_fun open MutFAMod MutFIMod MutFA.init_cond IstFull (Some MutHdr.mutf).
+  Proof using _crisG APCInSp GInPure PureInSp.
     init_simF.
 
     (* SRC: precondition *)
@@ -85,19 +85,19 @@ Module MutFIA. Section MutFIA.
     HSim.t open MutFAMod MutFIMod MutFA.init_cond IstFull.
   Proof.
     init_sim.
-    - iIntros "C". iExists [], [], [], []. do 2 iSplit; eauto. iFrame. iPureIntro.
+    - splits; eauto. iIntros "C". iFrame. iPureIntro.
       rewrite /MutFA.scopes /state_scopes /incl //.
     - eapply simF_mutf.
   Qed.
 End MutFIA.
 
 Section ctxr.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
 
-  Theorem ctxr (Sp SpPure: string → option fspec) 
-    (APCInSp : sp_incl (APCA.Sp) Sp)
-    (GInPure : sp_incl (MutGA.SpG) SpPure)
-    (PureInSp : sp_sub SpPure Sp)
+  Theorem ctxr (Sp : sp_type) (SpPure : spl_type)
+    (APCInSp : sp_incl APCA.Sp Sp)
+    (GInPure : spl_sub MutGA.SpG SpPure)
+    (PureInSp : sp_incl SpPure Sp)
   :
     ctx_refines
       (MutFA.t Sp ★ APCA.t SpPure Sp, MutFA.init_cond)

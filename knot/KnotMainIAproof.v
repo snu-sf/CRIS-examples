@@ -7,27 +7,28 @@ Set Implicit Arguments.
 
 Module KnotMainIA. Section KnotMainIA.
   Import KnotA KnotMainA APCA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
   Context `{_memG: !memG}.
   Context `{_knotG: !knotG}.
 
   (* 1. global environment *)
   Context (genv: GEnv.t).
   (* 3. spec tables *)
-  Context (SpRec SpFun SpPure Sp: string -> option fspec).
+  Context (Sp: string -> option fspec).
+  Context (SpRec SpFun SpPure: spl_type).
   (* 4. hypotheses for genv *)
   Context (GEnvWF: GEnv.wf genv).
   Context (GEnvIncl: incl KnotMainGEnv.t genv).
   (* 5. hypotheses for sp *)
-  Context (MainInFun: sp_incl (MainFunSp genv SpRec) SpFun).
+  Context (MainInFun: spl_sub (MainFunSp genv SpRec) SpFun).
   Context (KnotInSp: sp_incl KnotRecSp Sp).
   Context (APCInSp: sp_incl APCA.Sp Sp).
   (* 6. hypotheses for pure sp *)
-  Context (RecInSpPure: sp_sub SpRec SpPure).
-  Context (PureInGlobal : sp_sub SpPure Sp).
+  Context (RecInSpPure: spl_sub SpRec SpPure).
+  Context (PureInGlobal : sp_incl SpPure Sp).
 
   Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
-    λ _ _ _, True%I.  
+    λ _ _ _, True%I.
 
   Local Definition APCA := (APCA.t SpPure Sp).
   Local Definition MemP := MemP.t.
@@ -42,7 +43,7 @@ Module KnotMainIA. Section KnotMainIA.
   (*************)
 
   Lemma simF_fib:
-    HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainHdr.fib.
+    HSim.sim_fun open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull (Some KnotMainHdr.fib).
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     init_simF.
 
@@ -102,7 +103,7 @@ Module KnotMainIA. Section KnotMainIA.
   (*SLOW*)Qed.
 
   Lemma simF_main:
-    HSim.sim_fun open KnotMainAMod KnotMainIMod IstFull KnotMainHdr.main.
+    HSim.sim_fun open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull None.
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     init_simF.
 
@@ -119,7 +120,7 @@ Module KnotMainIA. Section KnotMainIA.
     specialize (GEnvWF KnotMainHdr.fib blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDF.
 
     (* SRC: precondition *)
-    steps_l. destruct q; ss. iDestruct "ASM" as "[[% FG] %]". des; subst. hss.
+    steps_l. destruct q; ss. iDestruct "IST" as "[% FG]". des; subst. hss.
 
     (* TGT: find a block of the function "fib" using SKINCL *)
     steps_r. rewrite FINDF; hss. steps_r.
@@ -128,17 +129,17 @@ Module KnotMainIA. Section KnotMainIA.
     inline_r. steps_r. force_r Fib. forces_r. iSplitL "FG"; et.
     { (* prove the precondition of "fib" *)
       iFrame. iSplit; et. iPureIntro. eexists. esplits; et. econs; esplits; et.
-      eapply fn_has_spec_weaker.
+      eapply fn_has_weaker_spec_in.
       { econs; [|refl]. apply MainInFun. unfold MainFunSp. unseal CRIS. ss. }
-      { unfold fspec_weaker, precond, postcond, fun_gen, fib_spec, fun_gen, fib_spec, fspec_apc; ss. 
-        ii. exists (x0, (knot_frag (Some Fib))%I). split; red.
+      { unfold fspec_imply, precond, postcond, fun_gen, fib_spec, fun_gen, fib_spec, fspec_apc; ss. 
+        ii. exists (x1, (knot_frag (Some Fib))%I). split; red.
         { i. iIntros "[[% FG] %]". unfold precond, fun_gen, fib_spec; ss.
           des; subst; hss. iModIntro. iSplit; et. iSplit; et; cycle 1.
-          iPureIntro. exists fb. esplits; et. inv H5. econs; et. eapply fn_has_spec_weaker; et.
-          unfold fspec_weaker, precond, postcond, fun_gen, fib_spec, fun_gen, fib_spec, fspec_apc; ss.
+          iPureIntro. exists fb. esplits; et. inv H5. econs; et. eapply fn_has_weaker_spec_in; et.
+          unfold fspec_imply, precond, postcond, fun_gen, fib_spec, fun_gen, fib_spec, fspec_apc; ss.
           ii. eexists. split; red.
-          { red. instantiate (1:=(_, x1)). ss. iIntros; iFrame; et. }
-          { i. ss. iIntros; et. } 
+          { red. instantiate (1:=(_, x0)). ss. iIntros; iFrame; et. }
+          { i. ss. iIntros; et. }
         }
         { i. ss. iIntros; et. }
       }
@@ -160,16 +161,18 @@ Module KnotMainIA. Section KnotMainIA.
     unfold apc_body, APC. force_l 1. steps_l. 
     
     (* SRC, TGT: call "fib" using APC tactic *)
-    apc_call_weaker "IST FG"; et.
+    apc_call_weaker "FG"; et.
     { instantiate (1:=0). eapply OrdArith.lt_from_nat; et. }
     { instantiate (1:= 29). eapply OrdArith.lt_from_nat; nia. }
-    { unfold precond. ss. instantiate (1:=(Fib, 10)). iFrame. iSplit; et. iPureIntro. eexists; esplits; ss.
+    { unfold precond. ss. instantiate (1:=(Fib, 10)). iFrame. iSplit; et.
+      { iPureIntro. eexists; esplits; ss.
       rewrite -OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.le_from_nat; nia. }
+      { do 4 iExists []. ss. iPureIntro; hrepeat do 6 unfold_hmod; ss; esplits; eauto; prove_scope. }
+    }
     iDestruct "ISTPOST" as "[IST [% FG]]". subst. steps_r. hss. steps_r.
 
     (* SRC: jump APC *)
-    apc_l. steps_l. forces_l. iSplit; et. steps_l. force_l. steps_l. forces_l. iSplit; et.
-    steps_r. hss. steps_r.
+    apc_l. steps_l. forces_l. iSplit; et. steps_l. 
     step. iSplitR; et.
     Unshelve. all: ss.
   (*SLOW*)Qed.
@@ -177,7 +180,7 @@ Module KnotMainIA. Section KnotMainIA.
   Theorem sim : HSim.t open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull.
   Proof.
     init_sim.
-    - iIntros "IC". iExists [], [], [], []. do 4 (iSplit; et); iPureIntro; ss.
+    - exfalso. revert H. unfold_hmod; ss.
     - eapply simF_fib; et.
     - eapply simF_main; et.
   Qed.
@@ -200,27 +203,30 @@ Module KnotMainIA. Section KnotMainIA.
     ctx_refines
       (KnotMainA.t false genv SpRec Sp ★ APCC.t Sp, emp%I)
       (KnotMainA.t true  genv SpRec Sp ★ APCC.t Sp, emp%I).
-  Proof using _sinvG _memG APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
-    eapply main_adequacy with (Ist := IstProd (IstSB _ IstEq) (IstSB _ IstEq)).
+  Proof using _crisG _memG APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
+    eapply main_adequacy.
     init_sim.
-    { iIntros "_". iPureIntro. eexists [],[],[],[]. esplits; ii; ss. }
-    { ii. revert FIND. alist_find_simpl. i. depdes FIND.
-      alist_find_simpl. esplits; et.
-      eapply isim_reflL; cycle 1.
-      - refl.
-      - i. iIntros "[% ->]". et.
-      - i. iIntros "[% ->]". des. iPureIntro.
-        esplits; et; rewrite state_scopes_update; et.
-      - instantiate (1:=[]). prove_nodup.
+    { exfalso. revert H. hrepeat do 1 unfold_hmod. i; inv H. }
+    { init_simF.
+      steps_l. iDestruct "ASM" as "[[% PRE] %]"; des; hss.
+      steps_l. force_l vo. steps_l. forces_l.
+      iSplitR; eauto. steps_l. force_r (q1, q2).
+      forces_r. iSplitL "PRE".
+      { iFrame; iPureIntro; esplits; eauto. }
+      hss. steps_r. iDestruct "GRT" as "%"; des; hss.
+      call "IST"; eauto.
+      steps_l. steps_r. forces_r. iSplitL "ASM"; eauto.
+      steps_r. iDestruct "GRT" as "[% POST]". forces_l.
+      iSplitL "POST"; iFrame; eauto.
+      step. iFrame; eauto.
     }
     { init_simF.
-      steps_l. hss. iDestruct "ASM" as "((% & H) & %)". hss.
-      force_r (). forces_r. iSplitL "H";  et.
-      rewrite /pure. hss. steps_r. inline_r. forces_r.
+      steps_l. hss. iDestruct "IST" as "%"; des; hss.
+      steps_r. rewrite /pure. steps_r. inline_r. forces_r.
       iDestruct "GRT" as "(% & %)". hss. iSplitR; et.
       steps_r. forces_r. iSplitR; et.
-      steps_r. forces_l. iSplitR; et. step.
-      iDestruct "GRT'" as "[% ?]". et.
+      steps_r. forces_l. step.
+      iSplit; eauto.
     }
   Unshelve. all: et.
   (*SLOW*)Qed.

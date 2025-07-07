@@ -4,8 +4,6 @@ Require Import CannonHeader.
 
 Set Implicit Arguments.
 
-Set Implicit Arguments.
-
 Section RA.
   Context `{!crisG Γ Σ α β τ _I _S}.
   

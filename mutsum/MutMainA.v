@@ -1,10 +1,10 @@
 Require Import CRIS.
-Require Import MutHeader MutMainHeader APCHeader APC.
+Require Import MutHeader APCHeader APC.
 
 Set Implicit Arguments.
 
 Module MutMainA. Section MutMainA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
 
   Variable with_pure: bool.
   
@@ -13,17 +13,11 @@ Module MutMainA. Section MutMainA.
   Definition main_body : Any.t → itree hmodE Any.t :=
     λ _, (if with_pure then pure else Ret ()↑);;; Ret (Vint 55)↑.
 
-  Definition main_spec: fspec :=
-    fspec_simple
-      (fun (_: unit) =>
-        ((λ varg, (⌜varg = tt↑⌝)%I),
-          (λ vret, (⌜True⌝)%I))).
+  Definition Sp: spl_type :=
+    Seal.sealing CRIS [(None, None)].
 
-  Definition Sp: alist string fspec :=
-    Seal.sealing CRIS [(MutMainHdr.main, main_spec)].
-
-  Definition fnsems :=
-    [(MutMainHdr.main, (wmask_all, scopes, mk_specbody main_spec main_body))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(None, (true, wmask_all, scopes, (None, main_body)))].
 
   Program Definition Mod: SMod.t :=
   {|

@@ -10,29 +10,27 @@ Local Open Scope nat_scope.
 (* Simulation Proof *)
 Module CellIA. Section CellIA.
   Import CellAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cellG: !cellG}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cellG}.
 
   Variable idx : nat.
 
-  (* A spec table *)
-  Context (Sp_s : string → option fspec).
+  Context (Sp_s : sp_type).
 
   Definition Ist : nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     (λ _ st_src st_tgt,
        ∃ vany v,
         ⌜st_tgt = [(CellI.v_cv idx, vany)]⌝
-        ∗ ((cell idx v ∗ auth idx v)
-          ∨ (⌜vany = v↑⌝ ∗ pending idx ∗ auth idx v)))%I.
+        ∗ ((cell idx v ∗ auth idx v) ∨ (⌜vany = v↑⌝ ∗ pending idx ∗ auth idx v)))%I.
 
   (* Definitions of two Cell modules *)
-  Local Definition CellA := (CellA.t idx Sp_s).
-  Local Definition CellI := (CellI.t idx).
+  Local Definition CellAMod := (CellA.t idx Sp_s).
+  Local Definition CellIMod := (CellI.t idx).
 
   (*************)
 
-  Lemma simF_get : HSim.sim_fun open CellA CellI Ist (CellHdr.get idx).
-  Proof using _cellG.
+  Lemma simF_get : HSim.sim_fun open CellAMod CellIMod (CellA.init_cond idx) Ist (Some (CellHdr.get idx)).
+  Proof using.
     init_simF.
 
     (* Simulation Starts Here *)
@@ -55,8 +53,8 @@ Module CellIA. Section CellIA.
   (*SLOW*)Qed.
 
   Lemma simF_set:
-    HSim.sim_fun open CellA CellI Ist (CellHdr.set idx).
-  Proof using _cellG.
+    HSim.sim_fun open CellAMod CellIMod True%I Ist (Some (CellHdr.set idx)).
+  Proof using.
     init_simF.
 
     (* Simulation Starts Here *)
@@ -98,10 +96,10 @@ Module CellIA. Section CellIA.
     iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
   (*SLOW*)Qed.
 
-  Theorem sim : HSim.t open CellA CellI (CellA.InitCond idx) Ist.
+  Theorem sim : HSim.t open CellAMod CellIMod (CellA.init_cond idx) Ist.
   Proof.
     init_sim.
-    - iIntros "H". iDestruct "H" as (v) "(C & A)".
+    - split; eauto. iIntros "IC". iDestruct "IC" as (v) "(C & A)".
       repeat iExists _. iSplit; eauto. iLeft. iFrame.
     - eapply simF_get; eauto.
     - eapply simF_set; eauto.

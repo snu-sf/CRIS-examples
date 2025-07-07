@@ -25,17 +25,17 @@ Module MutFI. Section MutFI.
       )
   .
 
-  Definition fnsems :=
-    [(MutHdr.mutf, (wmask_all, scopes, cfunU fF))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some MutHdr.mutf, (false, wmask_all, scopes, (None, cfunU fF)))].
   
-  Program Definition Mod: PMod.t :=
+  Program Definition Mod: SMod.t :=
   {|
-    PMod.scopes := scopes;
-    PMod.fnsems := fnsems;
-    PMod.initial_st := [];
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems;
+    SMod.initial_st := [];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t := Seal.sealing CRIS (PMod.to_hmod Mod).
+  Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
 End MutFI. End MutFI.

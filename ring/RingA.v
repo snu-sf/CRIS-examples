@@ -6,28 +6,23 @@ Require Import RingHeader CellA.
 Set Implicit Arguments.
 
 Module RingAS. Section RingAS.
-  Context `{Σ : GRA}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cellG}.
 
-  Definition Sp : alist string fspec :=
-    Seal.sealing CRIS [(RingHdr.init, fspec_trivial);
-                       (RingHdr.get_size, fspec_trivial);
-                       (RingHdr.enqueue, fspec_trivial);
-                       (RingHdr.dequeue, fspec_trivial)].
+  Definition Sp : spl_type :=
+    Seal.sealing CRIS [(Some RingHdr.init, Some fspec_trivial);
+                       (Some RingHdr.get_size, Some fspec_trivial);
+                       (Some RingHdr.enqueue, Some fspec_trivial);
+                       (Some RingHdr.dequeue, Some fspec_trivial)].
 
   Lemma Sp_nodup : List.NoDup (List.map fst Sp).
-  Proof.
-    unfold Sp. unseal CRIS. prove_nodup.
-  Qed.
-
-End RingAS.
-
-Global Hint Unfold Sp : stb.
-
-End RingAS.
+  Proof. unfold Sp. unseal CRIS. prove_nodup. Qed.
+End RingAS. End RingAS.
 
 Module RingA. Section RingA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
-  Context `{_cellG: !cellG}.
+  Import RingAS.
+  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!cellG}.
 
   (* A maximum size of the ring buffer *)
   Variable max_size : nat.
@@ -65,11 +60,11 @@ Module RingA. Section RingA.
       end
   .
 
-  Definition fnsems :=
-    [(RingHdr.init, (wmask_all, scopes,mk_specbody fspec_trivial (cfunU init)));
-     (RingHdr.get_size, (wmask_all, scopes,mk_specbody fspec_trivial (cfunU get_size)));
-     (RingHdr.enqueue, (wmask_all, scopes,mk_specbody fspec_trivial (cfunU enqueue)));
-     (RingHdr.dequeue, (wmask_all, scopes,mk_specbody fspec_trivial (cfunU dequeue)))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some RingHdr.init, (true, wmask_all, scopes, (None, cfunU init)));
+     (Some RingHdr.get_size, (true, wmask_all, scopes, (None, cfunU get_size)));
+     (Some RingHdr.enqueue, (true, wmask_all, scopes, (None, cfunU enqueue)));
+     (Some RingHdr.dequeue, (true, wmask_all, scopes, (None, cfunU dequeue)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
@@ -80,9 +75,8 @@ Module RingA. Section RingA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition InitCond : iProp Σ :=
+  Definition init_cond : iProp Σ :=
     ([∗ list] i↦_ ∈ (replicate max_size 0%Z), CellAS.pending i)%I.
 
-  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod Sp Mod).
-
+  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
 End RingA. End RingA.
