@@ -7,16 +7,18 @@ Set Implicit Arguments.
 
 Module RepeatIA. Section RepeatIA.
   Import RepeatAS APC APCA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
 
   Context (genv : GEnv.t).
-  Context (sp sp_pure sp_pure_fun : string → option fspec). (* sp_pure_fun stores fspecs which repeat use *)
+  Context (sp : sp_type).
+  Context (sp_pure sp_pure_fun : spl_type). (* sp_pure_fun stores fspecs which repeat use *)
 
   (* SPC Hypothesis *)
-  Context (APCInSpPure : sp_incl APCA.Sp sp_pure).
-  Context (SpPureInSp : sp_sub sp_pure sp).
-  Context (SpPureFunInSpPure : sp_sub sp_pure_fun sp_pure).
-  Context (repeatInSpPure : sp_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec sp_pure_fun genv)). (* to avoid recursive definition of SpPure *)
+  Context (APCInSpPure : spl_sub APCA.Sp sp_pure).
+  Context (SpPureInSp : sp_incl sp_pure sp).
+  Context (SpPureFunInSpPure : spl_sub sp_pure_fun sp_pure).
+  Context (repeatInSpPure : alist_find (Some RepeatHdr.repeat) sp_pure 
+            = Some (Some (RepeatAS.repeat_spec sp_pure_fun genv))). (* to avoid recursive definition of SpPure *)
 
   (* Modules *)
   Local Definition APCA := (APCA.t sp_pure sp).
@@ -30,14 +32,19 @@ Module RepeatIA. Section RepeatIA.
     (λ _ st_src st_tgt, emp%I).
   Local Definition IstFull := (IstProd (IstSB RepeatA.(HMod.scopes) Ist) IstEq).
 
-  Lemma simF_repeat : HSim.sim_fun open RepeatAMod RepeatIMod IstFull RepeatHdr.repeat.
-  Proof using _sinvG APCInSpPure SpPureInSp SpPureFunInSpPure repeatInSpPure.
+  Lemma simF_repeat : HSim.sim_fun open RepeatAMod RepeatIMod RepeatA.init_cond IstFull (Some RepeatHdr.repeat).
+  Proof using _crisG APCInSpPure SpPureInSp SpPureFunInSpPure repeatInSpPure.
     (* Simulation Start *)
     init_simF.
 
     (* SRC: handle the precond of repeat *)
     steps_l. rename q2 into f_sem, q3 into n, q4 into x.
     iDestruct "ASM" as "%". hss. dup H3. inv H3. steps_l.
+
+    (* SRC: find apc in sp *)
+    assert (SPAPC: sp APCHdr.apc = Some apc_spec).
+    { apply SpPureInSp. apply APCInSpPure. rewrite /Sp. unseal CRIS. ss. }
+    rewrite SPAPC.
 
     (* TGT: handle input *)
     steps_r. unfold assume. force_r. steps_r.
@@ -51,8 +58,8 @@ Module RepeatIA. Section RepeatIA.
       hss. steps_r.
 
       (* SRC: unfold APC *)
-      forces_l. iSplit. { iPureIntro. apply SpPureInSp. apply APCInSpPure. unfold APCA.Sp. unseal CRIS. et. }
-      steps_l. forces_l. iSplit; et. inline_l. steps_l. iDestruct "ASM" as "%". hss.
+      forces_l. iSplit; eauto.
+      steps_l. inline_l. steps_l. iDestruct "ASM" as "%". hss.
       steps_l. unfold APC. force_l. steps_l.
 
       (* SRC: change to skip *)
@@ -69,8 +76,7 @@ Module RepeatIA. Section RepeatIA.
       rewrite H2. hss. steps_r.
 
       (* SRC: unfold APC *)
-      force_l. iSplit. { iPureIntro. apply SpPureInSp. apply APCInSpPure. unfold APCA.Sp. unseal CRIS. et. }
-      steps_l. forces_l. iSplit; et. steps_l.
+      forces_l. iSplit; eauto. steps_l. 
       inline_l. steps_l. iDestruct "ASM" as "%". hss.
       steps_l. unfold APC. force_l 2. steps_l.
 
@@ -109,20 +115,19 @@ Module RepeatIA. Section RepeatIA.
   Theorem sim : HSim.t open RepeatAMod RepeatIMod RepeatA.init_cond IstFull.
   Proof.
     init_sim.
-    - iIntros "_". repeat iExists [].
-      repeat (iSplit; eauto); iPureIntro; ss.
+    - split; eauto. iIntros "_". repeat (iSplit; eauto); iPureIntro; ss.
     - apply simF_repeat; eauto.
   Qed.
 End RepeatIA. 
 
 Section ctxr.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
 
-  Definition ctxr (ge : GEnv.t) (sp sp_pure sp_pure_fun : string → option fspec)
-        (APCInSpPure : sp_incl APCA.Sp sp_pure)
-        (SpPureInSp : sp_sub sp_pure sp)
-        (SpPureFunInSpPure : sp_sub sp_pure_fun sp_pure)
-        (repeatInSpPure: sp_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec sp_pure_fun ge)) :
+  Definition ctxr (ge : GEnv.t) (sp : sp_type) (sp_pure sp_pure_fun : spl_type)
+        (APCInSpPure : spl_sub APCA.Sp sp_pure)
+        (SpPureInSp : sp_incl sp_pure sp)
+        (SpPureFunInSpPure : spl_sub sp_pure_fun sp_pure)
+        (repeatInSpPure: alist_find (Some RepeatHdr.repeat) sp_pure = Some (Some (RepeatAS.repeat_spec sp_pure_fun ge))) :
     ctx_refines
       ((RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I)
       ((RepeatI.t ge)                    ★ (APCA.t sp_pure sp), emp%I).

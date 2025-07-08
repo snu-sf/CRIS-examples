@@ -7,7 +7,7 @@ Set Implicit Arguments.
 
 (* Define Specification *)
 Module AddAS. Section AddAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
 
   (* mathematical succ *)
   Definition succ_fun n : Z :=
@@ -31,9 +31,9 @@ Module AddAS. Section AddAS.
           λ vret, ⌜vret = (Vint (add_fun n m))↑⌝%I)
       ).
 
-  Definition Sp : alist string fspec :=
+  Definition Sp : spl_type :=
     Seal.sealing CRIS
-      [(AddHdr.succ, succ_spec); (AddHdr.add, add_spec)]. 
+      [(Some AddHdr.succ, Some succ_spec); (Some AddHdr.add, Some add_spec)].
   
   Lemma Sp_nodup: List.NoDup (List.map fst Sp).
   Proof. unfold Sp. unseal CRIS. prove_nodup. Qed.
@@ -42,13 +42,13 @@ End AddAS. End AddAS.
 
 (* Define Module *)
 Module AddA. Section AddA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
 
   Definition scopes := [AddHdr.mn].
 
-  Definition fnsems :=
-    [(AddHdr.succ, (wmask_all, scopes, mk_specbody AddAS.succ_spec pure_body));
-     (AddHdr.add, (wmask_all, scopes, mk_specbody AddAS.add_spec pure_body))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some AddHdr.succ, (true, wmask_all, scopes, (Some AddAS.succ_spec, pure_body)));
+     (Some AddHdr.add, (true,wmask_all, scopes, (Some AddAS.add_spec, pure_body)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
