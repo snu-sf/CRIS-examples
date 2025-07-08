@@ -24,42 +24,78 @@ Module MaincbIA. Section MaincbIA.
     init_simF.
     
     (* Take cell(0) *)
-    steps_l; iDestruct "ASM" as "[ASM %]"; subst.
+    steps_l; iDestruct "IST" as "[IST ASM ]"; subst.
 
-    steps_r. inline_r.
     (* Give cell(0) *)
-    steps_r. force_r tt. steps_r. forces_r. iSplit; eauto.
-    steps_r. hss. steps_r.
-    forces_r. iFrame.
-
     steps_r. inline_r.
-    steps_r. step. rename ret into i. 
+    steps_r. hss. 
+    steps_r. forces_r. iFrame.
+    
+    (* Inline input_stdin() *)
+    steps_r. inline_r.
+    steps_r. 
+    
+    (* trigger IO together *)
+    step. rename ret into i. 
     steps_r. hss.
-    steps_r. iDestruct "GRT'" as "<-".
+    
+    (* Take cell(i) *)
+    steps_r.
     hss. steps_r.
     steps_l.
+
+    (* TGT : inline CellioA.get() *)
+    inline_r.
+    steps_r. 
+    forces_r. 
+    iFrame.
+
+    steps_r. hss. steps_r.
+
+    (* call foo together *)
     call "IST".
     {
-      iDestruct "IST" as "[[-> [-> ->]] IC]".
+      iDestruct "IST" as "[-> [-> ->]]".
       repeat iExists []. iSplit; eauto;
       repeat unfold_hmod; ss;
       repeat (iSplit; eauto); iPureIntro; prove_scope.
     }
 
+    (* TGT : handle set(input_db) *)
     steps_l.
     steps_r. hss. steps_r.
+    
+    (* TGT : inline set *)
     inline_r.
-    steps_r. force_r tt. steps_r. forces_r. iSplit; eauto.
-    steps_r.
-    forces_r. iFrame.
-    steps_r. iDestruct "GRT'" as "<-". hss. 
-    steps_r.
-    step.
-    steps_l.
-    forces_l. iSplit; et.
-    step.
-    iSplit; et.
+    steps_r. hss.
+    forces_r.
 
+    (* TGT : give cell i *)
+    iFrame.
+    steps_r.
+    
+    (* TGT : inline input_db *)
+    inline_r.
+    steps_r.
+
+    (* handle IO together *)
+    step.
+    steps_r. hss. 
+    steps_r. hss. 
+    steps_r. 
+    
+    (* TGT : inline get *)
+    inline_r.
+    steps_r. force_r ret.
+    
+    (* TGT : get cell ret *)
+    forces_r. iFrame.
+    
+    steps_r. hss. steps_r. 
+    steps_l. 
+    
+    (* handle IO together *)
+    step. step. iSplit; done.
   (*SLOW*)Qed.
 
   Theorem sim :

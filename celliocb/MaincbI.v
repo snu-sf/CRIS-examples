@@ -8,23 +8,29 @@ Module MaincbI. Section MaincbI.
 
   Definition scopes := ["Main"].
 
-  (* Is it Right : input in MainI ?? *)
-  Definition input: Any.t -> itree hmodE Any.t :=
+  Definition input_stdin: Any.t -> itree hmodE Any.t :=
     λ _,
-      i <- trigger (@IO _ Z "Input" tt);;
+      i <- trigger (@IO _ Z "Input_stdin" tt);;
       Ret i↑.
 
-  (* Is it need foo in this example?? *)
+  Definition input_db: Any.t -> itree hmodE Any.t :=
+    λ _,
+      i <- trigger (@IO _ Z "Input_db" tt);;
+      Ret i↑.
+
   Definition main: Any.t -> itree hmodE Any.t :=
     λ _,
-      ccallU (Y:=unit) CelliocbHdr.set MaincbHdr.input;;;
-      ccallU (Y:=unit) CtxcbHdr.foo tt;;;
+      ccallU (Y:=unit) CelliocbHdr.set MaincbHdr.input_stdin ;;;
+      i <- ccallU (Y:=Z) CelliocbHdr.get tt;;
+      ccallU (Y:=unit) CtxcbHdr.foo i;;;
+      ccallU (Y:=unit) CelliocbHdr.set MaincbHdr.input_db ;;;
       x <- ccallU (Y:=Z) CelliocbHdr.get tt;;
       trigger (@IO _ unit "Print" x);;;
       Ret tt↑.
   
   Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
-    [(Some MaincbHdr.input, (false, wmask_all, scopes, (None, input)));
+    [(Some MaincbHdr.input_stdin, (false, wmask_all, scopes, (None, input_stdin)));
+     (Some MaincbHdr.input_db, (false, wmask_all, scopes, (None, input_db)));
      (MaincbHdr.main, (false, wmask_all, scopes, (None, main)))].
 
   Program Definition Mod: SMod.t := {|

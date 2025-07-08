@@ -10,21 +10,16 @@ Module MaincbA. Section MaincbA.
                 
   Definition scopes := ["Main"].
 
-  Definition main_spec : fspec :=
-    fspec_simple (λ _ : unit,
-          ((λ arg, cell 0),
-           (λ ret, emp))
-    )%I.
-
   Definition main: Any.t -> itree hmodE Any.t :=
     λ _,
-      'i: Z <- trigger (@IO _ Z "Input" tt);;
-      '_: unit <- ccallU CtxcbHdr.foo tt;;
-      '_: unit <- trigger (IO "Print" i);;
+      'i: Z <- trigger (@IO _ Z "Input_stdin" tt);;
+      ccallU (Y:=unit) CtxcbHdr.foo i;;;
+      'x: Z <- trigger (@IO _ Z "Input_db" tt);; 
+      trigger (@IO _ unit "Print" x);;;
       Ret tt↑.
   
-  Definition fnsems :=
-    [(MaincbHdr.main, (true, wmask_all, scopes, (Some main_spec, main)))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(MaincbHdr.main, (true, wmask_all, scopes, (None, main)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
@@ -34,7 +29,7 @@ Module MaincbA. Section MaincbA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition InitCond : iProp Σ := emp%I.
+  Definition InitCond : iProp Σ := cell 0.
 
   Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
 

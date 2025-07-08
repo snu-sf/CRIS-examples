@@ -53,7 +53,6 @@ Module CelliocbA. Section CelliocbA.
     λ cb,
       x <- trigger (Take Z);;
       trigger (Assume (CelliocbA.cell x));;;
-      (* i <- trigger (@IO _ Z "Input" tt);; *)
       'i: Z <- ccallU cb tt;;
       trigger (Guarantee (CelliocbA.cell i));;;
       Ret tt.
@@ -68,8 +67,8 @@ Module CelliocbA. Section CelliocbA.
   Definition scopes := [CelliocbHdr.mn].
   
   Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
-    [(Some CelliocbHdr.set, (true, wmask_all, scopes, (Some fspec_trivial, cfunU set)));
-     (Some CelliocbHdr.get, (true, wmask_all, scopes, (Some fspec_trivial, get)))].
+    [(Some CelliocbHdr.set, (true, wmask_all, scopes, (None, cfunU set)));
+     (Some CelliocbHdr.get, (true, wmask_all, scopes, (None, get)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
@@ -79,8 +78,7 @@ Module CelliocbA. Section CelliocbA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition InitCond : iProp Σ :=
-    CelliocbA.auth 0.
+  Definition InitCond : iProp Σ := auth 0.
   (* handle sp_none Since we left call as call *)
   Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
 End CelliocbA. End CelliocbA.

@@ -15,7 +15,9 @@ Module CelliocbI. Section CelliocbI.
   Definition scopes := [CelliocbHdr.mn].
   Definition v_cv := (CelliocbHdr.mn) ↯ "cv".
 
-  (* 이게 콜백이 맞을까? 의미적으로... *)
+(* For convenience we use a string callback identifier here.
+   The actual function-pointer implementation and Landin’s knot reasoning
+   live in KnotI.v — please see that file. *)
   Definition set: string -> itree hmodE unit :=
     λ cb,
       'i: Z <- ccallU cb tt;;
