@@ -1,5 +1,5 @@
 Require Import CRIS.
-Require Import CellioA CtxHeader CellioHeader MainHeader.
+Require Import CellioA CtxHeader CellioHeader.
 
 Set Implicit Arguments.
 
@@ -10,12 +10,6 @@ Module MainA. Section MainA.
                 
   Definition scopes := ["Main"].
 
-  Definition main_spec : fspec :=
-    fspec_simple (λ _ : unit,
-          ((λ arg, cell 0),
-           (λ ret, emp))
-    )%I.
-
   Definition main: Any.t -> itree hmodE Any.t :=
     λ _,
       'i: Z <- ccallU CtxHdr.input tt;;
@@ -23,8 +17,8 @@ Module MainA. Section MainA.
       '_: unit <- trigger (IO "Print" i);;
       Ret tt↑.
   
-  Definition fnsems :=
-    [(MainHdr.main, (true, wmask_all, scopes, (Some main_spec, main)))].
+  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(None, (true, wmask_all, scopes, (None, main)))].
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
@@ -34,7 +28,7 @@ Module MainA. Section MainA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition InitCond : iProp Σ := emp%I.
+  Definition InitCond : iProp Σ := (cell 0)%I.
 
   Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
 

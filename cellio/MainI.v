@@ -1,5 +1,5 @@
 Require Import CRIS.
-Require Import MainHeader CellioHeader CtxHeader.
+Require Import CellioHeader CtxHeader.
 
 Set Implicit Arguments.
 
@@ -17,7 +17,7 @@ Module MainI. Section MainI.
       Ret tt↑.
   
   Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
-    [(MainHdr.main, (false, wmask_all, scopes, (None, main)))].
+    [(None, (false, wmask_all, scopes, (None, main)))].
 
   Program Definition Mod: SMod.t := {|
     SMod.scopes := scopes;

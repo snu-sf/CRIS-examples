@@ -1,19 +1,7 @@
 Require Import CRIS.
-Require Import MainHeader CellioHeader CtxHeader.
+Require Import CellioHeader CtxHeader.
 
 Set Implicit Arguments.
-
-(* Module CtxHdr.
-
-  Definition mn := "Ctx".
-    
-  Definition fn (method: string) :=
-    mn +:+ "." +:+ method.
-  
-  Definition foo := fn "foo".
-  Definition input := fn "input".
-
-End CtxHdr. *)
 
 Module CtxAS.
 Section CtxAS.

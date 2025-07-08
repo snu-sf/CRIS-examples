@@ -1,6 +1,5 @@
 Require Import CRIS Cancel.
 Require Import ImpPrelude.
-Require Import MainHeader.
 From CRIS.cellio Require Import CellioHeader CellioA CellioI MainA MainI CtxHeader CtxA CellioIAproof MainIAproof.
 
 Module CellioAll. Section CellioAll.
@@ -29,38 +28,39 @@ Module CellioAll. Section CellioAll.
   
   Hypothesis ModulesWF : HMod.wf mod_tgt.
   Hypothesis CtxCorrect: ctx_refines (SMod.to_hmod sp CtxA, CtxInitCond) (CtxI, emp%I).
+  (* Need for cancellation for CtxA *)
+  Hypothesis SModWF : ElimRel.smod_wf smod_src. 
+  Hypothesis SPWF : ElimRel.valid_sp smod_src sp.
+  Hypothesis HModWF : HMod.wf mod_cancel.
+
   Hypothesis inputInCtx : ∃ msk sc input (SCP: incl sc CtxA.(SMod.scopes)),
     alist_find (Some CtxHdr.input) (SMod.fnsems CtxA) = Some (true, msk, sc, with_trivial_spec input).
   Hypothesis fooInCtx : ∃ msk sc foo (SCP: incl sc CtxA.(SMod.scopes)),
     alist_find (Some CtxHdr.foo) (SMod.fnsems CtxA) = Some (true, msk, sc, with_trivial_spec foo).
 
-  Local Definition main_cond : iProp Σ := MainA.main_spec.(precond) tt ()↑ ()↑.
   Local Definition init_cond : iProp Σ := MainA.InitCond ∗ CellioA.InitCond.
 
   Hypothesis CtxInitCondConsistent:
-    ∀ rs, ✓ rs → (Own rs ⊢ init_cond ∗ main_cond) →
-    ∃ rs', ✓ rs' ∧ (Own rs' ⊢ init_cond ∗ main_cond ∗ CtxInitCond).
+    ∀ rs, ✓ rs → (Own rs ⊢ init_cond) →
+    ∃ rs', ✓ rs' ∧ (Own rs' ⊢ init_cond ∗ CtxInitCond).
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_from_src:
     refines (mod_cancel, ((init_cond ∗ CtxInitCond))%I) 
             (mod_src, init_cond ∗ CtxInitCond)%I.
   Proof.
-    eapply Cancel.cancellation.
-    - ii; des; subst; inv FIND; admit.
-     (* ss. rewrite !eq_rel_dec_correct in H0; des_ifs. *)
-    - econs; [refl|]; i; inv NS; des; inv H; des; inv H1;
-      rewrite !eq_rel_dec_correct in H2; des_ifs.
-    - econs; unfold_hmod; ss; prove_nodup.
+    eapply Cancel.cancellation; et.
   Qed.
 
   Lemma lib_sp_incl: sp_incl CtxAS.sp sp.
   Proof.
     i. rewrite /CtxAS.sp. unseal CRIS. econs; first prove_nodup.
     destruct inputInCtx, fooInCtx. des. intros ? ?.
-    rewrite /sp /sp_from /smod_src /to_sp alist_find_map /o_map //=.
-    rewrite !eq_rel_dec_correct. des_ifs.
-  Qed.
+    rewrite /sp /ElimRel.sp_from /smod_src /to_sp alist_find_map /o_map //=.
+    rewrite /sumbool_to_bool /or_else //=.
+    (* rewrite !eq_rel_dec_correct. des_ifs. *)
+    des_ifs; ii; first [rewrite H0 in Heq1 | rewrite H in Heq2]; clarify.
+    Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
   Lemma src_tgt : refines (mod_src, init_cond ∗ CtxInitCond)%I (mod_tgt, emp%I).
@@ -98,7 +98,7 @@ Module CellioAll. Section CellioAll.
   (*SLOW*)Qed.
 
   Lemma cancel_from_tgt :
-    refines (mod_cancel, ((init_cond ∗ CtxInitCond) ∗ main_cond)%I)
+    refines (mod_cancel, (init_cond ∗ CtxInitCond)%I)
             (mod_tgt, emp%I).
   Proof.
     etrans.
@@ -115,21 +115,21 @@ Module CellioAll. Section CellioAll.
     hexploit (H ModulesWF).
     clear H; intros [WF H].
 
-    assert (∃ rs, ✓ rs ∧ (Own rs ⊢ init_cond ∗ main_cond)).
+    assert (∃ rs, ✓ rs ∧ (Own rs ⊢ init_cond)).
     { exists (irΣ ⋅ initial_resource_own_admin). split.
       - apply irΣ_valid.
       - rewrite /init_cond /MainA.InitCond /CellioA.InitCond.
         simplify_res.
         { iDestruct "H12" as "[H2 H3]".
-          rewrite /CellioA.auth /main_cond /MainA.main_spec /precond. s.
-          rewrite /CellioA.cell. s. iFrame. et.
+          rewrite /CellioA.auth /precond. s.
+          rewrite /CellioA.cell. s. iFrame.
         }
         all: solve_res.
     }
     des. eapply CtxInitCondConsistent in H1; et. des.
 
     destruct (H rs'); et.
-    { iIntros "H". iPoseProof (H2 with "H") as "[? [? ?]]". iFrame. }
+    (* { iIntros "H". iPoseProof (H2 with "H") as "[? [? ?]]". iFrame. } *)
     { des. et. }
   (*SLOW*)Qed.
 End CellioAll. End CellioAll.

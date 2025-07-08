@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.cellio Require Import CellioHeader CellioA MainHeader MainA MainI CtxA.
+From CRIS.cellio Require Import CellioHeader CellioA MainA MainI CtxA.
 
 Set Implicit Arguments.
 
@@ -19,12 +19,13 @@ Module MainIA. Section MainIA.
   Local Definition IstFull := (IstProd (IstSB MainA.(HMod.scopes) Ist) IstEq).
 
   Lemma simF_main:
-    HSim.sim_fun open MainA (MainI.t ★ CellioA) MainA.InitCond IstFull MainHdr.main.
+    HSim.sim_fun open MainA (MainI.t ★ CellioA) MainA.InitCond IstFull None.
   Proof using CtxInSp.
     init_simF.
     
     (* Take cell(0) *)
-    steps_l; iDestruct "ASM" as "[ASM %]"; subst.
+    steps_l. 
+    iDestruct "IST" as "[IST ASM]"; subst.
 
     steps_r. inline_r.
     (* Give cell(0) *)
@@ -35,7 +36,7 @@ Module MainIA. Section MainIA.
     steps_r. forces_l. iSplitL "GRT"; eauto.
     call "IST". 
     {
-      iDestruct "IST" as "[[-> [-> ->]] IC]".
+      iDestruct "IST" as "[-> [-> ->]]".
       repeat iExists []. iSplit; eauto;
       repeat unfold_hmod; ss;
       repeat (iSplit; eauto); iPureIntro; prove_scope.
@@ -62,8 +63,7 @@ Module MainIA. Section MainIA.
     (* Call Print(i) simultaneously *)
     steps_r. step.
 
-    steps_l. forces_l.
-    iSplitL ""; eauto.
+    steps_l.
 
     steps_r. step. iFrame. eauto.
 
