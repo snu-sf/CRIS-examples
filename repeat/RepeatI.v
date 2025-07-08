@@ -20,16 +20,16 @@ Module RepeatI. Section RepeatI.
         v <- ccallU fn [Vint x];;
         ccallU RepeatHdr.repeat [Vptr (fb, 0%Z); Vint (n - 1); v].
 
-  Definition fnsems (genv: GEnv.t) :=
-    [(RepeatHdr.repeat, (wmask_all, scopes, cfunU (repeat (CEnv.load_genv genv: CEnv.t))))].
+  Definition fnsems (genv: GEnv.t) : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some RepeatHdr.repeat, (false, wmask_all, scopes, (None, cfunU (repeat (CEnv.load_genv genv: CEnv.t)))))].
 
-  Program Definition Mod (genv: GEnv.t) : PMod.t := {|
-    PMod.scopes := scopes;
-    PMod.fnsems := fnsems genv;
-    PMod.initial_st := [];
+  Program Definition Mod (genv: GEnv.t) : SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems genv;
+    SMod.initial_st := [];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t (genv: GEnv.t) : HMod.t := Seal.sealing CRIS (PMod.to_hmod (Mod genv)).
+  Definition t (genv: GEnv.t) : HMod.t := Seal.sealing CRIS (SMod.to_hmod sp_none (Mod genv)).
 End RepeatI. End RepeatI.

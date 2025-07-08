@@ -9,20 +9,21 @@ Set Implicit Arguments.
 
 Module AddIA. Section AddIA.
   Import AddAS APC APCA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
 
   Context (genv : GEnv.t).
-  Context (sp sp_pure sp_pure_fun : string -> option fspec).
+  Context (sp : sp_type).
+  Context (sp_pure sp_pure_fun : spl_type).
 
   (* GEnv Hypothesis *)
   Context (GEnvWF : GEnv.wf genv).
   Context (GEnvIncl : incl AddGEnv.t genv).
 
   (* SPC Hypothesis *)
-  Context (APCInSpPure : sp_incl APCA.Sp sp_pure).
-  Context (SpPureInSp : sp_sub sp_pure sp).
-  Context (repeatInSpPure : sp_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec sp_pure_fun genv)).
-  Context (succInSpPureFun : sp_pure_fun AddHdr.succ = Some AddAS.succ_spec).
+  Context (APCInSpPure : spl_sub APCA.Sp sp_pure).
+  Context (SpPureInSp : sp_incl sp_pure sp).
+  Context (repeatInSpPure : alist_find (Some RepeatHdr.repeat) sp_pure = Some (Some (RepeatAS.repeat_spec sp_pure_fun genv))).
+  Context (succInSpPureFun : alist_find (Some AddHdr.succ) sp_pure_fun = Some (Some AddAS.succ_spec)).
 
   (* Modules *)
   Local Definition APCA := (APCA.t sp_pure sp).
@@ -54,8 +55,8 @@ Module AddIA. Section AddIA.
     apply (_add_succ_repeat_fun (Z.to_nat n) m).
   Qed.
 
-  Lemma simF_succ : HSim.sim_fun open AddAMod AddIMod IstFull AddHdr.succ.
-  Proof using _sinvG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
+  Lemma simF_succ : HSim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (Some AddHdr.succ).
+  Proof using _crisG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
     (* Simulation Start *)
     init_simF.
 
@@ -63,12 +64,17 @@ Module AddIA. Section AddIA.
     steps_l. rename q into n.
     iDestruct "ASM" as "%". hss. steps_l.
 
+    (* SRC: find apc in sp *)
+    assert (SPAPC: sp APCHdr.apc = Some apc_spec).
+    { apply SpPureInSp, APCInSpPure. rewrite /Sp. unseal CRIS; ss. }
+    rewrite SPAPC.
+
     (* TGT: steps tgt *)
     steps_r.
 
     (* SRC: unfold APC *)
-    force_l. iSplit. { iPureIntro. apply SpPureInSp. apply APCInSpPure. unfold APCA.Sp. unseal CRIS. et. }
-    steps_l. forces_l. iSplit; et. inline_l. steps_l. iDestruct "ASM" as "%". hss.
+    forces_l. iSplit; eauto.
+    inline_l. steps_l. iDestruct "ASM" as "%". hss.
     steps_l. unfold APC. force_l. steps_l.
 
     (* SRC: change to skip *)
@@ -79,8 +85,8 @@ Module AddIA. Section AddIA.
     Unshelve. et. exact (0↑).
   (*SLOW*)Qed.
 
-  Lemma simF_add : HSim.sim_fun open AddAMod AddIMod IstFull AddHdr.add.
-  Proof using _sinvG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
+  Lemma simF_add : HSim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (Some AddHdr.add).
+  Proof using _crisG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
     (* succ is in somewhere at CEnv *)
     pose proof (@CEnv.incl_incl_env AddGEnv.t genv) as INCLENV.
     eapply INCLENV in GEnvIncl; et.
@@ -96,12 +102,16 @@ Module AddIA. Section AddIA.
     steps_l. rename q1 into n, q2 into m.
     iDestruct "ASM" as "%". hss. steps_l.
 
+    (* SRC: find apc in sp *)
+    assert (SPAPC: sp APCHdr.apc = Some apc_spec).
+    { apply SpPureInSp, APCInSpPure. rewrite /Sp. unseal CRIS; ss. }
+    rewrite SPAPC.
+
     (* TGT: handle input *)
     steps_r. rewrite FIND. hss. steps_r.
 
     (* SRC: unfold APC *)
-    force_l. iSplit. { iPureIntro. apply SpPureInSp. apply APCInSpPure. unfold APCA.Sp. unseal CRIS. et. }
-    steps_l. forces_l. iSplit; et. steps_l.
+    forces_l. iSplit; eauto.
     inline_l. steps_l. iDestruct "ASM" as "%". hss.
     steps_l. unfold APC. force_l 1. steps_l.
 
@@ -112,8 +122,8 @@ Module AddIA. Section AddIA.
     { unfold precond. ss. iFrame. instantiate (1 := (Z.to_nat n, m, succ_fun)). iPureIntro. split.
       - exists AddHdr.succ, blk. rewrite Z2Nat.id; et. hrepeat split; et. unfold_intrange_64; des_ifs_safe; hrepeat destruct Z_le_gt_dec; ss; try lia.
         (* succ has sufficient spec *)
-        econs; et. unfold succ_spec, fspec_weaker.
-        ii. exists x0. split; r; ii; iIntros; iModIntro; hss.
+        econs; et. unfold succ_spec, fspec_imply.
+        ii. exists x1. split; r; ii; iIntros; iModIntro; hss.
         iPureIntro. split; ss. exists vo. split; et. eapply Ord.le_trans; et. apply Ord.lt_le. apply Ord.omega_upperbound.
       - exists (Ord.omega + (Z.to_nat n))%ord. split; et. apply Ord.le_refl. }
     unfold postcond. ss.
@@ -135,7 +145,7 @@ Module AddIA. Section AddIA.
   Theorem sim : HSim.t open AddAMod AddIMod AddA.init_cond IstFull.
   Proof.
     init_sim.
-    - iIntros "_". repeat iExists []. iSplit; eauto.
+    - split; eauto. iIntros "_".
       repeat (iSplit; eauto); iPureIntro; prove_scope.
     - apply simF_succ; et.
     - apply simF_add; et.
@@ -143,15 +153,15 @@ Module AddIA. Section AddIA.
 End AddIA.
 
 Section ctxr.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
 
-  Definition ctxr (ge : GEnv.t) (sp sp_pure sp_pure_fun : string → option fspec)
+  Definition ctxr (ge : GEnv.t) (sp : sp_type) (sp_pure sp_pure_fun : spl_type)
         (GEnvWF : GEnv.wf ge)
         (GEnvIncl : incl AddGEnv.t ge)
-        (APCInSpPure : sp_incl APCA.Sp sp_pure)
-        (SpPureInSp : sp_sub sp_pure sp)
-        (repeatInSpPure: sp_pure RepeatHdr.repeat = Some (RepeatAS.repeat_spec sp_pure_fun ge))
-        (succInSpPureFun : sp_pure_fun AddHdr.succ = Some AddAS.succ_spec) :
+        (APCInSpPure : spl_sub APCA.Sp sp_pure)
+        (SpPureInSp : sp_incl sp_pure sp)
+        (repeatInSpPure: alist_find (Some RepeatHdr.repeat) sp_pure = Some (Some (RepeatAS.repeat_spec sp_pure_fun ge)))
+        (succInSpPureFun : alist_find (Some AddHdr.succ) sp_pure_fun = Some (Some AddAS.succ_spec)) :
     ctx_refines
       ((AddA.t sp) ★ (RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I)
       ((AddI.t ge)    ★ (RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I).

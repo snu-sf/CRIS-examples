@@ -8,10 +8,10 @@ Set Implicit Arguments.
 
 (* Define Specification *)
 Module RepeatAS. Section RepeatAS.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
 
   Context (genv : GEnv.t).
-  Context (sp_pure : string → option fspec).
+  Context (sp_pure : spl_type).
 
   (* mathematical repeat *)
   Fixpoint repeat_fun A (f: A → A) (n: nat) (a: A): A :=
@@ -26,7 +26,7 @@ Module RepeatAS. Section RepeatAS.
         ((λ arg, ⌜∃ (fn:string) (fptr:mblock), arg = [Vptr (fptr, 0%Z); Vint (Z.of_nat n); Vint x]↑
                         ∧ (intrange_64 (Z.of_nat n))
                         ∧ CEnv.blk2id (CEnv.load_genv genv) fptr = Some fn
-                        ∧ fn_has_spec sp_pure fn
+                        ∧ fn_has_spec_in sp_pure fn
                             (fspec_apc
                               (λ _, Ord.omega)
                               (λ x, 
@@ -37,19 +37,19 @@ Module RepeatAS. Section RepeatAS.
                       ⌝%I),
           (λ ret, ⌜ret = (Vint (repeat_fun f_sem n x))↑⌝%I))).
 
-  Definition Sp: alist string fspec :=
-    Seal.sealing CRIS [(RepeatHdr.repeat, repeat_spec genv)].
+  Definition Sp: spl_type :=
+    Seal.sealing CRIS [(Some RepeatHdr.repeat, Some (repeat_spec genv))].
 
 End RepeatAS. End RepeatAS.
 
 (* Define Module *)
 Module RepeatA. Section RepeatA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _I _S}.
 
   Definition scopes := [RepeatHdr.mn].
 
-  Definition fnsems genv sp_pure :=
-    [(RepeatHdr.repeat, (wmask_all, scopes, mk_specbody (RepeatAS.repeat_spec sp_pure genv) pure_body))].
+  Definition fnsems genv sp_pure : alist (option string) (fnsem_type (option fspec * fbody)) :=
+    [(Some RepeatHdr.repeat, (true, wmask_all, scopes, (Some (RepeatAS.repeat_spec sp_pure genv), pure_body)))].
 
   Program Definition Mod genv sp_pure : SMod.t := {|
     SMod.scopes := scopes;
