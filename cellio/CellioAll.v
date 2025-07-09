@@ -28,7 +28,7 @@ Module CellioAll. Section CellioAll.
   
   Hypothesis ModulesWF : HMod.wf mod_tgt.
   Hypothesis CtxCorrect: ctx_refines (SMod.to_hmod sp CtxA, CtxInitCond) (CtxI, emp%I).
-  (* Need for cancellation for CtxA *)
+  (* Need for cancellation with unkown context *)
   Hypothesis SModWF : ElimRel.smod_wf smod_src. 
   Hypothesis SPWF : ElimRel.valid_sp smod_src sp.
   Hypothesis HModWF : HMod.wf mod_cancel.
@@ -58,7 +58,6 @@ Module CellioAll. Section CellioAll.
     destruct inputInCtx, fooInCtx. des. intros ? ?.
     rewrite /sp /ElimRel.sp_from /smod_src /to_sp alist_find_map /o_map //=.
     rewrite /sumbool_to_bool /or_else //=.
-    (* rewrite !eq_rel_dec_correct. des_ifs. *)
     des_ifs; ii; first [rewrite H0 in Heq1 | rewrite H in Heq2]; clarify.
     Qed.
 
@@ -66,7 +65,7 @@ Module CellioAll. Section CellioAll.
   Lemma src_tgt : refines (mod_src, init_cond ∗ CtxInitCond)%I (mod_tgt, emp%I).
   Proof.
     eapply ctxr_refines.
-    (* consider identical modules in src/tgt as context (CtxA, CtxA) *)
+    
     rewrite /init_cond /mod_src /smod_src /mod_tgt.
     rewrite !add_interp_comm.
     
@@ -121,8 +120,8 @@ Module CellioAll. Section CellioAll.
       - rewrite /init_cond /MainA.InitCond /CellioA.InitCond.
         simplify_res.
         { iDestruct "H12" as "[H2 H3]".
-          rewrite /CellioA.auth /precond. s.
-          rewrite /CellioA.cell. s. iFrame.
+          rewrite /CellioA.auth /CellioA.cell.
+          iFrame. 
         }
         all: solve_res.
     }
