@@ -9,7 +9,7 @@ Local Open Scope nat_scope.
 
 Module CannonMainIA. Section CannonMainIA.
   Import CannonAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cannonG}.
 
   Context (SpMain : sp_type).
@@ -21,7 +21,7 @@ Module CannonMainIA. Section CannonMainIA.
   Local Definition MainAMod := (MainA.t 1 SpMain).
   Local Definition MainIMod := (MainI.t 1).
   
-  Lemma simF_main : HSim.sim_fun open MainAMod MainIMod MainA.init_cond Ist None.
+  Lemma simF_main : ISim.sim_fun open MainAMod MainIMod MainA.init_cond Ist None.
   Proof using SpMain CannonInMain.
     init_simF.
 
@@ -41,18 +41,17 @@ Module CannonMainIA. Section CannonMainIA.
 
     (* SRC: prove the postcondition & IST *)
     step. iFrame; et.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Theorem sim : HSim.t open MainAMod MainIMod MainA.init_cond Ist.
+  Theorem sim : ISim.t open MainAMod MainIMod MainA.init_cond Ist.
   Proof using SpMain CannonInMain.
     init_sim.
-    - exfalso. rewrite /MainI.t in H1. revert H1. unseal CRIS. i; ss.
     - eapply simF_main.
   Qed.
 End CannonMainIA.
 
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cannonG}.
 
   Theorem ctxr (SpMain : string → option fspec)

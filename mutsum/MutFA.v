@@ -5,7 +5,7 @@ Set Implicit Arguments.
 
 Module MutFA. Section MutFA.
   Import MutAUX.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes := ["MutF"].
 
@@ -18,10 +18,10 @@ Module MutFA. Section MutFA.
   Definition SpF: spl_type :=
     Seal.sealing CRIS [(Some MutHdr.mutf, Some f_spec)].
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some MutHdr.mutf, (true, wmask_all, scopes, (Some f_spec, pure_body)))].
 
-  Program Definition Mod: SMod.t :=
+  Program Definition smod: SMod.t :=
   {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
@@ -32,5 +32,5 @@ Module MutFA. Section MutFA.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod Sp Mod).
+  Definition t Sp := Seal.sealing CRIS (SMod.to_mod Sp smod).
 End MutFA. End MutFA.

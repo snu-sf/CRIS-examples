@@ -7,7 +7,7 @@ Module IncrementI. Section IncrementI.
 
   Definition scopes : list string := [].
 
-  Definition increment : list val → itree hmodE val :=
+  Definition increment : list val → itree crisE val :=
     λ arg,
       𝒴;;; bofs <- (pargs [Tptr] arg)?;;
       𝒴;;;
@@ -24,7 +24,7 @@ Module IncrementI. Section IncrementI.
 
   Definition fnsems := [(IncrementHdr.increment, (wmask_all, scopes, cfunU increment))].
 
-  Program Definition Mod : PMod.t := {|
+  Program Definition smod : PMod.t := {|
     PMod.scopes := scopes;
     PMod.fnsems := fnsems;
     PMod.initial_st := [];
@@ -32,5 +32,5 @@ Module IncrementI. Section IncrementI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t : HMod.t := Seal.sealing CRIS (PMod.to_hmod Mod).
+  Definition t : Mod.t := Seal.sealing CRIS (PMod.to_mod smod).
 End IncrementI. End IncrementI.

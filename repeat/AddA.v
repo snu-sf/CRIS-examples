@@ -7,7 +7,7 @@ Set Implicit Arguments.
 
 (* Define Specification *)
 Module AddAS. Section AddAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   (* mathematical succ *)
   Definition succ_fun n : Z :=
@@ -42,15 +42,15 @@ End AddAS. End AddAS.
 
 (* Define Module *)
 Module AddA. Section AddA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes := [AddHdr.mn].
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some AddHdr.succ, (true, wmask_all, scopes, (Some AddAS.succ_spec, pure_body)));
      (Some AddHdr.add, (true,wmask_all, scopes, (Some AddAS.add_spec, pure_body)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [];
@@ -60,5 +60,5 @@ Module AddA. Section AddA.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
+  Definition t sp := Seal.sealing CRIS (SMod.to_mod sp smod).
 End AddA. End AddA.

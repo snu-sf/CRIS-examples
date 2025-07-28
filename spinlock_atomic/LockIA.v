@@ -10,16 +10,12 @@ Module LockIA. Section LockIA.
   Context `{_schG: !schG}.
   Context `{_spinlockG: !spinlockG}.
 
-  Context (E : coPset) (Hsub : ↑N_SpinLockA ⊆ E).
-  Context (tidq: Qp).
-  Context (sp_user : spl_type).
-  Context (sp : sp_type).
-  Context (SchInSp : sp_incl (SchAS.sp sp_user E tidq) sp).
+  Context (E : coPset) (q : Qp) (Hsub : ↑N_SpinLockA ⊆ E).
 
   Definition init_cond : iProp Σ := emp%I.
 
   Local Definition MemP := MemP.t.
-  Local Definition SpinLockA := (SpinLockA.t E tidq sp).
+  Local Definition SpinLockA := (SpinLockA.t E q).
   Local Definition SpinLockI := (SpinLockI.t).
   Local Definition IstFull := (IstProd (IstSB SpinLockA.(Mod.scopes) IstTrue) IstEq).
   Local Notation MA := (SpinLockA ★ MemP).
@@ -27,28 +23,78 @@ Module LockIA. Section LockIA.
 
   Lemma newlock_simF :
     ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.newlock).
-  Proof using SchInSp Hsub.
+  Proof using.
     init_simF.
     (* preprocess initial conditions *)
-    steps_l. rename _q1 into tid, _q into vret. destruct _q2 as [n P]; s.
-    iDestruct "ASM" as "[TID [P ->]]". hss.
-    steps_r.
+    steps_l. hss. steps_r. rename _q into varg.
+    (* iDestruct "ASM" as "[TID [P ->]]". hss. *)
+    (* steps_r. *)
     (* tgt yield *)
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID".
     (* tgt inline - mem alloc *)
     steps_r. inline_r. steps_r. force_r 1. iSplit; eauto.
     iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[%blk [-> [PT _]]]".
     hss. steps_r.
     (* tgt yield *)
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID".
     (* tgt inline - mem store *)
     steps_r. inline_r.
     steps_r. force_r (blk, 0%Z, _, Vint 0). s. iSplitL "PT"; s; et.
     iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[PT ->]".
     hss. steps_r.
     (* src/tgt yield *)
-    sch_yield_ir; iFrame; sch_intros.
-    sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l. force_l.
+    sch_yield_l.
+    iApply (wsim_own_alloc (Excl ())); ss. iIntros "[%γ TKN]".
+
+    asmproph_standard.
+    iExists emp%I, (λ ret, ⌜ret = (Vptr (blk, 0%Z))↑⌝%I).
+    iSplit; [iApply precise_emp|]. iSplitL "PT TKN"; cycle 1.
+    - iIntros "_". steps_l. force_l ((Vptr (blk, 0%Z))↑).
+      steps_l. force_l. iSplit; et. steps_l.
+      sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID".
+      sch_yield_l. step. et.
+    - iIntros ([my_tid [n P]]) "[W [TID [P Q]]]"; s.
+      iModIntro. iSplit; et.
+      iIntros (ret) "->".
+      eassert (XXX:= inv_alloc (LockAS.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA).
+      rr in XXX.
+      
+      
+      iMod (inv_alloc (LockAS.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA with "[P PT TKN]") as "#I". eauto.
+      { rewrite /lock_inv /=; SL_red; iRight; iFrame. }
+
+
+      iModIntro. iFrame.
+      rewrite /postcond; s.
+      iSplit; et. iExists _, _. iSplit; et.
+
+      Print is_lock.
+      
+
+      
+
+Check (inv_alloc (LockAS.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA).
+      
+      iMod (inv_alloc (LockAS.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA with "[P PT TKN]") as "#I". eauto.
+    { rewrite /lock_inv /=; SL_red; iRight; iFrame. }
+
+      
+      
+
+      
+      rewrite /postcond. s. rewrite /postcond. s.
+      
+      
+
+
+    }
+    
+    
+    
+
+
+
+    force_l (Vptr (blk, 0%Z)). steps_l. force_l.
     (* prove source postcondition *)
     (* alloc invariant *)
     iApply (wsim_own_alloc (Excl ())); ss.
@@ -154,7 +200,7 @@ Module LockIA. Section LockIA.
   (* ctxr works as a unit in compositions of module simulations *)
   Lemma ctxr :
     ctx_refines
-      (SpinLockA.t E tidq sp ★ MemP.t, emp%I)
-      (SpinLockI.t           ★ MemP.t, emp%I).
+      (SpinLockA.t E q sp ★ MemP.t, emp%I)
+      (SpinLockI.t        ★ MemP.t, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End LockIA. End LockIA.

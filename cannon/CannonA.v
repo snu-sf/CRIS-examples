@@ -5,11 +5,11 @@ Require Import CannonHeader.
 Set Implicit Arguments.
 
 Section RA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   
-  Local Definition RA : ucmra := excl_authR unitO.
+  Local Definition RA := excl_authR unitO.
 
-  Class cannonG `{!crisG Γ Σ α β τ _I _S} := {
+  Class cannonG `{!crisG Γ Σ α β τ _S _I} := {
     cannon_inG :: inG (excl_authR unitO) Γ;
   }.
   Definition cannonΓ : HRA := #[excl_authR unitO].
@@ -19,7 +19,7 @@ End RA.
 Hint Unfold subG_cannonG cannon_inG : GRA_index.
 
 Module CannonAS. Section CannonAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cannonG}.
                    
   Definition Ready : iProp Σ := own base_γ (●E tt).
@@ -64,22 +64,22 @@ End CannonAS. End CannonAS.
 
 Module CannonA. Section CannonA.
   Import CannonAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cannonG}.
 
   Definition scopes := ["Cannon"].
   Definition v_lv := "Cannon" ↯ "lv".
 
-  Definition fire : list val → itree hmodE Z :=
+  Definition fire : list val → itree crisE Z :=
     λ _,
       let r := 1%Z in
       _ <- trigger (@IO _ unit "print" [r]↑);;
       Ret r.
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some CannonHdr.fire, (true, wmask_all, scopes, (Some CannonAS.fire_spec, cfunU fire)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [(v_lv, 1%Z↑)];
@@ -89,5 +89,5 @@ Module CannonA. Section CannonA.
 
   Definition init_cond : iProp Σ := Ready.
 
-  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
+  Definition t sp := Seal.sealing CRIS (SMod.to_mod sp smod).
 End CannonA. End CannonA.

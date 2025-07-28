@@ -8,7 +8,7 @@ Set Implicit Arguments.
 
 (* Define Specification *)
 Module RepeatAS. Section RepeatAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Context (genv : GEnv.t).
   Context (sp_pure : spl_type).
@@ -44,14 +44,14 @@ End RepeatAS. End RepeatAS.
 
 (* Define Module *)
 Module RepeatA. Section RepeatA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes := [RepeatHdr.mn].
 
-  Definition fnsems genv sp_pure : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems genv sp_pure : fnsems_type :=
     [(Some RepeatHdr.repeat, (true, wmask_all, scopes, (Some (RepeatAS.repeat_spec sp_pure genv), pure_body)))].
 
-  Program Definition Mod genv sp_pure : SMod.t := {|
+  Program Definition smod genv sp_pure : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems genv sp_pure;
     SMod.initial_st := [];
@@ -61,5 +61,5 @@ Module RepeatA. Section RepeatA.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Definition t genv sp sp_pure := Seal.sealing CRIS (SMod.to_hmod sp (Mod genv sp_pure)).
+  Definition t genv sp sp_pure := Seal.sealing CRIS (SMod.to_mod sp (smod genv sp_pure)).
 End RepeatA. End RepeatA.

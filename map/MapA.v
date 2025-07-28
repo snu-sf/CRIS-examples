@@ -6,12 +6,12 @@ Set Implicit Arguments.
 
 (* Resource algebra for MapM ⊆ MapA *)
 Section RA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
-  Local Definition RA : ucmra :=
+  Local Definition RA :=
     prodUR (optionUR (exclR unitO)) (authUR (Z -d> optionUR (exclR ZO))).
 
-  Class mapG `{!crisG Γ Σ α β τ _I _S} := {
+  Class mapG `{!crisG Γ Σ α β τ _S _I} := {
       map_inG :: inG RA Γ
     }.
   Definition mapΓ : HRA := #[RA].
@@ -21,7 +21,7 @@ End RA.
 Hint Unfold subG_mapG map_inG : GRA_index.
 
 Module MapAS. Section MapAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!mapMG}.
   Context `{!mapG}.
 
@@ -172,39 +172,39 @@ def set_by_user(k : int) ≡
 ***)
 
 Module MapA. Section MapA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!mapMG}.
   Context `{!mapG}.
 
   Definition scopes := ["Map"].
   Definition v_map := "Map" ↯ "map".
 
-  Definition set : list val → itree hmodE val :=
+  Definition set : list val → itree crisE val :=
     λ varg,
       '(k, v): _ <- (pargs [Tint; Tint] varg)!;;
       f <- cgetN v_map;;
       cput v_map (<[k:=v]> (f : Z → Z));;;
       Ret Vundef.
 
-  Definition get : list val → itree hmodE val :=
+  Definition get : list val → itree crisE val :=
     λ varg,
       k <- (pargs [Tint] varg)!;;
       f <- cgetN v_map;;
       Ret (Vint (f k)).
 
-  Definition set_by_user : list val → itree hmodE val :=
+  Definition set_by_user : list val → itree crisE val :=
     λ varg,
       k <- (pargs [Tint] varg)!;;
       v <- trigger (IO "input" ());;
       ccallN MapHdr.set [Vint k; Vint v].
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some MapHdr.init, (true, wmask_all, scopes, (Some MapAS.init_spec, fbody_trivial)));
      (Some MapHdr.get,  (true, wmask_all, scopes, (Some MapAS.get_spec, cfunN get)));
      (Some MapHdr.set,  (true, wmask_all, scopes, (Some MapAS.set_spec, cfunN set)));
      (Some MapHdr.set_by_user, (true, wmask_all, scopes, (Some MapAS.set_by_user_spec, cfunN set_by_user)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [(v_map, (λ _ : Z, 0%Z)↑)];
@@ -215,5 +215,5 @@ Module MapA. Section MapA.
   Definition init_cond : iProp Σ :=
     (MapAS.initial_map ∗ MapMS.pending)%I.
 
-  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
+  Definition t sp := Seal.sealing CRIS (SMod.to_mod sp smod).
 End MapA. End MapA.

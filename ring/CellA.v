@@ -6,13 +6,13 @@ Require Import RingHeader CellHeader.
 Set Implicit Arguments.
 
 Section RA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   
   Local Definition pendingUR := (nat -d> optionUR (exclR unitO)).
   Local Definition cellUR := (nat -d> optionUR (exclR ZO)).
-  Local Definition RA : ucmra := prodUR pendingUR (authUR cellUR).
+  Local Definition RA := prodUR pendingUR (authUR cellUR).
   
-  Class cellG `{!crisG Γ Σ α β τ _I _S} := {
+  Class cellG `{!crisG Γ Σ α β τ _S _I} := {
     cell_inG :: inG RA Γ;
   }.
   Definition cellΓ : HRA := #[RA].
@@ -22,7 +22,7 @@ End RA.
 Hint Unfold subG_cellG cell_inG : GRA_index.
 
 Module CellAS. Section CellAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cellG}.
 
   (* Index of this Cell *)
@@ -113,7 +113,7 @@ End CellAS. End CellAS.
 
 (* Define CellA Module *)
 Module CellA. Section CellA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cellG}.
     
   (* Index of this Cell *)
@@ -122,11 +122,11 @@ Module CellA. Section CellA.
   (* Scopes *)
   Definition scopes := [CellHdr.mn idx].
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some (CellHdr.get idx), (true, wmask_all, scopes, (Some (CellAS.get_spec idx), fbody_trivial)));
      (Some (CellHdr.set idx), (true, wmask_all, scopes, (Some (CellAS.set_spec idx), fbody_trivial)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [];
@@ -137,5 +137,5 @@ Module CellA. Section CellA.
   Definition init_cond : iProp Σ :=
     (∃ v, CellAS.cell idx v ∗ CellAS.auth idx v)%I.
 
-  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
+  Definition t sp := Seal.sealing CRIS (SMod.to_mod sp smod).
 End CellA. End CellA.

@@ -5,12 +5,12 @@ Set Implicit Arguments.
 
 Module MaincbA. Section MaincbA.
   Import CelliocbA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_celliocbG: !celliocbG}.
                 
   Definition scopes := ["Main"].
 
-  Definition main: Any.t -> itree hmodE Any.t :=
+  Definition main: Any.t -> itree crisE Any.t :=
     λ _,
       'i: Z <- trigger (@IO _ Z "Input_stdin" tt);;
       ccallU (Y:=unit) CtxcbHdr.foo i;;;
@@ -18,10 +18,10 @@ Module MaincbA. Section MaincbA.
       trigger (@IO _ unit "Print" x);;;
       Ret tt↑.
   
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(MaincbHdr.main, (true, wmask_all, scopes, (None, main)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [];
@@ -29,8 +29,8 @@ Module MaincbA. Section MaincbA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition InitCond : iProp Σ := cell 0.
+  Definition init_cond : iProp Σ := cell 0.
 
-  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
+  Definition t sp := Seal.sealing CRIS (SMod.to_mod sp smod).
 
 End MaincbA. End MaincbA.

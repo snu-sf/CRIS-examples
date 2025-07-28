@@ -5,7 +5,7 @@ Require Import MemHeader MemA.
 From CRIS.increment Require Import Header.
 
 Module IncrementA. Section IncrementA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_memG: !memG}.
   Context `{_schG: !schG}.
                      
@@ -21,7 +21,7 @@ Module IncrementA. Section IncrementA.
 
   Definition scopes : list string := [].
 
-  Definition increment2 : list val → itree hmodE val :=
+  Definition increment2 : list val → itree crisE val :=
     λ arg,
       bofs <- (pargs [Tptr] arg)!;;
       𝒴;;;
@@ -35,13 +35,13 @@ Module IncrementA. Section IncrementA.
         else trigger (Guarantee (bofs ↦ Vint v));;; 𝒴;;; Ret (inl tt)
       ) ().
 
-  Definition increment : list val → itree hmodE val :=
+  Definition increment : list val → itree crisE val :=
     λ arg, increment2 arg.
 
   Definition fnsems :=
     [(IncrementHdr.increment, (wmask_all, scopes, mk_specbody (increment_spec) (cfunN increment)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [];
@@ -49,5 +49,5 @@ Module IncrementA. Section IncrementA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t : HMod.t := Seal.sealing CRIS (SMod.to_hmod (to_sp (SchAS.sp ∅ sp_empty)) Mod).
+  Definition t : Mod.t := Seal.sealing CRIS (SMod.to_mod (to_sp (SchAS.sp ∅ sp_empty)) smod).
 End IncrementA. End IncrementA.

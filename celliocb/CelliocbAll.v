@@ -2,7 +2,7 @@ Require Import CRIS Cancel.
 Require Import ImpPrelude.
 Require Import MaincbHeader.
 From CRIS.celliocb Require Import 
-  CelliocbHeader CelliocbA CelliocbI MaincbA MaincbI CtxcbHeader CtxcbA CelliocbIAproof MaincbIAproof.
+  CelliocbHeader CelliocbA CelliocbI MaincbA MaincbI CtxcbHeader CelliocbIAproof MaincbIAproof.
 
 Module CelliocbAll. Section CelliocbAll.
   Import inv_instances.
@@ -10,120 +10,159 @@ Module CelliocbAll. Section CelliocbAll.
   Local Instance Σ : GRA := ##[Γ; invΣ].
   Local Definition irΓ : Γ := **[ir_invΓ; CelliocbA.irΓ].
   Local Definition irΣ : Σ := **[irΓ; ir_invΣ].
-  Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
+  Lemma irΣ_valid : ✓ (irΣ ⋅ ir_own_admin).
   Proof.
     solve_ir_valid.
     apply CelliocbA.ir_valid.
   Qed.
 
-  Variable CtxcbA: SMod.t.
-  (* Variable CtxcbI: HMod.t. *)
-  Variable CtxcbInitCond : iProp Σ.
+  Variable CtxcbI: SMod.t.
+  Hypothesis ctx_real: real_smod CtxcbI.
+  Hypothesis ctx_mod_wf: Mod.wf (SMod.to_mod sp_none CtxcbI).
+  Hypothesis ctx_smod_wf: SMod.wf CtxcbI.
+  Hypothesis ctx_has_foo: In (Some CtxcbHdr.foo) (map fst (SMod.fnsems CtxcbI)).
+  Hypothesis ctx_main_disj:
+    ∀ fno, In fno (map fst (SMod.fnsems CtxcbI)) → In fno (map fst (Mod.fnsems MaincbI.t)) → False.
+  Hypothesis ctx_cellio_disj:
+    ∀ fno, In fno (map fst (SMod.fnsems CtxcbI)) → In fno (map fst (Mod.fnsems CelliocbI.t)) → False.
+  Hypothesis ctx_main_scope_disj:
+    ∀ mn, In mn (SMod.scopes CtxcbI) → In mn (Mod.scopes MaincbI.t) → False.
+  Hypothesis ctx_cellio_scope_disj:
+    ∀ mn, In mn (SMod.scopes CtxcbI) → In mn (Mod.scopes CelliocbI.t) → False.
   
-  Local Definition smod_src : SMod.t := MaincbA.Mod ☆ CtxcbA.
-  Local Definition sp : string → option fspec := ElimRel.sp_from smod_src.
-  Local Definition mod_cancel : HMod.t := SMod.to_hmod sp_none (SMod.cancel smod_src).
-  Local Definition mod_src : HMod.t := SMod.to_hmod sp smod_src.
-  Local Definition Ctxcb : HMod.t := (SMod.to_hmod sp CtxcbA).
-  Local Definition mod_tgt : HMod.t := MaincbI.t ★ CelliocbI.t ★ Ctxcb.
-  
-  (* It may be possible weakening Hyp about SRC, TGT to Ctx *)
-  Hypothesis ModulesWF : HMod.wf mod_tgt.
-  Hypothesis fooInCtx : ∃ msk sc foo_body (SCP: incl sc CtxcbA.(SMod.scopes)),
-    alist_find (Some CtxcbHdr.foo) (SMod.fnsems CtxcbA) = Some (true, msk, sc, (None, foo_body)).
-  (* Need for cancellation with unkown context *)
-  Hypothesis SModWF : ElimRel.smod_wf smod_src. 
-  Hypothesis SPWF : ElimRel.valid_sp smod_src sp.
-  Hypothesis HModWF : HMod.wf mod_cancel.
-  
-  Local Definition init_cond : iProp Σ := MaincbA.InitCond ∗ CelliocbA.InitCond.
+  Local Definition smod_src : SMod.t := MaincbA.smod ☆ CtxcbI.
+  Local Definition mod_top : Mod.t := SMod.to_mod sp_none (SMod.cancel smod_src).
+  Local Definition mod_tgt : Mod.t := MaincbI.t ★ CelliocbI.t ★ (SMod.to_mod sp_none CtxcbI).
 
-  Hypothesis CtxInitCondConsistent:
-    ∀ rs, ✓ rs → (Own rs ⊢ init_cond) →
-    ∃ rs', ✓ rs' ∧ (Own rs' ⊢ init_cond ∗ CtxcbInitCond).
+  Local Definition sp : sp_type := sp_from smod_src.
+  Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
+  
+  Local Definition init_cond : iProp Σ :=
+    winv (⊤, ⊤) ∗ MaincbA.init_cond ∗ CelliocbA.init_cond.
+
+  Lemma sp_foo: sp CtxcbHdr.foo = None.
+  Proof.
+    rewrite /sp /sp_from /to_sp /smod_src. s.
+    rewrite !alist_find_map_snd.
+    destruct (alist_find _ _) as [[[[? ?] ?] [? ?]]| ] eqn: E; ss.
+    - exploit (ctx_real (Some CtxcbHdr.foo)); et.
+    - assert (HAS:= ctx_has_foo). eapply in_map_iff in HAS.
+      des. destruct x. ss. subst.
+      exfalso. eapply alist_find_none in E; et.
+  (*SLOW*)Admitted.
 
   (* Apply cancellation to linked spec module *)
-  Lemma cancel_from_src:
-    refines (mod_cancel, init_cond ∗ CtxcbInitCond)%I 
-            (mod_src, init_cond ∗ CtxcbInitCond)%I.
+  Lemma cancel_src:
+    refines (mod_top, init_cond) 
+            (mod_src, init_cond).
   Proof.
     eapply Cancel.cancellation; et.
-     (* try by econs.
-    i. iIntros "%POST". iPureIntro. des; eauto. *)
-  Qed.
-
-  Lemma lib_sp_incl: sp_incl CtxcbAS.sp sp.
-  Proof.
-    i. rewrite /CtxcbAS.sp. unseal CRIS. econs; first prove_nodup.
-    destruct fooInCtx. des. intros ? ?.
-    rewrite /sp /ElimRel.sp_from /smod_src /to_sp alist_find_map /o_map //=.
-    rewrite /sumbool_to_bool /or_else //=.
-    des_ifs; ii; rewrite H in Heq1; clarify.
+    - rewrite /smod_src. ii. destruct fno; ss.
+      + eapply ctx_smod_wf; et.
+      + inv FIND. et.
+    - split; try refl.
+      i. r in NS. des. r in NS. des.
+      rewrite /sp /smod_src /sp_from /to_sp. s.
+      rewrite !alist_find_map_snd.
+      destruct (alist_find (Some fn) _) eqn: E; s.
+      + destruct p as [[[img0 msk0] scp0] [fsp0 bd0]].
+        exploit ctx_real; et. i. subst.
+        eapply ctx_smod_wf in E. rewrite E; et.
+        s. refl.
+      + eapply fspec_bot_strongest.
+    - destruct ctx_mod_wf. econs; ss.
+      + econs.
+        * repeat (rewrite map_map; setoid_rewrite fst_map_snd).
+          ii. eapply ctx_main_disj; et.
+          unfold_mod. s. et.
+        * revert wf_fns.
+          repeat (rewrite map_map; setoid_rewrite fst_map_snd). et.
+      + econs; et.
+        ii. eapply ctx_main_scope_disj; et.
+        unfold_mod. s; et.
   Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_src, init_cond ∗ CtxcbInitCond)%I (mod_tgt, CtxcbInitCond).
+  Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
   Proof.
     eapply ctxr_refines.
-    rewrite /init_cond /mod_src /smod_src /mod_tgt /Ctxcb.
+    rewrite /init_cond /mod_src /smod_src /mod_tgt.
     rewrite !add_interp_comm.
-    
-    (* consider identical modules in src/tgt as context (CtxcbA, CtxcbA) *)
-    ctxr_norm.
-    rewrite<- !hmod_add_assoc.
-    apply ctxr_frameR.
     
     (* solve by transitivity:
       MaincbI ★ CelliocbI ⊆ MaincbI ★ CelliocbA ⊆ MaincbA ★ CelliocbA 
     *)
     etrans; cycle 1.
     { (* CelliocbI ⊆ctx CelliocbA *)
-      ctxr_drop.
+      ctxr_drop. ctxr_rotate. ctxr_drop.
       eapply main_adequacy, CelliocbIA.sim.
     }
 
     etrans; cycle 1.
     { (* MaincbI ★ CelliocbA ⊆ctx MaincbA *)
-      ctxr_norm.
-      eapply main_adequacy, MaincbIA.sim.
-      eapply lib_sp_incl.
+      ctxr_rotate. ctxr_drop. ctxr_rotate.
+      eapply main_adequacy, MaincbIA.sim; eauto using sp_foo.
     }
 
+    etrans; cycle 1.
+    { (* CtxI ⊆ CtxA *)
+      ctxr_rotate. ctxr_drop.
+      erewrite <-(@real_smod_ignores_sp _ CtxcbI sp); et. refl.
+    }
+    
     rewrite /MaincbIAproof.MaincbIA.MaincbA /MaincbA.t. unseal CRIS.
-    ctxr_refl.
-  (*SLOW*)Qed.
+    eapply ctxr_cond_strengthen.
+    iIntros "[? ?]". iFrame.
+  (*SLOW*)Admitted.
 
-  Lemma cancel_from_tgt :
-    refines (mod_cancel, (init_cond ∗ CtxcbInitCond)%I)
-            (mod_tgt, CtxcbInitCond).
+  Lemma top_tgt :
+    refines (mod_top, init_cond)
+            (mod_tgt, emp%I).
   Proof.
     etrans.
-    { eapply cancel_from_src. }
+    { eapply cancel_src. }
     { eapply src_tgt. }
   Qed.
 
-  Theorem behavioral_refinement :
-    ∃ src_res tgt_res, refines_mod
-      (HMod.to_mod mod_cancel src_res)
-      (HMod.to_mod mod_tgt tgt_res).
+  Lemma tgt_wf: Mod.wf mod_tgt.
   Proof.
-    move: (cancel_from_tgt)=>H; rewrite /refines in H; des; ss.
-    hexploit (H ModulesWF).
-    clear H; intros [WF H].
+    revert_until CtxcbI. rewrite /mod_tgt /MaincbI.t /CelliocbI.t. unseal CRIS. i.
+    econs; s.
+    - prove_nodup.
+      + rewrite map_map in H. setoid_rewrite fst_map_snd in H. et.
+      + rewrite map_map in H. setoid_rewrite fst_map_snd in H. et.
+      + rewrite map_map in H. setoid_rewrite fst_map_snd in H. et.
+      + rewrite map_map in H. setoid_rewrite fst_map_snd in H. et.
+      + rewrite map_map in H. setoid_rewrite fst_map_snd in H. et.
+      + eapply ctx_mod_wf.
+    - prove_nodup.
+      + eapply ctx_cellio_scope_disj; et.
+      + eapply ctx_main_scope_disj; et.
+      + eapply ctx_mod_wf.
+  (*SLOW*)Admitted.
 
-    assert (∃ rs, ✓ rs ∧ (Own rs ⊢ init_cond)).
-    { exists (irΣ ⋅ initial_resource_own_admin). split.
-      - apply irΣ_valid.
-      - rewrite /init_cond /MaincbA.InitCond /CelliocbA.InitCond.
-        simplify_res.
-        { iDestruct "H12" as "[H2 H3]".
-          rewrite /CelliocbA.auth /CelliocbA.cell. iFrame. }
-        all: solve_res.
-    }
-    des. eapply CtxInitCondConsistent in H1; et. des.
-
-    destruct (H rs'); et.
-    { des. et. }
-  (*SLOW*)Qed.
+  Lemma init_cond_valid:
+    ∃ rs, ✓ rs ∧ (Own rs ⊢ init_cond).
+  Proof.
+    exists (irΣ ⋅ ir_own_admin). split.
+    - apply irΣ_valid.
+    - simplify_res.
+      { rewrite make_own_admin; iFrame.
+        iDestruct "H12" as "[H2 H3]". iFrame.
+      }
+      all: solve_res.
+  Qed.
+    
+  Theorem behavioral_refinement :
+    ∃ src_res tgt_res, refines_lmod
+      (Mod.to_lmod mod_top src_res)
+      (Mod.to_lmod mod_tgt tgt_res).
+  Proof.
+    move: (top_tgt)=>H; rewrite /refines in H; des; ss.
+    hexploit H; eauto using tgt_wf. clear H; intros [WF H].
+    assert (IV:= init_cond_valid). des.
+    destruct (H rs); des; et.
+    rewrite IV0 /init_cond {1}winv_split_empty. iIntros "[[? ?] ?]". iFrame.
+  (*SLOW*)Admitted.
 End CelliocbAll. End CelliocbAll.
 (* Print Assumptions CelliocbAll.behavioral_refinement. *)

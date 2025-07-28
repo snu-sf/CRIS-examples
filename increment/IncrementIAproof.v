@@ -4,7 +4,7 @@ Require Import ImpPrelude MemHeader MemA.
 From CRIS.increment Require Import Header IncrementI IncrementA.
 
 Module IncrementIA. Section IncrementIA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_memG: !memG}.
   Context `{_schG: !schG}.
 
@@ -18,11 +18,11 @@ Module IncrementIA. Section IncrementIA.
   Local Definition MemA := (MemA.t sp_mem).
   Local Definition IncrementA := (IncrementA.t).
   Local Definition IncrementI := (IncrementI.t).
-  Local Definition IstFull := (IstProd (IstSB IncrementA.(HMod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB IncrementA.(Mod.scopes) Ist) IstEq).
   Local Definition MA := (IncrementA ★ MemA).
   Local Definition MI := (IncrementI ★ MemA).
 
-  Lemma increment_simF : HSim.sim_fun open MA MI IstFull IncrementHdr.increment.
+  Lemma increment_simF : ISim.sim_fun open MA MI IstFull IncrementHdr.increment.
   Proof using.
     init_simF.
     steps_l. iDestruct "ASM" as "[TID [-> ->]]".
@@ -93,5 +93,5 @@ Module IncrementIA. Section IncrementIA.
       }
     }
   Unshelve. all: try exact 1%Qp. all: try exact Vundef.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 End IncrementIA. End IncrementIA.

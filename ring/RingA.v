@@ -6,7 +6,7 @@ Require Import RingHeader CellA.
 Set Implicit Arguments.
 
 Module RingAS. Section RingAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cellG}.
 
   Definition Sp : spl_type :=
@@ -21,7 +21,7 @@ End RingAS. End RingAS.
 
 Module RingA. Section RingA.
   Import RingAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cellG}.
 
   (* A maximum size of the ring buffer *)
@@ -32,18 +32,18 @@ Module RingA. Section RingA.
   Definition v_que := "Ring" ↯ "que".
 
   (* Specifications of functions in RingA *)
-  Definition init : unit -> itree hmodE unit :=
+  Definition init : unit -> itree crisE unit :=
     λ _,
       cput v_que ([]:list Z)
   .
 
-  Definition get_size : unit -> itree hmodE nat :=
+  Definition get_size : unit -> itree crisE nat :=
     λ _,
       'que : list Z <- cgetU v_que;;
       Ret (List.length que)
   .
 
-  Definition enqueue : Z -> itree hmodE unit :=
+  Definition enqueue : Z -> itree crisE unit :=
     λ x,
       'que : list Z <- cgetU v_que;;
       if (List.length que <? max_size)%nat
@@ -51,7 +51,7 @@ Module RingA. Section RingA.
       else trigger (@IO _ void "error" "enqueue failed: queue reached its maximum capacity");;; Ret tt
   .
 
-  Definition dequeue : unit -> itree hmodE Z :=
+  Definition dequeue : unit -> itree crisE Z :=
     λ _,
       'que : list Z <- cgetU v_que;;
       match que with
@@ -60,13 +60,13 @@ Module RingA. Section RingA.
       end
   .
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some RingHdr.init, (true, wmask_all, scopes, (None, cfunU init)));
      (Some RingHdr.get_size, (true, wmask_all, scopes, (None, cfunU get_size)));
      (Some RingHdr.enqueue, (true, wmask_all, scopes, (None, cfunU enqueue)));
      (Some RingHdr.dequeue, (true, wmask_all, scopes, (None, cfunU dequeue)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [(v_que,([]:list Z)↑)];
@@ -78,5 +78,5 @@ Module RingA. Section RingA.
   Definition init_cond : iProp Σ :=
     ([∗ list] i↦_ ∈ (replicate max_size 0%Z), CellAS.pending i)%I.
 
-  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
+  Definition t sp := Seal.sealing CRIS (SMod.to_mod sp smod).
 End RingA. End RingA.

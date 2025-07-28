@@ -1,6 +1,5 @@
 Require Import CRIS.
-Require Import CellioHeader CellioA CellioI.
-Require Import CtxA.
+Require Import CellioHeader CellioA CellioI CtxHeader.
 
 Set Implicit Arguments.
 
@@ -8,32 +7,27 @@ Local Open Scope nat_scope.
 
 Module CellioIA. Section CellioIA.
   Import CellioA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_cellioG: !cellioG}.
 
-  (* sp for src module *)
-  Context (sp_s : sp_type).
-  Context (CtxInSp : sp_incl CtxAS.sp sp_s).
-  
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     λ _ st_src st_tgt,
       (∃ v, ⌜st_tgt = [(CellioI.v_cv, v↑)]⌝ ∗ auth v)%I.
 
   Local Definition CellioI := (CellioI.t).
-  Local Definition CellioA := (CellioA.t sp_s).
+  Local Definition CellioA := (CellioA.t).
 
-  Lemma simF_set : HSim.sim_fun open CellioA CellioI CellioA.InitCond Ist (Some CellioHdr.set).
-  Proof using CtxInSp.
+  Lemma simF_set : ISim.sim_fun open CellioA CellioI CellioA.init_cond Ist (Some CellioHdr.set).
+  Proof using.
     init_simF.
-  
+    
     (* Take (x:Z) & cell(x) *)
     steps_l. iDestruct "ASM" as "->".
 
     (* Call Input() simultaneously *)
-    force_l tt. forces_l. iSplit; first eauto. steps_l.
     steps_r.
     call "IST"; eauto.
-    steps_l. iDestruct "ASM" as "->".
+    steps_l. hss. steps_r. hss. steps_r.
 
     (* Give cell(i) *)
     iDestruct "IST" as (v) "(% & AUTH)". subst.
@@ -43,16 +37,16 @@ Module CellioIA. Section CellioIA.
 
     forces_l. iSplitL "C"; eauto.
 
-    steps_r. hss. steps_r. steps_l. forces_l.
+    steps_l. forces_l.
     iSplit; eauto.
 
     step.
     iSplitL ""; eauto.
     iExists _. iFrame. eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
   
-  Lemma simF_get : HSim.sim_fun open CellioA CellioI CellioA.InitCond Ist (Some CellioHdr.get).
-  Proof using CtxInSp.
+  Lemma simF_get : ISim.sim_fun open CellioA CellioI CellioA.init_cond Ist (Some CellioHdr.get).
+  Proof using.
     init_simF.
 
     (* Take (x:Z) & cell(x) *)
@@ -70,10 +64,10 @@ Module CellioIA. Section CellioIA.
 
     step. iSplit; eauto.
     iExists _. iFrame. eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
   
-  Lemma sim : HSim.t open CellioA CellioI CellioA.InitCond Ist.
-  Proof using CtxInSp.
+  Lemma sim : ISim.t open CellioA CellioI CellioA.init_cond Ist.
+  Proof using.
     init_sim.
     - split; et. iIntros "H". iExists _. iFrame. eauto.
     - apply simF_set; eauto.

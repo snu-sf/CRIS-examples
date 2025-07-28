@@ -8,7 +8,7 @@ Set Implicit Arguments.
 
 Module MutMainIA. Section MutMainIA.
   Import MutAUX.
-  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
 
   Context (Sp : sp_type).
   Context (SpPure: spl_type).
@@ -21,12 +21,12 @@ Module MutMainIA. Section MutMainIA.
 
   Local Definition MutMainAMod := ((MutMainA.t true Sp) ★ APCA.t SpPure Sp).
   Local Definition MutMainIMod := ((MutMainI.t) ★ APCA.t SpPure Sp).
-  Local Definition IstFull := (IstProd (IstSB (MutMainA.t true Sp).(HMod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB (MutMainA.t true Sp).(Mod.scopes) Ist) IstEq).
   
   (*************)
 
   Lemma simF_main:
-    HSim.sim_fun open MutMainAMod MutMainIMod MutMainA.init_cond IstFull None.
+    ISim.sim_fun open MutMainAMod MutMainIMod MutMainA.init_cond IstFull None.
   Proof using _crisG APCInSp FInPure PureInSp.
     init_simF.
 
@@ -49,7 +49,7 @@ Module MutMainIA. Section MutMainIA.
     { eapply FInPure. rewrite /MutFA.SpF. unseal CRIS. ss. }
     { instantiate (1:=10). iSplit; eauto. 
       { iPureIntro. esplits; eauto; [unfold mut_max; nia|refl]. }
-      { do 4 iExists _. iSplit; iPureIntro; esplits; eauto; unfold_hmod; ss. }
+      { do 4 iExists _. iSplit; iPureIntro; esplits; eauto; unfold_mod; ss. }
     }
     iDestruct "ISTPOST" as "[IST ->]".
     
@@ -61,10 +61,10 @@ Module MutMainIA. Section MutMainIA.
     (* SRC, TGT: prove the IST *)
     step. iSplitR "IST"; eauto.
     Unshelve. all: ss.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
   Theorem sim:
-    HSim.t open MutMainAMod MutMainIMod MutMainA.init_cond IstFull.
+    ISim.t open MutMainAMod MutMainIMod MutMainA.init_cond IstFull.
   Proof.
     init_sim.
     - inv H.

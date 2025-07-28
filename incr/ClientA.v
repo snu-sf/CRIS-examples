@@ -4,9 +4,9 @@ From CRIS.incr Require Import Header.
 From iris Require Import frac_auth numbers.
 
 Section RA.
-  Context `{!sinvG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
-  Class incrG `{!sinvG Γ Σ α β τ _I _S} := {
+  Class incrG `{!crisG Γ Σ α β τ _S _I} := {
     incr_inG :: inG (frac_authR ZR) Γ;
   }.
   Definition incrΓ : HRA := #[frac_authR ZR].
@@ -16,7 +16,7 @@ End RA.
 Hint Unfold subG_incrG incr_inG : GRA_index.
 
 Module ClientA. Section ClientA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_memG: !memG}.
   Context `{_schG: !schG}.
   Context `{_incrG: !incrG}.
@@ -66,10 +66,10 @@ Module ClientA. Section ClientA.
   (* Module definition *)
   Definition scopes : list string := [].
 
-  Definition incr : list val → itree hmodE unit :=
+  Definition incr : list val → itree crisE unit :=
     λ _, 𝒴;;; Ret tt.
 
-  Definition main : unit → itree hmodE unit :=
+  Definition main : unit → itree crisE unit :=
     λ _,
       𝒴;;; 'ptr_raw : val <- trigger (Choose val);;
       𝒴;;; tid1 <- Sch.spawn (IncrHdr.incr, [ptr_raw]↑↑);;
@@ -83,7 +83,7 @@ Module ClientA. Section ClientA.
     [(IncrHdr.incr, (wmask_all, scopes, mk_specbody (incr_spec E) (cfunN (sfunN incr))));
      (IncrHdr.main, (wmask_all, scopes, mk_specbody (main_spec E) (cfunN main)))].
 
-  Program Definition Mod E : SMod.t := {|
+  Program Definition smod E : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems E;
     SMod.initial_st := [];
@@ -91,5 +91,5 @@ Module ClientA. Section ClientA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t E sp : HMod.t := Seal.sealing CRIS (SMod.to_hmod sp (Mod E)).
+  Definition t E sp : Mod.t := Seal.sealing CRIS (SMod.to_mod sp (Mod E)).
 End ClientA. End ClientA.

@@ -1,26 +1,27 @@
 Require Import CRIS.
-From CRIS.cellio Require Import CellioHeader CellioA MainA MainI CtxA.
+From CRIS.cellio Require Import CellioHeader CellioA MainA MainI CtxHeader.
 
 Set Implicit Arguments.
 
 Module MainIA. Section MainIA.
   Import CellioA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_cellioG: !cellioG}.
 
   Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ _ st_src st_tgt, emp%I.
 
-  Context (sp_s: string -> option fspec).
-  Context (CtxInSp: sp_incl CtxAS.sp sp_s). (* Specs of Ctxrary functions *)
-
-  Local Definition CellioA := (CellioA.t sp_s).
-  Local Definition MainA := (MainA.t sp_s).
-  Local Definition IstFull := (IstProd (IstSB MainA.(HMod.scopes) Ist) IstEq).
+  Context (sp: string -> option fspec).
+  Context (sp_input: sp CtxHdr.input = None).
+  Context (sp_foo: sp CtxHdr.foo = None).
+  
+  Local Definition CellioA := (CellioA.t).
+  Local Definition MainA := (MainA.t sp).
+  Local Definition IstFull := (IstProd (IstSB MainA.(Mod.scopes) Ist) IstEq).
 
   Lemma simF_main:
-    HSim.sim_fun open MainA (MainI.t ★ CellioA) MainA.InitCond IstFull None.
-  Proof using CtxInSp.
+    ISim.sim_fun open MainA (MainI.t ★ CellioA) MainA.init_cond IstFull None.
+  Proof using sp_input sp_foo.
     init_simF.
     
     (* Take cell(0) *)
@@ -33,24 +34,23 @@ Module MainIA. Section MainIA.
     forces_r. iSplitL "ASM"; eauto.
 
     (* Call Input() simultaneously *)
-    steps_r. forces_l. iSplitL "GRT"; eauto.
+    steps_r. rewrite sp_input.
     call "IST". 
     {
       iDestruct "IST" as "[-> [-> ->]]".
       repeat iExists []. iSplit; eauto;
-      repeat unfold_hmod; ss;
+      repeat unfold_mod; ss;
       repeat (iSplit; eauto); iPureIntro; prove_scope.
     }
-    steps_l. forces_r. iSplitL "ASM"; eauto.
-    steps_r. hss.
+    steps_l. steps_r. hss.
 
     (* Take cell(i) *)
     steps_r. iDestruct "GRT'" as "%". subst. hss.
     
     (* Call Foo.foo() simultaneously *)
-    steps_l. steps_r. forces_l. iSplitL ""; eauto.
+    steps_r. rewrite sp_foo.
     call "IST"; eauto.
-    steps_l. iDestruct "ASM" as "%". subst. hss. steps_r. hss. steps_r.
+    steps_l. hss. steps_r. hss. steps_r.
 
     inline_r.
     (* Give cell(i) *)
@@ -63,16 +63,14 @@ Module MainIA. Section MainIA.
     (* Call Print(i) simultaneously *)
     steps_r. step.
 
-    steps_l.
-
-    steps_r. step. iFrame. eauto.
+    steps_l. steps_r. step. eauto.
 
     Unshelve. all:(exact ()).
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
   Theorem sim :
-    HSim.t open MainA (MainI.t ★ CellioA) MainA.InitCond IstFull.
-  Proof using CtxInSp.
+    ISim.t open MainA (MainI.t ★ CellioA) MainA.init_cond IstFull.
+  Proof using sp_input sp_foo.
     init_sim.
     - exfalso. revert H0. rewrite /MainI.t /CellioA. unseal CRIS; ss.
     - eapply simF_main; eauto.

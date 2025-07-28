@@ -12,7 +12,7 @@ Module MutGI. Section MutGI.
   (***
     g(n) := if (n == 0) then 0 else (n + f(n - 1))
   ***)
-  Definition gF: list val -> itree hmodE val :=
+  Definition gF: list val -> itree crisE val :=
     fun varg =>
       'n: Z <- (pargs [Tint] varg)?;;
       assume (intrange_64 n);;;
@@ -25,10 +25,10 @@ Module MutGI. Section MutGI.
       )
   .
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some MutHdr.mutg, (false, wmask_all, scopes, (None, cfunU gF)))].
   
-  Program Definition Mod: SMod.t :=
+  Program Definition smod: SMod.t :=
   {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
@@ -37,5 +37,5 @@ Module MutGI. Section MutGI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
+  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
 End MutGI. End MutGI.

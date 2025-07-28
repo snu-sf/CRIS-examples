@@ -9,7 +9,7 @@ Module KnotMainI. Section KnotMainI.
 
   Definition scopes := ["KnotMain"].
 
-  Definition fibF genv : list val -> itree hmodE val :=
+  Definition fibF genv : list val -> itree crisE val :=
     fun varg =>
       '(fb, n):_ <- (pargs [Tblk; Tint] varg)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
@@ -21,18 +21,18 @@ Module KnotMainI. Section KnotMainI.
         'n1: val <- ccallU fn [Vint (n - 2)];; 'n1: Z <- (unint n1)?;;
         Ret (Vint (n0 + n1)).
 
-  Definition mainF genv : () -> itree hmodE val :=
+  Definition mainF genv : () -> itree crisE val :=
     fun '() =>
       fibb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotMainHdr.fib)?;;
       'fb: val <- ccallU KnotHdr.knot [Vptr (fibb, 0%Z)];; 'fb: mblock <- (unblk fb)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
       ccallU fn [Vint 10].
 
-  Definition fnsems genv : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems genv : fnsems_type :=
     [(Some KnotMainHdr.fib, (false, wmask_all, scopes, (None, cfunU (fibF genv))));
      (None, (false, wmask_all, scopes, (None, cfunU (mainF genv))))].
   
-  Program Definition Mod genv: SMod.t :=
+  Program Definition smod genv: SMod.t :=
   {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems genv;
@@ -41,5 +41,5 @@ Module KnotMainI. Section KnotMainI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t genv := Seal.sealing CRIS (SMod.to_hmod sp_none (Mod genv)).
+  Definition t genv := Seal.sealing CRIS (SMod.to_mod sp_none (smod genv)).
 End KnotMainI. End KnotMainI.

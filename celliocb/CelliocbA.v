@@ -4,12 +4,11 @@ Require Import CelliocbHeader.
 Set Implicit Arguments.
 
 Section CelliocbRA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
-  Local Definition RA : ucmra :=
-    authUR (optionUR (exclR ZO)).
+  Local Definition RA := authUR (optionUR (exclR ZO)).
 
-  Class celliocbG `{!crisG Γ Σ α β τ _I _S} := {
+  Class celliocbG `{!crisG Γ Σ α β τ _S _I} := {
     celliocb_inG :: inG RA Γ;
   }.
   Definition celliocbΓ : HRA := #[RA].
@@ -19,7 +18,7 @@ End CelliocbRA.
 Hint Unfold subG_celliocbG celliocb_inG : GRA_index.
 
 Module CelliocbA. Section CelliocbA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_celliocbG: !celliocbG}.
 
   Definition auth (v : Z) : iProp Σ :=
@@ -49,7 +48,7 @@ Module CelliocbA. Section CelliocbA.
     rewrite comm; apply excl_auth_update.
   Qed.
 
-  Definition set: string -> itree hmodE unit :=
+  Definition set: string -> itree crisE unit :=
     λ cb,
       x <- trigger (Take Z);;
       trigger (Assume (CelliocbA.cell x));;;
@@ -57,7 +56,7 @@ Module CelliocbA. Section CelliocbA.
       trigger (Guarantee (CelliocbA.cell i));;;
       Ret tt.
   
-  Definition get: Any.t -> itree hmodE Any.t :=
+  Definition get: Any.t -> itree crisE Any.t :=
     λ _,
       x <- trigger (Take Z);;
       trigger (Assume (CelliocbA.cell x));;;
@@ -66,11 +65,11 @@ Module CelliocbA. Section CelliocbA.
 
   Definition scopes := [CelliocbHdr.mn].
   
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some CelliocbHdr.set, (true, wmask_all, scopes, (None, cfunU set)));
      (Some CelliocbHdr.get, (true, wmask_all, scopes, (None, get)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [];
@@ -78,7 +77,8 @@ Module CelliocbA. Section CelliocbA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition InitCond : iProp Σ := auth 0.
-  (* handle sp_none Since we left call as call *)
-  Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
+  Definition init_cond : iProp Σ := auth 0.
+
+  (* We can use sp_none because Cellio will be removed before cancellation *)
+  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
 End CelliocbA. End CelliocbA.

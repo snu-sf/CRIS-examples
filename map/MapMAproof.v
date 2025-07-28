@@ -8,7 +8,7 @@ Local Open Scope nat_scope.
 
 Module MapMA. Section MapMA.
   Import MapAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!mapMG}.
   Context `{!mapG}.
 
@@ -31,7 +31,7 @@ Module MapMA. Section MapMA.
   Local Definition MapA := (MapA.t sp_s).
   Local Definition MapM := (MapM.t sp_t).
 
-  Lemma simF_init : HSim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.init).
+  Lemma simF_init : ISim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.init).
   Proof using MapInSpS MapInSpT.
     init_simF.
 
@@ -58,9 +58,9 @@ Module MapMA. Section MapMA.
     (* prove the IST of Map *)
     step. iSplit; eauto.
     iExists _, _. iSplitR; eauto. iRight. iFrame.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma simF_get : HSim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.get).
+  Lemma simF_get : ISim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.get).
   Proof using MapInSpS MapInSpT.
     init_simF.
 
@@ -93,9 +93,9 @@ Module MapMA. Section MapMA.
     (* prove the IST of Map *)
     step. iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma simF_set : HSim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.set).
+  Lemma simF_set : ISim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.set).
   Proof using MapInSpS MapInSpT.
     init_simF.
 
@@ -125,9 +125,9 @@ Module MapMA. Section MapMA.
     (* prove the IST of Map *)
     step. iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma simF_set_by_user : HSim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.set_by_user).
+  Lemma simF_set_by_user : ISim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.set_by_user).
   Proof using MapInSpS MapInSpT.
     init_simF.
 
@@ -166,9 +166,9 @@ Module MapMA. Section MapMA.
 
     (* prove the IST of Map *)
     step. eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma sim : HSim.t open MapA MapM MapA.init_cond Ist.
+  Lemma sim : ISim.t open MapA MapM MapA.init_cond Ist.
   Proof using MapInSpS MapInSpT.
     init_sim.
     - split; eauto. iIntros "(IST & P)"; s.
@@ -181,7 +181,7 @@ Module MapMA. Section MapMA.
 End MapMA.
 
 Section MapMA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!mapMG}.
   Context `{!mapG}.
 

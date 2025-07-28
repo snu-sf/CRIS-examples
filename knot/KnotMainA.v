@@ -7,7 +7,7 @@ Set Implicit Arguments.
 
 Module KnotMainA. Section KnotMainA.
   Import KnotA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_memG: !memG}.
   Context `{_knotG: !knotG}.
 
@@ -62,14 +62,14 @@ Section KnotMainA.
 
   Variable with_pure: bool.  
   
-  Definition main_body: () → itree hmodE val :=
+  Definition main_body: () → itree crisE val :=
     λ _, (if with_pure then pure else Ret ()↑);;; Ret (Vint (Z.of_nat (Fib 10))).
 
-  Definition fnsems genv SpRec : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems genv SpRec : fnsems_type :=
     [(Some KnotMainHdr.fib, (true, wmask_all, scopes, (Some (fib_spec genv SpRec), pure_body)));
      (None, (true, wmask_all, scopes, (None, cfunU main_body)))].
 
-  Program Definition Mod genv SpRec : SMod.t :=
+  Program Definition smod genv SpRec : SMod.t :=
   {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems genv SpRec;
@@ -80,6 +80,6 @@ Section KnotMainA.
 
   Definition init_cond : iProp Σ := knot_init%I.
 
-  Definition t genv SpRec Sp := Seal.sealing CRIS (SMod.to_hmod Sp (Mod genv SpRec)).
+  Definition t genv SpRec Sp := Seal.sealing CRIS (SMod.to_mod Sp (smod genv SpRec)).
 End KnotMainA.
 End KnotMainA. End KnotMainA.

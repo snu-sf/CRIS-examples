@@ -28,7 +28,7 @@ Module MapI. Section MapI.
   Definition scopes := ["Map"].
   Definition v_hptr := "Map" ↯ "hptr".
 
-  Definition init : list val → itree hmodE val :=
+  Definition init : list val → itree crisE val :=
     λ varg,
       'sz : Z <- (pargs [Tint] varg)?;;
       'hptr : val <- ccallU MemHdr.alloc [Vint sz];;
@@ -44,7 +44,7 @@ Module MapI. Section MapI.
               Ret (inr tt)) 0%Z);;;
       Ret Vundef.
 
-  Definition get : list val → itree hmodE val :=
+  Definition get : list val → itree crisE val :=
     λ varg,
       k <- (pargs [Tint] varg)?;;
       hptr <- cgetU v_hptr;;
@@ -52,7 +52,7 @@ Module MapI. Section MapI.
       'r : val <- ccallU MemHdr.load [vptr];; r <- (unint r)?;;
       Ret (Vint r).
 
-  Definition set : list val → itree hmodE val :=
+  Definition set : list val → itree crisE val :=
     λ varg,
       '(k, v):_ <- (pargs [Tint; Tint] varg)?;;
       hptr <- cgetU v_hptr;; 
@@ -60,19 +60,19 @@ Module MapI. Section MapI.
       'u : val <- ccallU MemHdr.store [vptr; Vint v];;
       Ret Vundef.
 
-  Definition set_by_user : list val → itree hmodE val :=
+  Definition set_by_user : list val → itree crisE val :=
     λ varg,
       k <- (pargs [Tint] varg)?;;
       v <- trigger (IO "input" ());;
       ccallU MapHdr.set [Vint k; Vint v].
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some MapHdr.init, (false, wmask_all, scopes, (None, cfunU init)));
      (Some MapHdr.get,  (false, wmask_all, scopes, (None, cfunU get)));
      (Some MapHdr.set,  (false, wmask_all, scopes, (None, cfunU set)));
      (Some MapHdr.set_by_user, (false, wmask_all, scopes, (None, cfunU set_by_user)))].
   
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [(v_hptr, Vnullptr↑)];
@@ -80,5 +80,5 @@ Module MapI. Section MapI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t : HMod.t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
+  Definition t : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
 End MapI. End MapI.

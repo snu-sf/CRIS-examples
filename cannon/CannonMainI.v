@@ -13,7 +13,7 @@ Module MainI. Section MainI.
 
   Definition scopes := ["Main"].
 
-  Fixpoint main_repeat (n : nat) : itree hmodE unit :=
+  Fixpoint main_repeat (n : nat) : itree crisE unit :=
     match n with
     | 0 => Ret tt
     | S n' =>
@@ -22,13 +22,13 @@ Module MainI. Section MainI.
       main_repeat n'
     end.
 
-  Definition main : list val → itree hmodE unit :=
+  Definition main : list val → itree crisE unit :=
     λ _, main_repeat num_fire.
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(None, (false, wmask_all, scopes, (None, cfunU main)))].
   
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [];
@@ -36,5 +36,5 @@ Module MainI. Section MainI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
+  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
 End MainI. End MainI.

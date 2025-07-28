@@ -7,7 +7,7 @@ Local Open Scope nat_scope.
 
 Module CelliocbIA. Section CelliocbIA.
   Import CelliocbA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_celliocbG: !celliocbG}.
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
@@ -17,7 +17,7 @@ Module CelliocbIA. Section CelliocbIA.
   Local Definition CelliocbI := (CelliocbI.t).
   Local Definition CelliocbA := (CelliocbA.t).
 
-  Lemma simF_set : HSim.sim_fun open CelliocbA CelliocbI CelliocbA.InitCond Ist (Some CelliocbHdr.set).
+  Lemma simF_set : ISim.sim_fun open CelliocbA CelliocbI CelliocbA.init_cond Ist (Some CelliocbHdr.set).
   Proof using.
     init_simF.
   
@@ -42,9 +42,9 @@ Module CelliocbIA. Section CelliocbIA.
     step.
     iSplit; eauto.
     iExists v_new. iFrame; hss.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
   
-  Lemma simF_get : HSim.sim_fun open CelliocbA CelliocbI CelliocbA.InitCond Ist (Some CelliocbHdr.get).
+  Lemma simF_get : ISim.sim_fun open CelliocbA CelliocbI CelliocbA.init_cond Ist (Some CelliocbHdr.get).
   Proof using.
     init_simF.
 
@@ -62,9 +62,9 @@ Module CelliocbIA. Section CelliocbIA.
 
     step. iSplit; eauto.
     iExists _. iFrame; eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
   
-  Lemma sim : HSim.t open CelliocbA CelliocbI CelliocbA.InitCond Ist.
+  Lemma sim : ISim.t open CelliocbA CelliocbI CelliocbA.init_cond Ist.
   Proof using.
     init_sim.
     - split; et. iIntros "H". iExists _. iFrame. eauto.

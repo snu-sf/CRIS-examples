@@ -59,7 +59,7 @@ Qed.
 (* Simulation proof *)
 Module MapIM. Section MapIM.
   Import MapMS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!mapMG}.
   Context `{!memG}.
 
@@ -81,9 +81,9 @@ Module MapIM. Section MapIM.
   Local Definition MapM := (MapM.t sp_s).
   Local Definition MapMMod := (MapM ★ MemA).
   Local Definition MapIMod := (MapI.t ★ MemA).
-  Local Definition IstFull := (IstProd (IstSB MapM.(HMod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB MapM.(Mod.scopes) Ist) IstEq).
 
-  Lemma simF_init : HSim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.init).
+  Lemma simF_init : ISim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.init).
   Proof using MapInSp.
     init_simF.
 
@@ -174,9 +174,9 @@ Module MapIM. Section MapIM.
       eapply eq_ind; [iAssumption |].
       do 3 f_equal. nia.
     }
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma simF_get : HSim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.get).
+  Lemma simF_get : ISim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.get).
   Proof using MapInSp.
     init_simF.
 
@@ -218,9 +218,9 @@ Module MapIM. Section MapIM.
     do 3 (iSplit; eauto).
     iRight. iFrame. iExists _, _, _. iSplit; eauto.
     iPoseProof ("M" with "GRT") as "M". iFrame.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma simF_set : HSim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.set).
+  Lemma simF_set : ISim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.set).
   Proof using MapInSp.
     init_simF.
 
@@ -265,9 +265,9 @@ Module MapIM. Section MapIM.
     iRight. iFrame. iExists _, _, _. iSplit; eauto.
     iPoseProof ("M" with "GRT") as "M".
     rewrite -> fun_to_list_update, Z2Nat.id; try nia. iFrame.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma simF_set_by_user : HSim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.set_by_user).
+  Lemma simF_set_by_user : ISim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.set_by_user).
   Proof using MapInSp.
     init_simF.
 
@@ -295,9 +295,9 @@ Module MapIM. Section MapIM.
 
     (* prove the IST of Map *)
     steps_r. hss. steps_r. step. eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma sim : HSim.t open MapMMod MapIMod MapM.init_cond IstFull.
+  Lemma sim : ISim.t open MapMMod MapIMod MapM.init_cond IstFull.
   Proof using MapInSp.
     init_sim.
     - split; eauto. iIntros "_". iSplit.
@@ -312,7 +312,7 @@ Module MapIM. Section MapIM.
 End MapIM.
 
 Section MapIM.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!mapMG}.
   Context `{!memG}.
                 

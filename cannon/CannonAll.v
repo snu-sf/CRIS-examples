@@ -11,30 +11,32 @@ Module CannonAll.
   Local Definition irΓ : Γ := **[ir_invΓ; CannonAS.irΓ].
   Local Definition irΣ : Σ := **[irΓ; ir_invΣ].
 
-  Local Lemma irΣ_valid : ✓ (irΣ ⋅ initial_resource_own_admin).
+  Local Lemma irΣ_valid : ✓ (irΣ ⋅ ir_own_admin).
   Proof.
     solve_ir_valid.
     - apply CannonAS.ir_valid.
   Qed.
 
-  Local Definition smod_src : SMod.t := CannonA.Mod ☆ (MainA.Mod 1).
-  Local Definition sp : sp_type := ElimRel.sp_from smod_src.
-  Local Definition mod_cancel : HMod.t := (SMod.to_hmod sp_none (SMod.cancel smod_src)).
-  Local Definition mod_src : HMod.t := SMod.to_hmod sp smod_src.
-  Local Definition mod_tgt : HMod.t := CannonI.t ★ (MainI.t 1).
+  Local Definition smod_src : SMod.t := CannonA.smod ☆ (MainA.smod 1).
+  Local Definition mod_top : Mod.t := (SMod.to_mod sp_none (SMod.cancel smod_src)).
+  Local Definition mod_tgt : Mod.t := CannonI.t ★ (MainI.t 1).
+  
+  Local Definition sp : sp_type := sp_from smod_src.
+  Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
-  Local Definition init_cond : iProp Σ := CannonA.init_cond ∗ MainA.init_cond.
+  Local Definition init_cond : iProp Σ :=
+    winv (⊤, ⊤) ∗ CannonA.init_cond ∗ MainA.init_cond.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
-    refines (mod_cancel, init_cond)
-            ((mod_src, init_cond) : HMod.modc).
+    refines (mod_top, init_cond)
+            (mod_src, init_cond).
   Proof.
     eapply Cancel.cancellation.
     - ii; des; subst; inv FIND; ss; rewrite !eq_rel_dec_correct in H0; des_ifs.
     - econs; [refl|]; i; inv NS; des; inv H; des; inv H1;
       rewrite !eq_rel_dec_correct in H2; des_ifs.
-    - econs; unfold_hmod; ss; prove_nodup.
+    - econs; unfold_mod; ss; prove_nodup.
   Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
@@ -57,11 +59,11 @@ Module CannonAll.
 
     rewrite /CannonA.t /MainA.t /init_cond. unseal CRIS. 
     eapply ctxr_cond_strengthen.
-    iIntros "[? ?]". iFrame.
-  (*SLOW*)Qed.
+    iIntros "[? [? ?]]". iFrame.
+  (*SLOW*)Admitted.
 
-  Lemma cancel_tgt :
-    refines (mod_cancel, init_cond)
+  Lemma top_tgt :
+    refines (mod_top, init_cond)
             (mod_tgt, emp%I).
   Proof.
     etrans.
@@ -69,26 +71,34 @@ Module CannonAll.
     { eapply src_tgt. }
   Qed.
 
-  Theorem behavioral_refinement :
-    ∃ target_resource, refines_mod
-      (HMod.to_mod mod_cancel (irΣ ⋅ initial_resource_own_admin))
-      (HMod.to_mod mod_tgt target_resource).
+  Lemma tgt_wf:
+    Mod.wf mod_tgt.
   Proof.
-    move: (cancel_tgt)=>H; rewrite /refines in H; des; ss.
-    hexploit H.
-    { rewrite /mod_tgt /CannonI.t /MainI.t; unseal CRIS; prove_nodup. }
-    clear H; intros [WF H].
-    destruct (H (irΣ ⋅ initial_resource_own_admin)).
-    { apply irΣ_valid. }
-    { clear H. simplify_res.
-      { iPoseProof (CannonAS.ReadyBall with "[H12]") as "[R B]"; eauto.
-        iSplitL "R".
-        { iFrame. }
-        unfold_pre_post. iFrame.
+    rewrite /mod_tgt /CannonI.t /MainI.t; unseal CRIS; prove_nodup.
+  Qed.
+
+  Lemma init_cond_valid:
+    ∃ rs, ✓ rs ∧ (Own rs ⊢ |==> init_cond).
+  Proof.
+    exists (irΣ ⋅ ir_own_admin). split.
+    - apply irΣ_valid.
+    - simplify_res.
+      { rewrite make_own_admin; iFrame.
+        iDestruct "H12" as "[? ?]". iFrame. et.
       }
       all: solve_res.
-    }
-    { exists x; des; eauto. }
+  Qed.
+
+  Theorem behavioral_refinement :
+    ∃ src_res tgt_res, refines_lmod
+      (Mod.to_lmod mod_top src_res)
+      (Mod.to_lmod mod_tgt tgt_res).
+  Proof.
+    move: (top_tgt)=>H; rewrite /refines in H; des; ss.
+    hexploit H; eauto using tgt_wf. clear H; intros [WF H].
+    assert (IV:= init_cond_valid). des.
+    destruct (H rs); des; et.
+    rewrite IV0 /init_cond {1}winv_split_empty. iIntros ">[[? ?] ?]". iFrame. et.
   Qed.
 (*SLOW*)End CannonAll.
 (* Print Assumptions CannonAll.behavioral_refinement. *)

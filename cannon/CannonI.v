@@ -15,7 +15,7 @@ Module CannonI. Section CannonI.
   Definition div (n m : Z) : option Z :=
     if Z_zerop m then None else Some (Z.div n m).
 
-  Definition fire: list val -> itree hmodE Z :=
+  Definition fire: list val -> itree crisE Z :=
     λ _,
       powder <- cgetU v_lv;;
       r <- (div 1 powder)?;;
@@ -23,10 +23,10 @@ Module CannonI. Section CannonI.
       cput v_lv (powder - 1)%Z;;;
       Ret r.
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some CannonHdr.fire, (false, wmask_all, scopes, (None, cfunU fire)))].
   
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [(v_lv, 1%Z↑)];
@@ -34,5 +34,5 @@ Module CannonI. Section CannonI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
+  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
 End CannonI. End CannonI.

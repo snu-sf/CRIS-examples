@@ -5,7 +5,7 @@ From iris Require Import frac_auth numbers.
 (* Erase *) Require Import ltac2_lib.
 Module ClientIA. Section ClientIA.
   Import ClientA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_memG: !memG}.
   Context `{_schG: !schG}.
   Context `{_incrG: !incrG}.
@@ -22,7 +22,7 @@ Module ClientIA. Section ClientIA.
   Local Definition MemA := (MemA.t sp_mem).
   Local Definition ClientA := (ClientA.t E sp_s).
   Local Definition ClientI := (ClientI.t).
-  Local Definition IstFull := (IstProd (IstSB ClientA.(HMod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB ClientA.(Mod.scopes) Ist) IstEq).
   Local Definition MA := (ClientA ★ MemA).
   Local Definition MI := ((ClientI ★ FaaA.t) ★ MemA).
 
@@ -44,7 +44,7 @@ Module ClientIA. Section ClientIA.
       iExists _; iSplitR; eauto. SL_red. iSplitR; eauto.
   Qed.
 
-  Lemma incr_simF : HSim.sim_fun open MA MI IstFull IncrHdr.incr.
+  Lemma incr_simF : ISim.sim_fun open MA MI IstFull IncrHdr.incr.
   Proof using SchInSpS MainInSp Hsub.
     init_simF.
 
@@ -57,7 +57,7 @@ Module ClientIA. Section ClientIA.
 
     sch_yield_r.
     iSplitL "IST"; iFrame.
-    clear nths NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
 
     (* tgt inline - faa *)
     inline_r. hss. steps_r. force_r (tid, (b, ofs)). forces_r. iFrame. iSplit; eauto.
@@ -66,7 +66,7 @@ Module ClientIA. Section ClientIA.
     { rewrite /SchAS.sp; unseal CRIS. split; first prove_nodup. refl. }
     { try set_solver. }
     iSplitL "IST"; iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST".
 
     rewrite /incr_inv.
     iInv "INV" as "I" "IA". SL_red.
@@ -83,7 +83,7 @@ Module ClientIA. Section ClientIA.
     { rewrite /SchAS.sp; unseal CRIS. split; first prove_nodup. refl. }
     { try set_solver. }
     iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST".
 
     rewrite /incr_inv.
     iInv "INV" as "I" "IA". SL_red.
@@ -100,10 +100,10 @@ Module ClientIA. Section ClientIA.
     { rewrite /SchAS.sp; unseal CRIS. split; first prove_nodup. refl. }
     { try set_solver. }
     iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST".
     steps_r. iDestruct "GRT" as "[TID [-> _]]". hss. steps_r.
     sch_yield_r. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
 
     steps_r.
     sch_yield_l.
@@ -111,9 +111,9 @@ Module ClientIA. Section ClientIA.
     iSplitL "TID C".
     { iFrame. replace (v + 1 + 1)%Z with (v + 2)%Z by lia. iFrame. eauto. }
     steps_l. step; eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma main_simF : HSim.sim_fun open MA MI IstFull IncrHdr.main.
+  Lemma main_simF : ISim.sim_fun open MA MI IstFull IncrHdr.main.
   Proof using SchInSpS MainInSp Hsub.
     init_simF.
 
@@ -123,7 +123,7 @@ Module ClientIA. Section ClientIA.
     (* src/tgt yield *)
     steps_r.
     sch_yield_r. iFrame.
-    clear nths NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
 
     sch_yield_l.
 
@@ -134,10 +134,10 @@ Module ClientIA. Section ClientIA.
 
     (* tgt yield *)
     sch_yield_r. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
     steps_r.
     sch_yield_r. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
 
     (* tgt store *)
     inline_r. steps_r. force_r (blk, 0%Z, _, Vint 0%Z). steps_r.
@@ -147,7 +147,7 @@ Module ClientIA. Section ClientIA.
 
     (* src/tgt yield *)
     sch_yield_r. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
     sch_yield_l.
     iApply (wsim_own_alloc ((●F 0%Z ⋅ ◯F{1} 0%Z))).
     { apply frac_auth_valid; ss. }
@@ -165,40 +165,40 @@ Module ClientIA. Section ClientIA.
     sch_spawn; eauto using f_spawnable.
     { eapply MainInSp. ss. }
     iFrame. iSplitL "" ; eauto.
-    clear nths st_s st_t NODS NODD. iIntros (tid nths st_s st_t NODS NODD) "IST TID TKN".
+    clear nths st_s st_t NODS NODT. iIntros (tid nths st_s st_t NODS NODT) "IST TID TKN".
 
     (* src/tgt yield *)
     sch_yield_r. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
 
     sch_yield_l.
 
     sch_spawn; eauto using f_spawnable.
     { eapply MainInSp. ss. }
     iFrame. iSplitL "" ; eauto.
-    clear nths st_s st_t NODS NODD. iIntros (tid2 nths st_s st_t NODS NODD) "IST TID TKN2".
+    clear nths st_s st_t NODS NODT. iIntros (tid2 nths st_s st_t NODS NODT) "IST TID TKN2".
 
     (* src/tgt yield *)
     sch_yield_r. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
 
     sch_yield_l.
 
     sch_join. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t ? ? NODS NODD) "IST TID Q /=". SL_red.
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t ? ? NODS NODT) "IST TID Q /=". SL_red.
     iDestruct "Q" as "[[-> ->] Q]".
 
     sch_yield_r. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
 
     sch_yield_l.
 
     sch_join. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t ? ? NODS NODD) "IST TID Q2 /="; SL_red.
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t ? ? NODS NODT) "IST TID Q2 /="; SL_red.
     iDestruct "Q2" as "[[-> ->] Q2]".
 
     sch_yield_r. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
 
     iInv "I" as "INV" "INVA"; iEval (SL_red) in "INV"; iDestruct "INV" as "[%x INV]".
     iEval (SL_red) in "INV". iDestruct "INV" as "[PT C]".
@@ -213,24 +213,24 @@ Module ClientIA. Section ClientIA.
     { SL_red. iExists 4; SL_red; iFrame. }
 
     sch_yield_r. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
 
     sch_yield_r. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
 
     sch_yield_l. step.
     steps_l. steps_r.
 
     sch_yield_r. iFrame.
-    clear nths st_s st_t NODS NODD. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    clear nths st_s st_t NODS NODT. iIntros (nths st_s st_t NODS NODT) "IST TID".
     
     sch_yield_l.
     steps_l. force_l. steps_l. force_l. iSplitL "TID"; eauto.
     steps_l. steps_r.
     step. eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma sim : HSim.t open MA MI emp%I IstFull.
+  Lemma sim : ISim.t open MA MI emp%I IstFull.
   Proof.
     init_sim.
     { iIntros "_"; iExists [], [], [], []; eauto. }
@@ -240,7 +240,7 @@ Module ClientIA. Section ClientIA.
 End ClientIA.
 
 Section ctxr.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_memG: !memG}.
   Context `{_schG: !schG}.
   Context `{_incrG: !incrG}.

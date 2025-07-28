@@ -4,12 +4,12 @@ Require Import CellioHeader CtxHeader.
 Set Implicit Arguments.
 
 Section CellioRA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Local Definition RA : ucmra :=
     authUR (optionUR (exclR ZO)).
 
-  Class cellioG `{!crisG Γ Σ α β τ _I _S} := {
+  Class cellioG `{!crisG Γ Σ α β τ _S _I} := {
     cellio_inG :: inG RA Γ;
   }.
   Definition cellioΓ : HRA := #[RA].
@@ -19,7 +19,7 @@ End CellioRA.
 Hint Unfold subG_cellioG cellio_inG : GRA_index.
 
 Module CellioA. Section CellioA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_cellioG: !cellioG}.
 
   Definition auth (v : Z) : iProp Σ :=
@@ -49,7 +49,7 @@ Module CellioA. Section CellioA.
     rewrite comm; apply excl_auth_update.
   Qed.
 
-  Definition set: Any.t -> itree hmodE Any.t :=
+  Definition set: Any.t -> itree crisE Any.t :=
     λ _,
       x <- trigger (Take Z);;
       trigger (Assume (CellioA.cell x));;;
@@ -58,7 +58,7 @@ Module CellioA. Section CellioA.
       trigger (Guarantee (CellioA.cell i));;;
       Ret tt↑.
   
-  Definition get: Any.t -> itree hmodE Any.t :=
+  Definition get: Any.t -> itree crisE Any.t :=
     λ _,
       x <- trigger (Take Z);;
       trigger (Assume (CellioA.cell x));;;
@@ -67,11 +67,11 @@ Module CellioA. Section CellioA.
 
   Definition scopes := [CellioHdr.mn].
   
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some CellioHdr.set, (true, wmask_all, scopes, (Some fspec_trivial, set)));
      (Some CellioHdr.get, (true, wmask_all, scopes, (Some fspec_trivial, get)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [];
@@ -79,8 +79,9 @@ Module CellioA. Section CellioA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition InitCond : iProp Σ :=
+  Definition init_cond : iProp Σ :=
     CellioA.auth 0.
 
-  Definition t sp := Seal.sealing CRIS (SMod.to_hmod sp Mod).
+  (* We can use sp_none because Cellio will be removed before cancellation *)
+  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
 End CellioA. End CellioA.

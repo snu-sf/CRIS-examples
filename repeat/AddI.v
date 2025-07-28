@@ -10,22 +10,22 @@ Module AddI. Section AddI.
 
   Definition scopes := [AddHdr.mn].
 
-  Definition succ : list val → itree hmodE val :=
+  Definition succ : list val → itree crisE val :=
     λ varg,
       'm : Z <- (pargs [Tint] varg)?;;
       Ret (Vint (m + 1)).
 
-  Definition add (cenv: CEnv.t): list val → itree hmodE val :=
+  Definition add (cenv: CEnv.t): list val → itree crisE val :=
     λ varg,
       '(n, m): _ <- ((pargs [Tint; Tint] varg)?);;
       fb <- ((cenv.(CEnv.id2blk) AddHdr.succ)?);;
       ccallU RepeatHdr.repeat [Vptr (fb, 0%Z); Vint n; Vint m].
 
-  Definition fnsems (genv: GEnv.t) : alist (option string) (fnsem_type (option fspec * fbody)):=
+  Definition fnsems (genv: GEnv.t) : fnsems_type:=
     [(Some AddHdr.succ, (false, wmask_all, scopes, (None, cfunU succ)));
      (Some AddHdr.add, (false, wmask_all, scopes, (None, cfunU (add (CEnv.load_genv genv)))))].
 
-  Program Definition Mod (genv: GEnv.t) : SMod.t := {|
+  Program Definition smod (genv: GEnv.t) : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems genv;
     SMod.initial_st := [];
@@ -33,5 +33,5 @@ Module AddI. Section AddI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t (genv: GEnv.t) : HMod.t := Seal.sealing CRIS (SMod.to_hmod sp_none (Mod genv)).
+  Definition t (genv: GEnv.t) : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none (smod genv)).
 End AddI. End AddI.

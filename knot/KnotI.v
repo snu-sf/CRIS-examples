@@ -10,7 +10,7 @@ Module KnotI. Section KnotI.
 
   Definition scopes := ["Knot"].
 
-  Definition knotF genv : list val -> itree hmodE val :=
+  Definition knotF genv : list val -> itree crisE val :=
     fun varg =>
       fb <- (pargs [Tblk] varg)?;;
       blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;
@@ -19,7 +19,7 @@ Module KnotI. Section KnotI.
       Ret (Vptr (rb, 0%Z))
   .
 
-  Definition recF genv : list val -> itree hmodE val :=
+  Definition recF genv : list val -> itree crisE val :=
     fun varg =>
       n <- (pargs [Tint] varg)?;;
       blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;
@@ -29,11 +29,11 @@ Module KnotI. Section KnotI.
       ccallU fn [Vptr (rb, 0%Z); Vint n]
   .
 
-  Definition fnsems genv : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems genv : fnsems_type :=
     [(Some KnotHdr.rec, (false, wmask_all, scopes, (None, cfunU (recF genv))));
      (Some KnotHdr.knot, (false, wmask_all, scopes, (None, cfunU (knotF genv))))].
   
-  Program Definition Mod genv : SMod.t :=
+  Program Definition smod genv : SMod.t :=
   {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems genv;
@@ -42,5 +42,5 @@ Module KnotI. Section KnotI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t genv := Seal.sealing CRIS (SMod.to_hmod sp_none (Mod genv)).
+  Definition t genv := Seal.sealing CRIS (SMod.to_mod sp_none (smod genv)).
 End KnotI. End KnotI.

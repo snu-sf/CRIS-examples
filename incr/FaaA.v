@@ -3,7 +3,7 @@ Require Import ImpPrelude MemHeader MemA SchA SchTactics SchHeader.
 From CRIS.incr Require Import Header.
 
 Module FaaA. Section FaaA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_memG: !memG}.
   Context `{_schG: !schG}.
 
@@ -15,7 +15,7 @@ Module FaaA. Section FaaA.
 
   Definition scopes : list string := [].
 
-  Definition faa2 : list val → itree hmodE unit :=
+  Definition faa2 : list val → itree crisE unit :=
     λ arg,
       '(b, ofs) : mblock * ptrofs <- (pargs [Tptr] arg)?;;
       𝒴;;;
@@ -30,7 +30,7 @@ Module FaaA. Section FaaA.
 
   Definition fnsems := [(FaaHdr.faa2, (wmask_all, scopes, mk_specbody faa2_spec (cfunN faa2)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [];
@@ -38,5 +38,5 @@ Module FaaA. Section FaaA.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t : HMod.t := Seal.sealing CRIS (SMod.to_hmod (to_sp (SchAS.sp ∅ sp_empty)) Mod).
+  Definition t : Mod.t := Seal.sealing CRIS (SMod.to_mod (to_sp (SchAS.sp ∅ sp_empty)) smod).
 End FaaA. End FaaA.

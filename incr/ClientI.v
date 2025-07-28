@@ -7,12 +7,12 @@ Module ClientI. Section ClientI.
 
   Definition scopes : list string := [].
 
-  Definition incr : list val → itree hmodE unit :=
+  Definition incr : list val → itree crisE unit :=
     λ arg,
       𝒴;;; '_ : unit <- ccallU FaaHdr.faa2 arg;;
       𝒴;;; Ret tt.
 
-  Definition main : unit → itree hmodE unit :=
+  Definition main : unit → itree crisE unit :=
     λ _,
       𝒴;;; 'ptr_raw : val <- ccallU MemHdr.alloc [Vint 1%Z];;
       𝒴;;; bofs <- (pargs [Tptr] [ptr_raw])?;;
@@ -30,7 +30,7 @@ Module ClientI. Section ClientI.
     [(IncrHdr.incr, (wmask_all, scopes, cfunU (sfunU incr)));
      (IncrHdr.main, (wmask_all, scopes, cfunU main))].
 
-  Program Definition Mod : PMod.t := {|
+  Program Definition smod : PMod.t := {|
     PMod.scopes := scopes;
     PMod.fnsems := fnsems;
     PMod.initial_st := [];
@@ -38,5 +38,5 @@ Module ClientI. Section ClientI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t : HMod.t := Seal.sealing CRIS (PMod.to_hmod Mod).
+  Definition t : Mod.t := Seal.sealing CRIS (PMod.to_mod smod).
 End ClientI. End ClientI.

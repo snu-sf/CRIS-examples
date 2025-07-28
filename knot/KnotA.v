@@ -6,12 +6,12 @@ Require Import APCHeader APC.
 Set Implicit Arguments.
 
 Section RA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
-  Local Definition RA : ucmra :=
+  Local Definition RA :=
     authUR (optionUR (exclR (optionO (natO -d> natO)))).
 
-  Class knotG `{!crisG Γ Σ α β τ _I _S} := {
+  Class knotG `{!crisG Γ Σ α β τ _S _I} := {
     knot_inG :: inG RA Γ;
   }.
   Definition knotΓ : HRA := #[RA].
@@ -32,7 +32,7 @@ Proof. eapply knot_init_valid. Qed.
 Definition ir_knotAΓ : knotΓ := *[Some (ir_knotRA)].
 
 Module KnotA. Section KnotA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_memG: !memG}.
   Context `{_knotG: !knotG}.
 
@@ -148,11 +148,11 @@ Section KnotA.
 
   Definition scopes := ["Knot"].
 
-  Definition fnsems genv SpRec SpFun : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems genv SpRec SpFun : fnsems_type :=
     [(Some KnotHdr.rec, (true, wmask_all, scopes, (Some rec_spec, pure_body)));
      (Some KnotHdr.knot, (true, wmask_all, scopes, (Some (knot_spec genv SpRec SpFun), fbody_trivial)))].
 
-  Program Definition Mod genv SpRec SpFun : SMod.t :=
+  Program Definition smod genv SpRec SpFun : SMod.t :=
   {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems genv SpRec SpFun;
@@ -165,6 +165,6 @@ Section KnotA.
     ((var_points_to genv KnotHdr._f (Vint 0)) ∗ knot_full None)%I.
 
   Definition t genv SpRec SpFun Sp :=
-    Seal.sealing CRIS (SMod.to_hmod Sp (Mod genv SpRec SpFun)).
+    Seal.sealing CRIS (SMod.to_mod Sp (smod genv SpRec SpFun)).
 End KnotA.
 End KnotA. End KnotA.

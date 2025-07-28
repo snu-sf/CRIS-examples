@@ -9,7 +9,7 @@ Set Implicit Arguments.
 
 Module AddIA. Section AddIA.
   Import AddAS APC APCA.
-  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
 
   Context (genv : GEnv.t).
   Context (sp : sp_type).
@@ -37,7 +37,7 @@ Module AddIA. Section AddIA.
   (* IST *)
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     (λ _ st_src st_tgt, emp%I).
-  Local Definition IstFull := (IstProd (IstSB AddA.(HMod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB AddA.(Mod.scopes) Ist) IstEq).
 
   (* helper lemma for simF_add proof *)
   Lemma _add_succ_repeat_fun:
@@ -55,7 +55,7 @@ Module AddIA. Section AddIA.
     apply (_add_succ_repeat_fun (Z.to_nat n) m).
   Qed.
 
-  Lemma simF_succ : HSim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (Some AddHdr.succ).
+  Lemma simF_succ : ISim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (Some AddHdr.succ).
   Proof using _crisG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
     (* Simulation Start *)
     init_simF.
@@ -83,9 +83,9 @@ Module AddIA. Section AddIA.
     (* prove the IST *)
     step. by iSplit.
     Unshelve. et. exact (0↑).
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma simF_add : HSim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (Some AddHdr.add).
+  Lemma simF_add : ISim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (Some AddHdr.add).
   Proof using _crisG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
     (* succ is in somewhere at CEnv *)
     pose proof (@CEnv.incl_incl_env AddGEnv.t genv) as INCLENV.
@@ -140,9 +140,9 @@ Module AddIA. Section AddIA.
     iPureIntro. do 2 f_equal.
     apply add_succ_repeat_fun; et.
     Unshelve. et.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Theorem sim : HSim.t open AddAMod AddIMod AddA.init_cond IstFull.
+  Theorem sim : ISim.t open AddAMod AddIMod AddA.init_cond IstFull.
   Proof.
     init_sim.
     - split; eauto. iIntros "_".
@@ -153,7 +153,7 @@ Module AddIA. Section AddIA.
 End AddIA.
 
 Section ctxr.
-  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
 
   Definition ctxr (ge : GEnv.t) (sp : sp_type) (sp_pure sp_pure_fun : spl_type)
         (GEnvWF : GEnv.wf ge)

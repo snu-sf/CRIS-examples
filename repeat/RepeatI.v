@@ -9,7 +9,7 @@ Module RepeatI. Section RepeatI.
 
   Definition scopes := [RepeatHdr.mn].
 
-  Definition repeat (cenv: CEnv.t): list val → itree hmodE val :=
+  Definition repeat (cenv: CEnv.t): list val → itree crisE val :=
     λ varg, 
       '(fb, (n, x)) : _ <- (pargs [Tblk; Tint; Tint] varg)?;;
       assume(intrange_64 n);;;
@@ -20,10 +20,10 @@ Module RepeatI. Section RepeatI.
         v <- ccallU fn [Vint x];;
         ccallU RepeatHdr.repeat [Vptr (fb, 0%Z); Vint (n - 1); v].
 
-  Definition fnsems (genv: GEnv.t) : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems (genv: GEnv.t) : fnsems_type :=
     [(Some RepeatHdr.repeat, (false, wmask_all, scopes, (None, cfunU (repeat (CEnv.load_genv genv: CEnv.t)))))].
 
-  Program Definition Mod (genv: GEnv.t) : SMod.t := {|
+  Program Definition smod (genv: GEnv.t) : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems genv;
     SMod.initial_st := [];
@@ -31,5 +31,5 @@ Module RepeatI. Section RepeatI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t (genv: GEnv.t) : HMod.t := Seal.sealing CRIS (SMod.to_hmod sp_none (Mod genv)).
+  Definition t (genv: GEnv.t) : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none (smod genv)).
 End RepeatI. End RepeatI.

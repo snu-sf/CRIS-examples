@@ -4,7 +4,7 @@ Require Import ImpPrelude MemHeader MemA SchA SchTactics SchHeader.
 Require Import FaaI FaaA.
 
 Module FaaIA. Section FaaIA.
-  Context `{_sinvG: !sinvG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_memG: !memG}.
   Context `{_schG: !schG}.
 
@@ -21,11 +21,11 @@ Module FaaIA. Section FaaIA.
   Local Definition MemA := (MemA.t sp_mem).
   Local Definition FaaA := (FaaA.t).
   Local Definition FaaI := (FaaI.t).
-  Local Definition IstFull := (IstProd (IstSB FaaA.(HMod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB FaaA.(Mod.scopes) Ist) IstEq).
   Local Definition MA := (FaaA ★ MemA).
   Local Definition MI := (FaaI ★ MemA).
 
-  Lemma faa2_simF : HSim.sim_fun open MA MI IstFull FaaHdr.faa2.
+  Lemma faa2_simF : ISim.sim_fun open MA MI IstFull FaaHdr.faa2.
   Proof using.
     init_simF.
     steps_l. iDestruct "ASM" as "[TID [-> ->]]". hss.
@@ -35,7 +35,7 @@ Module FaaIA. Section FaaIA.
     (* tgt yield *)
     sch_yield_r; eauto.
     { apply sp_incl_sch. }
-    iFrame. clear nths st_src st_tgt NODD NODS. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    iFrame. clear nths st_src st_tgt NODT NODS. iIntros (nths st_s st_t NODS NODT) "IST TID".
     (* src yield *)
     sch_yield_l.
     (* src take pointsto *)
@@ -54,7 +54,7 @@ Module FaaIA. Section FaaIA.
     force_l. iFrame. steps_l.
     (* tgt yield *)
     sch_yield_r; eauto using sp_incl_sch.
-    iFrame. clear nths st_s st_t NODD NODS. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    iFrame. clear nths st_s st_t NODT NODS. iIntros (nths st_s st_t NODS NODT) "IST TID".
     (* src yield *)
     sch_yield_l.
     (* src take pointsto *)
@@ -73,14 +73,14 @@ Module FaaIA. Section FaaIA.
     force_l. iFrame. steps_l.
     (* tgt yield *)
     sch_yield_r; first eauto using sp_incl_sch.
-    iFrame. clear nths st_s st_t NODD NODS. iIntros (nths st_s st_t NODS NODD) "IST TID".
+    iFrame. clear nths st_s st_t NODT NODS. iIntros (nths st_s st_t NODS NODT) "IST TID".
     (* tgt terminate *)
     steps_r.
     (* src yield & terminate *)
     sch_yield_l. steps_l. forces_l. iFrame. iSplit; eauto. steps_l. step. iFrame. done.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Lemma sim : HSim.t open MA MI emp%I IstFull.
+  Lemma sim : ISim.t open MA MI emp%I IstFull.
   Proof.
     init_sim.
     { iIntros "_"; iExists [], [], [], []; eauto. }

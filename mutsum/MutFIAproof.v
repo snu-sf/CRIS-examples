@@ -6,7 +6,7 @@ Set Implicit Arguments.
 
 Module MutFIA. Section MutFIA.
   Import MutAUX.
-  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
 
   Context (Sp: sp_type).
   Context (SpPure: spl_type).
@@ -20,12 +20,12 @@ Module MutFIA. Section MutFIA.
 
   Local Definition MutFAMod := (MutFA.t Sp ★ APCA.t SpPure Sp).
   Local Definition MutFIMod := (MutFI.t ★ APCA.t SpPure Sp).
-  Local Definition IstFull := (IstProd (IstSB (MutFA.t Sp).(HMod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB (MutFA.t Sp).(Mod.scopes) Ist) IstEq).
   
   (*************)
 
   Lemma simF_mutf:
-    HSim.sim_fun open MutFAMod MutFIMod MutFA.init_cond IstFull (Some MutHdr.mutf).
+    ISim.sim_fun open MutFAMod MutFIMod MutFA.init_cond IstFull (Some MutHdr.mutf).
   Proof using _crisG APCInSp GInPure PureInSp.
     init_simF.
 
@@ -79,10 +79,10 @@ Module MutFIA. Section MutFIA.
     Unshelve. all: ss.
     { eapply mut_max_intrange; eauto. }
     { exact (0↑). }
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
   Theorem sim:
-    HSim.t open MutFAMod MutFIMod MutFA.init_cond IstFull.
+    ISim.t open MutFAMod MutFIMod MutFA.init_cond IstFull.
   Proof.
     init_sim.
     - splits; eauto. iIntros "C". iFrame. iPureIntro.
@@ -92,7 +92,7 @@ Module MutFIA. Section MutFIA.
 End MutFIA.
 
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Theorem ctxr (Sp : sp_type) (SpPure : spl_type)
     (APCInSp : sp_incl APCA.Sp Sp)

@@ -7,7 +7,7 @@ Set Implicit Arguments.
 
 Module RepeatIA. Section RepeatIA.
   Import RepeatAS APC APCA.
-  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
 
   Context (genv : GEnv.t).
   Context (sp : sp_type).
@@ -30,9 +30,9 @@ Module RepeatIA. Section RepeatIA.
   (* IST *)
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     (λ _ st_src st_tgt, emp%I).
-  Local Definition IstFull := (IstProd (IstSB RepeatA.(HMod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB RepeatA.(Mod.scopes) Ist) IstEq).
 
-  Lemma simF_repeat : HSim.sim_fun open RepeatAMod RepeatIMod RepeatA.init_cond IstFull (Some RepeatHdr.repeat).
+  Lemma simF_repeat : ISim.sim_fun open RepeatAMod RepeatIMod RepeatA.init_cond IstFull (Some RepeatHdr.repeat).
   Proof using _crisG APCInSpPure SpPureInSp SpPureFunInSpPure repeatInSpPure.
     (* Simulation Start *)
     init_simF.
@@ -110,9 +110,9 @@ Module RepeatIA. Section RepeatIA.
       step. by iSplit.
     }
     Unshelve. all: et. exact (0↑).
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Theorem sim : HSim.t open RepeatAMod RepeatIMod RepeatA.init_cond IstFull.
+  Theorem sim : ISim.t open RepeatAMod RepeatIMod RepeatA.init_cond IstFull.
   Proof.
     init_sim.
     - split; eauto. iIntros "_". repeat (iSplit; eauto); iPureIntro; ss.
@@ -121,7 +121,7 @@ Module RepeatIA. Section RepeatIA.
 End RepeatIA. 
 
 Section ctxr.
-  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
 
   Definition ctxr (ge : GEnv.t) (sp : sp_type) (sp_pure sp_pure_fun : spl_type)
         (APCInSpPure : spl_sub APCA.Sp sp_pure)

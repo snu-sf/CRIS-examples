@@ -6,7 +6,7 @@ Set Implicit Arguments.
 
 Module MainAS. Section MainAS.
   Import CannonAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition Sp : spl_type :=
     Seal.sealing CRIS [(None, None)].
@@ -14,14 +14,14 @@ End MainAS. End MainAS.
 
 Module MainA. Section MainA.
   Import CannonAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cannonG}.
 
   Variable num_fire : nat.
 
   Definition scopes := ["Main"].
 
-  Fixpoint main_repeat (n : nat) : itree hmodE unit :=
+  Fixpoint main_repeat (n : nat) : itree crisE unit :=
     match n with
     | 0 => Ret tt
     | S n' =>
@@ -30,13 +30,13 @@ Module MainA. Section MainA.
       main_repeat n'
     end.
 
-  Definition main : list val → itree hmodE unit :=
+  Definition main : list val → itree crisE unit :=
     λ _, main_repeat num_fire.
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(None, (true, wmask_all, scopes, (None, cfunU main)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [];
@@ -46,5 +46,5 @@ Module MainA. Section MainA.
 
   Definition init_cond : iProp Σ := Ball.
 
-  Definition t Sp := Seal.sealing CRIS (SMod.to_hmod Sp Mod).
+  Definition t Sp := Seal.sealing CRIS (SMod.to_mod Sp smod).
 End MainA. End MainA.

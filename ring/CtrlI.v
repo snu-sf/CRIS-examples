@@ -18,20 +18,20 @@ Module CtrlI. Section CtrlI.
   Definition v_tl := "Ring" ↯ "tl".
 
   (* Implementations of init, get_size, enqueue, dequeue *)
-  Definition init : unit -> itree hmodE unit :=
+  Definition init : unit -> itree crisE unit :=
     λ _,
       cput v_hd 0;;;
       cput v_tl 0
   .
 
-  Definition get_size : unit -> itree hmodE nat :=
+  Definition get_size : unit -> itree crisE nat :=
     λ _,
       'hd : nat <- cgetU v_hd;;
       'tl : nat <- cgetU v_tl;;
       Ret (hd - tl)
   .
 
-  Definition enqueue : Z -> itree hmodE unit :=
+  Definition enqueue : Z -> itree crisE unit :=
     λ x,
       'hd : nat <- cgetU v_hd;;
       'tl : nat <- cgetU v_tl;;
@@ -43,7 +43,7 @@ Module CtrlI. Section CtrlI.
         trigger (@IO _ void "error" "enqueue failed: queue reached its maximum capacity");;; Ret tt
   .
 
-  Definition dequeue : unit -> itree hmodE Z :=
+  Definition dequeue : unit -> itree crisE Z :=
     λ _,
       'hd : nat <- cgetU v_hd;;
       'tl : nat <- cgetU v_tl;;
@@ -56,13 +56,13 @@ Module CtrlI. Section CtrlI.
         trigger (@IO _ void "error" "dequeue failed: cannot dequeue from an empty queue");;; Ret 0%Z
   .
 
-  Definition fnsems : alist (option string) (fnsem_type (option fspec * fbody)) :=
+  Definition fnsems : fnsems_type :=
     [(Some RingHdr.init, (false, wmask_all, scopes, (None, cfunU init)));
      (Some RingHdr.get_size, (false, wmask_all, scopes, (None, cfunU get_size)));
      (Some RingHdr.enqueue, (false, wmask_all, scopes, (None, cfunU enqueue)));
      (Some RingHdr.dequeue, (false, wmask_all, scopes, (None, cfunU dequeue)))].
 
-  Program Definition Mod : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
     SMod.initial_st := [(v_hd,0↑);(v_tl,0↑)];
@@ -70,6 +70,6 @@ Module CtrlI. Section CtrlI.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t := Seal.sealing CRIS (SMod.to_hmod sp_none Mod).
+  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
 
 End CtrlI. End CtrlI.

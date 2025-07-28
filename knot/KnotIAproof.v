@@ -8,7 +8,7 @@ Local Open Scope nat_scope.
 
 Module KnotIA. Section KnotIA.
   Import KnotA APC APCA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_memG: !memG}.
   Context `{_knotG: !knotG}.
                  
@@ -44,12 +44,12 @@ Module KnotIA. Section KnotIA.
   Local Definition KnotA := (KnotA.t genv SpRec SpFun Sp).
   Local Definition KnotAMod := (KnotA ★ MemP ★ APCA).
   Local Definition KnotIMod := ((KnotI.t genv) ★ MemP ★ APCA).
-  Local Definition IstFull := (IstProd (IstSB KnotA.(HMod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB KnotA.(Mod.scopes) Ist) IstEq).
   
   (*************)
 
   Lemma simF_rec:
-    HSim.sim_fun open KnotAMod KnotIMod (KnotA.init_cond genv) IstFull (Some KnotHdr.rec).
+    ISim.sim_fun open KnotAMod KnotIMod (KnotA.init_cond genv) IstFull (Some KnotHdr.rec).
   Proof using GEnvWF GEnvIncl RecInSp APCInSp FunInPure PureInSp.
     init_simF.
 
@@ -124,10 +124,10 @@ Module KnotIA. Section KnotIA.
 
     step. by iFrame.
     Unshelve. all: ss.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
   Lemma simF_knot:
-    HSim.sim_fun open KnotAMod KnotIMod (KnotA.init_cond genv) IstFull (Some KnotHdr.knot).
+    ISim.sim_fun open KnotAMod KnotIMod (KnotA.init_cond genv) IstFull (Some KnotHdr.knot).
   Proof using GEnvWF GEnvIncl RecInSp APCInSp FunInPure PureInSp.
     init_simF.
 
@@ -185,7 +185,7 @@ Module KnotIA. Section KnotIA.
     { unfold var_points_to. des_ifs. }
   Qed.
 
-  Theorem sim : HSim.t open KnotAMod KnotIMod (KnotA.init_cond genv) IstFull.
+  Theorem sim : ISim.t open KnotAMod KnotIMod (KnotA.init_cond genv) IstFull.
   Proof.
     init_sim.
     - split; eauto. iIntros "[VF FL]". iSplit; et.

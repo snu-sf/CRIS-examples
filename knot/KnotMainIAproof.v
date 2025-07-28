@@ -7,7 +7,7 @@ Set Implicit Arguments.
 
 Module KnotMainIA. Section KnotMainIA.
   Import KnotA KnotMainA APCA.
-  Context `{_crisG: !crisG Γ Σ α β τ _I _S}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_memG: !memG}.
   Context `{_knotG: !knotG}.
 
@@ -38,12 +38,12 @@ Module KnotMainIA. Section KnotMainIA.
   Local Definition KnotMainI := (KnotMainI.t genv).
   Local Definition KnotMainAMod := (KnotMainA ★ KnotAMod).
   Local Definition KnotMainIMod := (KnotMainI ★ KnotAMod).
-  Local Definition IstFull := (IstProd (IstSB KnotMainA.(HMod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB KnotMainA.(Mod.scopes) Ist) IstEq).
   
   (*************)
 
   Lemma simF_fib:
-    HSim.sim_fun open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull (Some KnotMainHdr.fib).
+    ISim.sim_fun open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull (Some KnotMainHdr.fib).
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     init_simF.
 
@@ -100,10 +100,10 @@ Module KnotMainIA. Section KnotMainIA.
       iPureIntro. repeat f_equal. rewrite unfold_fib; nia.
     }
     Unshelve. all: ss. exact (0↑).
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
   Lemma simF_main:
-    HSim.sim_fun open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull None.
+    ISim.sim_fun open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull None.
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     init_simF.
 
@@ -167,7 +167,7 @@ Module KnotMainIA. Section KnotMainIA.
     { unfold precond. ss. instantiate (1:=(Fib, 10)). iFrame. iSplit; et.
       { iPureIntro. eexists; esplits; ss.
       rewrite -OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.le_from_nat; nia. }
-      { do 4 iExists []. ss. iPureIntro; hrepeat do 6 unfold_hmod; ss; esplits; eauto; prove_scope. }
+      { do 4 iExists []. ss. iPureIntro; hrepeat do 6 unfold_mod; ss; esplits; eauto; prove_scope. }
     }
     iDestruct "ISTPOST" as "[IST [% FG]]". subst. steps_r. hss. steps_r.
 
@@ -175,12 +175,12 @@ Module KnotMainIA. Section KnotMainIA.
     apc_l. steps_l. forces_l. iSplit; et. steps_l. 
     step. iSplitR; et.
     Unshelve. all: ss.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Theorem sim : HSim.t open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull.
+  Theorem sim : ISim.t open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull.
   Proof.
     init_sim.
-    - exfalso. revert H. unfold_hmod; ss.
+    - exfalso. revert H. unfold_mod; ss.
     - eapply simF_fib; et.
     - eapply simF_main; et.
   Qed.
@@ -206,7 +206,7 @@ Module KnotMainIA. Section KnotMainIA.
   Proof using _crisG _memG APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     eapply main_adequacy.
     init_sim.
-    { exfalso. revert H. hrepeat do 1 unfold_hmod. i; inv H. }
+    { exfalso. revert H. hrepeat do 1 unfold_mod. i; inv H. }
     { init_simF.
       steps_l. iDestruct "ASM" as "[[% PRE] %]"; des; hss.
       steps_l. force_l vo. steps_l. forces_l.
@@ -229,6 +229,6 @@ Module KnotMainIA. Section KnotMainIA.
       iSplit; eauto.
     }
   Unshelve. all: et.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
 End KnotMainIA. End KnotMainIA.

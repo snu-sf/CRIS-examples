@@ -11,7 +11,7 @@ Local Open Scope nat_scope.
 
 (* Simulation Proof *)
 Module CtrlIA. Section CtrlIA.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cellG}.
 
   Variable max_size : nat.
@@ -20,8 +20,8 @@ Module CtrlIA. Section CtrlIA.
 
   (* Definitions of a list of Cell modules *)
   Local Definition CellA := (fun idx => CellA.t idx SpC).
-  Definition CellG start len : HMod.t :=
-    HMod.addL (List.map CellA (seq start len)).
+  Definition CellG start len : Mod.t :=
+    Mod.addL (List.map CellA (seq start len)).
   Definition CellGS := (CellG 0 max_size).
 
   (* Definitions of RingA module and RingI module *)
@@ -45,7 +45,7 @@ Module CtrlIA. Section CtrlIA.
       - f_equal. f_equal; nia.
       - f_equal. nia.
     }
-    rewrite EQ map_app hmod_addL_app. eauto.
+    rewrite EQ map_app mod_addL_app. eauto.
   Qed.
 
   Lemma big_sepL_mod {T} (φ : nat -> T -> iProp Σ) (l : list T):
@@ -103,12 +103,12 @@ Module CtrlIA. Section CtrlIA.
        ([∗ list] i↦x ∈ q, CellAS.cell ((tl+i) mod max_size) x) ∗
        ([∗ list] i↦x ∈ q', (CellAS.pending ((hd+i) mod max_size) ∨ CellAS.cell ((hd+i) mod max_size) x)))%I.
 
-  Notation IstFull := (IstProd (IstSB (RingA.t max_size SpR).(HMod.scopes) Ist) IstEq).
+  Notation IstFull := (IstProd (IstSB (RingA.t max_size SpR).(Mod.scopes) Ist) IstEq).
 
   (*************)
 
   Lemma simF_init:
-    HSim.sim_fun open RingAMod RingIMod (RingA.init_cond max_size) IstFull (Some RingHdr.init).
+    ISim.sim_fun open RingAMod RingIMod (RingA.init_cond max_size) IstFull (Some RingHdr.init).
   Proof using.
     init_simF.
 
@@ -139,10 +139,10 @@ Module CtrlIA. Section CtrlIA.
       iModIntro. iIntros (k x) "% FREE". s.
       rewrite Nat.add_assoc.
       rewrite Nat.Div0.mod_mod; eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
   Lemma simF_get_size:
-    HSim.sim_fun open RingAMod RingIMod (RingA.init_cond max_size) IstFull (Some RingHdr.get_size).
+    ISim.sim_fun open RingAMod RingIMod (RingA.init_cond max_size) IstFull (Some RingHdr.get_size).
   Proof using.
     init_simF.
 
@@ -160,10 +160,10 @@ Module CtrlIA. Section CtrlIA.
     iExists [_], [_;_], st_tgtR, st_tgtR.
     do 3 (iSplit; eauto).
     repeat iExists _. iFrame. eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
   Lemma simF_enqueue:
-    HSim.sim_fun open RingAMod RingIMod (RingA.init_cond max_size) IstFull (Some RingHdr.enqueue).
+    ISim.sim_fun open RingAMod RingIMod (RingA.init_cond max_size) IstFull (Some RingHdr.enqueue).
   Proof using.
     unfold RingAMod, RingIMod, CellGS.
     init_simF.
@@ -218,10 +218,10 @@ Module CtrlIA. Section CtrlIA.
     + iApply (big_sepL_impl with "FREE").
       iModIntro. iIntros (k x FIND) "H".
       rewrite <-!Nat.add_assoc. eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
   Lemma simF_dequeue:
-    HSim.sim_fun open RingAMod RingIMod (RingA.init_cond max_size) IstFull (Some RingHdr.dequeue).
+    ISim.sim_fun open RingAMod RingIMod (RingA.init_cond max_size) IstFull (Some RingHdr.dequeue).
   Proof using.
     unfold RingAMod, RingIMod, CellGS.
     init_simF.
@@ -274,9 +274,9 @@ Module CtrlIA. Section CtrlIA.
       iRight. eapply eq_ind; try iAssumption. f_equal.
       erewrite <-mod_add_ex; eauto; try nia.
       exists 1. nia.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Theorem sim : HSim.t open RingAMod RingIMod (RingA.init_cond max_size) IstFull.
+  Theorem sim : ISim.t open RingAMod RingIMod (RingA.init_cond max_size) IstFull.
   Proof using.
     init_sim.
     - split; eauto. iIntros "R".
@@ -289,12 +289,10 @@ Module CtrlIA. Section CtrlIA.
       iModIntro. iIntros (? ? FIND) "P".
       iLeft. rewrite Nat.mod_small; eauto.
       eapply lookup_replicate_1. eauto.
-    (* apply the theorem proved above for each function in Ring modules *)
-    - admit.
-    (* - eapply simF_init; eauto.
+    - eapply simF_init; eauto.
     - eapply simF_get_size; eauto.
     - eapply simF_enqueue; eauto.
-    - eapply simF_dequeue; eauto. *)
-  Admitted.
+    - eapply simF_dequeue; eauto.
+  (*SLOW*)Admitted.
 
 End CtrlIA. End CtrlIA.

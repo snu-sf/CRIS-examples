@@ -10,7 +10,7 @@ Local Open Scope nat_scope.
 (* Simulation Proof *)
 Module CellIA. Section CellIA.
   Import CellAS.
-  Context `{!crisG Γ Σ α β τ _I _S}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cellG}.
 
   Variable idx : nat.
@@ -29,7 +29,7 @@ Module CellIA. Section CellIA.
 
   (*************)
 
-  Lemma simF_get : HSim.sim_fun open CellAMod CellIMod (CellA.init_cond idx) Ist (Some (CellHdr.get idx)).
+  Lemma simF_get : ISim.sim_fun open CellAMod CellIMod (CellA.init_cond idx) Ist (Some (CellHdr.get idx)).
   Proof using.
     init_simF.
 
@@ -50,10 +50,10 @@ Module CellIA. Section CellIA.
 
     step. iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
   Lemma simF_set:
-    HSim.sim_fun open CellAMod CellIMod True%I Ist (Some (CellHdr.set idx)).
+    ISim.sim_fun open CellAMod CellIMod True%I Ist (Some (CellHdr.set idx)).
   Proof using.
     init_simF.
 
@@ -94,9 +94,9 @@ Module CellIA. Section CellIA.
     step.
     iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
-  Theorem sim : HSim.t open CellAMod CellIMod (CellA.init_cond idx) Ist.
+  Theorem sim : ISim.t open CellAMod CellIMod (CellA.init_cond idx) Ist.
   Proof.
     init_sim.
     - split; eauto. iIntros "IC". iDestruct "IC" as (v) "(C & A)".

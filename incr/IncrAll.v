@@ -18,7 +18,7 @@ Module ClientAll.
   Definition IRΣ : Σ :=
     **[IRΓ; ir_invΣ; SchAS.ir_schΣ].
 
-  Lemma IRΣ_valid : ✓ (IRΣ ⋅ initial_resource_own_admin).
+  Lemma IRΣ_valid : ✓ (IRΣ ⋅ ir_own_admin).
   Proof.
     solve_ir_valid.
     - apply ir_memRA_valid.
@@ -33,9 +33,9 @@ Module ClientAll.
     (ClientA.Mod ⊤) ☆ (MemA.Mod) ☆ (SchA.Mod ⊤ sp_user_s ☆ SchAPure.Mod ⊤).
   Local Definition sp_s : string → option fspec := sp_from smod_src.
 
-  Local Definition smod_cancel : HMod.t := SModCancel.to_hmod smod_src.
-  Local Definition mod_src : HMod.t := SMod.to_hmod sp_s smod_src.
-  Local Definition mod_tgt : HMod.t := ClientI.t ★ FaaI.t ★ (MemI.t csl genv) ★ (SchI.t).
+  Local Definition smod_cancel : Mod.t := SModCancel.to_mod smod_src.
+  Local Definition mod_src : Mod.t := SMod.to_mod sp_s smod_src.
+  Local Definition mod_tgt : Mod.t := ClientI.t ★ FaaI.t ★ (MemI.t csl genv) ★ (SchI.t).
 
   Local Definition SchInSp0: sp_incl (SchAS.sp ⊤ (to_sp [])) (to_sp (SchAS.sp ⊤ (to_sp []))).
   Proof.
@@ -117,7 +117,7 @@ Module ClientAll.
     
     eapply ctxr_cond_strengthen.
     { iIntros "[? ?]". iFrame. }
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 
   Lemma cancel_tgt :
     refines (smod_cancel, (init_cond ∗ main_fsp.(precond) (0, tt) tt↑ tt↑)%I)
@@ -130,14 +130,14 @@ Module ClientAll.
 
   Theorem behavioral_refinement :
     ∃ target_resource, refines_mod
-      (HMod.to_mod smod_cancel (IRΣ ⋅ initial_resource_own_admin))
-      (HMod.to_mod mod_tgt target_resource).
+      (Mod.to_mod smod_cancel (IRΣ ⋅ ir_own_admin))
+      (Mod.to_mod mod_tgt target_resource).
   Proof.
     move: (cancel_tgt)=>H; rewrite /refines in H; ss.
     hexploit H.
     { rewrite /mod_tgt /ClientI.t /MemI.t /SchI.t /FaaI.t; unseal CRIS; prove_nodup. }
     clear H; intros [WF H].
-    destruct (H (IRΣ ⋅ initial_resource_own_admin)).
+    destruct (H (IRΣ ⋅ ir_own_admin)).
     { apply IRΣ_valid. }
     { clear H. simplify_res.
       { iAssert (SchAS.tid_admin None) with "[H22]" as "TID".
@@ -155,5 +155,5 @@ Module ClientAll.
       all: solve_res.
     }
     { exists x; des; eauto. }
-  (*SLOW*)Qed.
+  (*SLOW*)Admitted.
 End ClientAll.
