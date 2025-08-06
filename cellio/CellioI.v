@@ -1,8 +1,5 @@
 Require Import CRIS.
-
 Require Import CellioHeader CtxHeader.
-
-Set Implicit Arguments.
 
 Module CellioI. Section CellioI.
   Context `{Σ: GRA}.
@@ -12,14 +9,14 @@ Module CellioI. Section CellioI.
 
   Definition set: Any.t -> itree crisE Any.t :=
     λ _,
-      'i: Z <- ccallU CtxHdr.input tt;;
+      'i : Z <- ccallU CtxHdr.input tt;;
       cput v_cv i;;;
       Ret tt↑.
 
   Definition get: Any.t -> itree crisE Any.t :=
     λ _,
       i <- cgetU v_cv;;
-      Ret (i:Z)↑.
+      Ret (i : Z)↑.
 
   Definition fnsems : fnsems_type :=
     [(Some CellioHdr.set, (false, wmask_all, scopes, (None, set)));
@@ -32,6 +29,6 @@ Module CellioI. Section CellioI.
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
-  
+
   Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
 End CellioI. End CellioI.

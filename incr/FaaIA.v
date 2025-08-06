@@ -1,89 +1,62 @@
 Require Import CRIS.
-From CRIS.incr Require Import Header.
+From CRIS.incr Require Import Header FaaI FaaA.
 Require Import ImpPrelude MemHeader MemA SchA SchTactics SchHeader.
-Require Import FaaI FaaA.
 
 Module FaaIA. Section FaaIA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
-  Context `{_memG: !memG}.
-  Context `{_schG: !schG}.
-
-  Context (sp_mem : string → option fspec).
-  Local Lemma sp_incl_sch : sp_incl (SchAS.sp ∅ sp_empty) (to_sp (SchAS.sp ∅ sp_empty)).
-  Proof.
-    split; ss.
-    rewrite /SchAS.sp; unseal CRIS; ss.
-    prove_nodup.
-  Qed.
+  Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG}.
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
-  Local Definition MemA := (MemA.t sp_mem).
-  Local Definition FaaA := (FaaA.t).
-  Local Definition FaaI := (FaaI.t).
-  Local Definition IstFull := (IstProd (IstSB FaaA.(Mod.scopes) Ist) IstEq).
-  Local Definition MA := (FaaA ★ MemA).
-  Local Definition MI := (FaaI ★ MemA).
+  Local Definition IstFull := (IstProd (IstSB FaaA.t.(Mod.scopes) Ist) IstEq).
+  Local Definition MA := (FaaA.t ★ MemA.t).
+  Local Definition MI := (FaaI.t ★ MemA.t).
 
-  Lemma faa2_simF : ISim.sim_fun open MA MI IstFull FaaHdr.faa2.
-  Proof using.
+  Lemma faa2_simF : ISim.sim_fun open MA MI True%I IstFull (Some FaaHdr.faa2).
+  Proof.
     init_simF.
-    steps_l. iDestruct "ASM" as "[TID [-> ->]]". hss.
-    destruct q2 as [b ofs]. rename q1 into tid.
+
+    steps_l.
+    destruct _q0 as [blk ofs]. destruct _q as [ | v [|? ?]]; ss; destruct v; ss.
+    hss. inv G0.
+
     steps_l. steps_r.
 
-    (* tgt yield *)
-    sch_yield_r; eauto.
-    { apply sp_incl_sch. }
-    iFrame. clear nths st_src st_tgt NODT NODS. iIntros (nths st_s st_t NODS NODT) "IST TID".
-    (* src yield *)
-    sch_yield_l.
-    (* src take pointsto *)
-    steps_l. rename q into v.
-    (* tgt inline - load *)
-    rewrite /MemHdr.faa. inline_r.
-    (* tgt prove preconditions for load *)
-    force_r (b, ofs, 1%Qp, Vint v). forces_r. iFrame. iSplit; first eauto.
-    (* tgt get postconditions from load *)
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
-    (* tgt inline - store *)
-    inline_r. force_r (b, ofs, _, Vint (v + 1)). forces_r. iFrame. iSplit; first eauto.
-    (* tgt get postconditions from store *)
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
-    (* src give pointsto *)
-    force_l. iFrame. steps_l.
-    (* tgt yield *)
-    sch_yield_r; eauto using sp_incl_sch.
-    iFrame. clear nths st_s st_t NODT NODS. iIntros (nths st_s st_t NODS NODT) "IST TID".
-    (* src yield *)
-    sch_yield_l.
-    (* src take pointsto *)
-    steps_l. clear v; rename q into v.
-    (* tgt inline - load *)
-    rewrite /MemHdr.faa. inline_r.
-    (* tgt prove preconditions for load *)
-    force_r (b, ofs, 1%Qp, Vint v). forces_r. iFrame. iSplit; first eauto.
-    (* tgt get postconditions from load *)
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
-    (* tgt inline - store *)
-    inline_r. force_r (b, ofs, _, Vint (v + 1)). forces_r. iFrame. iSplit; first eauto.
-    (* tgt get postconditions from store *)
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
-    (* src give pointsto *)
-    force_l. iFrame. steps_l.
-    (* tgt yield *)
-    sch_yield_r; first eauto using sp_incl_sch.
-    iFrame. clear nths st_s st_t NODT NODS. iIntros (nths st_s st_t NODS NODT) "IST TID".
-    (* tgt terminate *)
+    sch_yield_rr; iFrame "IST"; iSplit; [done|sch_intros]; iClear (NODS NODT) "TID".
+    sch_yield_l; steps_l. rename _q into v.
+
+    rewrite /MemHdr.faa; steps_r; inline_r.
+    force_r (_, _, _, Vint v); forces_r; iFrame "ASM"; iSplit; eauto.
+    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r.
+    steps_r; inline_r.
+    force_r (_, _, _, _); forces_r; iFrame "PT"; iSplit; eauto.
+    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r. steps_r.
+
+    force_l; iFrame "PT"; steps_l.
+
+    sch_yield_rr; iFrame "IST"; iSplit; [done|sch_intros]; iClear (NODS NODT) "TID".
+    Unshelve. all: try exact 0.
+    sch_yield_l; steps_l; clear v; rename _q into v.
+    steps_r; inline_r.
+    force_r (_, _, _, _); forces_r; iFrame "ASM"; iSplit; eauto.
+    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r.
+    steps_r; inline_r.
+    force_r (_, _, _, _); forces_r; iFrame "PT"; iSplit; eauto.
+    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r.
+
+    force_l; iFrame "PT"; steps_l.
     steps_r.
-    (* src yield & terminate *)
-    sch_yield_l. steps_l. forces_l. iFrame. iSplit; eauto. steps_l. step. iFrame. done.
-  (*SLOW*)Admitted.
+    sch_yield_rr; iFrame "IST"; iSplit; [done|sch_intros]; iClear (NODS NODT) "TID".
+    steps_r.
+    sch_yield_l; steps_l.
+    step.
+    iSplit; done.
+  Unshelve. all: eauto.
+  (*SLOW*) Admitted.
 
   Lemma sim : ISim.t open MA MI emp%I IstFull.
   Proof.
     init_sim.
-    { iIntros "_"; iExists [], [], [], []; eauto. }
+    { split; ss; iIntros "_"; iSplit; eauto. }
     { eapply faa2_simF. }
   Qed.
 End FaaIA. End FaaIA.

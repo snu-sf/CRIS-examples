@@ -72,7 +72,7 @@ Module MainIA. Section MainIA.
     ISim.t open MainA (MainI.t ★ CellioA) MainA.init_cond IstFull.
   Proof using sp_input sp_foo.
     init_sim.
-    - exfalso. revert H0. rewrite /MainI.t /CellioA. unseal CRIS; ss.
+    (* - exfalso. revert H. rewrite /MainI.t /CellioA. unseal CRIS; ss. *)
     - eapply simF_main; eauto.
   Qed.
 End MainIA. End MainIA.

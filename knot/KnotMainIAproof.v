@@ -59,7 +59,7 @@ Module KnotMainIA. Section KnotMainIA.
       (* SRC: change to skip *)
       apc_l. steps_l. forces_l. iSplitR; et. steps_l.
       forces_l. iSplitL "INV"; iFrame; et.
-      assert (q1 >= 0)%Z by nia. assert (q1 = 1 \/ q1 = 0) by nia. assert (Z.of_nat (Fib q1) = 1)%Z.
+      assert (_q1 >= 0)%Z by nia. assert (_q1 = 1 \/ _q1 = 0) by nia. assert (Z.of_nat (Fib _q1) = 1)%Z.
       { des; subst; reflexivity. }
       rewrite H3. step. iSplit; et.
     }
@@ -73,8 +73,8 @@ Module KnotMainIA. Section KnotMainIA.
       dup SPEC. inv SPEC.
       apc_call_weaker "IST INV"; et.
       { instantiate (1 := 1). apply OrdArith.lt_from_nat. ss. }
-      { instantiate (1 := (2 * (q1 - 1) + 1)%ord). eapply Ord.lt_le_lt; [|et]. rewrite -!OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.lt_from_nat. nia. }
-      { unfold precond. ss. instantiate (1:= (q1 - 1) ). iFrame. iSplit; et. iSplit; et.
+      { instantiate (1 := (2 * (_q1 - 1) + 1)%ord). eapply Ord.lt_le_lt; [|et]. rewrite -!OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.lt_from_nat. nia. }
+      { unfold precond. ss. instantiate (1:= (_q1 - 1) ). iFrame. iSplit; et. iSplit; et.
         - iPureIntro. repeat f_equal. nia.
         - iPureIntro. unfold intrange_64 in *.
           bsimpl; des; split; des_sumbool; repeat destruct Z_le_gt_dec; unfold min_64, max_64, modulus_64_half in *; try nia; ss.
@@ -85,8 +85,8 @@ Module KnotMainIA. Section KnotMainIA.
       (* second call - rec(n - 2) *)
       apc_call_weaker "IST INV"; et.
       { instantiate (1:=0). apply OrdArith.lt_from_nat. ss. }
-      { instantiate (1 := (2 * (q1 - 1))%ord). eapply Ord.lt_le_lt; [|et]. rewrite -!OrdArith.mult_from_nat. eapply OrdArith.lt_from_nat. nia. }
-      { iFrame. instantiate (1:= (q1 - 2)). iSplit; et. iSplit; et.
+      { instantiate (1 := (2 * (_q1 - 1))%ord). eapply Ord.lt_le_lt; [|et]. rewrite -!OrdArith.mult_from_nat. eapply OrdArith.lt_from_nat. nia. }
+      { iFrame. instantiate (1:= (_q1 - 2)). iSplit; et. iSplit; et.
         - iPureIntro. repeat f_equal. nia.
         - iPureIntro. unfold intrange_64 in *.
           bsimpl; des; split; des_sumbool; repeat destruct Z_le_gt_dec; unfold min_64, max_64, modulus_64_half in *; try nia; ss.
@@ -120,7 +120,7 @@ Module KnotMainIA. Section KnotMainIA.
     specialize (GEnvWF KnotMainHdr.fib blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDF.
 
     (* SRC: precondition *)
-    steps_l. destruct q; ss. iDestruct "IST" as "[% FG]". des; subst. hss.
+    steps_l. destruct _q; ss. iDestruct "IST" as "[% FG]". des; subst. hss.
 
     (* TGT: find a block of the function "fib" using SKINCL *)
     steps_r. rewrite FINDF; hss. steps_r.
@@ -180,7 +180,7 @@ Module KnotMainIA. Section KnotMainIA.
   Theorem sim : ISim.t open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull.
   Proof.
     init_sim.
-    - exfalso. revert H. unfold_mod; ss.
+    (* - exfalso. revert H. unfold_mod; ss. *)
     - eapply simF_fib; et.
     - eapply simF_main; et.
   Qed.
@@ -206,11 +206,11 @@ Module KnotMainIA. Section KnotMainIA.
   Proof using _crisG _memG APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     eapply main_adequacy.
     init_sim.
-    { exfalso. revert H. hrepeat do 1 unfold_mod. i; inv H. }
+    (* { exfalso. revert H. hrepeat do 1 unfold_mod. i; inv H. } *)
     { init_simF.
       steps_l. iDestruct "ASM" as "[[% PRE] %]"; des; hss.
       steps_l. force_l vo. steps_l. forces_l.
-      iSplitR; eauto. steps_l. force_r (q1, q2).
+      iSplitR; eauto. steps_l. force_r (_q1, _q2).
       forces_r. iSplitL "PRE".
       { iFrame; iPureIntro; esplits; eauto. }
       hss. steps_r. iDestruct "GRT" as "%"; des; hss.

@@ -1,9 +1,6 @@
 Require Import CRIS.
-
 Require Import ImpPrelude.
 Require Import RingHeader CellHeader.
-
-Set Implicit Arguments.
 
 Section RA.
   Context `{!crisG Γ Σ α β τ _S _I}.
@@ -32,19 +29,19 @@ Module CellAS. Section CellAS.
 
   (* Holds an exclusive token ensuring uniqueness of the pending state *)
   Definition pending : iProp Σ :=
-    own base_γ (((fun n => if Nat.eq_dec n idx then Some (Excl ()) else ε) : pendingUR, ε): RA).
+    own base_γ (((λ n, if Nat.eq_dec n idx then Some (Excl ()) else ε) : pendingUR, ε)).
 
   (* Raw representation of the cell's value as an exclusive resource at [idx] *)
   Definition cellraw_r (v : Z) : cellUR :=
-    (fun n => if Nat.eq_dec n idx then Excl' v else ε).
+    (λ n, if Nat.eq_dec n idx then Excl' v else ε).
 
   (* A fragmental view on the value [v] that the cell at [idx] currently holds *)
   Definition cell (v : Z) : iProp Σ :=
-    own base_γ ((ε, ◯ (cellraw_r v)): RA).
+    own base_γ ((ε, ◯ (cellraw_r v)) : RA).
 
   (* Authoritative ownership asserting that the cell at [idx] definitively stores [v]. *)
   Definition auth (v : Z) : iProp Σ :=
-    own base_γ ((ε, ● (cellraw_r v)): RA).
+    own base_γ ((ε, ● (cellraw_r v)) : RA).
 
   (* Lemmas *)
 
@@ -94,14 +91,14 @@ Module CellAS. Section CellAS.
 
   (* Specifications of get and set *)
   Definition get_spec : fspec :=
-    fspec_simple (fun v: Z =>
-     ((fun arg => ⌜arg = tt↑⌝ ∗ cell v),
-      (fun ret => ⌜ret = v↑⌝ ∗ cell v)))%I.
+    fspec_simple (λ v : Z,
+     ((λ arg, ⌜arg = tt↑⌝ ∗ cell v),
+      (λ ret, ⌜ret = v↑⌝ ∗ cell v)))%I.
 
   Definition set_spec : fspec :=
-    fspec_simple (fun '(v0,v) =>
-     ((fun arg => ⌜arg = v↑⌝ ∗ (pending ∨ cell v0)),
-      (fun ret => ⌜ret = tt↑⌝ ∗ cell v)))%I.
+    fspec_simple (λ '(v0, v),
+     ((λ arg, ⌜arg = v↑⌝ ∗ (pending ∨ cell v0)),
+      (λ ret, ⌜ret = tt↑⌝ ∗ cell v)))%I.
 
   Definition Sp : spl_type :=
     Seal.sealing CRIS [(Some (CellHdr.get idx), Some get_spec);
@@ -115,7 +112,7 @@ End CellAS. End CellAS.
 Module CellA. Section CellA.
   Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cellG}.
-    
+
   (* Index of this Cell *)
   Variable idx : nat.
 

@@ -173,7 +173,7 @@ Module CtrlIA. Section CtrlIA.
     steps_l.
     iDestruct "IST" as (? ? ? ?) "(% & (% & IST) & %)". des; subst.
     iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst. hss.
-    rename q into v. rename q0 into l.
+    rename _q into v. rename _q0 into l.
 
     (* TGT: check the length of the queue *)
     steps_r. hss. steps_r. hss. steps_r.

@@ -1,4 +1,4 @@
-Require Import CRIS Cancel.
+(* Require Import CRIS Cancel.
 Require Import MemI MemA MemIAproof ImpPrelude.
 From CRIS.incr Require Import Header ClientI ClientA ClientIA FaaI FaaA FaaIA.
 Require Import SchHeader SchI SchA SchIAproof SchTactics.
@@ -156,4 +156,4 @@ Module ClientAll.
     }
     { exists x; des; eauto. }
   (*SLOW*)Admitted.
-End ClientAll.
+End ClientAll. *)

@@ -41,7 +41,7 @@ Module MapMA. Section MapMA.
     (* SRC: handle the IST of Map and the precond of init *)
     iDestruct "IST" as (f sz) "(% & [(% & P0 & INIT) | (P' & B & U)])"; cycle 1.
     { iExFalso. iApply (pending_unique with "P P'"). }
-    des. hss. rename q into sz.
+    des. hss. rename _q into sz.
     
     (* TGT: prove the precond of init *)
     step_r. force_r sz. force_r ([Vint sz] ↑). force_r.
@@ -66,7 +66,7 @@ Module MapMA. Section MapMA.
 
     steps_l.
     iDestruct "ASM" as "((-> & MAP) & ->)".
-    rename q1 into k.
+    rename _q1 into k.
 
     (* SRC: handle the IST of Map and the precond of get *)
     iDestruct "IST" as (f sz) "(% & [(% & P0 & INIT)|(P' & B & U)])".
@@ -101,7 +101,7 @@ Module MapMA. Section MapMA.
 
     (* SRC: handle the IST of Map and the precond of set *)
     do 2 step_l.
-    destruct q as [[k w] v]. steps_l.
+    destruct _q as [[k w] v]. steps_l.
     iDestruct "ASM" as "((-> & MAP) & ->)".
     iDestruct "IST" as (f sz) "(% & [(% & P0 & INIT)|(P' & B & U)])".
     { iExFalso. iApply (initial_map_points_to with "INIT MAP"). }
@@ -132,7 +132,7 @@ Module MapMA. Section MapMA.
     init_simF.
 
     (* SRC: handle the IST of Map and the precond of set_by_user *)
-    do 2 step_l. destruct q as [k w]. steps_l.
+    do 2 step_l. destruct _q as [k w]. steps_l.
     iDestruct "ASM" as "((-> & MAP) & ->)".
     hss. steps_l.
 

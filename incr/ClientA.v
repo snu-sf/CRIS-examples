@@ -6,9 +6,7 @@ From iris Require Import frac_auth numbers.
 Section RA.
   Context `{!crisG Γ Σ α β τ _S _I}.
 
-  Class incrG `{!crisG Γ Σ α β τ _S _I} := {
-    incr_inG :: inG (frac_authR ZR) Γ;
-  }.
+  Class incrG := { incr_inG :: inG (frac_authR ZR) Γ; }.
   Definition incrΓ : HRA := #[frac_authR ZR].
   Global Instance subG_incrG : subG incrΓ Γ → incrG.
   Proof. solve_inG. Defined.
@@ -16,10 +14,7 @@ End RA.
 Hint Unfold subG_incrG incr_inG : GRA_index.
 
 Module ClientA. Section ClientA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
-  Context `{_memG: !memG}.
-  Context `{_schG: !schG}.
-  Context `{_incrG: !incrG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG, !incrG}.
 
   Definition N_main : namespace := (nroot .@ IncrHdr.main).
 
@@ -32,8 +27,7 @@ Module ClientA. Section ClientA.
       <own> base_γ (mem_points_to_singleton_r bofs 1%Qp (Vint v))
       ∗ <own> γ (frac_auth_auth v))%SAT.
 
-  Definition incr_inv n γ bofs : iProp Σ :=
-    inv n N_main (ccounter_syn n γ bofs).
+  Definition incr_inv n γ bofs : iProp Σ := inv n N_main (ccounter_syn n γ bofs).
 
   (* rules *)
   Lemma counter_op γ v1 q1 v2 q2 :
@@ -49,19 +43,22 @@ Module ClientA. Section ClientA.
     iFrame; done.
   Qed.
 
-  Definition incr_spec E : fspec :=
-    fspec_sch E
-      (fspec_simple (λ '(bofs, v, γ),
-        (λ varg, ⌜varg = ([Vptr bofs]↑↑)↑⌝ ∗ counter γ (1/2) v ∗ incr_inv 0 γ bofs,
-        λ vret, ⌜vret = (tt↑↑)↑⌝ ∗ counter γ (1/2) (v + 2))
-      ))%I.
+  Definition incr_spec E q : fspec :=
+    fspec_winv E
+      (fspec_sch q
+        (fspec_simple (λ '(bofs, v, γ),
+          (λ varg, ⌜varg = ([Vptr bofs]↑↑)↑⌝ ∗ counter γ (1/2) v ∗ incr_inv 0 γ bofs,
+          λ vret, ⌜vret = (tt↑↑)↑⌝ ∗ counter γ (1/2) (v + 2))
+        )))%I.
 
-  Definition main_spec E : fspec :=
-    fspec_sch E (fspec_simple (λ _ : unit, (λ arg, ⌜arg = tt↑⌝, λ ret, ⌜ret = tt↑⌝)))%I.
+  Definition main_spec E q : fspec :=
+    fspec_winv E
+      (fspec_sch q
+        (fspec_simple (λ _ : unit, (λ arg, ⌜arg = tt↑⌝, λ ret, ⌜ret = tt↑⌝))))%I.
 
-  Definition sp E : alist string fspec :=
-    [(IncrHdr.incr, incr_spec E);
-     (IncrHdr.main, main_spec E)].
+  Definition sp E q : spl_type :=
+    [(Some IncrHdr.incr, Some (incr_spec E q));
+     (None,              Some (main_spec E q))].
 
   (* Module definition *)
   Definition scopes : list string := [].
@@ -79,17 +76,17 @@ Module ClientA. Section ClientA.
       𝒴;;; trigger (IO (O:=unit) "OUT" 4%Z);;;
       𝒴;;; Ret tt.
 
-  Definition fnsems E :=
-    [(IncrHdr.incr, (wmask_all, scopes, mk_specbody (incr_spec E) (cfunN (sfunN incr))));
-     (IncrHdr.main, (wmask_all, scopes, mk_specbody (main_spec E) (cfunN main)))].
+  Definition fnsems E q : fnsems_type :=
+    [(Some IncrHdr.incr, (true, wmask_all, scopes, (Some (incr_spec E q), cfunN (sfunN incr))));
+     (None,              (true, wmask_all, scopes, (Some (main_spec E q), cfunN main)))].
 
-  Program Definition smod E : SMod.t := {|
+  Program Definition smod E q : SMod.t := {|
     SMod.scopes := scopes;
-    SMod.fnsems := fnsems E;
+    SMod.fnsems := fnsems E q;
     SMod.initial_st := [];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t E sp : Mod.t := Seal.sealing CRIS (SMod.to_mod sp (Mod E)).
+  Definition t E q sp : Mod.t := Seal.sealing CRIS (SMod.to_mod sp (smod E q)).
 End ClientA. End ClientA.

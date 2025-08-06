@@ -38,7 +38,7 @@ Module RepeatIA. Section RepeatIA.
     init_simF.
 
     (* SRC: handle the precond of repeat *)
-    steps_l. rename q2 into f_sem, q3 into n, q4 into x.
+    steps_l. rename _q2 into f_sem, _q3 into n, _q4 into x.
     iDestruct "ASM" as "%". hss. dup H3. inv H3. steps_l.
 
     (* SRC: find apc in sp *)

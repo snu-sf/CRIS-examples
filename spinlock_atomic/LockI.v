@@ -1,4 +1,4 @@
-Require Import CRIS.
+(* Require Import CRIS.
 From CRIS.spinlock Require Import Header.
 Require Import ImpPrelude SchHeader MemHeader.
 
@@ -52,4 +52,4 @@ Module SpinLockI. Section SpinLockI.
 
   Definition t : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
 
-End SpinLockI. End SpinLockI.
+End SpinLockI. End SpinLockI. *)

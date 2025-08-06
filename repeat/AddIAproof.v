@@ -61,7 +61,7 @@ Module AddIA. Section AddIA.
     init_simF.
 
     (* SRC: handle the precond of succ *)
-    steps_l. rename q into n.
+    steps_l. rename _q into n.
     iDestruct "ASM" as "%". hss. steps_l.
 
     (* SRC: find apc in sp *)
@@ -99,7 +99,7 @@ Module AddIA. Section AddIA.
     init_simF.
 
     (* SRC: handle the precond of add *)
-    steps_l. rename q1 into n, q2 into m.
+    steps_l. rename _q1 into n, _q2 into m.
     iDestruct "ASM" as "%". hss. steps_l.
 
     (* SRC: find apc in sp *)

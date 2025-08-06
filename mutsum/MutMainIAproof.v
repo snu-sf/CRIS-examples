@@ -67,7 +67,7 @@ Module MutMainIA. Section MutMainIA.
     ISim.t open MutMainAMod MutMainIMod MutMainA.init_cond IstFull.
   Proof.
     init_sim.
-    - inv H.
+    (* - inv H. *)
     - apply simF_main; eauto.
   Qed.
 
@@ -85,7 +85,7 @@ Module MutMainIA. Section MutMainIA.
     eapply main_adequacy
       with (Ist := IstProd (IstSB MutMainA.scopes IstEq) IstEq).
     init_sim.
-    { inv H. }
+    (* { inv H. } *)
     { init_simF.
       steps_l. forces_r.
       iDestruct "IST" as "%"; des; hss.

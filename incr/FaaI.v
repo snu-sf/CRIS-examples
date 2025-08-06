@@ -16,13 +16,13 @@ Module FaaI. Section FaaI.
   Definition fnsems : fnsems_type :=
     [(Some FaaHdr.faa2, (false, wmask_all, scopes, (None, cfunU faa2)))].
 
-  Program Definition smod : PMod.t := {|
-    PMod.scopes := scopes;
-    PMod.fnsems := fnsems;
-    PMod.initial_st := [];
+  Program Definition smod : SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems;
+    SMod.initial_st := [];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t : Mod.t := Seal.sealing CRIS (PMod.to_mod smod).
+  Definition t : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
 End FaaI. End FaaI.

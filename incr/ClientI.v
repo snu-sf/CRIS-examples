@@ -26,17 +26,17 @@ Module ClientI. Section ClientI.
       𝒴;;; '_ : unit <- trigger (IO "OUT" v);;
       𝒴;;; Ret tt.
 
-  Definition fnsems :=
-    [(IncrHdr.incr, (wmask_all, scopes, cfunU (sfunU incr)));
-     (IncrHdr.main, (wmask_all, scopes, cfunU main))].
+  Definition fnsems : fnsems_type :=
+    [(Some IncrHdr.incr, (false, wmask_all, scopes, (None, cfunU (sfunU incr))));
+     (None,              (false, wmask_all, scopes, (None, cfunU main)))].
 
-  Program Definition smod : PMod.t := {|
-    PMod.scopes := scopes;
-    PMod.fnsems := fnsems;
-    PMod.initial_st := [];
+  Program Definition smod : SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems;
+    SMod.initial_st := [];
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Qed.
 
-  Definition t : Mod.t := Seal.sealing CRIS (PMod.to_mod smod).
+  Definition t : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
 End ClientI. End ClientI.

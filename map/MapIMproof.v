@@ -59,9 +59,7 @@ Qed.
 (* Simulation proof *)
 Module MapIM. Section MapIM.
   Import MapMS.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!mapMG}.
-  Context `{!memG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !mapMG, !memG}.
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
     (λ _ st_src st_tgt,
@@ -74,10 +72,10 @@ Module MapIM. Section MapIM.
           ∗ bofs |-> (fun_to_list f (Z.to_nat sz)))%I.
 
   (* sps of src/mem modules *)
-  Context (sp_s sp_mem : sp_type).
+  Context (sp_s : sp_type).
   Context (MapInSp : sp_incl MapMS.sp sp_s).
 
-  Local Definition MemA := (MemA.t sp_mem).
+  Local Definition MemA := (MemA.t).
   Local Definition MapM := (MapM.t sp_s).
   Local Definition MapMMod := (MapM ★ MemA).
   Local Definition MapIMod := (MapI.t ★ MemA).
@@ -96,7 +94,7 @@ Module MapIM. Section MapIM.
       [|iDestruct "IST" as (????) "M"];
       hss; cycle 1.
     { iExFalso. iApply (pending_unique with "P P'"). }
-    rename q into sz.
+    rename _q into sz.
 
     (* SRC: prove the postcond of init *)
     force_l (Vundef ↑).
@@ -188,7 +186,7 @@ Module MapIM. Section MapIM.
       des; hss.
     { nia. }
     destruct bofs as [blk ofs]. inv G0.
-    rename q2 into idx.
+    rename _q2 into idx.
     
     (* SRC: prove the postcond of get *)
     force_l. force_l. iSplitL "". { eauto. }
@@ -233,7 +231,7 @@ Module MapIM. Section MapIM.
       des; hss.
     { nia. }
     destruct bofs as [blk ofs].
-    rename q1 into idx.
+    rename _q1 into idx.
 
     (* TGT : compute the input to store *)
     steps_r. hss. steps_r.
@@ -273,7 +271,7 @@ Module MapIM. Section MapIM.
 
     steps_l.
     iDestruct "ASM" as "[-> ->]".
-    hss. inv G0. rename q2 into k.
+    hss. inv G0. rename _q2 into k.
 
     (* SRC: handle the IST of Map and the precond of set_by_user *)
 
@@ -312,15 +310,12 @@ Module MapIM. Section MapIM.
 End MapIM.
 
 Section MapIM.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!mapMG}.
-  Context `{!memG}.
-                
-  Lemma ctxr (sp_s sp_mem : sp_type) 
-    (INCL : sp_incl MapMS.sp sp_s)
-    :
+  Context `{!crisG Γ Σ α β τ _S _I, !mapMG, !memG}.
+
+  Lemma ctxr (sp_s : sp_type) :
+    sp_incl MapMS.sp sp_s →
     ctx_refines
-      ((MapM.t sp_s) ★ (MemA.t sp_mem), MapM.init_cond)
-      ((MapI.t)      ★ (MemA.t sp_mem), emp%I).
-  Proof. eapply main_adequacy, MapIM.sim; eauto. Qed.
+      (MapM.t sp_s ★ MemA.t, MapM.init_cond)
+      (MapI.t      ★ MemA.t, emp%I).
+  Proof. i; eapply main_adequacy, MapIM.sim; eauto. Qed.
 End MapIM. End MapIM.

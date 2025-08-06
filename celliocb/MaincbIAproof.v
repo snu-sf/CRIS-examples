@@ -102,7 +102,7 @@ Module MaincbIA. Section MaincbIA.
     ISim.t open MaincbA (MaincbI.t ★ CelliocbA) MaincbA.init_cond IstFull.
   Proof using sp_foo.
     init_sim.
-    - exfalso. revert H0. rewrite /MaincbI.t /CelliocbA. unseal CRIS; ss.
+    (* - exfalso. revert H0. rewrite /MaincbI.t /CelliocbA. unseal CRIS; ss. *)
     - eapply simF_main; eauto.
   Qed.
 End MaincbIA. End MaincbIA.

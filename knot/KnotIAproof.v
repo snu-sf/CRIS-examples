@@ -75,14 +75,14 @@ Module KnotIA. Section KnotIA.
 
     (* RA: Set _f as a funciton pointer whose spec is "_f_spec" *)
     iPoseProof (knot_ra_merge with "FL FG") as "%".
-    symmetry in H2. specialize (H1 q1 H2). des; subst.
-    rename q1 into _f_spec.
+    symmetry in H2. specialize (H1 _q1 H2). des; subst.
+    rename _q1 into _f_spec.
     
     (* TGT: get a block of _f *)
     rewrite FIND0. hss. steps_r.
 
     (* TGT: load the function at the block of _f by inlining "load" *)
-    inline_r. rewrite /MemP.load /fspec_proph.
+    inline_r. rewrite /MemSpec.load /fspec_proph.
     steps_r. force_r (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))).
     iSplitL "VF".
     { iSplit; eauto. unfold var_points_to. rewrite FIND0. iFrame. }
@@ -103,7 +103,7 @@ Module KnotIA. Section KnotIA.
     dup SPEC. inv SPEC.
     apc_call_weaker "FL FG VF"; eauto.
     { instantiate (1 := 0). apply OrdArith.lt_from_nat. nia. }
-    { instantiate (1:= (2 * q2)). eapply Ord.lt_le_lt; et. rewrite -OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.lt_from_nat. nia. }
+    { instantiate (1:= (2 * _q2)). eapply Ord.lt_le_lt; et. rewrite -OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.lt_from_nat. nia. }
     { iSplitR "FL VF".
       - unfold precond. ss. iFrame. iSplit.
         + iPureIntro. eexists; esplits; et. econs; et.
@@ -145,7 +145,7 @@ Module KnotIA. Section KnotIA.
 
     (* SRC: precondition *)
     steps_l.
-    rename q into new_spec.
+    rename _q into new_spec.
     iDestruct "ASM" as "((%FB & [%old OLD]) & %Q)". des; subst. hss. steps_r.
     iDestruct "IST" as (? ? ? ?) "(%ST & [% IST] & %E)"; des; subst.
     iDestruct "IST" as (? ?) "(% & FL & VF)".
@@ -158,7 +158,7 @@ Module KnotIA. Section KnotIA.
     
     (* TGT: save a function by calling "store" *)
     steps_r. inline_r.
-    rewrite /MemP.store /fspec_proph. steps_r.
+    rewrite /MemSpec.store /fspec_proph. steps_r.
     force_r (blk0, 0%Z, _, Vptr (fb, 0%Z)). iSplitL "VF".
     { iSplit; et. unfold var_points_to. rewrite FIND0; eauto. }
     iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[VF %]". des; subst.
