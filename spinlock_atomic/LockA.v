@@ -1,4 +1,4 @@
-(* Require Import CRIS.
+Require Import CRIS.
 From CRIS.spinlock Require Import Header.
 Require Import ImpPrelude MemHeader MemA.
 Require Import SchHeader SchA.
@@ -85,17 +85,16 @@ Module SpinLockA. Section SpinLockA.
   Definition scopes : list string := [].
 
   Definition newlock : Any.t → itree crisE Any.t :=
-    λ arg, '_ : list val <- arg↓?;;
-      fspec_proph val LockAS.newlock_spec (λ _, 𝒴;;; Ret (tt↑)) arg.
+    fspec_proph_update (list val) val LockAS.newlock_spec (λ _, 𝒴;;; Ret (tt↑)).
 
   Definition acquire : Any.t → itree crisE Any.t :=
-    λ arg, '_ : list val <- arg↓?;;
-      ret <- fspec_proph_option val LockAS.acquire_spec (λ _, 𝒴;;; Ret tt↑) arg;;
+    λ arg,
+      ret <- fspec_proph_update_option (list val) val LockAS.acquire_spec (λ _, 𝒴;;; Ret tt↑) arg;;
       𝒴;;; Ret ret.
 
   Definition release : Any.t → itree crisE Any.t :=
-    λ arg, '_ : list val <- arg↓?;;
-      ret <- fspec_proph val LockAS.release_spec (λ _, 𝒴;;; Ret tt↑) arg;;
+    λ arg,
+      ret <- fspec_proph_update (list val) val LockAS.release_spec (λ _, 𝒴;;; Ret tt↑) arg;;
       𝒴;;; Ret ret.
 
   Definition fnsems : fnsems_type :=
@@ -112,4 +111,4 @@ Module SpinLockA. Section SpinLockA.
   Next Obligation. prove_nodup. Defined.
 
   Definition t : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
-End SpinLockA. End SpinLockA. *)
+End SpinLockA. End SpinLockA.

@@ -1,4 +1,4 @@
-(* Require Import CRIS.
+Require Import CRIS.
 Require Import ImpPrelude MemA.
 Require Import SchHeader SchA SchTactics.
 From CRIS.spinlock_atomic Require Import Header LockI LockA.
@@ -23,32 +23,34 @@ Module LockIA. Section LockIA.
 
     (* preprocess initial conditions *)
     steps_l. hss. steps_r.
-    rewrite /fspec_proph; unfold_iter_l; steps_l.
-    rename _q into varg.
+    rewrite /fspec_proph_update; unfold_iter_l; steps_l.
+    destruct (arg↓) as [v|]; cycle 1.
+    { sch_yield_l. steps_l.
+      des_ifs; [replace_l; [eapply vis_trigger|]|replace_l; [eapply vis_trigger|]]; step_l; ss.
+    }
 
     (* tgt yield *)
+    steps_r.
     sch_yield_rr; iFrame; iSplit; [done|]; sch_intros; iClear "TID".
 
     (* tgt inline - mem alloc *)
     steps_r. inline_r. steps_r.
-    rewrite /fspec_proph; unfold_iter_r; steps_r.
-    iApply wsim_assume_proph_tgt; iExists 1; iSplit; [done|].
-    iIntros (?) "Q !>". steps_r.
-    iApply wsim_guarantee_proph_tgt; iIntros (ret) "Post !>".
-    iMod ("Post" with "Q") as "[%blk [% [↦ _]]]".
-    hss. steps_r. hss_r. steps_r.
+    rewrite /fspec_proph_update; unfold_iter_r; steps_r.
+    hss_r. steps_r.
+    iApply wsim_update_proph_tgt; iExists 1; iSplit; [done|].
+    iIntros (?) "[%blk [% [↦ _]]]"; hss.
+    steps_r. hss_r. steps_r.
 
     (* tgt yield *)
     sch_yield_rr; iFrame; iSplit; [done|]; sch_intros; iClear "TID".
 
     (* tgt inline - mem store *)
     steps_r. inline_r.
-    steps_r. rewrite /fspec_proph; unfold_iter_r; steps_r.
-    iApply wsim_assume_proph_tgt; iExists (blk, 0%Z, _, _); s; iFrame "↦".
-    iSplit; [done|]; clear Q; iIntros (Q) "Q !>". steps_r.
-    iApply wsim_guarantee_proph_tgt; iIntros (ret) "Post !>".
-    steps_r; hss_r; steps_r.
-    iMod ("Post" with "Q") as "[↦ %]".
+    steps_r. rewrite /fspec_proph_update; unfold_iter_r; steps_r.
+    hss_r; steps_r.
+    iApply wsim_update_proph_tgt; iExists (blk, 0%Z, _, _); s; iFrame "↦".
+    iSplit; [done|]; iIntros (ret) "[↦ %]"; steps_r.
+    hss_r; steps_r.
 
     (* src/tgt yield *)
     sch_yield_rr; iFrame; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.
@@ -57,19 +59,14 @@ Module LockIA. Section LockIA.
     (* lock token allocation *)
     iMod (own_alloc (Excl ())) as "[%γ TKN]"; [done|].
 
-    iApply wsim_assume_proph_src.
-    set (post := λ _ _, _).
-    iExists emp%I, (λ x, post x (Vptr (blk, 0%Z))).
+    iApply wsim_update_proph_src.
+    iExists emp%I, (Vptr (blk, 0%Z)).
     iSplit; [iApply precise_emp|].
     iSplitL "↦ TKN"; cycle 1.
-    { iIntros "_ !>". steps_l.
-      iApply wsim_guarantee_proph_src; iExists (Vptr (blk, 0%Z)).
-      iSplitR; [iIntros "% $ //"|].
-      steps_l. step. iSplit; done.
-    }
-    { iIntros ([n P]) "[W [P Q]]"; s.
-      iSplitR; eauto.
-      subst post; ss. unfold_pre_post.
+    { iIntros "_ !>". steps_l. step. iSplit; done. }
+    { iIntros ([n P]) "[W [P _]]"; s.
+      iSplitR; [eauto|].
+      unfold_pre_post.
       iRevert "W".
       iApply (winv_fupd (S n)).
       iMod (inv_alloc (LockAS.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA
@@ -77,7 +74,7 @@ Module LockIA. Section LockIA.
       { rewrite /lock_inv; SL_red; iRight; iFrame. }
       iModIntro; iFrame. iSplit; eauto. iExists _, _; iSplit; eauto.
       rewrite /is_lock; iExists _; iFrame "I"; done.
-    Unshelve. all: eauto.
+      Unshelve. all: eauto.
     }
   (*SLOW*)Admitted.
 
@@ -86,9 +83,18 @@ Module LockIA. Section LockIA.
     init_simF.
 
     (* process src precondition *)
-    steps_l. steps_r. hss.
-    rewrite /fspec_proph_option.
+    steps_l. steps_r.
+    rewrite /fspec_proph_update_option.
 
+    (* ill-formed argument *)
+    destruct (arg↓) as [l|] eqn : Heqarg; cycle 1.
+    { unfold_iter_l; steps_l.
+      sch_yield_l; step_l.
+      des_ifs; rewrite vis_trigger; steps_l; ss.
+    }
+    destruct (or_else (pargs [Tptr] l) (0, 0%Z)) as [blk ofs] eqn: EQ.
+
+    steps_r.
     (* start coinduction for lock acquire/failure *)
     iApply wsim_reset.
     iStopProof. revert nths. clear NODS NODT.
@@ -102,171 +108,108 @@ Module LockIA. Section LockIA.
     Unshelve. all: eauto.
     sch_yield_l; steps_l.
     steps_r; inline_r; steps_r.
-    rewrite /fspec_proph; unfold_iter_r; steps_r.
-    rename _q0 into v.
+    rewrite /fspec_proph_update; unfold_iter_r; steps_r.
+    hss_r. steps_r.
 
-    iApply wsim_assume_proph_both.
-    destruct (or_else (pargs [Tptr] _q) (0, 0%Z)) as [blk ofs] eqn: EQ.
-    iIntros (pr_t Q_t) "Post"; iExists (Own pr_t).
-    set (post := λ _ _, _).
-    set (pre := λ (_ : positive * _ * _), (_ : iProp Σ)).
-    iExists (λ x,
-      ((blk, ofs) ↦ (Vint 1) ==∗ post x (Some Vundef)) ∧ ((blk, ofs) ↦ (Vint 0) ==∗ pre x))%I.
-    iSplitR; [iApply precise_Own|].
-    iSplitL "Post".
-    { iClear "CIH".
-      iIntros ([[γ lv] [n P]]); unfold_pre_post.
-      iIntros "[W [[% #[%bofs [-> I]]] %]]"; hss.
-      iRevert "W".
+    iApply wsim_update_proph_both.
+    iIntros (ret_t P_t) "#Pre Hsplit".
+    iExists (P_t ∗ ⌜ret_t = Vint 0 ∨ ret_t = Vint 1⌝)%I,
+      (if dec ret_t (Vint 0) then Some (Vundef) else None).
+    iSplit; [iApply precise_sep; iSplit; [done|iApply precise_pure]|].
+    iSplitL "Hsplit".
+    { iIntros ([[γ vl] [n P]]) "/= [W [[% [%bofs #[% I]]] %]]"; destruct bofs as [blk' ofs'].
+      hss. iRevert "W".
       iInv "I" as "INV" "ACC".
       iEval (SL_red) in "INV"; iDestruct "INV" as "[PT | [PT [R TKN]]]".
-      { iPoseProof ("Post" $! (blk, ofs, Vint 1, 1%Qp, Vundef, Vint 0, 1%Qp, Vundef, _, _) with "[PT]") as "> [PR Q]".
-        { ss. iFrame "PT". iSplit; eauto. }
-        iIntros "W !>"; iFrame "PR"; iSplit.
-        { iIntros "↦".
-        }
+      { iPoseProof ("Hsplit" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> Hsplit".
+        { s. iFrame "PT". iSplit; eauto. }
+        Unshelve. all: try exact 1%Qp; try exact Vundef.
+        iDestruct "Hsplit" as "[$ [% [↦ _]]] /=". hss.
+        iMod ("ACC" with "[↦]") as "_".
+        { SL_red; iFrame "↦". }
+        iIntros "$ !>"; iSplit; [eauto|iSplit; [iSplit; [done|]|done]].
+        iExists _; iFrame "I"; done.
       }
-      { iPoseProof ("Post" $! (blk, ofs, Vint 0, 1%Qp, Vundef, _, 1%Qp, Vundef, _, _) with "[PT]") as "> [PR Q]".
-        { ss. iFrame "PT". iSplit; eauto. }
-        iIntros "W !>"; iFrame "PR Q ACC".
+      { iPoseProof ("Hsplit" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> Hsplit".
+        { s. iFrame "PT". iSplit; eauto. }
+        Unshelve. all: try exact 1%Qp; try exact Vundef.
+        iDestruct "Hsplit" as "[$ [% [↦ _]]] /=". hss.
+        iMod ("ACC" with "[↦]") as "_".
+        { SL_red; iFrame "↦". }
+        iIntros "$ !>"; iSplit; [eauto|].
+        unfold_pre_post. iSplit; eauto. SL_red; iFrame. done.
       }
     }
-
-    iIntros "$ !>".
-    steps_l. steps_r.
-    iApply wsim_guarantee_proph_tgt.
-    iIntros (ret) "Post !>".
-
-    destruct (dec ret (Vint 0)).
-    { iClear "CIH".
-      iApply wsim_guarantee_proph_src.
-      iExists (Some Vundef); iSplitL "Post".
-      { iIntros ([[γ vl] [n P]]) "[ACC [% Q]]".
-        unfold_pre_post.
-      force_l Vundef; force_l P; force_l.
-      iSplitL "GRT".
-      { iIntros ([[γ ?] [n R]]) "[W [[% #I] %]] /="; hss.
-        iRevert "W".
-        iDestruct "I" as "[%bofs [-> #INV]]"; destruct bofs as [blk ofs].
-        iInv "INV" as "I" "ACC".
-        iEval (SL_red) in "I"; iDestruct "I" as "[PT | [PT [R TKN]]]".
-        { iPoseProof ("GRT" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [$ [% COMM]]".
-          { ss; iFrame; iSplit; eauto. }
-          hss.
-        }
-        { iPoseProof ("GRT" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [$ [_ [COMM _]]]".
-          { ss; iFrame; iSplit; eauto. }
-          iMod ("ACC" with "[COMM]") as "_".
-          { SL_red; iFrame. }
-          SL_red; iIntros "$"; iFrame; done.
-        }
-      }
-      Unshelve. all: try exact 1%Qp; try exact Vundef.
-      steps_l. force_l; iFrame. steps_l.
-      iApply wsim_assume_res_both.
-      steps_l; steps_r.
-      hss_r; steps_r.
-      sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID". steps_r.
-      sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID". steps_r.
-      sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID". steps_r.
-      sch_yield_l; steps_l. force_l; step.
-      iFrame. done.
-      Unshelve. all: eauto.
+    iIntros "[$ [->|->]] !>".
+    { steps_r. hss_r. steps_r.
+      steps_l.
+      sch_yield_rr; iFrame "IST"; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.
+      sch_yield_rr; iFrame "IST"; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.
+      sch_yield_rr; iFrame "IST"; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.
+      sch_yield_l; steps_l; step.
+      iFrame; done.
     }
-    { force_l (Vint 1). force_l (P ∗ ⌜v = Vint 1⌝)%I. force_l.
-      iSplitL "GRT".
-      { iIntros ([[γ ?] [? R]]) "[W [[% #I] %]] /="; hss.
-        iRevert "W".
-        iDestruct "I" as "[%bofs [-> #INV]]"; destruct bofs as [blk ofs].
-        iInv "INV" as "I" "ACC".
-        iEval (SL_red) in "I"; iDestruct "I" as "[PT | [PT [R TKN]]]"; cycle 1.
-        { iPoseProof ("GRT" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [$ [% COMM]]".
-          { ss; iFrame; iSplit; eauto. }
-          hss.
-        }
-        { iPoseProof ("GRT" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [$ [% [COMM ?]]]".
-          { ss; iFrame; iSplit; eauto. }
-          iMod ("ACC" with "[COMM]") as "_ /=".
-          { SL_red; iFrame. }
-          SL_red; iIntros "$ !>"; iFrame "INV". hss.
-        }
-      }
-      steps_l. iPoseProof "GRT'" as "#?". force_l. iSplit.
-      { iApply precise_sep; iSplit; eauto; iApply precise_pure. }
-      force_l.
-      { iApply precise_sep; iSplit; eauto; iApply precise_pure. }
-      iDestruct "ASM" as "[P ->]".
-      force_r. iFrame "P".
-      steps_l; steps_r.
-      hss_r; steps_r.
-      sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID". steps_r.
-      sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID". steps_r.
-      sch_yield_l; steps_l.
-
+    { steps_r. hss_r; steps_r.
+      steps_l.
+      unfold_iter_l; steps_l.
+      sch_yield_rr; iFrame "IST"; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.
+      sch_yield_rr; iFrame "IST"; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.
+      sch_yield_l; step_l.
+      iApply wsim_update_proph_src.
+      iExists emp%I, None.
+      iSplit; [iApply precise_emp|].
+      iSplitR; [iIntros (?) "$ !> //"|].
+      iIntros "_ !>"; steps_l.
       by_coind "CIH".
       iFrame.
     }
-    Unshelve. all: try exact 1%Qp; try exact Vundef; eauto.
+    Unshelve. all: eauto.
   (*SLOW*)Admitted.
 
-  Lemma release_simF :
-    ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.release).
-  Proof using.
+  Lemma release_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.release).
+  Proof.
     init_simF.
     (* process src precondition *)
-    steps_l. hss. steps_r.
-    rewrite /fspec_proph_abort; unfold_iter_l; steps_l.
-    sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID". steps_r.
-    inline_r. steps_r.
-    sch_yield_l. steps_l.
-    rewrite /AssumeProph; unseal "CRIS-PROPH"; steps_r.
-    rename _q0 into P, _q1 into Q.
-    force_l Vundef; force_l P; force_l.
-    iSplitL "GRT".
-    { iIntros ([[γ v] [n R]]) "[W [[% [[% [-> #INV]] [TKN R]]] ?]] /=". hss.
-      destruct bofs as [blk ofs].
-      iRevert "W".
-      iInv "INV" as "I" "ACC".
-      iEval (SL_red) in "I"; iDestruct "I" as "[PT | [PT [R' TKN']]]"; cycle 1.
-      { SL_red; iCombine "TKN TKN'" gives %WF; inv WF. }
-      iPoseProof ("GRT" $! (_, _, _, _) with "[PT]") as "> [$ COMM]".
-      { iFrame "PT"; done. }
-      iIntros "W !> %ret [-> [% Q]]".
-      iMod ("COMM" with "Q") as "[COMM ->] /=".
-      iRevert "W"; iMod ("ACC" with "[COMM R TKN]") as "_".
-      { SL_red; iRight; iFrame. }
-      by iIntros "$ !>".
-    }
-    step_l. iApply wsim_assume_res_both.
-    steps_l. force_l (Vundef↑). steps_l.
+    steps_l. rewrite /fspec_proph_update; unfold_iter_l; steps_l.
     steps_r.
-    force_l; iFrame "GRT"; iSplit; eauto. steps_l.
-    asmproph_standard.
-    iExists P, Q.
 
-    iDestruct "ASM" as "[TID [(% & #LOCK & TKN & Q) %]]".
-    iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs].
-    hss.
+    (* ill-formed argument *)
+    destruct (arg↓) as [l|] eqn : Heqarg; cycle 1.
+    { sch_yield_l; step_l.
+      des_ifs; rewrite vis_trigger; steps_l; ss.
+    }
+    destruct (or_else (pargs [Tptr] l) (0, 0%Z)) as [blk ofs] eqn: EQ.
     steps_r.
-    (* tgt yield *)
-    sch_yield_ir; iFrame; sch_intros.
-    (* open invariant *)
-    iInv "LOCK" as "I" "Hcl". SL_red.
-    iDestruct "I" as "[LOCKED|UNLOCKED]".
-    { (* locked case *)
-      steps_r. inline_r. steps_r. force_r (_,_,_,_). iSplitL "LOCKED"; iFrame; et.
-      iIntros (?) "Q'". steps_r. iMod ("Q'" with "GRT") as "[POINTS_TO %]".
-      hss. steps_r.
-      iMod ("Hcl" with "[POINTS_TO Q TKN]") as "_". iRight. iFrame.
-      (* tgt yield *)
-      sch_yield_ir; iFrame; sch_intros.
-      (* src yield *)
-      sch_yield_l. steps_l. forces_l. iFrame. iSplit; et. step. iFrame; et.
+    sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID".
+    steps_r. inline_r. steps_r. rewrite /fspec_proph_update; unseal CRIS_PROPH.
+    unfold_iter_r; steps_r.
+    hss_r; steps_r.
+    sch_yield_l; steps_l.
+
+    iApply wsim_update_proph_both.
+    iIntros (ret_t P_t) "#Precise Hsplit"; iExists (P_t), Vundef.
+    iSplit; [done|].
+    iSplitL "Hsplit".
+    { iIntros ([[γ v] [n R]]) "[W [[% [[% [-> #I]] [TKN R]]] _]] /=". hss.
+      hss. iRevert "W".
+      iInv "I" as "INV" "ACC".
+      iEval (SL_red) in "INV"; iDestruct "INV" as "[PT | [PT [R' TKN']]]"; cycle 1.
+      { SL_red; iCombine "TKN" "TKN'" gives %WF; inv WF. }
+      iPoseProof ("Hsplit" $! (_, _, _, _) with "[PT]") as "> [$ [↦ %]]".
+      { ss; iFrame "PT"; done. }
+      iMod ("ACC" with "[TKN R ↦]") as "_".
+      { SL_red. iRight; iFrame. }
+      iIntros "$ !>"; eauto.
     }
-    { (* unlocked case - ex falso quodlibet *)
-      iDestruct "UNLOCKED" as "[POINTS_TO [Q' TKN']]".
-      iCombine "TKN TKN'" gives %Hv. done.
-    }
+
+    iIntros "$ !>".
+    steps_l.
+    steps_r; hss_r.
+    sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID". steps_r.
+    sch_yield_l; steps_l; step.
+
+    iFrame; done.
+    Unshelve. all: eauto.
   (*SLOW*)Admitted.
 
   (* Construct ISim.t for summing up each simulation proofs *)
@@ -282,7 +225,7 @@ Module LockIA. Section LockIA.
   (* ctxr works as a unit in compositions of module simulations *)
   Lemma ctxr :
     ctx_refines
-      (SpinLockA.t E q sp ★ MemP.t, emp%I)
-      (SpinLockI.t        ★ MemP.t, emp%I).
+      (SpinLockA.t ★ MemP.t, emp%I)
+      (SpinLockI.t ★ MemP.t, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
-End LockIA. End LockIA. *)
+End LockIA. End LockIA.

@@ -1,4 +1,4 @@
-Require Import CRIS.
+(* Require Import CRIS.
 From CRIS.spinlock Require Import Header MainI MainA LockI LockA.
 Require Import ImpPrelude.
 Require Import SchHeader SchA MemA SchTactics.
@@ -234,4 +234,4 @@ Module MainIA. Section MainIA.
   ((SpinLockMainA.t E q sp_s) ★ ((SpinLockA.t E (q/2) sp_t) ★ MemP.t), init_cond)
   ((SpinLockMainI.t)          ★ ((SpinLockA.t E (q/2) sp_t) ★ MemP.t), emp%I).
   Proof. eapply main_adequacy, sim. Qed.
-End MainIA. End MainIA.
+End MainIA. End MainIA. *)

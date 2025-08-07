@@ -83,12 +83,14 @@ Module KnotIA. Section KnotIA.
 
     (* TGT: load the function at the block of _f by inlining "load" *)
     inline_r. rewrite /MemSpec.load /fspec_proph.
-    steps_r. force_r (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))).
+    steps_r.
+    rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
+    iApply wsim_update_proph_tgt; iExists (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))).
     iSplitL "VF".
     { iSplit; eauto. unfold var_points_to. rewrite FIND0. iFrame. }
-    iIntros (?) "Q".
-    steps_r. iMod ("Q" with "GRT") as "[VF %]". des; subst; hss.
-    steps_r. inv H2. steps_l.
+    iIntros (?) "[Q %]".
+    (* steps_r. iMod ("Q" with "GRT") as "[VF %]". des; subst; hss. *)
+    des; subst; hss. steps_r. hss_r. inv H2. steps_l. steps_r.
 
     (* TGT: get blocks of the function pointer and "rec" *)
     dup FN. inv FN. des. rewrite FBLOCK. hss. forces_l. iSplitR; et.
@@ -101,10 +103,10 @@ Module KnotIA. Section KnotIA.
 
     (* call apc with fn *)
     dup SPEC. inv SPEC.
-    apc_call_weaker "FL FG VF"; eauto.
+    apc_call_weaker "FL FG Q"; eauto.
     { instantiate (1 := 0). apply OrdArith.lt_from_nat. nia. }
     { instantiate (1:= (2 * _q2)). eapply Ord.lt_le_lt; et. rewrite -OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.lt_from_nat. nia. }
-    { iSplitR "FL VF".
+    { iSplitR "FL Q".
       - unfold precond. ss. iFrame. iSplit.
         + iPureIntro. eexists; esplits; et. econs; et.
           econs; [|replace rec_spec with (fspec_flat (Some rec_spec)) by ss; refl].
@@ -158,10 +160,12 @@ Module KnotIA. Section KnotIA.
     
     (* TGT: save a function by calling "store" *)
     steps_r. inline_r.
-    rewrite /MemSpec.store /fspec_proph. steps_r.
-    force_r (blk0, 0%Z, _, Vptr (fb, 0%Z)). iSplitL "VF".
+    rewrite /MemSpec.store. steps_r.
+    rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
+
+    iApply wsim_update_proph_tgt; iExists (blk0, 0%Z, _, Vptr (fb, 0%Z)). iSplitL "VF".
     { iSplit; et. unfold var_points_to. rewrite FIND0; eauto. }
-    iIntros (?) "Q". steps_r. iMod ("Q" with "GRT") as "[VF %]". des; subst.
+    iIntros (?) "[VF %]". steps_r. hss_r;  steps_r.
 
     (* RA: update spec *)
     hss. steps_r. rewrite FINDR; hss. steps_r.
