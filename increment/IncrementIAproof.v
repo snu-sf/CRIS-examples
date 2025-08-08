@@ -8,11 +8,6 @@ Module IncrementIA. Section IncrementIA.
 
   Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
 
-  (* Context (sp_mem : string → option fspec).
-
-  Local Lemma SchInSpS : sp_incl (SchAS.sp ∅ sp_empty) (to_sp (SchAS.sp ∅ sp_empty)).
-  Proof. split; ss. rewrite /SchAS.sp; unseal CRIS; s; prove_nodup. Qed. *)
-
   Local Definition IstFull := (IstProd (IstSB IncrementA.t.(Mod.scopes) Ist) IstEq).
   Local Definition MA := (IncrementA.t ★ MemA.t).
   Local Definition MI := (IncrementI.t ★ MemA.t).

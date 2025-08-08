@@ -26,6 +26,7 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R $(CRISMODULE)/theories $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/scheduler $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/apc $(CRISMODULE)"; \
+	 echo "-R $(CRISMODULE)/prophecy $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/imp_system $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/extract $(CRISMODULE)"; \
 	 echo "-R cannon $(CRISMODULE).cannon"; \

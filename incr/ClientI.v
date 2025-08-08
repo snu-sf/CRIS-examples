@@ -12,7 +12,7 @@ Module ClientI. Section ClientI.
       𝒴;;; '_ : unit <- ccallU FaaHdr.faa2 arg;;
       𝒴;;; Ret tt.
 
-  Definition main : unit → itree crisE unit :=
+  Definition main : Any.t → itree crisE Any.t :=
     λ _,
       𝒴;;; 'ptr_raw : val <- ccallU MemHdr.alloc [Vint 1%Z];;
       𝒴;;; bofs <- (pargs [Tptr] [ptr_raw])?;;
@@ -24,11 +24,11 @@ Module ClientI. Section ClientI.
       𝒴;;; 'v_raw : val <- ccallU MemHdr.load [Vptr bofs];;
       𝒴;;; 'v : Z <- (pargs [Tint] [v_raw])?;;
       𝒴;;; '_ : unit <- trigger (IO "OUT" v);;
-      𝒴;;; Ret tt.
+      𝒴;;; Ret (tt↑).
 
   Definition fnsems : fnsems_type :=
     [(Some IncrHdr.incr, (false, wmask_all, scopes, (None, cfunU (sfunU incr))));
-     (None,              (false, wmask_all, scopes, (None, cfunU main)))].
+     (None,              (false, wmask_all, scopes, (None, main)))].
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

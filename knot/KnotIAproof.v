@@ -1,5 +1,5 @@
-Require Import CRIS.
 
+Require Import CRIS.
 Require Import KnotHeader KnotI KnotA MemHeader APCHeader APC APCA APCTactics Tactics.
 
 Set Implicit Arguments.
@@ -82,7 +82,7 @@ Module KnotIA. Section KnotIA.
     rewrite FIND0. hss. steps_r.
 
     (* TGT: load the function at the block of _f by inlining "load" *)
-    inline_r. rewrite /MemSpec.load /fspec_proph.
+    inline_r. rewrite /MemSpec.load.
     steps_r.
     rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
     iApply wsim_update_proph_tgt; iExists (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))).

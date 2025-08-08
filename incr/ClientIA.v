@@ -17,6 +17,7 @@ Module ClientIA. Section ClientIA.
   Context (Hclient : spl_sub (ClientA.sp E q) sp_user).
 
   Local Definition IstFull := (IstProd (IstSB (ClientA.t E q sp_s).(Mod.scopes) Ist) IstEq).
+  Local Definition init_cond := ClientA.init_cond E q.
   Local Definition MA := (ClientA.t E q sp_s ★ MemA.t).
   Local Definition MI := ((ClientI.t ★ FaaA.t) ★ MemA.t).
 
@@ -38,7 +39,7 @@ Module ClientIA. Section ClientIA.
       iExists _; iSplitR; eauto. SL_red. iSplitR; eauto.
   Qed.
 
-  Lemma incr_simF : ISim.sim_fun open MA MI True%I IstFull (Some IncrHdr.incr).
+  Lemma incr_simF : ISim.sim_fun open MA MI init_cond IstFull (Some IncrHdr.incr).
   Proof using Hsch Hclient Hsub.
     init_simF.
 
@@ -90,20 +91,22 @@ Module ClientIA. Section ClientIA.
     steps_l. step; eauto.
 (*SLOW*)Admitted.
 
-  Lemma main_simF : ISim.sim_fun open MA MI True%I IstFull None.
+  Lemma main_simF : ISim.sim_fun open MA MI init_cond IstFull None.
   Proof using Hsch Hclient Hsub.
     init_simF.
 
-    steps_l. iDestruct "ASM" as "[TID [-> ->]]". hss. steps_l.
+    steps_l. iDestruct "IST" as "[[-> [-> ->]] [W TID]]".
+    iApply (wsim_init_winv with "[W TID]"); iFrame "W"; hss.
+    steps_l.
 
     (* src/tgt yield *)
     steps_r.
-    sch_yield_ir; iFrame "TID"; iSplitL "IST".
-    { iDestruct "IST" as "[[% [-> ->]] _]". iExists _, _, _, _; iSplit; eauto.
+    sch_yield_ir; iFrame "TID"; iSplitL.
+    { iExists _, _, _, _; iSplit; eauto.
       iSplit; eauto.
       { iPureIntro; splits; ss; unfold_mod; ss. unfold_mod; ss. }
     }
-    clear nths; iIntros (??? _ _) "IST TID".
+    iIntros (??? _ _) "IST TID".
 
     (* tgt alloc *)
     steps_r; inline_r.
@@ -142,7 +145,7 @@ Module ClientIA. Section ClientIA.
     }
     steps_l. call "IST".
     steps_l. iDestruct "ASM" as "[% [-> [TID [% [[-> ->] TKN]]]]]". hss.
-    rename _q0 into tid1, _q1 into tid. steps_r. hss_r. steps_r.
+    rename _q0 into tid1. steps_r. hss_r. steps_r.
     sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
     sch_yield_l.
 
@@ -198,11 +201,11 @@ Module ClientIA. Section ClientIA.
     step.
     steps_l. steps_r.
     sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
-    sch_yield_l. steps_l. forces_l; iFrame; iSplit; eauto; steps_l.
+    sch_yield_l. steps_l.
     step. eauto.
 (*SLOW*)Admitted.
 
-  Lemma sim : ISim.t open MA MI emp%I IstFull.
+  Lemma sim : ISim.t open MA MI init_cond IstFull.
   Proof.
     init_sim.
     { eapply incr_simF. }
@@ -218,7 +221,7 @@ Section ctxr.
     spl_sub (ClientA.sp E q) sp_user →
     sp_incl (SchAS.sp sp_user E q) sp_s →
     ctx_refines
-      (ClientA.t E q sp_s   ★ (MemA.t), emp%I)
+      (ClientA.t E q sp_s   ★ MemA.t, init_cond E q)
       (ClientI.t            ★ FaaA.t ★ (MemA.t), emp%I).
   Proof.
     etrans; cycle 1. { do 2 ctxr_rotate. ctxr_refl. }

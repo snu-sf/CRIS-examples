@@ -51,14 +51,11 @@ Module ClientA. Section ClientA.
           λ vret, ⌜vret = (tt↑↑)↑⌝ ∗ counter γ (1/2) (v + 2))
         )))%I.
 
-  Definition main_spec E q : fspec :=
-    fspec_winv E
-      (fspec_sch q
-        (fspec_simple (λ _ : unit, (λ arg, ⌜arg = tt↑⌝, λ ret, ⌜ret = tt↑⌝))))%I.
+  Definition init_cond E q : iProp Σ := winv (E, E) ∗ SchAS.tid_user q 0.
 
   Definition sp E q : spl_type :=
     [(Some IncrHdr.incr, Some (incr_spec E q));
-     (None,              Some (main_spec E q))].
+     (None,              None)].
 
   (* Module definition *)
   Definition scopes : list string := [].
@@ -66,7 +63,7 @@ Module ClientA. Section ClientA.
   Definition incr : list val → itree crisE unit :=
     λ _, 𝒴;;; Ret tt.
 
-  Definition main : unit → itree crisE unit :=
+  Definition main : Any.t → itree crisE Any.t :=
     λ _,
       𝒴;;; 'ptr_raw : val <- trigger (Choose val);;
       𝒴;;; tid1 <- Sch.spawn (IncrHdr.incr, [ptr_raw]↑↑);;
@@ -74,11 +71,11 @@ Module ClientA. Section ClientA.
       𝒴;;; Sch.join tid1;;;
       𝒴;;; Sch.join tid2;;;
       𝒴;;; trigger (IO (O:=unit) "OUT" 4%Z);;;
-      𝒴;;; Ret tt.
+      𝒴;;; Ret (tt↑).
 
   Definition fnsems E q : fnsems_type :=
     [(Some IncrHdr.incr, (true, wmask_all, scopes, (Some (incr_spec E q), cfunN (sfunN incr))));
-     (None,              (true, wmask_all, scopes, (Some (main_spec E q), cfunN main)))].
+     (None,              (true, wmask_all, scopes, (None,                 main)))].
 
   Program Definition smod E q : SMod.t := {|
     SMod.scopes := scopes;

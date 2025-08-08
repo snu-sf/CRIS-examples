@@ -25,7 +25,7 @@ Module LockIA. Section LockIA.
     steps_l. hss. steps_r.
     rewrite /fspec_proph_update; unfold_iter_l; steps_l.
     destruct (arg↓) as [v|]; cycle 1.
-    { sch_yield_l. steps_l.
+    { sch_yield_l. norm_l.
       des_ifs; [replace_l; [eapply vis_trigger|]|replace_l; [eapply vis_trigger|]]; step_l; ss.
     }
 

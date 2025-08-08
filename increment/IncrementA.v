@@ -7,15 +7,6 @@ From CRIS.increment Require Import Header.
 Module IncrementA. Section IncrementA.
   Context `{!crisG Γ Σ α β τ _S _I, !memG}.
 
-  (* Definition increment_spec : fspec :=
-    (fspec_simple (λ bofs,
-      ((λ varg, ⌜varg = [Vptr bofs]↑⌝),
-      (λ vret, True))
-    ))%I.
-
-  Definition sp : alist string fspec :=
-    [(IncrementHdr.increment, increment_spec)]. *)
-
   Definition scopes : list string := [].
 
   Definition increment : list val → itree crisE val :=

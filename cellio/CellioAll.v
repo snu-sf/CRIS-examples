@@ -168,7 +168,7 @@ Module CellioAll. Section CellioAll.
     hexploit H; eauto using tgt_wf. clear H; intros [WF H].
     assert (IV:= init_cond_valid). des.
     destruct (H rs); des; et.
-    rewrite IV0 /init_cond {1}winv_split_empty. iIntros "[[? ?] ?]". iFrame.
+    rewrite IV0 /init_cond {1}winv_split_empty. iIntros "[[? ?] ?]". iFrame; done.
   (*SLOW*)Admitted.
 End CellioAll. End CellioAll.
 (* Print Assumptions CellioAll.behavioral_refinement. *)
