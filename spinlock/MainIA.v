@@ -103,7 +103,7 @@ Module MainIA. Section MainIA.
 
     (* establish IST *)
     iClear "IST".
-    iAssert (IstFull 1 [] []) as "IST".
+    iAssert (IstFull [] []) as "IST".
     { do 4 (iExists []). iPureIntro. esplits; et; ss. }
     iRevert "IST"; iIntros "IST"; rewrite bi.intuitionistically_elim.
 

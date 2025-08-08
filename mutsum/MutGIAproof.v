@@ -15,8 +15,8 @@ Module MutGIA. Section MutGIA.
   Context (FInPure : spl_sub MutFA.SpF SpPure).
   Context (PureInSp : sp_incl SpPure Sp).
 
-  Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
-    λ _ _ _, (True)%I.
+  Definition Ist: alist key Any.t -> alist key Any.t -> iProp Σ :=
+    λ _ _, (True)%I.
 
   Local Definition MutGAMod := (MutGA.t Sp ★ APCA.t SpPure Sp).
   Local Definition MutGIMod := (MutGI.t ★ APCA.t SpPure Sp).

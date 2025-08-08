@@ -27,8 +27,8 @@ Module KnotMainIA. Section KnotMainIA.
   Context (RecInSpPure: spl_sub SpRec SpPure).
   Context (PureInGlobal : sp_incl SpPure Sp).
 
-  Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
-    λ _ _ _, True%I.
+  Definition Ist: alist key Any.t -> alist key Any.t -> iProp Σ :=
+    λ _ _, True%I.
 
   Local Definition APCA := (APCA.t SpPure Sp).
   Local Definition MemP := MemP.t.

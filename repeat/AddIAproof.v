@@ -35,8 +35,8 @@ Module AddIA. Section AddIA.
   Local Definition AddAMod := (AddA ★ RepeatAMod).
 
   (* IST *)
-  Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
-    (λ _ st_src st_tgt, emp%I).
+  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ :=
+    (λ st_src st_tgt, emp%I).
   Local Definition IstFull := (IstProd (IstSB AddA.(Mod.scopes) Ist) IstEq).
 
   (* helper lemma for simF_add proof *)

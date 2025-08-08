@@ -15,8 +15,8 @@ Module CannonMainIA. Section CannonMainIA.
   Context (SpMain : sp_type).
   Context (CannonInMain : sp_incl CannonAS.Sp SpMain).
 
-  Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
-    λ _ _ _, (True)%I.
+  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ :=
+    λ _ _, (True)%I.
 
   Local Definition MainAMod := (MainA.t 1 SpMain).
   Local Definition MainIMod := (MainI.t 1).

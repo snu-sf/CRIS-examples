@@ -8,7 +8,7 @@ Module ClientIA. Section ClientIA.
   Import ClientA.
   Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG, !incrG}.
 
-  Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
+  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ := λ _ _, emp%I.
 
   Context (E : coPset) (q : Qp) (Hsub : ↑N_main ⊆ E).
   Context (sp_user : spl_type).
@@ -95,7 +95,7 @@ Module ClientIA. Section ClientIA.
   Proof using Hsch Hclient Hsub.
     init_simF.
 
-    steps_l. iDestruct "IST" as "[[-> [-> ->]] [W TID]]".
+    steps_l. iDestruct "IST" as "[[-> ->] [W TID]]".
     iApply (wsim_init_winv with "[W TID]"); iFrame "W"; hss.
     steps_l.
 
@@ -106,7 +106,7 @@ Module ClientIA. Section ClientIA.
       iSplit; eauto.
       { iPureIntro; splits; ss; unfold_mod; ss. unfold_mod; ss. }
     }
-    iIntros (??? _ _) "IST TID".
+    iIntros (?? _ _) "IST TID".
 
     (* tgt alloc *)
     steps_r; inline_r.

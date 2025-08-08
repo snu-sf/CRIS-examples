@@ -74,7 +74,7 @@ Module LockIA. Section LockIA.
       { rewrite /lock_inv; SL_red; iRight; iFrame. }
       iModIntro; iFrame. iSplit; eauto. iExists _, _; iSplit; eauto.
       rewrite /is_lock; iExists _; iFrame "I"; done.
-      Unshelve. all: eauto.
+      Unshelve. all: exact 0.
     }
   (*SLOW*)Admitted.
 
@@ -97,10 +97,11 @@ Module LockIA. Section LockIA.
     steps_r.
     (* start coinduction for lock acquire/failure *)
     iApply wsim_reset.
-    iStopProof. revert nths. clear NODS NODT.
-    combine_quant st_src. combine_quant st_tgt.
+    iStopProof. clear NODS NODT.
+    revert st_src. combine_quant st_tgt.
     eapply wsim_coind.
-    iIntros (g' [st_tgt [st_src nths]]) "IST _ #CIH /=".
+    iIntros (g' [st_tgt st_src]) "IST _ #CIH /=".
+    destruct_quant.
 
     unfold_iter_r; steps_r.
     unfold_iter_l; steps_l.

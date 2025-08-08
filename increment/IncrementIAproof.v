@@ -6,7 +6,7 @@ From CRIS.increment Require Import Header IncrementI IncrementA.
 Module IncrementIA. Section IncrementIA.
   Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG}.
 
-  Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ := λ _ _ _, emp%I.
+  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ := λ _ _, emp%I.
 
   Local Definition IstFull := (IstProd (IstSB IncrementA.t.(Mod.scopes) Ist) IstEq).
   Local Definition MA := (IncrementA.t ★ MemA.t).
@@ -24,9 +24,10 @@ Module IncrementIA. Section IncrementIA.
     norm_l. norm_r.
 
     iApply wsim_reset.
-    iStopProof. revert nths. clear NODS NODT. combine_quant st_src. combine_quant st_tgt.
+    iStopProof. clear NODS NODT. revert st_src. combine_quant st_tgt.
     eapply wsim_coind.
-    iIntros (g' [st_t [st_s nths]]) "IST %GG' #CIH /=".
+    iIntros (g' [st_t st_s]) "IST %GG' #CIH /=".
+    destruct_quant.
 
     unfold_iter_l. unfold_iter_r.
     steps_l. steps_r.
@@ -68,7 +69,7 @@ Module IncrementIA. Section IncrementIA.
       steps_r.
       sch_yield_l. steps_l.
       iApply wsim_progress. iApply wsim_base.
-      iIntros "?". iApply ("CIH" $! (st_tgt, (st_src, nths))). iFrame.
+      iIntros "?". iApply ("CIH" $! st_tgt st_src). iFrame.
     }
     Unshelve. all: eauto.
   (*SLOW*)Admitted.

@@ -17,8 +17,8 @@ Module CellIA. Section CellIA.
 
   Context (Sp_s : sp_type).
 
-  Definition Ist : nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
-    (λ _ st_src st_tgt,
+  Definition Ist : alist key Any.t -> alist key Any.t -> iProp Σ :=
+    (λ st_src st_tgt,
        ∃ vany v,
         ⌜st_tgt = [(CellI.v_cv idx, vany)]⌝
         ∗ ((cell idx v ∗ auth idx v) ∨ (⌜vany = v↑⌝ ∗ pending idx ∗ auth idx v)))%I.

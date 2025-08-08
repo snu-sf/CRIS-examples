@@ -36,8 +36,8 @@ Module KnotIA. Section KnotIA.
           ∗ (knot_full f')
           ∗ (var_points_to genv KnotHdr._f fb'))%I.
 
-  Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
-    λ _ _ _, inv.
+  Definition Ist: alist key Any.t -> alist key Any.t -> iProp Σ :=
+    λ _ _, inv.
 
   Local Definition APCA := (APCA.t SpPure Sp).
   Local Definition MemP := MemP.t.

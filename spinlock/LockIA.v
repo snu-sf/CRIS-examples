@@ -74,10 +74,11 @@ Module LockIA. Section LockIA.
 
     (* start coinduction for lock acquire/failure *)
     iApply wsim_reset.
-    iStopProof. revert nths. clear NODS NODT.
-    combine_quant st_src. combine_quant st_tgt.
+    iStopProof. clear NODS NODT.
+    revert st_src. combine_quant st_tgt.
     eapply wsim_coind.
-    iIntros (g' [st_sgt [st_src nths]]) "[#LOCK [IST TID]] _ #CIH /=".
+    iIntros (g' [st_sgt st_src]) "[#LOCK [IST TID]] _ #CIH /=".
+    destruct_quant.
 
     unfold_iter_r. steps_r.
     (* tgt yield *)

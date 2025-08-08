@@ -10,8 +10,8 @@ Module CellioIA. Section CellioIA.
   Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_cellioG: !cellioG}.
 
-  Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
-    λ _ st_src st_tgt,
+  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ :=
+    λ st_src st_tgt,
       (∃ v, ⌜st_tgt = [(CellioI.v_cv, v↑)]⌝ ∗ auth v)%I.
 
   Local Definition CellioI := (CellioI.t).

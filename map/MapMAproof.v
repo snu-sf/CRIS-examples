@@ -17,8 +17,8 @@ Module MapMA. Section MapMA.
   Context (MapInSpT : sp_incl MapMS.sp sp_t).
 
 
-  Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
-    (λ _ st_src st_tgt,
+  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ :=
+    (λ st_src st_tgt,
       ∃ f sz,
         ⌜st_src = [(MapA.v_map, f↑)] ∧ st_tgt = [(MapM.v_size, sz↑); (MapM.v_map, f↑)]⌝
         ∗ (⌜f = (λ _ : Z, 0%Z) ∧ sz = 0%Z⌝

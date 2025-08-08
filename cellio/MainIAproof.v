@@ -8,8 +8,8 @@ Module MainIA. Section MainIA.
   Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_cellioG: !cellioG}.
 
-  Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
-    λ _ st_src st_tgt, emp%I.
+  Definition Ist: alist key Any.t -> alist key Any.t -> iProp Σ :=
+    λ st_src st_tgt, emp%I.
 
   Context (sp: string -> option fspec).
   Context (sp_input: sp CtxHdr.input = None).
@@ -37,7 +37,7 @@ Module MainIA. Section MainIA.
     steps_r. rewrite sp_input.
     call "IST". 
     {
-      iDestruct "IST" as "[-> [-> ->]]".
+      iDestruct "IST" as "[-> ->]".
       repeat iExists []. iSplit; eauto;
       repeat unfold_mod; ss;
       repeat (iSplit; eauto); iPureIntro; prove_scope.

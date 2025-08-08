@@ -16,8 +16,8 @@ Module MutMainIA. Section MutMainIA.
   Context (FInPure : spl_sub MutFA.SpF SpPure).
   Context (PureInSp : sp_incl SpPure Sp).
 
-  Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
-    λ _ _ _, (True)%I.
+  Definition Ist: alist key Any.t -> alist key Any.t -> iProp Σ :=
+    λ _ _, (True)%I.
 
   Local Definition MutMainAMod := ((MutMainA.t true Sp) ★ APCA.t SpPure Sp).
   Local Definition MutMainIMod := ((MutMainI.t) ★ APCA.t SpPure Sp).

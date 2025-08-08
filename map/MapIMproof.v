@@ -61,8 +61,8 @@ Module MapIM. Section MapIM.
   Import MapMS.
   Context `{!crisG Γ Σ α β τ _S _I, !mapMG, !memG}.
 
-  Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
-    (λ _ st_src st_tgt,
+  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ :=
+    (λ st_src st_tgt,
       ⌜st_src = [(MapM.v_size, 0%Z↑); (MapM.v_map, (λ _ : Z, 0%Z)↑)]
         ∧ st_tgt = [(MapI.v_hptr, Vnullptr↑)]⌝
       ∨ pending

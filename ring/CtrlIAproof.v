@@ -95,8 +95,8 @@ Module CtrlIA. Section CtrlIA.
       exists (n / List.length l). nia.
   Qed.
 
-  Definition Ist : nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
-    (λ _ st_src st_tgt,
+  Definition Ist : alist key Any.t -> alist key Any.t -> iProp Σ :=
+    (λ st_src st_tgt,
      ∃ (q q' : list Z) (hd tl : nat),
        ⌜st_src = [(RingA.v_que, q↑)] /\ st_tgt = [(CtrlI.v_hd,hd↑);(CtrlI.v_tl,tl↑)] /\
        hd = (tl + List.length q)%nat /\ List.length (q ++ q') = max_size⌝ ∗

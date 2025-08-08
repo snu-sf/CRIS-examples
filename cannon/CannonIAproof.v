@@ -12,8 +12,8 @@ Module CannonIA. Section CannonIA.
 
   Context (Sp_s : sp_type).
 
-  Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
-    (λ _ st_s st_t,
+  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ :=
+    (λ st_s st_t,
       (⌜st_s = [(CannonA.v_lv, 1%Z↑)] /\ st_t = [(CannonI.v_lv, 1%Z↑)]⌝ ∗ Ready)
       ∨ Fired
     )%I.

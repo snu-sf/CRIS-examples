@@ -8,8 +8,8 @@ Module MaincbIA. Section MaincbIA.
   Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_celliocbG: !celliocbG}.
 
-  Definition Ist: nat -> alist key Any.t -> alist key Any.t -> iProp Σ :=
-    λ _ st_src st_tgt, emp%I.
+  Definition Ist: alist key Any.t -> alist key Any.t -> iProp Σ :=
+    λ st_src st_tgt, emp%I.
 
   Context (sp: string -> option fspec).
   Context (sp_foo: sp CtxcbHdr.foo = None).
@@ -55,7 +55,7 @@ Module MaincbIA. Section MaincbIA.
     (* call foo together *)
     call "IST".
     {
-      iDestruct "IST" as "[-> [-> ->]]".
+      iDestruct "IST" as "[-> ->]".
       repeat iExists []. iSplit; eauto;
       repeat unfold_mod; ss;
       repeat (iSplit; eauto); iPureIntro; prove_scope.

@@ -28,8 +28,8 @@ Module RepeatIA. Section RepeatIA.
   Local Definition RepeatAMod := (RepeatA ★ APCA).
 
   (* IST *)
-  Definition Ist : nat → alist key Any.t → alist key Any.t → iProp Σ :=
-    (λ _ st_src st_tgt, emp%I).
+  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ :=
+    (λ st_src st_tgt, emp%I).
   Local Definition IstFull := (IstProd (IstSB RepeatA.(Mod.scopes) Ist) IstEq).
 
   Lemma simF_repeat : ISim.sim_fun open RepeatAMod RepeatIMod RepeatA.init_cond IstFull (Some RepeatHdr.repeat).
