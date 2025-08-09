@@ -3,6 +3,22 @@ Require Import MemI MemA MemIAproof ImpPrelude.
 Require Import SchHeader SchI SchA SchIAproof SchTactics.
 From CRIS.incr Require Import Header ClientI ClientA ClientIA FaaI FaaA FaaIA.
 
+Section TMP.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
+  Context `{_schG: !schG}.
+  Lemma tid_admin_none :
+    own base_γ SchAS.ir_tidRA ⊢ SchAS.tid_admin None.
+  Proof using.
+    rewrite /SchAS.tid_admin. unseal "SchA". et.
+  Qed.
+  Lemma tid_admin_some tid :
+    own base_γ (SchAS.tid_admin_r (Some tid), None) ⊢ SchAS.tid_admin (Some tid).
+  Proof using.
+    rewrite /SchAS.tid_admin. unseal "SchA". et.
+  Qed.
+  
+End TMP.
+
 Module ClientAll.
   Import inv_instances.
 
@@ -12,12 +28,12 @@ Module ClientAll.
   Local Instance Γ : HRA := ##[invΓ; memΓ; schΓ; incrΓ].
   Local Instance Σ : GRA := ##[Γ; invΣ; schΣ].
 
-  Definition IRΓ : Γ :=
+  Definition irΓ : Γ :=
     **[ir_invΓ; ir_memΓ csl genv; SchAS.ir_schΓ; *[None]].
-  Definition IRΣ : Σ :=
-    **[IRΓ; ir_invΣ; SchAS.ir_schΣ].
+  Definition irΣ : Σ :=
+    **[irΓ; ir_invΣ; SchAS.ir_schΣ].
 
-  Lemma IRΣ_valid : ✓ (IRΣ ⋅ ir_own_admin).
+  Lemma irΣ_valid : ✓ (irΣ ⋅ ir_own_admin).
   Proof.
     solve_ir_valid.
     - apply ir_memRA_valid.
@@ -30,11 +46,11 @@ Module ClientAll.
     ClientA.sp ⊤ 1%Qp.
   Local Definition smod_src : SMod.t :=
     (ClientA.smod ⊤ 1%Qp) ☆ (SchA.smod sp_user_s).
-  Local Definition sp : string → option fspec := sp_from smod_src.
-
   Local Definition mod_top : Mod.t := SMod.to_mod sp_none (SMod.cancel smod_src).
-  Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
   Local Definition mod_tgt : Mod.t := ClientI.t ★ FaaI.t ★ (MemI.t csl genv) ★ (SchI.t).
+
+  Local Definition sp : string → option fspec := sp_from smod_src.
+  Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
   (* Local Definition SchInSp0: sp_incl (SchAS.sp ⊤ (to_sp [])) (to_sp (SchAS.sp ⊤ (to_sp []))).
   Proof.
@@ -136,7 +152,7 @@ Module ClientAll.
     { iIntros "[? [? ?]]". iFrame. }
   (*SLOW*)Admitted.
 
-  Lemma cancel_tgt :
+  Lemma top_tgt :
     refines (mod_top, init_cond)
             (mod_tgt, emp%I).
   Proof.
@@ -145,31 +161,38 @@ Module ClientAll.
     { eapply src_tgt. }
   Qed.
 
-  Theorem behavioral_refinement :
-    ∃ target_resource, refines_lmod
-      (Mod.to_lmod mod_top (IRΣ ⋅ ir_own_admin))
-      (Mod.to_lmod mod_tgt target_resource).
+  Lemma tgt_wf:
+    Mod.wf mod_tgt.
   Proof.
-    move: (cancel_tgt)=>H; rewrite /refines in H; ss.
-    hexploit H.
-    { rewrite /mod_tgt /ClientI.t /MemI.t /SchI.t /FaaI.t; unseal CRIS; prove_nodup. }
-    clear H; intros [WF H].
-    destruct (H (IRΣ ⋅ ir_own_admin)).
-    { apply IRΣ_valid. }
-    { clear H. simplify_res.
-      { rewrite make_own_admin.
-        iAssert (winv (⊤, ⊤)) with "[H1 U W]" as "W".
-        { rewrite /winv; iFrame. }
-        iPoseProof (winv_split_empty with "W") as "[W $]".
-        iAssert (SchAS.tid_admin None) with "[H22]" as "TID".
-        { rewrite /SchAS.tid_admin. unseal "SchA". eauto. }
-        iMod (SchAS.tid_admin_none_split 0 with "TID") as "[TA TU]".
-        iSplitR "TU W H8 TA".
+    rewrite /mod_tgt /ClientI.t /FaaI.t /MemI.t /SchI.t; unseal CRIS; prove_nodup.
+  Qed.
+
+  Lemma init_cond_valid:
+    ∃ rs, ✓ rs ∧ (Own rs ⊢ |==> init_cond).
+  Proof.
+    exists (irΣ ⋅ ir_own_admin). split.
+    - apply irΣ_valid.
+    - simplify_res.
+      { rewrite make_own_admin; iFrame.
+        erewrite (*SchAS.*)tid_admin_none.
+        iMod (SchAS.tid_admin_none_split 0 with "H22") as "[TA TU]".
+        iSplitR "TA TU".
         - rewrite /init_cond. iAssert (mem_init csl genv) with "[H24]" as "[$ _]". eauto. done.
         - unfold_pre_post; iFrame. done.
       }
       all: solve_res.
-    }
-    { exists x; des; eauto. }
+  Qed.
+
+  Theorem behavioral_refinement :
+    ∃ src_res tgt_res, refines_lmod
+      (Mod.to_lmod mod_top src_res)
+      (Mod.to_lmod mod_tgt tgt_res).
+  Proof.
+    move: (top_tgt)=>H; rewrite /refines in H; des; ss.
+    hexploit H; eauto using tgt_wf. clear H; intros [WF H].
+    assert (IV:= init_cond_valid). des.
+    destruct (H rs); des; et.
+    rewrite IV0 /init_cond /ClientIA.ClientIA.init_cond /ClientA.init_cond.
+    rewrite {1}winv_split_empty. iIntros ">[? [? [[? ?] ?]]]". iFrame. et.
   (*SLOW*)Admitted.
 End ClientAll.
