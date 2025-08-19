@@ -5,9 +5,7 @@ Require Import ImpPrelude MemHeader MemA SchA SchTactics SchHeader.
 Module FaaIA. Section FaaIA.
   Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG}.
 
-  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ := λ _ _, emp%I.
-
-  Local Definition IstFull := (IstProd (IstSB FaaA.t.(Mod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB FaaA.t.(Mod.scopes) IstTrue) IstEq).
   Local Definition MA := (FaaA.t ★ MemA.t).
   Local Definition MI := (FaaI.t ★ MemA.t).
 
@@ -51,7 +49,7 @@ Module FaaIA. Section FaaIA.
     step.
     iSplit; done.
   Unshelve. all: eauto.
-  (*SLOW*) Admitted.
+  (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MA MI emp%I IstFull.
   Proof.

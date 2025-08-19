@@ -50,7 +50,7 @@ Module CellIA. Section CellIA.
 
     step. iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_set:
     ISim.sim_fun open CellAMod CellIMod True%I Ist (Some (CellHdr.set idx)).
@@ -94,7 +94,7 @@ Module CellIA. Section CellIA.
     step.
     iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Theorem sim : ISim.t open CellAMod CellIMod (CellA.init_cond idx) Ist.
   Proof.

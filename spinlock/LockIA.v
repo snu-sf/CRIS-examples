@@ -62,7 +62,7 @@ Module LockIA. Section LockIA.
     forces_l. iFrame. iSplit; eauto.
     { iSplit; eauto. rewrite /is_lock. iExists _, _; iSplit; eauto. }
     steps_l. step. eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma acquire_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.acquire).
   Proof using SchInSp Hsub.
@@ -118,7 +118,7 @@ Module LockIA. Section LockIA.
       step; eauto.
     }
     Unshelve. all: eauto. all: try exact 1%Qp. all: try exact Vundef.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma release_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.release).
   Proof using SchInSp Hsub.
@@ -151,7 +151,7 @@ Module LockIA. Section LockIA.
       iDestruct "UNLOCKED" as "[POINTS_TO [Q' TKN']]".
       iCombine "TKN TKN'" gives %Hv. done.
     }
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   (* Construct ISim.t for summing up each simulation proofs *)
   Lemma sim : ISim.t open MA MI init_cond IstFull.

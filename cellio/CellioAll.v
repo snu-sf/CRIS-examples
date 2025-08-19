@@ -49,7 +49,7 @@ Module CellioAll. Section CellioAll.
     - assert (HAS:= ctx_has_input). eapply in_map_iff in HAS.
       des. destruct x. ss. subst.
       exfalso. eapply alist_find_none in E; et.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma sp_foo: sp CtxHdr.foo = None.
   Proof.
@@ -60,7 +60,7 @@ Module CellioAll. Section CellioAll.
     - assert (HAS:= ctx_has_foo). eapply in_map_iff in HAS.
       des. destruct x. ss. subst.
       exfalso. eapply alist_find_none in E; et.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
   
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src:
@@ -88,7 +88,7 @@ Module CellioAll. Section CellioAll.
         unfold_mod. s. et.
       + revert wf_fns.
         repeat (rewrite map_map; setoid_rewrite fst_map_snd). et.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
   Lemma src_tgt : refines (mod_src, init_cond)%I (mod_tgt, emp%I).
@@ -122,7 +122,7 @@ Module CellioAll. Section CellioAll.
     rewrite /MainIAproof.MainIA.MainA /MainA.t. unseal CRIS.
     eapply ctxr_cond_strengthen.
     iIntros "[? ?]". iFrame.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma top_tgt :
     refines (mod_top, init_cond)
@@ -145,7 +145,7 @@ Module CellioAll. Section CellioAll.
     - prove_nodup.
       + eapply ctx_cellio_scope_disj; et.
       + eapply ctx_mod_wf.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma init_cond_valid:
     ∃ rs, ✓ rs ∧ (Own rs ⊢ init_cond).
@@ -169,6 +169,6 @@ Module CellioAll. Section CellioAll.
     assert (IV:= init_cond_valid). des.
     destruct (H rs); des; et.
     rewrite IV0 /init_cond {1}winv_split_empty. iIntros "[[? ?] ?]". iFrame; done.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 End CellioAll. End CellioAll.
 (* Print Assumptions CellioAll.behavioral_refinement. *)

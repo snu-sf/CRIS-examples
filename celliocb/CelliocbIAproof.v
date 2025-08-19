@@ -40,7 +40,7 @@ Module CelliocbIA. Section CelliocbIA.
     step.
     iSplit; eauto.
     iExists v_new. iFrame; hss.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
   
   Lemma simF_get : ISim.sim_fun open CelliocbA CelliocbI CelliocbA.init_cond Ist (Some CelliocbHdr.get).
   Proof using.
@@ -60,7 +60,7 @@ Module CelliocbIA. Section CelliocbIA.
 
     step. iSplit; eauto.
     iExists _. iFrame; eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
   
   Lemma sim : ISim.t open CelliocbA CelliocbI CelliocbA.init_cond Ist.
   Proof using.

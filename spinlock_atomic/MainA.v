@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.spinlock Require Import Header LockA.
+From CRIS.spinlock_atomic Require Import Header LockA.
 Require Import ImpPrelude SchHeader SchA MemHeader MemA.
 From iris Require Import frac_auth numbers.
 

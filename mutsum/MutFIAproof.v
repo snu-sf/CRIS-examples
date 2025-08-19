@@ -79,7 +79,7 @@ Module MutFIA. Section MutFIA.
     Unshelve. all: ss.
     { eapply mut_max_intrange; eauto. }
     { exact (0↑). }
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Theorem sim:
     ISim.t open MutFAMod MutFIMod MutFA.init_cond IstFull.

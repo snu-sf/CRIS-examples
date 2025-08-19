@@ -1,5 +1,5 @@
 (* Require Import CRIS.
-From CRIS.spinlock Require Import Header MainI MainA LockI LockA.
+From CRIS.spinlock_atomic Require Import Header MainI MainA LockI LockA.
 Require Import ImpPrelude.
 Require Import SchHeader SchA MemA SchTactics.
 From iris Require Import frac_auth numbers.
@@ -89,7 +89,7 @@ Module MainIA. Section MainIA.
     sch_yield_l. steps_l. forces_l. iFrame; iSplit; eauto.
     (* both terminate *)
     step. iFrame. eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma main_simF :
     ISim.sim_fun open MA MI init_cond IstFull None.
@@ -220,7 +220,7 @@ Module MainIA. Section MainIA.
     sch_yield_l. 
     (* terminate both *)
     step. iSplit; eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MA MI init_cond IstFull.
   Proof.

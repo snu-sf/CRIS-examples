@@ -172,7 +172,7 @@ Module MapIM. Section MapIM.
       eapply eq_ind; [iAssumption |].
       do 3 f_equal. nia.
     }
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_get : ISim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.get).
   Proof using MapInSp.
@@ -216,7 +216,7 @@ Module MapIM. Section MapIM.
     do 3 (iSplit; eauto).
     iRight. iFrame. iExists _, _, _. iSplit; eauto.
     iPoseProof ("M" with "GRT") as "M". iFrame.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_set : ISim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.set).
   Proof using MapInSp.
@@ -263,7 +263,7 @@ Module MapIM. Section MapIM.
     iRight. iFrame. iExists _, _, _. iSplit; eauto.
     iPoseProof ("M" with "GRT") as "M".
     rewrite -> fun_to_list_update, Z2Nat.id; try nia. iFrame.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_set_by_user : ISim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.set_by_user).
   Proof using MapInSp.
@@ -293,7 +293,7 @@ Module MapIM. Section MapIM.
 
     (* prove the IST of Map *)
     steps_r. hss. steps_r. step. eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MapMMod MapIMod MapM.init_cond IstFull.
   Proof using MapInSp.

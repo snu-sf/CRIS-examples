@@ -150,7 +150,7 @@ Module ClientAll.
     
     eapply ctxr_cond_strengthen.
     { iIntros "[? [? ?]]". iFrame. }
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma top_tgt :
     refines (mod_top, init_cond)
@@ -194,5 +194,5 @@ Module ClientAll.
     destruct (H rs); des; et.
     rewrite IV0 /init_cond /ClientIA.ClientIA.init_cond /ClientA.init_cond.
     rewrite {1}winv_split_empty. iIntros ">[? [? [[? ?] ?]]]". iFrame. et.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 End ClientAll.

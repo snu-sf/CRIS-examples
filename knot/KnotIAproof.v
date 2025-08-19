@@ -126,7 +126,7 @@ Module KnotIA. Section KnotIA.
 
     step. by iFrame.
     Unshelve. all: ss.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_knot:
     ISim.sim_fun open KnotAMod KnotIMod (KnotA.init_cond genv) IstFull (Some KnotHdr.knot).

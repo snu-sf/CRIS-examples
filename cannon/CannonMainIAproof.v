@@ -41,7 +41,7 @@ Module CannonMainIA. Section CannonMainIA.
 
     (* SRC: prove the postcondition & IST *)
     step. iFrame; et.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Theorem sim : ISim.t open MainAMod MainIMod MainA.init_cond Ist.
   Proof using SpMain CannonInMain.

@@ -8,15 +8,13 @@ Module ClientIA. Section ClientIA.
   Import ClientA.
   Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG, !incrG}.
 
-  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ := λ _ _, emp%I.
-
   Context (E : coPset) (q : Qp) (Hsub : ↑N_main ⊆ E).
   Context (sp_user : spl_type).
   Context (sp_s : string → option fspec).
   Context (Hsch : sp_incl (SchAS.sp sp_user E q) sp_s).
   Context (Hclient : spl_sub (ClientA.sp E q) sp_user).
 
-  Local Definition IstFull := (IstProd (IstSB (ClientA.t E q sp_s).(Mod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB (ClientA.t E q sp_s).(Mod.scopes) IstTrue) IstEq).
   Local Definition init_cond := ClientA.init_cond E q.
   Local Definition MA := (ClientA.t E q sp_s ★ MemA.t).
   Local Definition MI := ((ClientI.t ★ FaaA.t) ★ MemA.t).
@@ -89,7 +87,7 @@ Module ClientIA. Section ClientIA.
     iSplitL "C".
     { iFrame. replace (v + 1 + 1)%Z with (v + 2)%Z by lia. iFrame. eauto. }
     steps_l. step; eauto.
-(*SLOW*)Admitted.
+(*SLOW*)Qed.
 
   Lemma main_simF : ISim.sim_fun open MA MI init_cond IstFull None.
   Proof using Hsch Hclient Hsub.
@@ -203,7 +201,7 @@ Module ClientIA. Section ClientIA.
     sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
     sch_yield_l. steps_l.
     step. eauto.
-(*SLOW*)Admitted.
+(*SLOW*)Qed.
 
   Lemma sim : ISim.t open MA MI init_cond IstFull.
   Proof.

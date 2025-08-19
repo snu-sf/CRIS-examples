@@ -139,7 +139,7 @@ Module CtrlIA. Section CtrlIA.
       iModIntro. iIntros (k x) "% FREE". s.
       rewrite Nat.add_assoc.
       rewrite Nat.Div0.mod_mod; eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_get_size:
     ISim.sim_fun open RingAMod RingIMod (RingA.init_cond max_size) IstFull (Some RingHdr.get_size).
@@ -160,7 +160,7 @@ Module CtrlIA. Section CtrlIA.
     iExists [_], [_;_], st_tgtR, st_tgtR.
     do 3 (iSplit; eauto).
     repeat iExists _. iFrame. eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_enqueue:
     ISim.sim_fun open RingAMod RingIMod (RingA.init_cond max_size) IstFull (Some RingHdr.enqueue).
@@ -218,7 +218,7 @@ Module CtrlIA. Section CtrlIA.
     + iApply (big_sepL_impl with "FREE").
       iModIntro. iIntros (k x FIND) "H".
       rewrite <-!Nat.add_assoc. eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_dequeue:
     ISim.sim_fun open RingAMod RingIMod (RingA.init_cond max_size) IstFull (Some RingHdr.dequeue).
@@ -274,7 +274,7 @@ Module CtrlIA. Section CtrlIA.
       iRight. eapply eq_ind; try iAssumption. f_equal.
       erewrite <-mod_add_ex; eauto; try nia.
       exists 1. nia.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Theorem sim : ISim.t open RingAMod RingIMod (RingA.init_cond max_size) IstFull.
   Proof using.
@@ -293,6 +293,6 @@ Module CtrlIA. Section CtrlIA.
     - eapply simF_get_size; eauto.
     - eapply simF_enqueue; eauto.
     - eapply simF_dequeue; eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
 End CtrlIA. End CtrlIA.

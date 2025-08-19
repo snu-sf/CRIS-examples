@@ -110,7 +110,7 @@ Module RepeatIA. Section RepeatIA.
       step. by iSplit.
     }
     Unshelve. all: et. exact (0↑).
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Theorem sim : ISim.t open RepeatAMod RepeatIMod RepeatA.init_cond IstFull.
   Proof.

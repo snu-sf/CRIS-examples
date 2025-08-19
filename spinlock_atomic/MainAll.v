@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.spinlock Require Import Header LockI LockA LockIA MainI MainA MainIA.
+From CRIS.spinlock_atomic Require Import Header LockI LockA LockIA MainI MainA MainIA.
 Require Import ImpPrelude MemI MemA MemIAproof.
 Require Import SchHeader SchI SchA SchIAproof.
 Require Import Cancel.
@@ -148,7 +148,7 @@ Module MainAll.
 
     rewrite /SpinLockMainA.t /SchA.t. unseal CRIS.
     eapply ctxr_cond_strengthen; et.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   (* source Mod ⊆ source SMod ⊆ cancelled Mod *)
   Lemma cancel_tgt :
@@ -193,5 +193,5 @@ Module MainAll.
     destruct (H rs); des; et.
     rewrite IV0 /init_cond /MainAS.init_cond /icond_winv {1}winv_split_empty. 
     iIntros ">[[[? ?] ?] ?]". iFrame. et.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 End MainAll.

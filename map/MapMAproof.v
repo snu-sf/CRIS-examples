@@ -58,7 +58,7 @@ Module MapMA. Section MapMA.
     (* prove the IST of Map *)
     step. iSplit; eauto.
     iExists _, _. iSplitR; eauto. iRight. iFrame.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_get : ISim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.get).
   Proof using MapInSpS MapInSpT.
@@ -93,7 +93,7 @@ Module MapMA. Section MapMA.
     (* prove the IST of Map *)
     step. iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_set : ISim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.set).
   Proof using MapInSpS MapInSpT.
@@ -125,7 +125,7 @@ Module MapMA. Section MapMA.
     (* prove the IST of Map *)
     step. iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_set_by_user : ISim.sim_fun open MapA MapM MapA.init_cond Ist (Some MapHdr.set_by_user).
   Proof using MapInSpS MapInSpT.
@@ -166,7 +166,7 @@ Module MapMA. Section MapMA.
 
     (* prove the IST of Map *)
     step. eauto.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MapA MapM MapA.init_cond Ist.
   Proof using MapInSpS MapInSpT.

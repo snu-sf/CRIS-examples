@@ -49,7 +49,7 @@ Module CelliocbAll. Section CelliocbAll.
     - assert (HAS:= ctx_has_foo). eapply in_map_iff in HAS.
       des. destruct x. ss. subst.
       exfalso. eapply alist_find_none in E; et.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src:
@@ -113,7 +113,7 @@ Module CelliocbAll. Section CelliocbAll.
     rewrite /MaincbIAproof.MaincbIA.MaincbA /MaincbA.t. unseal CRIS.
     eapply ctxr_cond_strengthen.
     iIntros "[? ?]". iFrame.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma top_tgt :
     refines (mod_top, init_cond)
@@ -139,7 +139,7 @@ Module CelliocbAll. Section CelliocbAll.
       + eapply ctx_cellio_scope_disj; et.
       + eapply ctx_main_scope_disj; et.
       + eapply ctx_mod_wf.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma init_cond_valid:
     ∃ rs, ✓ rs ∧ (Own rs ⊢ init_cond).
@@ -163,6 +163,6 @@ Module CelliocbAll. Section CelliocbAll.
     assert (IV:= init_cond_valid). des.
     destruct (H rs); des; et.
     rewrite IV0 /init_cond {1}winv_split_empty. iIntros "[[? ?] ?]". iFrame; done.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 End CelliocbAll. End CelliocbAll.
 (* Print Assumptions CelliocbAll.behavioral_refinement. *)

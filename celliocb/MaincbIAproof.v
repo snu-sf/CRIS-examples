@@ -96,7 +96,7 @@ Module MaincbIA. Section MaincbIA.
     
     (* handle IO together *)
     step. step. iSplit; done.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Theorem sim :
     ISim.t open MaincbA (MaincbI.t ★ CelliocbA) MaincbA.init_cond IstFull.

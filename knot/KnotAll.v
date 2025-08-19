@@ -169,7 +169,7 @@ Module KnotAll.
     rewrite /KnotMainA.t /KnotA.t /MemA.t /APCC.t. unseal CRIS.
     eapply ctxr_cond_strengthen.
     iIntros "[? [? ?]]". iFrame.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma top_tgt :
     refines (mod_top, init_cond)
@@ -221,7 +221,7 @@ Module KnotAll.
     assert (IV:= init_cond_valid). des.
     destruct (H rs); des; et.
     rewrite IV0 /init_cond {1}winv_split_empty. iIntros "[[? ?] ?]". iFrame; done.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 End KnotAll.
 
 (* Print Assumptions KnotAll.behavioral_refinement. *)

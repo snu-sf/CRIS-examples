@@ -60,7 +60,7 @@ Module CannonAll.
     rewrite /CannonA.t /MainA.t /init_cond. unseal CRIS. 
     eapply ctxr_cond_strengthen.
     iIntros "[? [? ?]]". iFrame.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma top_tgt :
     refines (mod_top, init_cond)

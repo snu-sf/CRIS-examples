@@ -66,7 +66,7 @@ Module MainIA. Section MainIA.
     steps_l. steps_r. step. eauto.
 
     Unshelve. all:(exact ()).
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Theorem sim :
     ISim.t open MainA (MainI.t ★ CellioA) MainA.init_cond IstFull.

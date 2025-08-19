@@ -27,9 +27,6 @@ Module KnotMainIA. Section KnotMainIA.
   Context (RecInSpPure: spl_sub SpRec SpPure).
   Context (PureInGlobal : sp_incl SpPure Sp).
 
-  Definition Ist: alist key Any.t -> alist key Any.t -> iProp Σ :=
-    λ _ _, True%I.
-
   Local Definition APCA := (APCA.t SpPure Sp).
   Local Definition MemP := MemP.t.
   Local Definition KnotA := (KnotA.t genv SpRec SpFun Sp).
@@ -38,7 +35,7 @@ Module KnotMainIA. Section KnotMainIA.
   Local Definition KnotMainI := (KnotMainI.t genv).
   Local Definition KnotMainAMod := (KnotMainA ★ KnotAMod).
   Local Definition KnotMainIMod := (KnotMainI ★ KnotAMod).
-  Local Definition IstFull := (IstProd (IstSB KnotMainA.(Mod.scopes) Ist) IstEq).
+  Local Definition IstFull := (IstProd (IstSB KnotMainA.(Mod.scopes) IstTrue) IstEq).
   
   (*************)
 
@@ -100,7 +97,7 @@ Module KnotMainIA. Section KnotMainIA.
       iPureIntro. repeat f_equal. rewrite unfold_fib; nia.
     }
     Unshelve. all: ss. exact (0↑).
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_main:
     ISim.sim_fun open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull None.
@@ -175,7 +172,7 @@ Module KnotMainIA. Section KnotMainIA.
     apc_l. steps_l. forces_l. iSplit; et. steps_l. 
     step. iSplitR; et.
     Unshelve. all: ss.
-  (*SLOW*)Admitted.
+  (*SLOW*)Qed.
 
   Theorem sim : ISim.t open KnotMainAMod KnotMainIMod KnotMainA.init_cond IstFull.
   Proof.
@@ -228,7 +225,7 @@ Module KnotMainIA. Section KnotMainIA.
       steps_r. forces_l. step.
       iSplit; eauto.
     }
-  Unshelve. all: et.
-  (*SLOW*)Admitted.
+  Unshelve. all: et. exact IstTrue.
+  (*SLOW*)Qed.
 
 End KnotMainIA. End KnotMainIA.

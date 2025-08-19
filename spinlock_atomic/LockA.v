@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.spinlock Require Import Header.
+From CRIS.spinlock_atomic Require Import Header.
 Require Import ImpPrelude MemHeader MemA.
 Require Import SchHeader SchA.
 From iris Require Import excl.
@@ -41,36 +41,38 @@ Module LockAS. Section LockAS.
     bofs ↦ (Vint 1)
     ∨ bofs ↦ (Vint 0) ∗ P ∗ token n γ.
 
-  Definition is_lock {n} γ val P : iProp Σ :=
-    ∃ bofs, ⌜val = Vptr bofs⌝ ∗ inv n N_SpinLockA (lock_inv bofs P γ).
+  Definition is_lock {n} γ v P : iProp Σ :=
+    ∃ bofs, ⌜v = Vptr bofs⌝ ∗ inv n N_SpinLockA (lock_inv bofs P γ).
 
   (* Function specs *)
+
   Definition newlock_spec : fspecS :=
     from_fspec
       (fspec_winv (↑N_SpinLockA) (* namespace for invariant access *)
-        (fspec_simple (X := {n & GTerm.t n})
-          (λ '(existT n P),
-            ((λ _, ⟦P⟧),
-             (λ ret, ∃ val γ, ⌜ret = val↑⌝ ∗ is_lock γ val P)))))%I.
+         (fspec_simple (X:= {n : level & GTerm.t n})
+           (λ '(existT n P),
+            ((λ arg, ⌜∃ v: list val, arg = v↑⌝ ∗ ⟦P⟧),
+             (λ ret, ∃ v γ, ⌜ret = v↑⌝ ∗ is_lock γ v P))%I))).
 
   Definition acquire_spec : fspecS :=
     from_fspec
       (fspec_winv (↑N_SpinLockA)
-        (fspec_simple
-          (λ '(γ, val, P),
-            ((λ arg, ⌜arg = [val]↑⌝ ∗ is_lock γ val (projT2 P)),
-             (λ ret, ⌜ret = Vundef↑⌝ ∗ ⟦token (projT1 P) γ⟧ ∗ ⟦projT2 P⟧)))))%I.
+         (fspec_simple (X:= (_ * _ * {n & GTerm.t n}))
+            (λ '(γ, v, (existT n P)),
+             ((λ arg, ⌜arg = [v]↑⌝ ∗ is_lock γ v P),
+              (λ ret, ⌜ret = Vundef↑⌝ ∗ ⟦token n γ⟧ ∗ ⟦P⟧))%I))).
 
   Definition release_spec : fspecS :=
     from_fspec
       (fspec_winv (↑N_SpinLockA)
-        (fspec_simple
-          (λ '(γ, val, P),
-            ((λ arg, ⌜arg = [val]↑⌝ ∗
-              is_lock γ val (projT2 P) ∗
-              ⟦token (projT1 P) γ⟧ ∗
-              ⟦projT2 P⟧),
-            (λ ret, ⌜ret = Vundef↑⌝)))))%I.
+         (fspec_simple (X:= (_ * _ * {n & GTerm.t n}))
+            (λ '(γ, v, (existT n P)),
+              ((λ arg, ⌜arg = [v]↑⌝ ∗
+                       is_lock γ v P ∗
+                       ⟦token n γ⟧ ∗
+                       ⟦P⟧),
+               (λ ret, ⌜ret = Vundef↑⌝))%I))).
+
 End LockAS. End LockAS.
 
 (* Module definition *)
@@ -85,17 +87,15 @@ Module SpinLockA. Section SpinLockA.
   Definition scopes : list string := [].
 
   Definition newlock : Any.t → itree crisE Any.t :=
-    fspec_proph_update (list val) val LockAS.newlock_spec (λ _, 𝒴;;; Ret (tt↑)).
+    λ arg, 𝒴;;; ret <- fancy_real_update LockAS.newlock_spec fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition acquire : Any.t → itree crisE Any.t :=
     λ arg,
-      ret <- fspec_proph_update_option (list val) val LockAS.acquire_spec (λ _, 𝒴;;; Ret tt↑) arg;;
-      𝒴;;; Ret ret.
+      fancy_real_peek (λ x, precondS LockAS.acquire_spec x arg) 𝒴;;;
+      ret <- fancy_real_update LockAS.acquire_spec fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition release : Any.t → itree crisE Any.t :=
-    λ arg,
-      ret <- fspec_proph_update (list val) val LockAS.release_spec (λ _, 𝒴;;; Ret tt↑) arg;;
-      𝒴;;; Ret ret.
+    λ arg, 𝒴;;; ret <- fancy_real_update LockAS.release_spec fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition fnsems : fnsems_type :=
     [(Some SpinLockHdr.newlock, (false, wmask_all, scopes, (None, newlock)));
