@@ -19,7 +19,7 @@ Module FaaIA. Section FaaIA.
 
     steps_l. steps_r.
 
-    sch_yield_rr; iFrame "IST"; iSplit; [done|sch_intros]; iClear (NODS NODT) "TID".
+    sch_yield_rr.
     sch_yield_l; steps_l. rename _q into v.
 
     rewrite /MemHdr.faa; steps_r; inline_r.
@@ -31,7 +31,7 @@ Module FaaIA. Section FaaIA.
 
     force_l; iFrame "PT"; steps_l.
 
-    sch_yield_rr; iFrame "IST"; iSplit; [done|sch_intros]; iClear (NODS NODT) "TID".
+    sch_yield_rr.
     Unshelve. all: try exact 0.
     sch_yield_l; steps_l; clear v; rename _q into v.
     steps_r; inline_r.
@@ -43,7 +43,7 @@ Module FaaIA. Section FaaIA.
 
     force_l; iFrame "PT"; steps_l.
     steps_r.
-    sch_yield_rr; iFrame "IST"; iSplit; [done|sch_intros]; iClear (NODS NODT) "TID".
+    sch_yield_rr.
     steps_r.
     sch_yield_l; steps_l.
     step.

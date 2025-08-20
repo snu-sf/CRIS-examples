@@ -41,37 +41,35 @@ Module MainIA. Section MainIA.
     steps_l. hss. steps_l. rewrite /SpinLockMainA.incr. steps_l.
     steps_r. hss. steps_r. rewrite /SpinLockMainI.incr. steps_r.
     (* tgt yields *)
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
     steps_r.
     (* tgt inline - lock acquire *)
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
     steps_r. inline_r. force_r (tid, (γ_l, Vptr (blk_l, ofs_l), existT 0 (lock_P (blk_v, ofs_v) γ_v))).
     steps_r. forces_r.
     rewrite -{1}(Qp.div_2 q); iPoseProof (SchAS.tid_user_split with "TID") as "[TID1 ITD2]".
     iFrame. iSplit; eauto. hss. steps_r.
-    sch_yield_ii; [erewrite Qp.div_2; et|]; iFrame; sch_intros.
+    sch_yield_ii; [erewrite Qp.div_2; et|].
 
     (* (* success case *) *)
     steps_r. iDestruct "GRT" as "[TID' [[-> [TKN P]] _]]". hss. steps_r.
     iPoseProof (SchAS.tid_user_merge with "[TID TID']") as "TID"; iFrame; rewrite Qp.div_2.
     (* tgt yield *)
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
     rewrite /lock_P; SL_red; iDestruct "P" as "[%x P]"; SL_red; iDestruct "P" as "[PT P]".
     (* tgt inline - mem load *)
     steps_r. inline_r. steps_r.
-    rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-    iApply wsim_update_proph_tgt; iExists (blk_v, ofs_v, 1%Qp, Vint x).
+    iApply wsim_ru_tgt_simple; iExists (blk_v, ofs_v, 1%Qp, Vint x).
     iSplitL "PT"; iFrame; eauto.
-    iIntros (?) "[PT %]". hss. steps_r. hss_r; steps_r.
+    iIntros "[PT %]". hss. steps_r. hss_r; steps_r.
     (* tgt yield *)
-    do 2 (sch_yield_ir; iFrame; sch_intros).
+    do 2 (sch_yield_ir).
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r.
-    rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-    iApply wsim_update_proph_tgt; iExists (blk_v, ofs_v, _, Vint (x + 1)).
+    iApply wsim_ru_tgt_simple; iExists (blk_v, ofs_v, _, Vint (x + 1)).
     iSplitL "PT"; iFrame; et.
-    iIntros (?) "[PT %]". steps_r. hss_r; steps_r.
-    sch_yield_ir; iFrame; sch_intros.
+    iIntros "[PT %]". steps_r. hss_r; steps_r.
+    sch_yield_ir.
     iCombine "P F" as "C". iMod (own_update with "C") as "[F C]".
     { apply frac_auth_update, (Z_local_update _ _ (x + 1) 1); lia. }
     (* tgt inline - lock acquire - restore lock protected proposition *)
@@ -85,10 +83,10 @@ Module MainIA. Section MainIA.
     }
     steps_r. hss. steps_r.
     (* tgt yield *)
-    sch_yield_ii; [erewrite Qp.div_2; et|]; iFrame; sch_intros.
+    sch_yield_ii; [erewrite Qp.div_2; et|].
     steps_r. iDestruct "GRT" as "[TID' [-> _]]". hss. steps_r.
     iPoseProof (SchAS.tid_user_merge with "[TID TID']") as "TID"; iFrame; rewrite Qp.div_2.
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
     (* src yield *)
     sch_yield_l. steps_l. forces_l. iFrame; iSplit; eauto.
     (* both terminate *)
@@ -109,21 +107,19 @@ Module MainIA. Section MainIA.
 
     steps_l. steps_r.
     (* tgt yield *)
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
 
     (* tgt inline - mem alloc - counter allocation *)
     steps_r. inline_r. steps_r.
-    rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-    iApply wsim_update_proph_tgt; iExists 1. iSplit; eauto.
-    iIntros (?) "[%blk [% [GRT _]]]"; hss. steps_r. hss_r; steps_r.
-    sch_yield_ir; iFrame; sch_intros.
+    iApply wsim_ru_tgt_simple; iExists 1; iSplit; eauto.
+    iIntros "[%blk [% [GRT _]]]"; hss. steps_r. hss_r; steps_r.
+    sch_yield_ir.
     (* tgt inline - mem store - counter initialization *)
     steps_r. inline_r. steps_r.
-    rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-    iApply wsim_update_proph_tgt; iExists (blk, 0%Z, _, Vint 0).
+    iApply wsim_ru_tgt_simple; iExists (blk, 0%Z, _, Vint 0).
     iFrame; iSplit; eauto.
-    iIntros (?) "[PT %]". steps_r. hss. steps_r.
-    sch_yield_ir; iFrame; sch_intros.
+    iIntros "[PT %]". steps_r. hss. steps_r.
+    sch_yield_ir.
     (* create lock-guarded proposition *)
     iApply (wsim_own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)).
     { eapply frac_auth_valid; ss. }
@@ -136,11 +132,11 @@ Module MainIA. Section MainIA.
     { iFrame; SL_red; iSplit; eauto. iFrame. iExists _; SL_red; iFrame. }
     steps_r. hss. steps_r.
     (* src/tgt yields *)
-    sch_yield_ii; [erewrite Qp.div_2; et|]; iFrame; sch_intros.
+    sch_yield_ii; [erewrite Qp.div_2; et|].
     steps_r. iDestruct "GRT" as "[TID' [[%val [%γ_l [-> #I]]] %EQ]]".
     hss. steps_r.
     iPoseProof (SchAS.tid_user_merge with "[TID TID']") as "TID"; iFrame; rewrite Qp.div_2.
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
     iPoseProof "I" as "[%bofs_l [-> _]]".
     sch_yield_l. steps_l. force_l (Vptr bofs_l, Vptr (blk, 0%Z)). steps_l. sch_yield_l.
     (* create preconditions of incr *)
@@ -156,7 +152,7 @@ Module MainIA. Section MainIA.
     steps_l. iDestruct "ASM" as "[% [-> [TID [% [[-> ->] TKN1]]]]]".
     rename _q0 into tid1.
     steps_r. hss. steps_r.
-    sch_yield_ir; iFrame; sch_intros. sch_yield_l.
+    sch_yield_ir. sch_yield_l.
 
     (* spawn thread 2 - incr *)
     steps_l. steps_r. force_l (_,_,_). forces_l. iSplitL "W2 TID".
@@ -165,28 +161,28 @@ Module MainIA. Section MainIA.
       - iFrame; et.
     }
     call "IST".
-    steps_l. iDestruct "ASM" as "[% [-> [TID [% [[-> ->] TKN2]]]]]".
-    rename _q1 into tid2.
+    steps_l. iDestruct "ASM" as "[% [-> [TID [% [[-> ->] TKN2]]]]]". hss.
+    rename _q0 into tid2.
     steps_r. hss. steps_r.
-    sch_yield_ir; iFrame; sch_intros. sch_yield_l.
+    sch_yield_ir. sch_yield_l.
 
     (* join thread 1 - incr *)
     steps_l. steps_r.  force_l (_,_,_). forces_l. iSplitL "TID TKN1".
     { iExists _. do 2 (iSplit; et). iFrame. }
     call "IST".
     steps_l. iDestruct "ASM" as "[% [-> [% [% [[-> ->] [TID W1]]]]]]".
-    hss. rename _q3 into vret.
+    hss. rename _q1 into vret.
     steps_r. hss. steps_r.
-    sch_yield_ir; iFrame; sch_intros. sch_yield_l.
+    sch_yield_ir. sch_yield_l.
 
     (* join thread 2 - incr *)
     steps_l. steps_r.  force_l (_,_,_). forces_l. iSplitL "TID TKN2".
     { iExists _. do 2 (iSplit; et). iFrame. }
     call "IST".
     steps_l. iDestruct "ASM" as "[% [-> [% [% [[-> ->] [TID W2]]]]]]".
-    hss. rename _q2 into vret0.
+    hss. rename _q1 into vret0.
     steps_r. hss. steps_r.
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
 
     (* tgt inline - lock acquire *)
     steps_r. inline_r. steps_r.
@@ -194,21 +190,21 @@ Module MainIA. Section MainIA.
     rewrite -{1}(Qp.div_2 q); iPoseProof (SchAS.tid_user_split with "TID") as "[TID1 ITD2]".
     iFrame. iSplit; eauto.
     steps_r. hss. steps_r.
-    sch_yield_ii; [erewrite Qp.div_2; et|]; iFrame; sch_intros.
+    sch_yield_ii; [erewrite Qp.div_2; et|].
     steps_r. iDestruct "GRT" as "[TID' [[-> [TKN P]] _]]". hss. steps_r.
     SL_red. iCombine "W1 W2" as "W".
     iDestruct "P" as "[%x P]"; SL_red; iDestruct "P" as "[PT B]".
     iCombine "B W" gives %WF%frac_auth_agree. inv WF.
     iPoseProof (SchAS.tid_user_merge with "[TID TID']") as "TID"; iFrame; rewrite Qp.div_2.
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
     (* tgt inline - mem load *)
     steps_r. inline_r. steps_r.
-    rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-    iApply wsim_update_proph_tgt; iExists (blk, 0%Z, 1%Qp, Vint 2%Z); s.
+    iApply wsim_ru_tgt_simple; iExists (blk, 0%Z, 1%Qp, Vint 2%Z); s.
     iSplitL "PT"; eauto.
-    iIntros (?) "[PT %]". steps_r. hss. steps_r.
+    { iFrame "PT". eauto. }
+    iIntros "[PT %]". steps_r. hss. steps_r.
     (* tgt yield *)
-    do 2 (sch_yield_ir; iFrame; sch_intros).
+    do 2 (sch_yield_ir).
     (* tgt inline - lock release *)
     steps_r. inline_r. steps_r.
     force_r (_, (γ_l, Vptr bofs_l, existT 0 (lock_P (blk, 0%Z) γ))). forces_r.
@@ -219,14 +215,14 @@ Module MainIA. Section MainIA.
     }
     steps_r. hss. steps_r.
     (* tgt yield *)
-    sch_yield_ii; [erewrite Qp.div_2; et|]; iFrame; sch_intros.
+    sch_yield_ii; [erewrite Qp.div_2; et|].
     steps_r. iDestruct "GRT" as "[TID' [-> _]]". hss. steps_r.
     iPoseProof (SchAS.tid_user_merge with "[TID TID']") as "TID"; iFrame; rewrite Qp.div_2.
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
     (* both output - counter value *)
     sch_yield_l. step.
     steps_l. steps_r.
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
     sch_yield_l. 
     (* terminate both *)
     step. iSplit; eauto.
@@ -240,8 +236,8 @@ Module MainIA. Section MainIA.
   Qed.
 
   Definition ctxr :
-  ctx_refines
-  ((SpinLockMainA.t E q sp_s) ★ ((SpinLockA.t E (q/2) sp_t) ★ MemP.t), init_cond)
-  ((SpinLockMainI.t)          ★ ((SpinLockA.t E (q/2) sp_t) ★ MemP.t), emp%I).
+    ctx_refines
+    ((SpinLockMainA.t E q sp_s) ★ ((SpinLockA.t E (q/2) sp_t) ★ MemP.t), init_cond)
+    ((SpinLockMainI.t)          ★ ((SpinLockA.t E (q/2) sp_t) ★ MemP.t), emp%I).
   Proof. eapply main_adequacy, sim. Qed.
 End MainIA. End MainIA.

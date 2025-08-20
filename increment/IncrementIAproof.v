@@ -16,20 +16,21 @@ Module IncrementIA. Section IncrementIA.
     steps_l. destruct _q; ss. destruct _q; ss. destruct v; ss. inv G0. hss.
     destruct _q0 as [blk ofs].
 
-    steps_r. sch_yield_rr; iFrame; iSplit; eauto. sch_intros. iClear "TID".
-    steps_r. sch_yield_rr; iFrame "IST". iSplit; eauto. sch_intros. iClear "TID".
+    steps_r.
+    sch_yield_rr.
+    steps_r. sch_yield_rr.
     sch_yield_l.
     norm_l. norm_r.
 
     iApply wsim_reset.
-    iStopProof. clear NODS NODT. revert st_src. combine_quant st_tgt.
+    iStopProof. revert st_src1. combine_quant st_tgt1.
     eapply wsim_coind.
-    iIntros (g' [st_t st_s]) "IST %GG' #CIH /=".
-    destruct_quant.
+    iIntros (g' _ CIH [st_t st_s]) "%GG' /=".
+    destruct_quant CIH.
 
-    unfold_iter_l. unfold_iter_r.
+    unfold_iterC_l. unfold_iterC_r.
     steps_l. steps_r.
-    sch_yield_rr; iFrame "IST". iSplit; eauto. sch_intros. iClear "TID".
+    sch_yield_rr.
     Unshelve. all: try exact 0.
 
     sch_yield_l. steps_l. rename _q into v.
@@ -39,10 +40,10 @@ Module IncrementIA. Section IncrementIA.
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss_r. steps_r.
 
     force_l false. steps_l. force_l; iFrame "PT". steps_l. sch_yield_l. steps_l.
-    unfold_iter_l. steps_l.
+    unfold_iterC_l. steps_l.
 
-    sch_yield_rr; iFrame "IST". iSplit; eauto. sch_intros. iClear "TID". steps_r.
-    sch_yield_rr; iFrame "IST". iSplit; eauto. sch_intros. iClear "TID". steps_r.
+    sch_yield_rr. steps_r.
+    sch_yield_rr. steps_r.
 
     sch_yield_l. steps_l. rename _q into v'.
     inline_r. force_r (_, _, _, _, _, _, _, _, _, _). forces_r. iFrame "ASM".
@@ -53,21 +54,21 @@ Module IncrementIA. Section IncrementIA.
     steps_r. iDestruct "GRT" as "[[-> [GRT _]] ->]". hss_r. steps_r.
     destruct (dec v' v) as [?|Heq]; [subst; ss|ss].
     { force_l true. steps_l. force_l; iFrame "GRT"; steps_l.
-      sch_yield_rr; iFrame "IST". iSplit; eauto. sch_intros. iClear "TID". steps_r.
-      sch_yield_rr; iFrame "IST". iSplit; eauto. sch_intros. iClear "TID". steps_r.
+      sch_yield_rr. steps_r.
+      sch_yield_rr; steps_r.
       case_decide; [|ss].
       steps_r.
       sch_yield_l. steps_l. step. iSplit; done.
     }
     { force_l false.
       forces_l. iFrame "GRT". steps_l.
-      sch_yield_rr; iFrame "IST". iSplit; eauto. sch_intros. iClear "TID". steps_r.
-      sch_yield_rr; iFrame "IST". iSplit; eauto. sch_intros. iClear "TID". steps_r.
+      sch_yield_rr; steps_r.
+      sch_yield_rr; steps_r.
       case_decide; first clarify.
       steps_r.
       sch_yield_l. steps_l.
       iApply wsim_progress. iApply wsim_base.
-      iIntros "?". iApply ("CIH" $! st_tgt st_src). iFrame.
+      iIntros "?". iApply (CIH). iFrame.
     }
     Unshelve. all: eauto.
   (*SLOW*)Qed.

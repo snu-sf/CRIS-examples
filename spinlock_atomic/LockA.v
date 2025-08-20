@@ -87,15 +87,15 @@ Module SpinLockA. Section SpinLockA.
   Definition scopes : list string := [].
 
   Definition newlock : Any.t → itree crisE Any.t :=
-    λ arg, 𝒴;;; ret <- fancy_real_update LockAS.newlock_spec fbody_trivial arg;; 𝒴;;; Ret ret.
+    λ arg, 𝒴;;; ret <- real_update LockAS.newlock_spec fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition acquire : Any.t → itree crisE Any.t :=
     λ arg,
-      fancy_real_peek (λ x, precondS LockAS.acquire_spec x arg) 𝒴;;;
-      ret <- fancy_real_update LockAS.acquire_spec fbody_trivial arg;; 𝒴;;; Ret ret.
+      real_peek (λ x, precondS LockAS.acquire_spec x arg) 𝒴;;;
+      ret <- real_update LockAS.acquire_spec fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition release : Any.t → itree crisE Any.t :=
-    λ arg, 𝒴;;; ret <- fancy_real_update LockAS.release_spec fbody_trivial arg;; 𝒴;;; Ret ret.
+    λ arg, 𝒴;;; ret <- real_update LockAS.release_spec fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition fnsems : fnsems_type :=
     [(Some SpinLockHdr.newlock, (false, wmask_all, scopes, (None, newlock)));

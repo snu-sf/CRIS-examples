@@ -84,11 +84,10 @@ Module KnotIA. Section KnotIA.
     (* TGT: load the function at the block of _f by inlining "load" *)
     inline_r. rewrite /MemSpec.load.
     steps_r.
-    rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-    iApply wsim_update_proph_tgt; iExists (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))).
+    iApply wsim_ru_tgt_simple; iExists (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))).
     iSplitL "VF".
     { iSplit; eauto. unfold var_points_to. rewrite FIND0. iFrame. }
-    iIntros (?) "[Q %]".
+    iIntros "[Q %]".
     (* steps_r. iMod ("Q" with "GRT") as "[VF %]". des; subst; hss. *)
     des; subst; hss. steps_r. hss_r. inv H2. steps_l. steps_r.
 
@@ -159,13 +158,10 @@ Module KnotIA. Section KnotIA.
     rewrite FIND0; hss. steps_r.
     
     (* TGT: save a function by calling "store" *)
-    steps_r. inline_r.
-    rewrite /MemSpec.store. steps_r.
-    rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-
-    iApply wsim_update_proph_tgt; iExists (blk0, 0%Z, _, Vptr (fb, 0%Z)). iSplitL "VF".
+    steps_r. inline_r. steps_r.
+    iApply wsim_ru_tgt_simple; iExists (blk0, 0%Z, _, Vptr (fb, 0%Z)). iSplitL "VF".
     { iSplit; et. unfold var_points_to. rewrite FIND0; eauto. }
-    iIntros (?) "[VF %]". steps_r. hss_r;  steps_r.
+    iIntros "[VF %]". steps_r. hss_r; steps_r.
 
     (* RA: update spec *)
     hss. steps_r. rewrite FINDR; hss. steps_r.
@@ -177,7 +173,8 @@ Module KnotIA. Section KnotIA.
     iSplitL "FG"; iFrame; et.
     { iSplit; et. iPureIntro. eexists. esplit; et. econs; et.
       econs; [|replace rec_spec with (fspec_flat (Some rec_spec)) by ss; refl].
-      apply RecInSp. unfold KnotRecSp. unseal CRIS. ss. }
+      apply RecInSp. unfold KnotRecSp. unseal CRIS. ss.
+    }
     steps_l.
     hss. steps_r. step. iSplit; et.
 
@@ -199,13 +196,11 @@ Module KnotIA. Section KnotIA.
     - apply simF_knot; et.
   Qed.
 
-  Theorem ctxr
-    :
+  Theorem ctxr :
     ctx_refines
       (KnotA.t genv SpRec SpFun Sp ★ MemP ★ APCA.t SpPure Sp,
         KnotA.init_cond genv)
       (KnotI.t genv ★ MemP ★ APCA.t SpPure Sp,
         emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
-
 End KnotIA. End KnotIA.

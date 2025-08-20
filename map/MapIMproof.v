@@ -94,7 +94,7 @@ Module MapIM. Section MapIM.
       [|iDestruct "IST" as (????) "M"];
       hss; cycle 1.
     { iExFalso. iApply (pending_unique with "P P'"). }
-    rename _q into sz.
+    rename _q into sz. steps_l.
 
     (* SRC: prove the postcond of init *)
     force_l (Vundef ↑).
@@ -121,7 +121,7 @@ Module MapIM. Section MapIM.
 
     (* Base case *)
     { (* TGT : unwind the loop *)
-      unfold_iter_r. des_ifs; try nia. steps_r.
+      unfold_iterC_r. des_ifs; try nia. steps_r.
 
       (* prove the IST of Map *)
       step. repeat (iSplit; eauto).
@@ -133,7 +133,7 @@ Module MapIM. Section MapIM.
 
     (* Inductive case *)
     { (* TGT : unwind the loop *)
-      unfold_iter_r. des_ifs; try nia.
+      unfold_iterC_r. des_ifs; try nia.
       (* TGT : compute the input to store *)
       unfold scale_int at 1. des_ifs; cycle 1.
       { exfalso. eapply n. eapply Z.divide_factor_r. }
@@ -184,12 +184,12 @@ Module MapIM. Section MapIM.
     iDestruct "IST" as (? ? ? ?) "(%& (% & [%|(P & IST)]) &%)";
       [|iDestruct "IST" as (? ? ?) "(% & M)"];
       des; hss.
-    { nia. }
+    { steps_l. hss. nia. }
     destruct bofs as [blk ofs]. inv G0.
     rename _q2 into idx.
     
     (* SRC: prove the postcond of get *)
-    force_l. force_l. iSplitL "". { eauto. }
+    steps_l. force_l. force_l. iSplitL "". { eauto. }
 
     (* TGT : compute the input to load *)
     steps_r. hss. steps_r.
@@ -229,7 +229,7 @@ Module MapIM. Section MapIM.
     iDestruct "IST" as (? ? ? ?) "(%& (% & [%|(P & IST)]) &%)";
       [|iDestruct "IST" as (? ? ?) "(% & M)"];
       des; hss.
-    { nia. }
+    { steps_l. hss. nia. }
     destruct bofs as [blk ofs].
     rename _q1 into idx.
 
@@ -238,7 +238,7 @@ Module MapIM. Section MapIM.
     unfold scale_int. des_ifs; cycle 1.
     { exfalso. eapply n. eapply Z.divide_factor_r. }
     rewrite Z_div_mult; try nia.
-    s. steps_r.
+    s. steps_r. steps_l. hss.
 
     (* TGT : inline load *)
     inline_r.
@@ -251,7 +251,7 @@ Module MapIM. Section MapIM.
     iSplitL "IP". { eauto. }
 
     (* TGT: handle the postcond of load *)
-    steps_r. iDestruct "GRT" as "[[GRT ->] ->]". hss. steps_r.
+    steps_r. iDestruct "GRT" as "[[GRT ->] ->]". hss. steps_r. steps_l.
 
     (* SRC: prove the postcond of set *)
     force_l. force_l. iSplitL "". { eauto. }

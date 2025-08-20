@@ -119,8 +119,7 @@ Module CtrlIA. Section CtrlIA.
     iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst. hss.
 
     (* TGT, SRC: take steps *)
-    steps_r. hss.
-    forces_l. step. iSplitL "". { eauto. }
+    steps_r. steps_l. step. iSplitL "". { eauto. }
 
     (* Prove the IST *)
     iExists [_], [_;_], st_tgtR, st_tgtR.
@@ -153,8 +152,8 @@ Module CtrlIA. Section CtrlIA.
     iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst. hss.
 
     (* TGT, SRC: take steps *)
-    steps_r. hss. steps_r. hss. steps_r.
-    forces_l. step. iSplitL "". { rewrite Nat.add_comm Nat.add_sub. eauto. }
+    steps_r. hss_r. steps_r. hss_r. steps_r.
+    steps_l. hss. step. iSplitL "". { rewrite Nat.add_comm Nat.add_sub. eauto. }
 
     (* Prove the IST *)
     iExists [_], [_;_], st_tgtR, st_tgtR.
@@ -170,9 +169,9 @@ Module CtrlIA. Section CtrlIA.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
-    steps_l.
     iDestruct "IST" as (? ? ? ?) "(% & (% & IST) & %)". des; subst.
-    iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst. hss.
+    iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst.
+    steps_l. hss.
     rename _q into v. rename _q0 into l.
 
     (* TGT: check the length of the queue *)
@@ -228,16 +227,16 @@ Module CtrlIA. Section CtrlIA.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
-    steps_l. hss.
     iDestruct "IST" as (? ? ? ?) "(% & (% & IST) & %)". des; subst.
     iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst. hss.
+    steps_l. hss.
 
     (* TGT: check the length of the queue *)
     steps_r. hss. steps_r. hss. steps_r.
-    destruct q; ss.
+    destruct _q0; ss.
     { rewrite Nat.add_0_r Nat.sub_diag. s. step. ss. }
-    replace (tl + S(List.length q) - tl) with (S(List.length q)) by nia. s.
-    rewrite !length_app in H6.
+    replace (tl + S(List.length _q0) - tl) with (S(List.length _q0)) by nia. s.
+    rewrite !length_app in H5.
 
     (* SRC: take steps *)
     steps_l. hss.
@@ -260,7 +259,7 @@ Module CtrlIA. Section CtrlIA.
     (* Prove the IST *)
     iExists [_], [_;_], st_tgtR, st_tgtR.
     do 3 (iSplit; eauto).
-    iExists q, (q'++[z]), (tl + S(List.length q)), (S tl).
+    iExists _q0, (q'++[z]), (tl + S(List.length _q0)), (S tl).
     iSplit.
     { iPureIntro. esplits; eauto; try nia.
       - repeat f_equal. nia.
@@ -294,5 +293,4 @@ Module CtrlIA. Section CtrlIA.
     - eapply simF_enqueue; eauto.
     - eapply simF_dequeue; eauto.
   (*SLOW*)Qed.
-
 End CtrlIA. End CtrlIA.

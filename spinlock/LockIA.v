@@ -32,27 +32,32 @@ Module LockIA. Section LockIA.
     steps_r.
 
     (* tgt yield *)
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
 
     (* tgt inline - mem alloc *)
     steps_r. inline_r. steps_r.
-    rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-    iApply wsim_update_proph_tgt; iExists 1. iSplit; eauto.
-    iIntros (?) "[%blk [% [PT _]]]". steps_r. hss_r; steps_r.
+    ru_r; iIntros (pr) "H".
+    iMod ("H" $! 1 with "[]") as "[PR [%blk [% [PT _]]]]".
+    { unfold_pre_post; iSplit; eauto. }
+    force_r; iFrame "PR".
+
+    steps_r. hss_r. steps_r.
 
     (* tgt yield *)
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
 
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r.
-    rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-    iApply wsim_update_proph_tgt; iExists (blk, 0%Z, _, Vint 0). s. iSplitL "PT"; s; et.
-    iIntros (?) "[PT %]". steps_r.
-    hss. steps_r.
+    clear pr. ru_r; iIntros (pr) "PRE".
+    iMod ("PRE" $! (blk, 0%Z, _, Vint 0) with "[PT]") as "[PR [PT %]]".
+    { iFrame "PT"; done. }
+    force_r; iFrame "PR".
+
+    steps_r. hss_r. steps_r.
 
     (* src/tgt yield *)
-    sch_yield_ir; iFrame; sch_intros.
-    sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l. force_l.
+    sch_yield_ir. steps_r.
+    sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l. force_l. steps_l.
 
     (* prove source postcondition *)
     (* alloc invariant *)
@@ -74,50 +79,51 @@ Module LockIA. Section LockIA.
 
     (* start coinduction for lock acquire/failure *)
     iApply wsim_reset.
-    iStopProof. clear NODS NODT.
+    iStopProof.
     revert st_src. combine_quant st_tgt.
     eapply wsim_coind.
-    iIntros (g' [st_sgt st_src]) "[#LOCK [IST TID]] _ #CIH /=".
-    destruct_quant.
+    iIntros (g' _ CIH [st_tgt st_src]) "[#LOCK [IST TID]] /=".
+    destruct_quant CIH.
 
-    unfold_iter_r. steps_r.
+    unfold_iterC_r. steps_r.
     (* tgt yield *)
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
     (* open invariant *)
     iInv "LOCK" as "I" "Hcl". SL_red.
     iDestruct "I" as "[FAIL|SUCC]".
     { (* fail case *)
       (* tgt inline - mem cas *)
       steps_r. inline_r. steps_r.
-      rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-      iApply wsim_update_proph_tgt; iExists (_,_,_,_,_,_,_,_,_,_); s.
-      iSplitL "FAIL". { iFrame. et. }
-      iIntros (?) "[% [POINTS_TO _]]". steps_r.
-      hss. steps_r.
-      iMod ("Hcl" with "[POINTS_TO]") as "_". { iFrame. }
+      ru_r. iIntros (pr) "PRE".
+      iMod ("PRE" $! (_,_,_,_,_,_,_,_,_,_) with "[FAIL]") as "[PR [% [PT ?]]]".
+      { iFrame "FAIL"; eauto. }
+      Unshelve. all: try exact 1%Qp; try exact (Vint 0).
+      force_r; iFrame "PR"; steps_r. hss_r. steps_r.
+
+      iMod ("Hcl" with "[PT]") as "_". { iFrame. }
       (* tgt yields *)
-      sch_yield_ir; iFrame; sch_intros.
-      sch_yield_ir; iFrame; sch_intros.
-      steps_r. by_coind "CIH". iFrame. done.
+      sch_yield_ir. steps_r.
+      sch_yield_ir. steps_r.
+      by_coind CIH. iFrame. done.
     }
     { (* success case *)
       (* tgt inline - mem cas *)
       iDestruct "SUCC" as "[POINTS_TO [Q TKN]]".
       steps_r. inline_r. steps_r.
-      rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-      iApply wsim_update_proph_tgt; iExists (_,_,_,_,_,_,_,_,_,_); s.
-      iSplitL "POINTS_TO". { iFrame; et. }
-      iIntros (?) "[% [POINTS_TO _]]". steps_r.
-      hss. steps_r.
-      iMod ("Hcl" with "[POINTS_TO]") as "_". { iFrame. }
+
+      ru_r; iIntros (pr) "PRE".
+      iMod ("PRE" $! (_,_,_,_,_,_,_,_,_,_) with "[POINTS_TO]") as "[PR [% [PT PRE]]]".
+      { unfold_pre_post. iFrame "POINTS_TO". eauto. }
+      Unshelve. all: try exact 1%Qp; try exact (Vint 0).
+      force_r. iFrame "PR". steps_r. hss_r. steps_r.
+      iMod ("Hcl" with "[PT]") as "_". { iFrame. }
       (* tgt yields *)
-      do 3 (sch_yield_ir; iFrame; sch_intros).
+      do 3 (sch_yield_ir).
       (* src yield *)
       sch_yield_l. forces_l. iSplitL "Q TKN TID"; SL_red; iFrame; et.
       (* both terminate *)
       step; eauto.
     }
-    Unshelve. all: eauto. all: try exact 1%Qp. all: try exact Vundef.
   (*SLOW*)Qed.
 
   Lemma release_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.release).
@@ -130,25 +136,25 @@ Module LockIA. Section LockIA.
     hss.
     steps_r.
     (* tgt yield *)
-    sch_yield_ir; iFrame; sch_intros.
+    sch_yield_ir.
     (* open invariant *)
     iInv "LOCK" as "I" "Hcl". SL_red.
     iDestruct "I" as "[LOCKED|UNLOCKED]".
     { (* locked case *)
       steps_r. inline_r. steps_r.
-      rewrite /fspec_proph_update; unfold_iter_r; steps_r; hss_r; steps_r.
-      iApply wsim_update_proph_tgt; iExists (_,_,_,_); s.
+      iApply wsim_ru_tgt_simple. iExists (_,_,_,_); s.
       iSplitL "LOCKED"; iFrame; et.
-      iIntros (?) "[POINTS_TO %]".
-      hss. steps_r.
-      iMod ("Hcl" with "[POINTS_TO Q TKN]") as "_". iRight. iFrame. hss_r; steps_r.
+      iIntros "[PT %]".
+      hss. steps_r. hss_r. steps_r.
+      iMod ("Hcl" with "[PT Q TKN]") as "_".
+      { iRight. iFrame. }
       (* tgt yield *)
-      sch_yield_ir; iFrame; sch_intros.
+      sch_yield_ir.
       (* src yield *)
       sch_yield_l. steps_l. forces_l. iFrame. iSplit; et. step. iFrame; et.
     }
     { (* unlocked case - ex falso quodlibet *)
-      iDestruct "UNLOCKED" as "[POINTS_TO [Q' TKN']]".
+      iDestruct "UNLOCKED" as "[PT [Q' TKN']]".
       iCombine "TKN TKN'" gives %Hv. done.
     }
   (*SLOW*)Qed.

@@ -48,12 +48,12 @@ Module ClientIA. Section ClientIA.
     steps_r. hss. steps_r.
     rewrite /ClientI.incr /ClientA.incr /=. norm_l; norm_r.
 
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT.
+    sch_yield_ir.
 
     (* tgt inline - faa *)
     steps_r; inline_r; steps_r.
     hss_r; steps_r.
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT.
+    sch_yield_ir.
 
     rewrite /incr_inv.
     iInv "INV" as "I" "IA". SL_red.
@@ -65,22 +65,22 @@ Module ClientIA. Section ClientIA.
     iMod (counter_incr 1 with "[C CA]") as "[C CA]"; first iFrame.
     iMod ("IA" with "[GRT CA]") as "_".
     { iExists (x + 1)%Z; SL_red; ss; iFrame. }
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT x.
+    sch_yield_ir.
 
     rewrite /incr_inv.
     iInv "INV" as "I" "IA". SL_red.
-    iDestruct "I" as (x) "PT". SL_red. iDestruct "PT" as "[PT CA]".
+    iDestruct "I" as (y) "PT". SL_red. iDestruct "PT" as "[PT CA]".
 
     (* operational atomicity here *)
     forces_r; iFrame "PT"; steps_r.
 
     iMod (counter_incr 1 with "[C CA]") as "[C CA]"; first iFrame.
     iMod ("IA" with "[GRT CA]") as "_".
-    { iExists (x + 1)%Z; SL_red; ss; iFrame. }
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT.
+    { iExists (y + 1)%Z; SL_red; ss; iFrame. }
+    sch_yield_ir.
 
     steps_r; hss_r; steps_r.
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT.
+    sch_yield_ir.
     steps_r.
 
     sch_yield_l; steps_l; forces_l; iFrame "TID".
@@ -99,25 +99,25 @@ Module ClientIA. Section ClientIA.
 
     (* src/tgt yield *)
     steps_r.
-    sch_yield_ir; iFrame "TID"; iSplitL.
+    sch_yield_ir. iSplitL.
     { iExists _, _, _, _; iSplit; eauto.
       iSplit; eauto.
       { iPureIntro; splits; ss; unfold_mod; ss. unfold_mod; ss. }
     }
-    iIntros (?? _ _) "IST TID".
+    iIntros (??) "IST TID".
 
     (* tgt alloc *)
     steps_r; inline_r.
     force_r 1; forces_r; iSplit; eauto.
     steps_r; iDestruct "GRT" as "[[%blk [-> [PT _]]] ->]"; hss_r; steps_r.
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
+    sch_yield_ir.
+    sch_yield_ir.
 
     (* tgt store *)
-    inline_r.
+    steps_r. inline_r.
     force_r (_, _, _, _); forces_r; iFrame "PT"; iSplit; eauto.
     steps_r. iDestruct "GRT" as "[[PT ->] ->]"; hss_r; steps_r.
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
+    sch_yield_ir.
     sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l. sch_yield_l. steps_l.
 
     (* spawn *)
@@ -144,7 +144,7 @@ Module ClientIA. Section ClientIA.
     steps_l. call "IST".
     steps_l. iDestruct "ASM" as "[% [-> [TID [% [[-> ->] TKN]]]]]". hss.
     rename _q0 into tid1. steps_r. hss_r. steps_r.
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
+    sch_yield_ir.
     sch_yield_l.
 
     rewrite /Sch.spawn; steps_r; steps_l.
@@ -160,7 +160,7 @@ Module ClientIA. Section ClientIA.
     steps_l. call "IST".
     steps_l. iDestruct "ASM" as "[% [-> [TID [% [[-> ->] TKN2]]]]]". hss.
     rename _q0 into tid2. steps_r. hss_r. steps_r.
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
+    sch_yield_ir.
     sch_yield_l.
 
     rewrite /Sch.join; steps_r; steps_l.
@@ -169,7 +169,7 @@ Module ClientIA. Section ClientIA.
     steps_l. iDestruct "ASM" as "[% [-> [% [% ASM]]]]"; hss.
     iDestruct "ASM" as "[[% ->] [TID ASM]]". hss. SL_red. iDestruct "ASM" as "[[-> ->] Q]".
     steps_r. hss_r. steps_r.
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
+    sch_yield_ir.
     sch_yield_l.
 
     rewrite /Sch.join; steps_r; steps_l.
@@ -178,27 +178,27 @@ Module ClientIA. Section ClientIA.
     steps_l. iDestruct "ASM" as "[% [-> [% [% ASM]]]]"; hss.
     iDestruct "ASM" as "[[% ->] [TID ASM]]". hss. SL_red. iDestruct "ASM" as "[[-> ->] Q2]".
     steps_r. hss_r. steps_r.
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
+    sch_yield_ir.
 
     iInv "I" as "INV" "INVA"; iEval (SL_red) in "INV"; iDestruct "INV" as "[%x INV]".
     iEval (SL_red) in "INV". iDestruct "INV" as "[PT C]".
     iCombine "C Q Q2" as "C" gives %[_ WF%frac_auth_agree]. inv WF; ss.
     iDestruct "C" as "[CA CF]".
 
-    inline_r. steps_r. force_r (blk, 0%Z, 1%Qp, (Vint 4)). steps_r. forces_r.
+    steps_r. inline_r. steps_r. force_r (blk, 0%Z, 1%Qp, (Vint 4)). steps_r. forces_r.
     iSplitL "PT"; eauto.
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
 
     iMod ("INVA" with "[CA PT]") as "_".
     { SL_red. iExists 4; SL_red; iFrame. }
 
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
+    sch_yield_ir. steps_r.
+    sch_yield_ir.
     sch_yield_l; steps_l.
 
     step.
     steps_l. steps_r.
-    sch_yield_ir; iFrame "IST TID"; sch_intros; clear NODS NODT; steps_r.
+    sch_yield_ir.
     sch_yield_l. steps_l.
     step. eauto.
 (*SLOW*)Qed.

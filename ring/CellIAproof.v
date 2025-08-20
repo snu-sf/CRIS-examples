@@ -46,7 +46,8 @@ Module CellIA. Section CellIA.
     steps_r. hss. steps_r.
 
     (* SRC: take steps *)
-    forces_l. iSplitL "C". { eauto. } steps_l.
+    forces_l. iSplitL "C". { eauto. }
+    steps_l. steps_r.
 
     step. iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
@@ -71,9 +72,8 @@ Module CellIA. Section CellIA.
       (* TGT, SRC: take steps *)
       steps_r. hss.
       forces_l. iSplitL "C". { eauto. } steps_l.
-
       (* Prove the IST *)
-      step.
+      steps_r. step.
       iSplit; eauto.
       iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
     }

@@ -39,6 +39,7 @@ Module CellioIA. Section CellioIA.
 
     steps_l. forces_l.
     iSplit; eauto.
+    steps_r. steps_l.
 
     step.
     iSplitL ""; eauto.

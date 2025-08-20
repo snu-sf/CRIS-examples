@@ -26,14 +26,14 @@ Module LockIA. Section LockIA.
 
     destruct (arg↓) as [v|] eqn:E; cycle 1.
     { sch_yield_l. steps_l. force_l (tt↑). steps_l.
-      fancy_real_l False%I. iSplitL; cycle 1.
+      ru_l False%I. iSplitL; cycle 1.
       { iIntros "F". iExFalso. et. }
       iIntros ([]) "[_ [[% _] _]]"; subst; hss.
     }
 
     (* tgt yield *)
     steps_r.
-    sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID".
+    sch_yield_rr.
 
     (* tgt inline - mem alloc *)
     steps_r. inline_r. steps_r. force_r 1.
@@ -41,7 +41,7 @@ Module LockIA. Section LockIA.
     steps_r; hss_r; steps_r.
 
     (* tgt yield *)
-    sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID".
+    sch_yield_rr.
 
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r. force_r (blk, 0%Z, _, _); s.
@@ -49,14 +49,14 @@ Module LockIA. Section LockIA.
     steps_r; hss_r; steps_r.
 
     (* src/tgt yield *)
-    sch_yield_rr; iFrame; iSplit; try done; sch_intros; iClear "TID"; steps_r.
+    sch_yield_rr.
     sch_yield_l; steps_l.
 
     (* lock token allocation *)
     iMod (own_alloc (Excl ())) as "[%γ TKN]"; [done|].
 
     force_l ((Vptr (blk, 0%Z))↑). steps_l.
-    fancy_real_l emp%I.
+    ru_l emp%I.
     iSplitL "↦ TKN"; cycle 1.
     { iIntros "_". steps_l. sch_yield_l. step. iSplit; done. }
     { iIntros ([n P]) "[W [[_ P] _]]"; s.
@@ -81,33 +81,32 @@ Module LockIA. Section LockIA.
 
     (* ill-formed argument *)
     destruct (arg↓) as [l|] eqn : Heqarg; cycle 1.
-    { rewrite /fancy_real_peek. unfold_iter_l. steps_l.
+    { rewrite /real_peek. unfold_iter_l. steps_l.
       sch_yield_l. steps_l. force_l false. steps_l.
-      sch_yield_l. steps_l. force_l (tt↑). steps_l.
-      fancy_real_l False%I. iSplitL; cycle 1.
+      force_l (tt↑). steps_l.
+      ru_l False%I. iSplitL; cycle 1.
       { iIntros "F". iExFalso. et. }
       iIntros ([[] []]) "[_ [[% _] _]]"; subst; hss.
     }
     destruct (or_else (pargs [Tptr] l) (0, 0%Z)) as [blk ofs] eqn: EQ.
 
-    steps_r. rewrite /fancy_real_peek.
+    steps_r. rewrite /real_peek.
     unfold_iter_l; steps_l. unfold_iter_r. steps_r.
     (* start coinduction for lock acquire/failure *)
-    iApply wsim_reset. iStopProof. clear NODS NODT.
+    iApply wsim_reset. iStopProof.
     revert st_src. combine_quant st_tgt.
     eapply wsim_coind.
-    iIntros (g' [st_tgt st_src]) "IST _ #CIH /=".
-    destruct_quant.
+    iIntros (g' _ CIH [st_tgt st_src]) "IST /=".
+    destruct_quant CIH.
 
-    sch_yield_rr; iFrame "IST"; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.
+    sch_yield_rr.
     sch_yield_l; steps_l.
     steps_r. inline_r. steps_r.
-    fancy_real_r. iIntros (pr) "UPD". rename _q into ret.
+    ru_r. iIntros (pr) "UPD". rename _q into ret.
 
     destruct (classic (ret = (Vint 0)↑)).
-    { force_l false. steps_l. sch_yield_l. steps_l.
-      force_l (Vundef↑). steps_l.
-      fancy_real_l (Own pr)%I.
+    { force_l false. steps_l. force_l (Vundef↑). steps_l.
+      ru_l (Own pr)%I.
       iSplitL "UPD".
       { iIntros ([[γ vl] [n P]]) "/= [W [[% [%bofs #[% I]]] %]]"; destruct bofs as [blk' ofs'].
         iRevert "W". iInv "I" as "INV" "ACC". hss.
@@ -118,6 +117,7 @@ Module LockIA. Section LockIA.
         }
         iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [$ [% [↦ _]]] /=".
         { s. iFrame "PT". iSplit; eauto. }
+        Unshelve. all: try exact 1%Qp; try exact (Vint 0); eauto.
         hss. iMod ("ACC" with "[↦]") as "_".
         { SL_red; iFrame "↦". }
         iIntros "$ !>"; iSplit; et.
@@ -125,15 +125,13 @@ Module LockIA. Section LockIA.
       }
       iIntros "PR".
       steps_l. force_r; iFrame. steps_r. hss. steps_r.
-      sch_yield_rr; iFrame "IST"; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.   
-      sch_yield_rr; iFrame "IST"; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.   
-      sch_yield_rr; iFrame "IST"; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.   
+      do 3 sch_yield_rr.
       sch_yield_l.
       step. et.
     }
     
     { force_l true. steps_l.
-      fancy_real_l (⌜ret = (Vint 1)↑⌝ ∗ Own pr)%I.
+      ru_l (⌜ret = (Vint 1)↑⌝ ∗ Own pr)%I.
       iSplitL "UPD".
       { iIntros ([[γ vl] [n P]]) "/= [W [[% [%bofs #[% I]]] %]]"; destruct bofs as [blk' ofs'].
         iRevert "W". iInv "I" as "INV" "ACC". hss.
@@ -144,6 +142,7 @@ Module LockIA. Section LockIA.
         }
         iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [$ [% [↦ _]]] /=".
         { s. iFrame "PT". iSplit; eauto. }
+        Unshelve. all: try exact 1%Qp; try exact (Vint 0); eauto.
         hss. iMod ("ACC" with "[↦]") as "_".
         { SL_red; iFrame "↦". }
         iIntros "$ !>". repeat (iSplit; et).
@@ -152,12 +151,11 @@ Module LockIA. Section LockIA.
       iIntros "[-> PR]".
       steps_l. unfold_iter_l. steps_l.
       force_r; iFrame. steps_r. hss. steps_r.
-      sch_yield_rr; iFrame "IST"; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.   
-      sch_yield_rr; iFrame "IST"; iSplit; [done|]; sch_intros; iClear "TID"; steps_r.   
+      do 2 sch_yield_rr. steps_r.
       unfold_iter_r. steps_r.
-      by_coind "CIH". iFrame.
+      by_coind CIH. iFrame.
     }
-  Unshelve. all: try exact 0. all: try exact 1%Qp. all: try exact Vundef.
+  Unshelve. all: try exact 1%Qp; try exact (Vint 0); eauto.
   (*SLOW*)Qed.
 
   Lemma release_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.release).
@@ -169,18 +167,18 @@ Module LockIA. Section LockIA.
     (* ill-formed argument *)
     destruct (arg↓) as [l|] eqn : Heqarg; cycle 1.
     { sch_yield_l. steps_l. force_l (tt↑). steps_l.
-      fancy_real_l False%I. iSplitL; cycle 1.
+      ru_l False%I. iSplitL; cycle 1.
       { iIntros "F". iExFalso. et. }
       iIntros ([[] []]) "[_ [[% _] _]]"; subst; hss.
     }
     
     destruct (or_else (pargs [Tptr] l) (0, 0%Z)) as [blk ofs] eqn: EQ.
     steps_r.
-    sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID".
+    sch_yield_rr.
     steps_r. inline_r. steps_r.
-    fancy_real_r. iIntros (pr) "UPD". rename _q into ret.
+    ru_r. iIntros (pr) "UPD". rename _q into ret.
     sch_yield_l; steps_l. force_l (Vundef↑). steps_l.
-    fancy_real_l (⌜ret = (Vint 0)↑⌝ ∗ Own pr)%I.
+    ru_l (⌜ret = (Vint 0)↑⌝ ∗ Own pr)%I.
     iSplitL "UPD".
     { iIntros ([[γ v] [n R]]) "[W [[% [[% [-> #I]] [TKN R]]] _]] /=". hss.
       iRevert "W". iInv "I" as "INV" "ACC".
@@ -195,7 +193,7 @@ Module LockIA. Section LockIA.
 
     iIntros "[-> ?]"; force_r; iFrame.
     steps_l. steps_r; hss_r. steps_r.
-    sch_yield_rr; iFrame; iSplit; et; sch_intros; iClear "TID". steps_r.
+    sch_yield_rr.
     sch_yield_l; steps_l; step. et.
     Unshelve. all: eauto.
   (*SLOW*)Qed.
