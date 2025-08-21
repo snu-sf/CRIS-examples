@@ -1,4 +1,4 @@
-(* Require Import CRIS.
+Require Import CRIS.
 From CRIS.spinlock_atomic Require Import Header LockI LockA LockIA MainI MainA MainIA.
 Require Import ImpPrelude MemI MemA MemIAproof.
 Require Import SchHeader SchI SchA SchIAproof.
@@ -194,4 +194,4 @@ Module MainAll.
     rewrite IV0 /init_cond /MainAS.init_cond /icond_winv {1}winv_split_empty. 
     iIntros ">[[[? ?] ?] ?]". iFrame. et.
   (*SLOW*)Qed.
-End MainAll. *)
+End MainAll.

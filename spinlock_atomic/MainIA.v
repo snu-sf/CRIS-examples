@@ -1,4 +1,4 @@
-(* Require Import CRIS.
+Require Import CRIS.
 From CRIS.spinlock_atomic Require Import Header MainI MainA LockI LockA.
 Require Import ImpPrelude.
 Require Import SchHeader SchA MemA SchTactics.
@@ -20,7 +20,7 @@ Module MainIA. Section MainIA.
   Context (MainInSp : spl_sub (MainAS.sp E q) sp_user_s).
 
   Local Definition MemP := MemP.t.
-  Local Definition SpinLockA := (SpinLockA.t E (q / 2) sp_t).
+  Local Definition SpinLockA := SpinLockA.t.
   Local Definition SpinLockMainA := (SpinLockMainA.t E q sp_s).
   Local Definition SpinLockMainI := (SpinLockMainI.t).
   Local Definition IstFull := (IstProd (IstSB SpinLockMainA.(Mod.scopes) IstTrue) IstEq).
@@ -41,11 +41,35 @@ Module MainIA. Section MainIA.
     steps_l. hss. steps_l. rewrite /SpinLockMainA.incr. steps_l.
     steps_r. hss. steps_r. rewrite /SpinLockMainI.incr. steps_r.
     (* tgt yields *)
-    sch_yield_ir; iFrame; sch_intros.
-    steps_r.
+    sch_yield_ir. steps_r.
     (* tgt inline - lock acquire *)
-    sch_yield_ir; iFrame; sch_intros.
-    steps_r. inline_r. force_r (tid, (γ_l, Vptr (blk_l, ofs_l), existT 0 (lock_P (blk_v, ofs_v) γ_v))).
+    sch_yield_ir. steps_r.
+    inline_r. steps_r.
+
+    real_peek_ir "I F".
+    { iModIntro. iIntros (??) "[[_ F] IST]".
+      admit.
+    }
+    iDestruct "IST" as "[[_ F] IST]".
+
+    
+    iSplit.
+    Focus 2.
+
+  .
+
+  try iIntrosFresh "TID";
+   try
+    match goal with
+    | |- context [ environments.Esnoc _ ?H emp ] => iClear H
+    end
+    
+    sch_intros.
+
+    
+
+
+    force_r (tid, (γ_l, Vptr (blk_l, ofs_l), existT 0 (lock_P (blk_v, ofs_v) γ_v))).
     steps_r. forces_r.
     rewrite -{1}(Qp.div_2 q); iPoseProof (SchAS.tid_user_split with "TID") as "[TID1 ITD2]".
     iFrame. iSplit; eauto. hss. steps_r.
@@ -234,4 +258,4 @@ Module MainIA. Section MainIA.
   ((SpinLockMainA.t E q sp_s) ★ ((SpinLockA.t E (q/2) sp_t) ★ MemP.t), init_cond)
   ((SpinLockMainI.t)          ★ ((SpinLockA.t E (q/2) sp_t) ★ MemP.t), emp%I).
   Proof. eapply main_adequacy, sim. Qed.
-End MainIA. End MainIA. *)
+End MainIA. End MainIA.
