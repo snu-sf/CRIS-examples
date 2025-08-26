@@ -1,0 +1,16 @@
+#!/bin/sh
+
+s_word="(\*SLOW\*)Admitted"
+t_word="(\*SLOW\*)Qed"
+
+for file in `find . -name "*.v"`
+do
+  res=`grep "$s_word" $file`
+  if [ -n "$res" ]
+  then
+    echo "substitute $s_word with $t_word in $file ..."
+    cp $file ${file}~
+    sed "s/$s_word/$t_word/g" < ${file}~ > $file
+    rm -f ${file}~
+  fi
+done

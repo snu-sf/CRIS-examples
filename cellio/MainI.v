@@ -1,0 +1,31 @@
+Require Import CRIS.
+Require Import CellioHeader CtxHeader.
+
+Set Implicit Arguments.
+
+Module MainI. Section MainI.
+  Context `{Σ: GRA}.
+
+  Definition scopes : list string := [].
+
+  Definition main: Any.t -> itree crisE Any.t :=
+    λ _,
+      ccallU (Y:=unit) CellioHdr.set tt;;;
+      ccallU (Y:=unit) CtxHdr.foo tt;;;
+      x <- ccallU (Y:=Z) CellioHdr.get tt;;
+      trigger (@IO _ unit "Print" x);;;
+      Ret tt↑.
+  
+  Definition fnsems : fnsems_type :=
+    [(None, (false, wmask_all, scopes, (None, main)))].
+
+  Program Definition smod: SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems;
+    SMod.initial_st := [];
+  |}.
+  Solve All Obligations with prove_scope.
+  Next Obligation. prove_nodup. Qed.
+  
+  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
+End MainI. End MainI.
