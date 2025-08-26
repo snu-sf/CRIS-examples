@@ -130,7 +130,7 @@ Module MainIA. Section MainIA.
     { repeat (iSplit; et). SL_red. iExists _. SL_red. iFrame. }
     steps_r. iDestruct "GRT" as "[[%v [%γ_l [-> [% [% #I]]]]] _]". hss.
     sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
-    iDestruct "W" as "[W1 W2]". clear _q.
+    iDestruct "W" as "[W1 W2]".
 
     (* spawn thread 1 - incr *)
     sch_yield_l. force_l (_,_). steps_l. sch_yield_l.
@@ -207,7 +207,7 @@ Module MainIA. Section MainIA.
       - iExists _. iFrame "I". et.
       - iExists _. SL_red. iFrame.
     }
-    steps_r. iDestruct "GRT" as "%"; des; hss. clear _q.
+    steps_r. iDestruct "GRT" as "%"; des; hss.
     sch_yield_ir. steps_r. hss. steps_r.
 
     (* both output - counter value *)

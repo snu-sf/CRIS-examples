@@ -52,7 +52,7 @@ Module LockIA. Section LockIA.
     (* src/tgt yield *)
     sch_yield_rr. sch_yield_l; steps_l.
 
-    force_l true. force_l ((Vptr (blk, 0%Z))↑). steps_l. destruct _q as [n P]. s.
+    force_l ((Vptr (blk, 0%Z))↑). steps_l. destruct _q as [n P]. s.
     iDestruct "ASM" as "[[% P] _]". des. hss.
 
     (* lock token allocation *)
@@ -138,7 +138,7 @@ Module LockIA. Section LockIA.
     des; subst; hss.
 
     steps_r; sch_yield_rr; steps_r.
-    sch_yield_l; steps_l. force_l false. force_l (Vundef↑). 
+    sch_yield_l; steps_l. force_l (Vundef↑). 
     destruct _q1. s. iDestruct "ASM" as "[[% [[% [% #I]] [TKN P]]] _]". hss.
     iInv "I" as "INV" "ACC". iEval (SL_red) in "INV".
     iDestruct "INV" as "[PT | [PT [R' TKN']]]"; cycle 1.
