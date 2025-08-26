@@ -23,9 +23,9 @@ Module LockIA. Section LockIA.
     ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.newlock).
   Proof using SchG.
     init_simF.
+    steps_l; unfold_img_lat_l.
 
-    (* preprocess initial conditions *)
-    steps_l. unfold_iter_l. steps_l.
+    (* ill-formed argument *)
     destruct (arg↓) as [v|] eqn:E; cycle 1.
     { sch_yield_l. steps_l. destruct _q.
       iDestruct "ASM" as "[[% _] _]". des; subst. hss.
@@ -71,10 +71,8 @@ Module LockIA. Section LockIA.
   Lemma acquire_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.acquire).
   Proof using SchG.
     init_simF.
+    steps_l; unfold_img_lat_l.
 
-    (* process src precondition *)
-    steps_l; unfold_iter_l; steps_l. 
-    
     (* ill-formed argument *)
     destruct (classic (∃ blk ofs, arg = [Vptr (blk,ofs)]↑)); cycle 1.
     { sch_yield_l. steps_l. destruct _q1. iDestruct "ASM" as "[[% L] _]".
@@ -82,7 +80,7 @@ Module LockIA. Section LockIA.
     }
     des; subst; hss.
 
-    steps_r; unfold_iter_r; steps_r.    
+    steps_r.
     (* start coinduction for lock acquire/failure *)    
     iApply wsim_reset. iStopProof.
     revert st_src. combine_quant st_tgt.
@@ -90,6 +88,7 @@ Module LockIA. Section LockIA.
     iIntros (g' _ CIH [st_tgt st_src]) "IST /=".
     destruct_quant CIH.
 
+    unfold_iter_r; steps_r.
     sch_yield_rr; sch_yield_l; steps_l.
     steps_r; inline_r; steps_r.
 
@@ -104,9 +103,8 @@ Module LockIA. Section LockIA.
       { SL_red; iFrame "↦". }
       force_l true. forces_l. iSplitL "".
       { repeat (iSplit; et). iExists _; et. }
-      steps_l. unfold_iter_l; steps_l.
+      steps_l. unfold_img_lat_l.
       sch_yield_rr. steps_r. sch_yield_rr. steps_r.
-      unfold_iter_r; steps_r.
       by_coind CIH. hss_copset. iFrame.
     }
     { force_r (_, _, _, _, _, _, _, _, _, _). steps_r. forces_r.
@@ -127,8 +125,7 @@ Module LockIA. Section LockIA.
   Lemma release_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.release).
   Proof using SchG.
     init_simF.
-    (* process src precondition *)
-    steps_l; unfold_iter_l; steps_l.
+    steps_l; unfold_img_lat_l.
 
     (* ill-formed argument *)
     destruct (classic (∃ blk ofs, arg = [Vptr (blk,ofs)]↑)); cycle 1.

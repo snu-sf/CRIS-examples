@@ -50,7 +50,7 @@ Module MainIA. Section MainIA.
     intros g _ CIH [st_src st_tgt]. destruct_quant CIH; s.
     iIntros "[#L [F [IST TID]]]".
 
-    unfold_iter_r. steps_r. sch_yield_ir. steps_r.
+    unfold_img_lat_r. sch_yield_ir. steps_r.
     force_r (γ_l, Vptr (blk_l, ofs_l), existT 0 (lock_P (blk_v, ofs_v) γ_v)).
     force_r. iFrame "L". iSplit; eauto.
     steps_r. destruct _q; [|clear CIH].
@@ -73,7 +73,7 @@ Module MainIA. Section MainIA.
     sch_yield_ir.
     
     (* tgt inline - lock release *)
-    steps_r. inline_r. steps_r. unfold_iter_r. steps_r. sch_yield_ir.
+    steps_r. inline_r. steps_r. unfold_img_lat_r. sch_yield_ir.
     iCombine "P F" as "C". iMod (own_update with "C") as "[F P]".
     { apply frac_auth_update, (Z_local_update _ _ (x + 1) 1); lia. }
     force_r (γ_l, Vptr (blk_l, ofs_l), existT 0 (lock_P (blk_v, ofs_v) γ_v)).
@@ -124,7 +124,7 @@ Module MainIA. Section MainIA.
     iIntros "[%γ [B W]]".
 
     (* tgt inline - newlock *)
-    steps_r. inline_r. steps_r. unfold_iter_r. sch_yield_ir.
+    steps_r. inline_r. steps_r. unfold_img_lat_r. sch_yield_ir.
     force_r (existT 0 (lock_P (blk, 0%Z) γ)). forces_r.
     iSplitL "B PT"; eauto.
     { repeat (iSplit; et). SL_red. iExists _. SL_red. iFrame. }
@@ -181,7 +181,7 @@ Module MainIA. Section MainIA.
     intros g _ CIH [st_src st_tgt]. destruct_quant CIH; s.
     iIntros "[#I [W1 [W2 [IST TID]]]]".
 
-    unfold_iter_r. steps_r. sch_yield_ir.
+    unfold_img_lat_r. sch_yield_ir.
     force_r (γ_l, Vptr bofs, existT 0 (lock_P (blk, 0%Z) γ)). forces_r.
     iFrame "I". iSplit; eauto.
     steps_r. destruct _q.
@@ -200,7 +200,7 @@ Module MainIA. Section MainIA.
     steps_r. sch_yield_ir. steps_r. sch_yield_ir.
 
     (* tgt inline - lock release *)
-    steps_r. inline_r. steps_r. unfold_iter_r. steps_r. sch_yield_ir.
+    steps_r. inline_r. steps_r. unfold_img_lat_r. sch_yield_ir.
     force_r (γ_l, Vptr bofs, existT 0 (lock_P (blk, 0%Z) γ)). forces_r.
     iSplitL "TKN B PT".
     { repeat (iSplit; et); SL_red; iFrame.
