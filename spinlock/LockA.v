@@ -12,7 +12,7 @@ From iris Require Import excl.
 (* HRAs are structs similar to GRAs, but for RAs that sProps can own. *)
 Section RA.
   Context `{!crisG Γ Σ α β τ _S _I}.
-  
+
   Class spinlockG `{!crisG Γ Σ α β τ _S _I} := {
     spinlock_inG :: inG (exclR unitO) Γ;
   }.
@@ -28,10 +28,7 @@ Hint Unfold subG_spinlockG spinlock_inG : GRA_index.
 (* Spec definition *)
 (* Define 1) initial resource 2) function specs 3) sp here. *)
 Module LockAS. Section LockAS.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
-  Context `{_memG: !memG}.
-  Context `{_schG: !schG}.
-  Context `{_spinlockG: !spinlockG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG, !spinlockG}.
 
   (* Initial resource *)
   Definition ir : spinlockΓ := *[None].
@@ -44,41 +41,38 @@ Module LockAS. Section LockAS.
     bofs ↦ (Vint 1)
     ∨ bofs ↦ (Vint 0) ∗ P ∗ token n γ.
 
-  Definition is_lock {n} γ val P : iProp Σ :=
-    ∃ bofs, ⌜val = Vptr bofs⌝ ∗ inv n N_SpinLockA (lock_inv bofs P γ).
+  Definition is_lock {n} γ v P : iProp Σ :=
+    ∃ bofs, ⌜v = Vptr bofs⌝ ∗ inv n N_SpinLockA (lock_inv bofs P γ).
 
   (* Function specs *)
-  Definition newlock_spec E q : fspec :=
-    fspec_winv E (fspec_sch q
-      (fspec_simple (X := {n & GTerm.t n})
-        (λ '(existT n P),
-          ((λ _, ⟦P⟧),
-          (λ ret, ∃ val γ, ⌜ret = val↑⌝ ∗ is_lock γ val P))
-      ))%I).
 
-  Definition acquire_spec E q : fspec :=
-    fspec_winv E (fspec_sch q
-      (fspec_simple (X := gname * val * {n & GTerm.t n})
-        (λ '(γ, val, P),
-          ((λ arg, ⌜arg = [val]↑⌝ ∗ is_lock γ val (projT2 P)),
-          (λ ret, ⌜ret = Vundef↑⌝ ∗ ⟦token (projT1 P) γ⟧ ∗ ⟦projT2 P⟧))
-      )))%I.
+  Definition newlock_spec E : fspecS :=
+    from_fspec
+      (fspec_winv E (* namespace for invariant access *)
+         (fspec_simple (X:= {n : level & GTerm.t n})
+           (λ '(existT n P),
+            ((λ arg, ⌜∃ v: list val, arg = v↑⌝ ∗ ⟦P⟧),
+             (λ ret, ∃ v γ, ⌜ret = v↑⌝ ∗ is_lock γ v P))%I))).
 
-  Definition release_spec E q : fspec :=
-    fspec_winv E (fspec_sch q
-      (fspec_simple (X := gname * val * {n & GTerm.t n})
-        (λ '(γ, val, P),
-          ((λ arg, ⌜arg = [val]↑⌝
-            ∗ is_lock γ val (projT2 P)
-            ∗ ⟦token (projT1 P) γ⟧
-            ∗ ⟦projT2 P⟧),
-          (λ ret, ⌜ret = Vundef↑⌝))
-      )))%I.
+  Definition acquire_spec E : fspecS :=
+    from_fspec
+      (fspec_winv E
+         (fspec_simple (X:= (_ * _ * {n & GTerm.t n}))
+            (λ '(γ, v, (existT n P)),
+             ((λ arg, ⌜arg = [v]↑⌝ ∗ is_lock γ v P),
+              (λ ret, ⌜ret = Vundef↑⌝ ∗ ⟦token n γ⟧ ∗ ⟦P⟧))%I))).
 
-  Definition sp E q : spl_type :=
-    [(Some SpinLockHdr.newlock, Some (newlock_spec E q));
-     (Some SpinLockHdr.acquire, Some (acquire_spec E q));
-     (Some SpinLockHdr.release, Some (release_spec E q))].
+  Definition release_spec E : fspecS :=
+    from_fspec
+      (fspec_winv E
+         (fspec_simple (X:= (_ * _ * {n & GTerm.t n}))
+            (λ '(γ, v, (existT n P)),
+              ((λ arg, ⌜arg = [v]↑⌝ ∗
+                       is_lock γ v P ∗
+                       ⟦token n γ⟧ ∗
+                       ⟦P⟧),
+               (λ ret, ⌜ret = Vundef↑⌝))%I))).
+
 End LockAS. End LockAS.
 
 (* Module definition *)
@@ -88,33 +82,35 @@ End LockAS. End LockAS.
   3) initial state (via Any.t)
 *)
 Module SpinLockA. Section SpinLockA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
-  Context `{_memG: !memG}.
-  Context `{_schG: !schG}.
-  Context `{_spinlockG: !spinlockG}.
-
+  Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG, !spinlockG}.
+  Context `{E: coPset}.
+  
   Definition scopes : list string := [].
 
-  Definition newlock : list val → itree crisE val :=
-    λ _, 𝒴;;; trigger (Choose val).
+  Definition newlock E : Any.t → itree crisE Any.t :=
+    λ arg,
+      ret <- real_lat false (LockAS.newlock_spec E) 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
 
-  Definition acquire : list val → itree crisE val :=
-    λ _, 𝒴;;; Ret Vundef.
-  Definition release : list val → itree crisE val :=
-    λ _, 𝒴;;; Ret Vundef.
+  Definition acquire E : Any.t → itree crisE Any.t :=
+    λ arg,
+      ret <- real_lat true (LockAS.acquire_spec E) 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
 
-  Definition fnsems E q : fnsems_type :=
-    [(Some SpinLockHdr.newlock, (true, wmask_all, scopes, (Some (LockAS.newlock_spec E q), cfunU newlock)));
-     (Some SpinLockHdr.acquire, (true, wmask_all, scopes, (Some (LockAS.acquire_spec E q), cfunU acquire)));
-     (Some SpinLockHdr.release, (true, wmask_all, scopes, (Some (LockAS.release_spec E q), cfunU release)))].
+  Definition release E : Any.t → itree crisE Any.t :=
+    λ arg,
+      ret <- real_lat false (LockAS.release_spec E) 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
 
-  Program Definition smod E q : SMod.t := {|
+  Definition fnsems E : fnsems_type :=
+    [(Some SpinLockHdr.newlock, (false, wmask_all, scopes, (None, newlock E)));
+     (Some SpinLockHdr.acquire, (false, wmask_all, scopes, (None, acquire E)));
+     (Some SpinLockHdr.release, (false, wmask_all, scopes, (None, release E)))].
+
+  Program Definition smod E: SMod.t := {|
     SMod.scopes := [];
-    SMod.fnsems := fnsems E q;
+    SMod.fnsems := fnsems E;
     SMod.initial_st := []
   |}.
   Solve All Obligations with prove_scope.
   Next Obligation. prove_nodup. Defined.
 
-  Definition t E q sp : Mod.t := Seal.sealing CRIS (SMod.to_mod sp (smod E q)).
+  Definition t E : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none (smod E)).
 End SpinLockA. End SpinLockA.

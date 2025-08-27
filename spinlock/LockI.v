@@ -21,7 +21,7 @@ Module SpinLockI. Section SpinLockI.
 
   Definition acquire : list val → itree crisE val :=
     λ x,
-      (iterC
+      (ITree.iter
         (λ _,
           𝒴;;; 'b_raw : val <- ccallU MemHdr.cas (x ++ [Vint 0; Vint 1]);;
           𝒴;;; 'b : Z <- (pargs [Tint] [b_raw])?;;

@@ -1,6 +1,6 @@
 Require Import CRIS.
 Require Import ImpPrelude MemHeader SchHeader.
-From CRIS.increment Require Import Header.
+From CRIS.incr_cas Require Import Header.
 
 Module IncrementI. Section IncrementI.
   Context {Σ : GRA}.

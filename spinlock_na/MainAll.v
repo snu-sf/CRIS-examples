@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.spinlock_atomic Require Import Header LockI LockA LockIA MainI MainA MainIA.
+From CRIS.spinlock_na Require Import Header LockI LockA LockIA MainI MainA MainIA.
 Require Import ImpPrelude MemI MemA MemIAproof.
 Require Import SchHeader SchI SchA SchIAproof.
 Require Import Cancel.
@@ -48,6 +48,8 @@ Module MainAll.
   (* the source Mod *)
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
+  Local Definition sp_t : sp_type := to_sp (SchAS.sp nil ⊤ (1/2)%Qp).
+
   (* initial condition for the source *)
   Local Definition init_cond : iProp Σ :=
     (MainAS.init_cond ⊤ 1 ∗ MemP.init_cond csl genv ∗ SchA.init_cond)%I.
@@ -56,6 +58,13 @@ Module MainAll.
   Lemma SchInSp : sp_incl (SchAS.sp sp_user ⊤ 1) sp.
   Proof.
     rewrite /sp /SchAS.sp /sp_from /to_sp. unseal CRIS.
+    split; first prove_nodup.
+    ii; s in H. by repeat (destruct (dec _ _); s in H; [depdes e; depdes H; et|]).
+  Qed.
+
+  Lemma SchInSp_t : sp_incl (SchAS.sp [] ⊤ (1/2)%Qp) sp_t.
+  Proof.
+    rewrite /sp_t /SchAS.sp /sp_from /to_sp. unseal CRIS.
     split; first prove_nodup.
     ii; s in H. by repeat (destruct (dec _ _); s in H; [depdes e; depdes H; et|]).
   Qed.
@@ -110,16 +119,17 @@ Module MainAll.
     (* abstraction of SpinLock *)
     etrans; cycle 1.
     { do 2 ctxr_drop.
-      eapply (LockIA.ctxr ⊤); cycle 1.
-      set_solver.
+      eapply LockIA.ctxr; cycle 1.
+      - apply SchInSp_t.
+      - set_solver.
     }
     
     (* abstraction of SpinLockMain *)
     etrans; cycle 1.
     { ctxr_drop.
       eapply MainIA.ctxr.
-      - set_solver.
       - apply SchInSp.
+      - apply SchInSp_t.
       - apply MainInSp.
     }
 
