@@ -1,7 +1,7 @@
 Require Import CRIS Cancel.
 Require Import MemI MemA MemIAproof ImpPrelude.
 Require Import SchHeader SchI SchA SchIAproof SchTactics.
-From CRIS.incr Require Import Header ClientI ClientA ClientIA FaaI FaaA FaaIA.
+From CRIS.incr_faa Require Import Header ClientI ClientA ClientIA FaaI FaaA FaaIA.
 
 Section TMP.
   Context `{_crisG: !crisG Γ Σ α β τ _S _I}.

@@ -1,7 +1,7 @@
 Require Import CRIS.
 Require Import SchHeader SchA SchTactics.
 Require Import ImpPrelude MemHeader MemA.
-From CRIS.increment Require Import Header IncrementI IncrementA.
+From CRIS.incr_cas Require Import Header IncrementI IncrementA.
 
 Module IncrementIA. Section IncrementIA.
   Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG}.

@@ -32,14 +32,14 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R cannon $(CRISMODULE).cannon"; \
 	 echo "-R cellio $(CRISMODULE).cellio"; \
 	 echo "-R celliocb $(CRISMODULE).celliocb"; \
-	 echo "-R incr $(CRISMODULE).incr"; \
 	 echo "-R knot $(CRISMODULE).knot"; \
 	 echo "-R map $(CRISMODULE).map"; \
 	 echo "-R mutsum $(CRISMODULE).mutsum"; \
 	 echo "-R repeat $(CRISMODULE).repeat"; \
 	 echo "-R ring $(CRISMODULE).ring"; \
 	 echo "-R spinlock $(CRISMODULE).spinlock"; \
-	 echo "-R increment $(CRISMODULE).increment"; \
+	 echo "-R incr_faa $(CRISMODULE).incr_faa"; \
+	 echo "-R incr_cas $(CRISMODULE).incr_cas"; \
 	 echo $(COQTHEORIES)) > _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 

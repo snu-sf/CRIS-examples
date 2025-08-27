@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.incr Require Import Header ClientI ClientA FaaA.
+From CRIS.incr_faa Require Import Header ClientI ClientA FaaA.
 Require Import SchA MemA SchTactics.
 From iris Require Import frac_auth numbers.
 

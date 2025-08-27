@@ -1,6 +1,6 @@
 Require Import CRIS.
 Require Export ImpPrelude SchHeader SchA SchTactics MemA.
-From CRIS.incr Require Import Header.
+From CRIS.incr_faa Require Import Header.
 From iris Require Import frac_auth numbers.
 
 Section RA.

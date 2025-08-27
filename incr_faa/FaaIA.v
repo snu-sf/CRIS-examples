@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.incr Require Import Header FaaI FaaA.
+From CRIS.incr_faa Require Import Header FaaI FaaA.
 Require Import ImpPrelude MemHeader MemA SchA SchTactics SchHeader.
 
 Module FaaIA. Section FaaIA.

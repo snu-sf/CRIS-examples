@@ -1,6 +1,6 @@
 Require Import CRIS.
 Require Import ImpPrelude MemHeader MemA SchA SchTactics SchHeader.
-From CRIS.incr Require Import Header.
+From CRIS.incr_faa Require Import Header.
 
 Module FaaA. Section FaaA.
   Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG}.
