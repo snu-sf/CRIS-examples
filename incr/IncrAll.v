@@ -52,10 +52,6 @@ Module ClientAll.
   Local Definition sp : string → option fspec := sp_from smod_src.
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
-  (* Local Definition SchInSp0: sp_incl (SchAS.sp ⊤ (to_sp [])) (to_sp (SchAS.sp ⊤ (to_sp []))).
-  Proof.
-    split; [|refl]. rewrite /SchAS.sp; unseal CRIS. prove_nodup.
-  Qed. *)
   Local Definition SchInSp : sp_incl (SchAS.sp sp_user_s ⊤ 1%Qp) sp.
   Proof.
     rewrite /SchAS.sp; unseal CRIS.
@@ -65,7 +61,7 @@ Module ClientAll.
   Qed.
   Local Definition UserInSp : sp_incl sp_user_s sp.
   Proof.
-    rewrite /sp_user_s /ClientA.sp /MemA.sp; unseal CRIS.
+    rewrite /sp_user_s /ClientA.sp; unseal CRIS.
     split; [prove_nodup|].
     intros ??; ss; des_ifs; des_sumbool; clarify; intros INV; inv INV;
       rewrite /sp /smod_src /sp_from /= /to_sp /=; des_ifs; ss.
@@ -75,15 +71,9 @@ Module ClientAll.
     rewrite /spl_sub /sp_user_s /ClientA.sp /ClientA.incr_spec /=.
     ii; rewrite ->eq_rel_dec_correct in *; des_ifs.
   Qed.
-  (* Local Definition MemInSp : sp_incl MemA.sp sp.
-  Proof.
-    ii; rewrite /sp /SchAS.sp /MemA.sp /ClientA.sp; unseal CRIS; split; [prove_nodup|ii].
-    ss; des_ifs; rewrite ->eq_rel_dec_correct in *; des_ifs.
-  Qed. *)
 
   Local Definition init_cond : iProp Σ :=
-    MemA.init_cond csl genv ∗ SchA.init_cond ∗ ClientIA.ClientIA.init_cond ⊤ 1%Qp.
-  (* Local Definition main_fsp : fspec := ClientA.main_spec ⊤ 1%Qp. *)
+    MemP.init_cond csl genv ∗ SchA.init_cond ∗ ClientIA.ClientIA.init_cond ⊤ 1%Qp.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
@@ -116,7 +106,7 @@ Module ClientAll.
     (* abstraction of Mem *)
     etrans; cycle 1.
     { do 3 ctxr_rotate. do 3 ctxr_drop.
-      eapply MemIA.ctxr.
+      eapply MemIP.ctxr.
     }
 
     (* abstraction of Faa *)
@@ -144,7 +134,7 @@ Module ClientAll.
     rewrite -mod_add_empty_r.
 
     rewrite /SchIAproof.SchIA.SchAMod.
-    rewrite /SchA.t /ClientA.t /MemA.t.
+    rewrite /SchA.t /ClientA.t /MemP.t.
     unseal CRIS.
     ctxr_rotate.
     

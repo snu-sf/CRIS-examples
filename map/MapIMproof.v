@@ -1,7 +1,9 @@
 Require Import CRIS.
+Require Import SchTactics.
 
 Require Import MemA.
 From CRIS.map Require Import Header MapI MapM.
+
 
 Set Implicit Arguments.
 
@@ -75,10 +77,10 @@ Module MapIM. Section MapIM.
   Context (sp_s : sp_type).
   Context (MapInSp : sp_incl MapMS.sp sp_s).
 
-  Local Definition MemA := (MemA.t).
+  Local Definition MemP := (MemP.t).
   Local Definition MapM := (MapM.t sp_s).
-  Local Definition MapMMod := (MapM ★ MemA).
-  Local Definition MapIMod := (MapI.t ★ MemA).
+  Local Definition MapMMod := (MapM ★ MemP).
+  Local Definition MapIMod := (MapI.t ★ MemP).
   Local Definition IstFull := (IstProd (IstSB MapM.(Mod.scopes) Ist) IstEq).
 
   Lemma simF_init : ISim.sim_fun open MapMMod MapIMod MapM.init_cond IstFull (Some MapHdr.init).
@@ -104,12 +106,9 @@ Module MapIM. Section MapIM.
     steps_r. inline_r.
 
     (* TGT: prove the precond of alloc *)
-    steps_r. force_r sz. force_r ([Vint sz] ↑).
-    force_r; iSplit; first done.
-
-    (* TGT: handle the postcond of alloc *)
-    steps_r. iDestruct "GRT" as "[[%b [-> PTS]] ->]".
-    hss. steps_r. hss.
+    steps_r. unfold_real_lat_r. force_r sz.
+    iSplit; et. iIntros "[%b [-> PTS]]".
+    steps_r. hss. steps_r.
 
     (* prepare and start an induction *)
     replace (repeat Vundef sz) with (repeat (Vint 0) (sz-sz) ++ repeat Vundef sz); cycle 1.
@@ -143,30 +142,20 @@ Module MapIM. Section MapIM.
       inline_r. steps_r.
 
       (* TGT: prove the precond of store *)
-      force_r (_, (sz - S n')%Z, _, _).
-      force_r ([Vptr (_, (sz - (S n'))%Z); _]↑).
-      force_r.
+      unfold_real_lat_r. force_r (_, (sz - S n')%Z, _, _). s.
       iPoseProof (big_sepL_insert_acc with "PTS") as "(PT & CTN)".
       { instantiate (2:= (sz - (S n'))).
         rewrite lookup_app_r; rewrite repeat_length; try nia.
         rewrite Nat.sub_diag. s. eauto.
       }
       rewrite !Z.add_0_l Nat2Z.inj_sub; try nia.
-      (* , Zpos_P_of_succ_nat, <-Nat2Z.inj_succ, Nat2Z.inj_sub; try nia. *)
       iSplitL "PT".
-      { iSplitL; cycle 1.
-        { iPureIntro. do 3 f_equal. rewrite Z.div_mul; eauto. }
-        iSplit; et. rewrite Z.div_mul; eauto.
-      }
-
-      (* TGT: handle the postcond of store *)
-      steps_r. iDestruct "GRT" as "[[GRT ->] ->]". hss.
+      { iFrame. iPureIntro. do 3 f_equal. rewrite Z.div_mul; eauto. }
+      iIntros "[GRT ->]". hss. steps_r. hss. steps_r.
       iSpecialize ("CTN" $! (Vint 0)). iPoseProof ("CTN" with "GRT") as "PTS".
-      (* rewrite -> !Zpos_P_of_succ_nat, <-!Nat2Z.inj_succ. *)
       replace (sz - S n' + 1)%Z with (sz - n')%Z by nia.
 
       (* apply the induction hypothesis and complete *)
-      steps_r.
       iApply IHn'; try nia. iFrame.
       rewrite repeat_update.
       eapply eq_ind; [iAssumption |].
@@ -201,15 +190,13 @@ Module MapIM. Section MapIM.
     inline_r.
 
     (* TGT: prove the precond of load *)
-    step_r. force_r (_, (ofs + _)%Z, 1%Qp, _). force_r. force_r.
+    step_r. unfold_real_lat_r. force_r (_, (ofs + _)%Z, 1%Qp, _).
     iPoseProof (big_sepL_lookup_acc with "M") as "(IP & M)".
     { apply fun_to_list_lookup with (i:=Z.to_nat idx). nia. }
     rewrite Z2Nat.id; try nia.
-    iSplitL "IP"; eauto.
+    iFrame "IP". iSplit; et.
+    iIntros "[GRT ->]". steps_r. hss. steps_r.
     
-    (* TGT: handle the postcond of load *)
-    steps_r. iDestruct "GRT" as "[[GRT ->] ->]". hss. steps_r.
-
     (* prove the IST of Map *)
     step. repeat (iSplit; eauto).
     iExists [_;_], [_], _, _.
@@ -244,17 +231,15 @@ Module MapIM. Section MapIM.
     inline_r.
 
     (* TGT: prove the precond of store *)
-    step_r. force_r (blk, (ofs + idx)%Z, _, _). force_r. force_r.
+    steps_r. unfold_real_lat_r. force_r (blk, (ofs + idx)%Z, _, _). s.
     iPoseProof (big_sepL_insert_acc with "M") as "(IP & M)".
     { apply fun_to_list_lookup with (i:=Z.to_nat idx). hss. nia. }
     rewrite Z2Nat.id; try nia.
-    iSplitL "IP". { eauto. }
-
-    (* TGT: handle the postcond of load *)
-    steps_r. iDestruct "GRT" as "[[GRT ->] ->]". hss. steps_r. steps_l.
+    iFrame "IP". iSplit; et.
+    iIntros "[GRT ->]". steps_r. hss. steps_r.
 
     (* SRC: prove the postcond of set *)
-    force_l. force_l. iSplitL "". { eauto. }
+    force_l. force_l. iSplit; et.
 
     (* prove the IST of Map *)
     step. repeat (iSplit; eauto).
@@ -315,7 +300,7 @@ Section MapIM.
   Lemma ctxr (sp_s : sp_type) :
     sp_incl MapMS.sp sp_s →
     ctx_refines
-      (MapM.t sp_s ★ MemA.t, MapM.init_cond)
-      (MapI.t      ★ MemA.t, emp%I).
+      (MapM.t sp_s ★ MemP.t, MapM.init_cond)
+      (MapI.t      ★ MemP.t, emp%I).
   Proof. i; eapply main_adequacy, MapIM.sim; eauto. Qed.
 End MapIM. End MapIM.

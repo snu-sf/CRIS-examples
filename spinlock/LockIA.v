@@ -36,11 +36,8 @@ Module LockIA. Section LockIA.
 
     (* tgt inline - mem alloc *)
     steps_r. inline_r. steps_r.
-    ru_r; iIntros (pr) "H".
-    iMod ("H" $! 1 with "[]") as "[PR [%blk [% [PT _]]]]".
-    { unfold_pre_post; iSplit; eauto. }
-    force_r; iFrame "PR".
-
+    unfold_real_lat_r. force_r 1. iSplit; et.
+    iIntros "[%blk [% [PT _]]]".
     steps_r. hss_r. steps_r.
 
     (* tgt yield *)
@@ -48,11 +45,8 @@ Module LockIA. Section LockIA.
 
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r.
-    clear pr. ru_r; iIntros (pr) "PRE".
-    iMod ("PRE" $! (blk, 0%Z, _, Vint 0) with "[PT]") as "[PR [PT %]]".
-    { iFrame "PT"; done. }
-    force_r; iFrame "PR".
-
+    unfold_real_lat_r. force_r (_,_,_,_). s. iFrame. iSplit; et.
+    iIntros "[PT %]".
     steps_r. hss_r. steps_r.
 
     (* src/tgt yield *)
@@ -94,13 +88,12 @@ Module LockIA. Section LockIA.
     { (* fail case *)
       (* tgt inline - mem cas *)
       steps_r. inline_r. steps_r.
-      ru_r. iIntros (pr) "PRE".
-      iMod ("PRE" $! (_,_,_,_,_,_,_,_,_,_) with "[FAIL]") as "[PR [% [PT ?]]]".
+      unfold_real_lat_r. force_r (_,_,_,_,_,_,_,_,_,_). s.
+      iSplitL "FAIL".
       { iFrame "FAIL"; eauto. }
-      Unshelve. all: try exact 1%Qp; try exact (Vint 0).
-      force_r; iFrame "PR"; steps_r. hss_r. steps_r.
-
+      iIntros "[% [PT _]]". steps_r. hss. steps_r.
       iMod ("Hcl" with "[PT]") as "_". { iFrame. }
+      
       (* tgt yields *)
       sch_yield_ir. steps_r.
       sch_yield_ir. steps_r.
@@ -111,11 +104,11 @@ Module LockIA. Section LockIA.
       iDestruct "SUCC" as "[POINTS_TO [Q TKN]]".
       steps_r. inline_r. steps_r.
 
-      ru_r; iIntros (pr) "PRE".
-      iMod ("PRE" $! (_,_,_,_,_,_,_,_,_,_) with "[POINTS_TO]") as "[PR [% [PT PRE]]]".
-      { unfold_pre_post. iFrame "POINTS_TO". eauto. }
-      Unshelve. all: try exact 1%Qp; try exact (Vint 0).
-      force_r. iFrame "PR". steps_r. hss_r. steps_r.
+      unfold_real_lat_r. force_r (_,_,_,_,_,_,_,_,_,_).
+      iSplitL "POINTS_TO".
+      { iFrame. iSplit; et. }
+      iIntros "[% [PT PRE]]".
+      steps_r. hss_r. steps_r.
       iMod ("Hcl" with "[PT]") as "_". { iFrame. }
       (* tgt yields *)
       do 3 (sch_yield_ir).
@@ -124,6 +117,7 @@ Module LockIA. Section LockIA.
       (* both terminate *)
       step; eauto.
     }
+  Unshelve. all: try exact 1%Qp. all: try exact Vundef.
   (*SLOW*)Qed.
 
   Lemma release_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.release).
@@ -142,7 +136,7 @@ Module LockIA. Section LockIA.
     iDestruct "I" as "[LOCKED|UNLOCKED]".
     { (* locked case *)
       steps_r. inline_r. steps_r.
-      iApply wsim_ru_tgt_simple. iExists (_,_,_,_); s.
+      unfold_real_lat_r. force_r (_,_,_,_); s.
       iSplitL "LOCKED"; iFrame; et.
       iIntros "[PT %]".
       hss. steps_r. hss_r. steps_r.

@@ -166,7 +166,7 @@ Module KnotAll.
     etrans; cycle 1.
     { ctxr_swap. ctxr_rotate. ctxr_refl. }
 
-    rewrite /KnotMainA.t /KnotA.t /MemA.t /APCC.t. unseal CRIS.
+    rewrite /KnotMainA.t /KnotA.t /MemP.t /APCC.t. unseal CRIS.
     eapply ctxr_cond_strengthen.
     iIntros "[? [? ?]]". iFrame.
   (*SLOW*)Qed.

@@ -1,6 +1,5 @@
-
 Require Import CRIS.
-Require Import KnotHeader KnotI KnotA MemHeader APCHeader APC APCA APCTactics Tactics.
+Require Import KnotHeader KnotI KnotA MemHeader APCHeader APC APCA APCTactics Tactics SchTactics.
 
 Set Implicit Arguments.
 
@@ -83,8 +82,7 @@ Module KnotIA. Section KnotIA.
 
     (* TGT: load the function at the block of _f by inlining "load" *)
     inline_r. rewrite /MemSpec.load.
-    steps_r.
-    iApply wsim_ru_tgt_simple; iExists (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))).
+    steps_r. unfold_real_lat_r. force_r (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))).
     iSplitL "VF".
     { iSplit; eauto. unfold var_points_to. rewrite FIND0. iFrame. }
     iIntros "[Q %]".
@@ -159,7 +157,7 @@ Module KnotIA. Section KnotIA.
     
     (* TGT: save a function by calling "store" *)
     steps_r. inline_r. steps_r.
-    iApply wsim_ru_tgt_simple; iExists (blk0, 0%Z, _, Vptr (fb, 0%Z)). iSplitL "VF".
+    unfold_real_lat_r. force_r (blk0, 0%Z, _, Vptr (fb, 0%Z)). iSplitL "VF".
     { iSplit; et. unfold var_points_to. rewrite FIND0; eauto. }
     iIntros "[VF %]". steps_r. hss_r; steps_r.
 

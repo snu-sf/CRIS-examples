@@ -16,8 +16,8 @@ Module ClientIA. Section ClientIA.
 
   Local Definition IstFull := (IstProd (IstSB (ClientA.t E q sp_s).(Mod.scopes) IstTrue) IstEq).
   Local Definition init_cond := ClientA.init_cond E q.
-  Local Definition MA := (ClientA.t E q sp_s ★ MemA.t).
-  Local Definition MI := ((ClientI.t ★ FaaA.t) ★ MemA.t).
+  Local Definition MA := (ClientA.t E q sp_s ★ MemP.t).
+  Local Definition MI := ((ClientI.t ★ FaaA.t) ★ MemP.t).
 
   Lemma f_spawnable γ v bofs :
     SchAS.fspec_spawnable E q (incr_spec E q)
@@ -108,15 +108,17 @@ Module ClientIA. Section ClientIA.
 
     (* tgt alloc *)
     steps_r; inline_r.
-    force_r 1; forces_r; iSplit; eauto.
-    steps_r; iDestruct "GRT" as "[[%blk [-> [PT _]]] ->]"; hss_r; steps_r.
+    unfold_real_lat_r. force_r 1.
+    iFrame. iSplit; et.
+    iIntros "[%blk [-> [PT _]]]". steps_r; hss_r; steps_r.
     sch_yield_ir.
     sch_yield_ir.
 
     (* tgt store *)
     steps_r. inline_r.
-    force_r (_, _, _, _); forces_r; iFrame "PT"; iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]"; hss_r; steps_r.
+    unfold_real_lat_r. force_r (_, _, _, _).
+    iFrame "PT"; iSplit; eauto.
+    iIntros "[PT ->]"; steps_r; hss_r; steps_r.
     sch_yield_ir.
     sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l. sch_yield_l. steps_l.
 
@@ -185,9 +187,10 @@ Module ClientIA. Section ClientIA.
     iCombine "C Q Q2" as "C" gives %[_ WF%frac_auth_agree]. inv WF; ss.
     iDestruct "C" as "[CA CF]".
 
-    steps_r. inline_r. steps_r. force_r (blk, 0%Z, 1%Qp, (Vint 4)). steps_r. forces_r.
-    iSplitL "PT"; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
+    steps_r. inline_r. steps_r.
+    unfold_real_lat_r. force_r (blk, 0%Z, 1%Qp, (Vint 4)).
+    iFrame "PT"; iSplit; eauto.
+    iIntros "[PT ->]". steps_r; hss_r; steps_r.
 
     iMod ("INVA" with "[CA PT]") as "_".
     { SL_red. iExists 4; SL_red; iFrame. }
@@ -219,8 +222,8 @@ Section ctxr.
     spl_sub (ClientA.sp E q) sp_user →
     sp_incl (SchAS.sp sp_user E q) sp_s →
     ctx_refines
-      (ClientA.t E q sp_s   ★ MemA.t, init_cond E q)
-      (ClientI.t            ★ FaaA.t ★ (MemA.t), emp%I).
+      (ClientA.t E q sp_s   ★ MemP.t, init_cond E q)
+      (ClientI.t            ★ FaaA.t ★ MemP.t, emp%I).
   Proof.
     etrans; cycle 1. { do 2 ctxr_rotate. ctxr_refl. }
     eset (GRP := ClientI.t ★ _).
