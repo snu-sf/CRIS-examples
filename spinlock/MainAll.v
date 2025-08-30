@@ -37,7 +37,7 @@ Module MainAll.
 
   (* the source SMod *)
   Local Definition smod_src : SMod.t :=
-    SpinLockMainA.smod ⊤ 1 ☆ SchA.smod sp_user.
+    SpinLockMainA.smod ⊤ 1 ☆ SchA.smod sp_user 1.
   (* the top-level module after cancellation *)
   Local Definition mod_top : Mod.t := SMod.to_mod sp_none (SMod.cancel smod_src).
   (* the target module *)

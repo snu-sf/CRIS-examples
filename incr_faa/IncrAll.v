@@ -45,7 +45,7 @@ Module ClientAll.
   Local Definition sp_user_s : spl_type :=
     ClientA.sp ⊤ 1%Qp.
   Local Definition smod_src : SMod.t :=
-    (ClientA.smod ⊤ 1%Qp) ☆ (SchA.smod sp_user_s).
+    (ClientA.smod ⊤ 1%Qp) ☆ (SchA.smod sp_user_s 1).
   Local Definition mod_top : Mod.t := SMod.to_mod sp_none (SMod.cancel smod_src).
   Local Definition mod_tgt : Mod.t := ClientI.t ★ FaaI.t ★ (MemI.t csl genv) ★ (SchI.t).
 
