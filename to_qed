@@ -1,6 +1,6 @@
 #!/bin/sh
 
-s_word="(\*SLOW\*)Admitted"
+s_word="(\*SLOW\*)Unshelve. Fail idtac. Admitted"
 t_word="(\*SLOW\*)Qed"
 
 for file in `find . -name "*.v"`
