@@ -55,7 +55,7 @@ Module CelliocbAll. Section CelliocbAll.
   Lemma cancel_src:
     refines (mod_top, init_cond) 
             (mod_src, init_cond).
-  Proof.
+  Proof using ctx_main_disj ctx_main_scope_disj ctx_mod_wf ctx_real ctx_smod_wf.
     eapply Cancel.cancellation; et.
     - rewrite /smod_src. ii. destruct fno; ss.
       + eapply ctx_smod_wf; et.
@@ -84,7 +84,7 @@ Module CelliocbAll. Section CelliocbAll.
 
   (* Refinement between spec/impl of whole program (linked module) *)
   Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
-  Proof.
+  Proof using ctx_has_foo ctx_mod_wf ctx_real ctx_smod_wf.
     eapply ctxr_refines.
     rewrite /init_cond /mod_src /smod_src /mod_tgt.
     rewrite !add_interp_comm.
@@ -143,7 +143,7 @@ Module CelliocbAll. Section CelliocbAll.
 
   Lemma init_cond_valid:
     ∃ rs, ✓ rs ∧ (Own rs ⊢ init_cond).
-  Proof.
+  Proof using.
     exists (irΣ ⋅ ir_own_admin). split.
     - apply irΣ_valid.
     - simplify_res.
