@@ -38,6 +38,7 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R repeat $(CRISMODULE).repeat"; \
 	 echo "-R ring $(CRISMODULE).ring"; \
 	 echo "-R spinlock_pa $(CRISMODULE).spinlock_pa"; \
+	 echo "-R spinlock_ia $(CRISMODULE).spinlock_ia"; \
 	 echo "-R spinlock_na $(CRISMODULE).spinlock_na"; \
 	 echo "-R incr_faa $(CRISMODULE).incr_faa"; \
 	 echo "-R incr_cas $(CRISMODULE).incr_cas"; \
