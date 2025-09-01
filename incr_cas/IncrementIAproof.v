@@ -4,14 +4,16 @@ Require Import ImpPrelude MemHeader MemA.
 From CRIS.incr_cas Require Import Header IncrementI IncrementA.
 
 Module IncrementIA. Section IncrementIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG}.
+  Context `{CrisG: !crisG Γ Σ α β τ _S _I}.
+  Context `{MemG: !memG}.
+  Context `{SchG: !schG}.
 
   Local Definition IstFull := (IstProd (IstSB IncrementA.t.(Mod.scopes) IstTrue) IstEq).
   Local Definition MA := (IncrementA.t ★ MemA.t).
   Local Definition MI := (IncrementI.t ★ MemA.t).
 
   Lemma increment_simF : ISim.sim_fun open MA MI True%I IstFull (Some IncrementHdr.increment).
-  Proof using.
+  Proof using MemG SchG.
     init_simF.
     steps_l. destruct _q; ss. destruct _q; ss. destruct v; ss. inv G0. hss.
     destruct _q0 as [blk ofs].
