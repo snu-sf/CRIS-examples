@@ -1,7 +1,7 @@
 Require Import CRIS.
 Require Import ImpPrelude MemA.
 Require Import SchHeader SchA SchTactics.
-From CRIS.spinlock Require Import Header LockI LockA.
+From CRIS.spinlock_pa Require Import Header LockI LockA.
 
 Module LockIA. Section LockIA.
   Import LockAS.

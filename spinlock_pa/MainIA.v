@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.spinlock Require Import Header MainI MainA LockI LockA.
+From CRIS.spinlock_pa Require Import Header MainI MainA LockI LockA.
 Require Import ImpPrelude.
 Require Import SchHeader SchA MemA SchTactics.
 From iris Require Import frac_auth numbers.

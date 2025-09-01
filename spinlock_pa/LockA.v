@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.spinlock Require Import Header.
+From CRIS.spinlock_pa Require Import Header.
 Require Import ImpPrelude MemHeader MemA.
 Require Import SchHeader SchA.
 From iris Require Import excl.
