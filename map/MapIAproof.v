@@ -11,8 +11,8 @@ Module MapIA. Section MapIA.
   Lemma ctxr (sp_s : string → option fspec)
       (MapInSpMap : sp_incl MapAS.sp sp_s) :
     ctx_refines
-      ((MapA.t sp_s) ★ (MemP.t), (MapA.init_cond ∗ MapM.init_cond)%I)
-      ((MapI.t)      ★ (MemP.t), emp%I).
+      ((MapA.t sp_s) ★ (MemA.t), (MapA.init_cond ∗ MapM.init_cond)%I)
+      ((MapI.t)      ★ (MemA.t), emp%I).
   Proof.
     etrans; cycle 1.
     { eapply MapIM.ctxr.

@@ -16,8 +16,8 @@ Module ClientIA. Section ClientIA.
 
   Local Definition IstFull := (IstProd (IstSB (ClientA.t E q sp_s).(Mod.scopes) IstTrue) IstEq).
   Local Definition init_cond := ClientA.init_cond E q.
-  Local Definition MA := (ClientA.t E q sp_s ★ MemP.t).
-  Local Definition MI := ((ClientI.t ★ FaaA.t) ★ MemP.t).
+  Local Definition MA := (ClientA.t E q sp_s ★ MemA.t).
+  Local Definition MI := ((ClientI.t ★ FaaA.t) ★ MemA.t).
 
   Lemma f_spawnable γ v bofs :
     SchAS.fspec_spawnable E q (incr_spec E q)
@@ -27,7 +27,7 @@ Module ClientIA. Section ClientIA.
         ∗ incr_inv 0 γ bofs)%I
       (λ vret ret,
         existT 0 ((⌜vret = ret ∧ vret = tt↑↑⌝ ∗ counter_syn γ (1/2) (v + 2))%SAT)).
-  Proof.
+  Proof using.
     rewrite /SchAS.fspec_spawnable /fspec_sch /fspec_virtual /precond /postcond /incr_spec /=.
     ii; ss. eexists (x1, (bofs, v, γ)); split; red; ii.
     - rewrite /precond /fspec_sch /fspec_simple /fspec_sch /precond /=.
@@ -108,17 +108,15 @@ Module ClientIA. Section ClientIA.
 
     (* tgt alloc *)
     steps_r; inline_r.
-    unfold_lat_real_r. force_r 1.
-    iFrame. iSplit; et.
-    iIntros "[%blk [-> [PT _]]]". steps_r; hss_r; steps_r.
+    force_r 1; forces_r; iSplit; eauto.
+    steps_r; iDestruct "GRT" as "[[%blk [-> [PT _]]] ->]"; hss_r; steps_r.
     sch_yield_ir.
     sch_yield_ir.
 
     (* tgt store *)
     steps_r. inline_r.
-    unfold_lat_real_r. force_r (_, _, _, _).
-    iFrame "PT"; iSplit; eauto.
-    iIntros "[PT ->]"; steps_r; hss_r; steps_r.
+    force_r (_, _, _, _); forces_r; iFrame "PT"; iSplit; eauto.
+    steps_r. iDestruct "GRT" as "[[PT ->] ->]"; hss_r; steps_r.
     sch_yield_ir.
     sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l. sch_yield_l. steps_l.
 
@@ -187,10 +185,9 @@ Module ClientIA. Section ClientIA.
     iCombine "C Q Q2" as "C" gives %[_ WF%frac_auth_agree]. inv WF; ss.
     iDestruct "C" as "[CA CF]".
 
-    steps_r. inline_r. steps_r.
-    unfold_lat_real_r. force_r (blk, 0%Z, 1%Qp, (Vint 4)).
-    iFrame "PT"; iSplit; eauto.
-    iIntros "[PT ->]". steps_r; hss_r; steps_r.
+    steps_r. inline_r. steps_r. force_r (blk, 0%Z, 1%Qp, (Vint 4)). steps_r. forces_r.
+    iSplitL "PT"; eauto.
+    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
 
     iMod ("INVA" with "[CA PT]") as "_".
     { SL_red. iExists 4; SL_red; iFrame. }
@@ -207,7 +204,7 @@ Module ClientIA. Section ClientIA.
 (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MA MI init_cond IstFull.
-  Proof.
+  Proof using Hsch Hclient Hsub.
     init_sim.
     { eapply incr_simF. }
     { eapply main_simF. }
@@ -222,9 +219,9 @@ Section ctxr.
     spl_sub (ClientA.sp E q) sp_user →
     sp_incl (SchAS.sp sp_user E q) sp_s →
     ctx_refines
-      (ClientA.t E q sp_s   ★ MemP.t, init_cond E q)
-      (ClientI.t            ★ FaaA.t ★ MemP.t, emp%I).
-  Proof.
+      (ClientA.t E q sp_s   ★ MemA.t, init_cond E q)
+      (ClientI.t            ★ FaaA.t ★ (MemA.t), emp%I).
+  Proof using.
     etrans; cycle 1. { do 2 ctxr_rotate. ctxr_refl. }
     eset (GRP := ClientI.t ★ _).
     etrans; cycle 1. { ctxr_rotate. ctxr_refl. }

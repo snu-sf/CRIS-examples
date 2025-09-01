@@ -7,9 +7,9 @@ Set Implicit Arguments.
 
 Module KnotMainIA. Section KnotMainIA.
   Import KnotA KnotMainA APCA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
-  Context `{_memG: !memG}.
-  Context `{_knotG: !knotG}.
+  Context `{CrisG: !crisG Γ Σ α β τ _S _I}.
+  Context `{MemG: !memG}.
+  Context `{KnotG: !knotG}.
 
   (* 1. global environment *)
   Context (genv: GEnv.t).
@@ -28,9 +28,9 @@ Module KnotMainIA. Section KnotMainIA.
   Context (PureInGlobal : sp_incl SpPure Sp).
 
   Local Definition APCA := (APCA.t SpPure Sp).
-  Local Definition MemP := MemP.t.
+  Local Definition MemA := MemA.t.
   Local Definition KnotA := (KnotA.t genv SpRec SpFun Sp).
-  Local Definition KnotAMod := (KnotA ★ MemP ★ APCA).
+  Local Definition KnotAMod := (KnotA ★ MemA ★ APCA).
   Local Definition KnotMainA := (KnotMainA.t true genv SpRec Sp).
   Local Definition KnotMainI := (KnotMainI.t genv).
   Local Definition KnotMainAMod := (KnotMainA ★ KnotAMod).
@@ -186,12 +186,12 @@ Module KnotMainIA. Section KnotMainIA.
     ctx_refines
       (KnotMainA.t true genv SpRec Sp
         ★ KnotA.t genv SpRec SpFun Sp
-        ★ MemP.t
+        ★ MemA.t
         ★ APCA.t SpPure Sp,
       KnotMainA.init_cond)
       (KnotMainI.t genv
         ★ KnotA.t genv SpRec SpFun Sp
-        ★ MemP.t
+        ★ MemA.t
         ★ APCA.t SpPure Sp,
       emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
@@ -200,7 +200,7 @@ Module KnotMainIA. Section KnotMainIA.
     ctx_refines
       (KnotMainA.t false genv SpRec Sp ★ APCC.t Sp, emp%I)
       (KnotMainA.t true  genv SpRec Sp ★ APCC.t Sp, emp%I).
-  Proof using _crisG _memG APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
+  Proof using CrisG MemG APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     eapply main_adequacy.
     init_sim.
     (* { exfalso. revert H. hrepeat do 1 unfold_mod. i; inv H. } *)

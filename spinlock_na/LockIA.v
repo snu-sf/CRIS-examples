@@ -15,12 +15,12 @@ Module LockIA. Section LockIA.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Local Definition MemP := MemP.t.
+  Local Definition MemA := MemA.t.
   Local Definition SpinLockA := (SpinLockA.t E tidq sp).
   Local Definition SpinLockI := (SpinLockI.t).
   Local Definition IstFull := (IstProd (IstSB SpinLockA.(Mod.scopes) IstTrue) IstEq).
-  Local Notation MA := (SpinLockA ★ MemP).
-  Local Notation MI := (SpinLockI ★ MemP).
+  Local Notation MA := (SpinLockA ★ MemA).
+  Local Notation MI := (SpinLockI ★ MemA).
 
   Lemma newlock_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.newlock).
   Proof using SchInSp Hsub.
@@ -36,22 +36,22 @@ Module LockIA. Section LockIA.
 
     (* tgt inline - mem alloc *)
     steps_r. inline_r. steps_r.
-    unfold_lat_real_r. force_r 1. iSplit; et.
-    iIntros "[%blk [% [PT _]]]".
-    steps_r. hss_r. steps_r.
+    force_r 1. forces_r. iSplit; et.
+    steps_r. iDestruct "GRT" as "[[%blk [% [PT _]]] %]"; subst.
+    hss_r. steps_r.
 
     (* tgt yield *)
     sch_yield_ir.
 
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r.
-    unfold_lat_real_r. force_r (_,_,_,_). s. iFrame. iSplit; et.
-    iIntros "[PT %]".
-    steps_r. hss_r. steps_r.
+    force_r (_,_,_,_). forces_r. iFrame. iSplit; et.
+    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst.
+    hss_r. steps_r.
 
     (* src/tgt yield *)
     sch_yield_ir. steps_r.
-    sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l. force_l. steps_l.
+    sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l.
 
     (* prove source postcondition *)
     (* alloc invariant *)
@@ -88,10 +88,10 @@ Module LockIA. Section LockIA.
     { (* fail case *)
       (* tgt inline - mem cas *)
       steps_r. inline_r. steps_r.
-      unfold_lat_real_r. force_r (_,_,_,_,_,_,_,_,_,_). s.
+      force_r (_,_,_,_,_,_,_,_,_,_). forces_r.
       iSplitL "FAIL".
       { iFrame "FAIL"; eauto. }
-      iIntros "[% [PT _]]". steps_r. hss. steps_r.
+      steps_r. iDestruct "GRT" as "[[% [PT _]] %]"; subst. hss. steps_r.
       iMod ("Hcl" with "[PT]") as "_". { iFrame. }
       
       (* tgt yields *)
@@ -104,11 +104,11 @@ Module LockIA. Section LockIA.
       iDestruct "SUCC" as "[POINTS_TO [Q TKN]]".
       steps_r. inline_r. steps_r.
 
-      unfold_lat_real_r. force_r (_,_,_,_,_,_,_,_,_,_).
+      force_r (_,_,_,_,_,_,_,_,_,_). forces_r.
       iSplitL "POINTS_TO".
       { iFrame. iSplit; et. }
-      iIntros "[% [PT PRE]]".
-      steps_r. hss_r. steps_r.
+      steps_r. iDestruct "GRT" as "[[% [PT PRE]] %]"; subst.
+      hss_r. steps_r.
       iMod ("Hcl" with "[PT]") as "_". { iFrame. }
       (* tgt yields *)
       do 3 (sch_yield_ir).
@@ -136,10 +136,10 @@ Module LockIA. Section LockIA.
     iDestruct "I" as "[LOCKED|UNLOCKED]".
     { (* locked case *)
       steps_r. inline_r. steps_r.
-      unfold_lat_real_r. force_r (_,_,_,_); s.
+      force_r (_,_,_,_). forces_r.
       iSplitL "LOCKED"; iFrame; et.
-      iIntros "[PT %]".
-      hss. steps_r. hss_r. steps_r.
+      steps_r. iDestruct "GRT" as "[[PT %] %]"; subst.
+      hss. steps_r.
       iMod ("Hcl" with "[PT Q TKN]") as "_".
       { iRight. iFrame. }
       (* tgt yield *)
@@ -166,7 +166,7 @@ Module LockIA. Section LockIA.
   (* ctxr works as a unit in compositions of module simulations *)
   Lemma ctxr :
     ctx_refines
-      (SpinLockA.t E tidq sp ★ MemP.t, emp%I)
-      (SpinLockI.t           ★ MemP.t, emp%I).
+      (SpinLockA.t E tidq sp ★ MemA.t, emp%I)
+      (SpinLockI.t           ★ MemA.t, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End LockIA. End LockIA.

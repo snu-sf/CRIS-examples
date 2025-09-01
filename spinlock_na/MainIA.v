@@ -19,13 +19,13 @@ Module MainIA. Section MainIA.
   Context (SchInSp_t : sp_incl (SchAS.sp sp_user_t E (q / 2)) sp_t).
   Context (MainInSp : spl_sub (MainAS.sp E q) sp_user_s).
 
-  Local Definition MemP := MemP.t.
+  Local Definition MemA := MemA.t.
   Local Definition SpinLockA := (SpinLockA.t E (q / 2) sp_t).
   Local Definition SpinLockMainA := (SpinLockMainA.t E q sp_s).
   Local Definition SpinLockMainI := (SpinLockMainI.t).
   Local Definition IstFull := (IstProd (IstSB SpinLockMainA.(Mod.scopes) IstTrue) IstEq).
-  Local Notation MA := (SpinLockMainA ★ (SpinLockA ★ MemP)).
-  Local Notation MI := (SpinLockMainI ★ (SpinLockA ★ MemP)).
+  Local Notation MA := (SpinLockMainA ★ (SpinLockA ★ MemA)).
+  Local Notation MI := (SpinLockMainI ★ (SpinLockA ★ MemA)).
 
   Definition init_cond := MainAS.init_cond E q.
 
@@ -59,16 +59,16 @@ Module MainIA. Section MainIA.
     rewrite /lock_P; SL_red; iDestruct "P" as "[%x P]"; SL_red; iDestruct "P" as "[PT P]".
     (* tgt inline - mem load *)
     steps_r. inline_r. steps_r.
-    unfold_lat_real_r. force_r (blk_v, ofs_v, 1%Qp, Vint x).
+    force_r (blk_v, ofs_v, 1%Qp, Vint x). forces_r.
     iSplitL "PT"; iFrame; eauto.
-    iIntros "[PT %]". hss. steps_r. hss_r; steps_r.
+    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst. hss. steps_r.
     (* tgt yield *)
     do 2 (sch_yield_ir).
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r.
-    unfold_lat_real_r. force_r (blk_v, ofs_v, _, Vint (x + 1)).
+    force_r (blk_v, ofs_v, _, Vint (x + 1)). forces_r.
     iSplitL "PT"; iFrame; et.
-    iIntros "[PT %]". steps_r. hss_r; steps_r.
+    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst. hss_r; steps_r.
     sch_yield_ir.
     iCombine "P F" as "C". iMod (own_update with "C") as "[F C]".
     { apply frac_auth_update, (Z_local_update _ _ (x + 1) 1); lia. }
@@ -111,14 +111,14 @@ Module MainIA. Section MainIA.
 
     (* tgt inline - mem alloc - counter allocation *)
     steps_r. inline_r. steps_r.
-    unfold_lat_real_r. force_r 1; iSplit; eauto.
-    iIntros "[%blk [% [GRT _]]]"; hss. steps_r. hss_r; steps_r.
+    force_r 1. forces_r. iSplit; eauto.
+    steps_r. iDestruct "GRT" as "[[%blk [% [GRT _]]] %]"; subst. hss. steps_r.
     sch_yield_ir.
     (* tgt inline - mem store - counter initialization *)
     steps_r. inline_r. steps_r.
-    unfold_lat_real_r. force_r (blk, 0%Z, _, Vint 0).
+    force_r (blk, 0%Z, _, Vint 0). forces_r.
     iFrame; iSplit; eauto.
-    iIntros "[PT %]". steps_r. hss. steps_r.
+    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst. hss. steps_r.
     sch_yield_ir.
     (* create lock-guarded proposition *)
     iApply (wsim_own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)).
@@ -199,9 +199,9 @@ Module MainIA. Section MainIA.
     sch_yield_ir.
     (* tgt inline - mem load *)
     steps_r. inline_r. steps_r.
-    unfold_lat_real_r. force_r (blk, 0%Z, 1%Qp, Vint 2%Z); s.
+    force_r (blk, 0%Z, 1%Qp, Vint 2%Z). forces_r.
     iFrame "PT". iSplit; et.
-    iIntros "[PT %]". steps_r. hss. steps_r.
+    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst. hss. steps_r.
     (* tgt yield *)
     do 2 (sch_yield_ir).
     (* tgt inline - lock release *)
@@ -236,7 +236,7 @@ Module MainIA. Section MainIA.
 
   Definition ctxr :
     ctx_refines
-    ((SpinLockMainA.t E q sp_s) ★ ((SpinLockA.t E (q/2) sp_t) ★ MemP.t), init_cond)
-    ((SpinLockMainI.t)          ★ ((SpinLockA.t E (q/2) sp_t) ★ MemP.t), emp%I).
+    ((SpinLockMainA.t E q sp_s) ★ ((SpinLockA.t E (q/2) sp_t) ★ MemA.t), init_cond)
+    ((SpinLockMainI.t)          ★ ((SpinLockA.t E (q/2) sp_t) ★ MemA.t), emp%I).
   Proof. eapply main_adequacy, sim. Qed.
 End MainIA. End MainIA.

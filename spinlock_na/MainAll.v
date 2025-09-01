@@ -52,7 +52,7 @@ Module MainAll.
 
   (* initial condition for the source *)
   Local Definition init_cond : iProp Σ :=
-    (MainAS.init_cond ⊤ 1 ∗ MemP.init_cond csl genv ∗ SchA.init_cond)%I.
+    (MainAS.init_cond ⊤ 1 ∗ MemA.init_cond csl genv ∗ SchA.init_cond)%I.
 
   (* Some assumptions on sp inclusion *)
   Lemma SchInSp : sp_incl (SchAS.sp sp_user ⊤ 1) sp.
@@ -113,7 +113,7 @@ Module MainAll.
     (* abstraction of Mem *)
     etrans; cycle 1.
     { do 3 ctxr_rotate. do 3 ctxr_drop.
-      eapply MemIP.ctxr.
+      eapply MemIA.ctxr.
     }
 
     (* abstraction of SpinLock *)

@@ -1,5 +1,5 @@
 Require Import CRIS.
-Require Import KnotHeader KnotI KnotA MemHeader APCHeader APC APCA APCTactics Tactics SchTactics.
+Require Import KnotHeader KnotI KnotA MemHeader APCHeader APC APCA APCTactics Tactics.
 
 Set Implicit Arguments.
 
@@ -39,10 +39,10 @@ Module KnotIA. Section KnotIA.
     λ _ _, inv.
 
   Local Definition APCA := (APCA.t SpPure Sp).
-  Local Definition MemP := MemP.t.
+  Local Definition MemA := MemA.t.
   Local Definition KnotA := (KnotA.t genv SpRec SpFun Sp).
-  Local Definition KnotAMod := (KnotA ★ MemP ★ APCA).
-  Local Definition KnotIMod := ((KnotI.t genv) ★ MemP ★ APCA).
+  Local Definition KnotAMod := (KnotA ★ MemA ★ APCA).
+  Local Definition KnotIMod := ((KnotI.t genv) ★ MemA ★ APCA).
   Local Definition IstFull := (IstProd (IstSB KnotA.(Mod.scopes) Ist) IstEq).
   
   (*************)
@@ -82,28 +82,26 @@ Module KnotIA. Section KnotIA.
 
     (* TGT: load the function at the block of _f by inlining "load" *)
     inline_r. rewrite /MemSpec.load.
-    steps_r. unfold_lat_real_r. force_r (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))).
+    steps_r. force_r (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))). forces_r.
     iSplitL "VF".
-    { iSplit; eauto. unfold var_points_to. rewrite FIND0. iFrame. }
-    iIntros "[Q %]".
-    (* steps_r. iMod ("Q" with "GRT") as "[VF %]". des; subst; hss. *)
-    des; subst; hss. steps_r. hss_r. inv H2. steps_l. steps_r.
+    { iSplit; eauto. unfold var_points_to. rewrite FIND0. iFrame. et. }
+    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst. hss.
 
     (* TGT: get blocks of the function pointer and "rec" *)
-    dup FN. inv FN. des. rewrite FBLOCK. hss. forces_l. iSplitR; et.
+    steps_r. dup FN. inv FN. rewrite FBLOCK. hss.
     steps_r. rewrite FINDR; hss. steps_r.
 
     (* SRC: unfold APC *)
-    steps_l. inline_l. steps_l. iDestruct "ASM" as "%"; subst; hss.
-    steps_l. unfold apc_body, APC.
-    force_l 1. steps_l. 
+    steps_l. forces_l. iSplitR; et. steps_l.
+    inline_l. steps_l. iDestruct "ASM" as "%"; subst; hss.
+    steps_l. unfold apc_body, APC. force_l 1. steps_l. 
 
     (* call apc with fn *)
     dup SPEC. inv SPEC.
-    apc_call_weaker "FL FG Q"; eauto.
+    apc_call_weaker "FL FG PT"; eauto.
     { instantiate (1 := 0). apply OrdArith.lt_from_nat. nia. }
     { instantiate (1:= (2 * _q2)). eapply Ord.lt_le_lt; et. rewrite -OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.lt_from_nat. nia. }
-    { iSplitR "FL Q".
+    { iSplitR "FL PT".
       - unfold precond. ss. iFrame. iSplit.
         + iPureIntro. eexists; esplits; et. econs; et.
           econs; [|replace rec_spec with (fspec_flat (Some rec_spec)) by ss; refl].
@@ -157,12 +155,12 @@ Module KnotIA. Section KnotIA.
     
     (* TGT: save a function by calling "store" *)
     steps_r. inline_r. steps_r.
-    unfold_lat_real_r. force_r (blk0, 0%Z, _, Vptr (fb, 0%Z)). iSplitL "VF".
+    force_r (blk0, 0%Z, _, Vptr (fb, 0%Z)). forces_r. iSplitL "VF".
     { iSplit; et. unfold var_points_to. rewrite FIND0; eauto. }
-    iIntros "[VF %]". steps_r. hss_r; steps_r.
+    steps_r. iDestruct "GRT" as "[[VF %] %]". hss; steps_r.
 
     (* RA: update spec *)
-    hss. steps_r. rewrite FINDR; hss. steps_r.
+    rewrite FINDR; hss. steps_r.
     iCombine "FL OLD" as "SPEC".
     iPoseProof (auth_excl_both_update with "SPEC") as ">[FL FG]".
 
@@ -196,9 +194,9 @@ Module KnotIA. Section KnotIA.
 
   Theorem ctxr :
     ctx_refines
-      (KnotA.t genv SpRec SpFun Sp ★ MemP ★ APCA.t SpPure Sp,
+      (KnotA.t genv SpRec SpFun Sp ★ MemA ★ APCA.t SpPure Sp,
         KnotA.init_cond genv)
-      (KnotI.t genv ★ MemP ★ APCA.t SpPure Sp,
+      (KnotI.t genv ★ MemA ★ APCA.t SpPure Sp,
         emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End KnotIA. End KnotIA.

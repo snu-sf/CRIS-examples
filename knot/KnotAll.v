@@ -46,7 +46,7 @@ Module KnotAll.
   Proof. cbn. prove_nodup. Qed.
 
   Local Definition init_cond : iProp Σ :=
-    winv (⊤,⊤) ∗ KnotMainA.init_cond ∗ (KnotA.init_cond genv) ∗ (MemP.init_cond csl genv).
+    winv (⊤,⊤) ∗ KnotMainA.init_cond ∗ (KnotA.init_cond genv) ∗ (MemA.init_cond csl genv).
 
   Lemma cancel_src :
     refines (mod_top, init_cond)
@@ -75,7 +75,7 @@ Module KnotAll.
     (* abstraction of Mem *)
     etrans; cycle 1.
     { do 3 ctxr_rotate. do 3 ctxr_drop.
-      eapply MemIP.ctxr.
+      eapply MemIA.ctxr.
     }
 
     (* abstraction of APCI to APCA *)
@@ -166,7 +166,7 @@ Module KnotAll.
     etrans; cycle 1.
     { ctxr_swap. ctxr_rotate. ctxr_refl. }
 
-    rewrite /KnotMainA.t /KnotA.t /MemP.t /APCC.t. unseal CRIS.
+    rewrite /KnotMainA.t /KnotA.t /MemA.t /APCC.t. unseal CRIS.
     eapply ctxr_cond_strengthen.
     iIntros "[? [? ?]]". iFrame.
   (*SLOW*)Qed.
