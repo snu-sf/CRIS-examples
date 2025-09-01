@@ -3,14 +3,16 @@ From CRIS.incr_faa Require Import Header FaaI FaaA.
 Require Import ImpPrelude MemHeader MemA SchA SchTactics SchHeader.
 
 Module FaaIA. Section FaaIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG}.
+  Context `{CrisG: !crisG Γ Σ α β τ _S _I}.
+  Context `{MemG: !memG}.
+  Context `{SchG: !schG}.
 
   Local Definition IstFull := (IstProd (IstSB FaaA.t.(Mod.scopes) IstTrue) IstEq).
   Local Definition MA := (FaaA.t ★ MemA.t).
   Local Definition MI := (FaaI.t ★ MemA.t).
 
   Lemma faa2_simF : ISim.sim_fun open MA MI True%I IstFull (Some FaaHdr.faa2).
-  Proof.
+  Proof using MemG SchG.
     init_simF.
 
     steps_l.
@@ -52,7 +54,7 @@ Module FaaIA. Section FaaIA.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MA MI emp%I IstFull.
-  Proof.
+  Proof using MemG SchG.
     init_sim.
     { split; ss; iIntros "_"; iSplit; eauto. }
     { eapply faa2_simF. }

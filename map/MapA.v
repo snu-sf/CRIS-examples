@@ -45,13 +45,14 @@ Module MapAS. Section MapAS.
     ([∗ list] i↦v ∈ (repeat (0 : Z) sz), points_to i%Z v)%I.
 
   Lemma pending_unique : pending -∗ pending -∗ False.
-  Proof.
+  Proof using.
     iIntros "P P'"; iCombine "P P'" as "P" gives %FALSE.
     rewrite -pair_op pair_valid in FALSE; des; ss.
   Qed.
+
   Lemma initialize (sz : nat) :
     initial_map ==∗ auth_allocated (λ _ : Z, 0%Z) ∗ auth_unallocated sz ∗ initial_points_tos sz.
-  Proof.
+  Proof using.
     induction sz; ss.
     { rewrite /initial_map /initial_fun /auth_allocated /auth_unallocated /initial_points_tos; unseal "MapAS".
       iIntros "[I1 I2]"; iSplitL "I1"; first iModIntro; iFrame.
@@ -75,16 +76,18 @@ Module MapAS. Section MapAS.
       rewrite discrete_fun_lookup_singleton; ss.
     }
   Qed.
+
   Lemma initial_map_points_to k v : initial_map -∗ points_to k v -∗ False.
-  Proof.
+  Proof using.
     rewrite /initial_map /points_to /initial_fun; unseal "MapAS".
     iIntros "[I1 I2] PT"; iCombine "I2" "PT" as "I" gives %FALSE.
     rewrite -pair_op pair_valid /= -auth_frag_op auth_frag_valid in FALSE.
     destruct FALSE as [_ FALSE]. specialize (FALSE k); ss.
     rewrite discrete_fun_lookup_op discrete_fun_lookup_singleton //= in FALSE.
   Qed.
+
   Lemma auth_unallocated_points_to sz k v : auth_unallocated sz -∗ points_to k v -∗ ⌜(0 <= k < sz)%Z⌝.
-  Proof.
+  Proof using.
     rewrite /auth_unallocated /points_to; unseal "MapAS".
     iIntros "I PT"; iCombine "I" "PT" as "I" gives %wf.
     rewrite -pair_op pair_valid /= -auth_frag_op auth_frag_valid in wf.
@@ -92,17 +95,19 @@ Module MapAS. Section MapAS.
     rewrite discrete_fun_lookup_op discrete_fun_lookup_singleton //= in wf.
     des_ifs; ss. iPureIntro; lia.
   Qed.
+
   Lemma auth_allocated_get f k v : auth_allocated f -∗ points_to k v -∗ ⌜f k = v⌝.
-  Proof.
+  Proof using.
     rewrite /auth_allocated /points_to; unseal "MapAS".
     iIntros "A P"; iCombine "A" "P" as "A" gives %wf.
     rewrite -pair_op pair_valid auth_both_valid_discrete /= in wf; des.
     apply (discrete_fun_included_spec_1 _ _ k) in wf0; ss; rewrite discrete_fun_lookup_singleton in wf0.
     rewrite Excl_included in wf0; inv wf0; ss.
   Qed.
+
   Lemma auth_allocated_set f k v w :
     auth_allocated f -∗ points_to k w ==∗ auth_allocated (<[k := v]> f) ∗ points_to k v.
-  Proof.
+  Proof using.
     rewrite /auth_allocated /points_to; unseal "MapAS".
     iIntros "AU PT"; iCombine "AU" "PT" as "AU".
     iMod (own_update with "AU") as "[AU PT]"; last by iModIntro; iSplitL "AU"; iFrame.

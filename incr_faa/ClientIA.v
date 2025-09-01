@@ -27,7 +27,7 @@ Module ClientIA. Section ClientIA.
         ∗ incr_inv 0 γ bofs)%I
       (λ vret ret,
         existT 0 ((⌜vret = ret ∧ vret = tt↑↑⌝ ∗ counter_syn γ (1/2) (v + 2))%SAT)).
-  Proof.
+  Proof using.
     rewrite /SchAS.fspec_spawnable /fspec_sch /fspec_virtual /precond /postcond /incr_spec /=.
     ii; ss. eexists (x1, (bofs, v, γ)); split; red; ii.
     - rewrite /precond /fspec_sch /fspec_simple /fspec_sch /precond /=.
@@ -204,7 +204,7 @@ Module ClientIA. Section ClientIA.
 (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MA MI init_cond IstFull.
-  Proof.
+  Proof using Hsch Hclient Hsub.
     init_sim.
     { eapply incr_simF. }
     { eapply main_simF. }
@@ -221,7 +221,7 @@ Section ctxr.
     ctx_refines
       (ClientA.t E q sp_s   ★ MemA.t, init_cond E q)
       (ClientI.t            ★ FaaA.t ★ (MemA.t), emp%I).
-  Proof.
+  Proof using.
     etrans; cycle 1. { do 2 ctxr_rotate. ctxr_refl. }
     eset (GRP := ClientI.t ★ _).
     etrans; cycle 1. { ctxr_rotate. ctxr_refl. }

@@ -1,7 +1,7 @@
 Require Import CRIS.
 Require Import ImpPrelude MemA.
 Require Import SchHeader SchA SchTactics.
-From CRIS.spinlock Require Import Header LockI LockA.
+From CRIS.spinlock_ia Require Import Header LockI LockA.
 
 Module LockIA. Section LockIA.
   Import LockAS.
@@ -23,7 +23,7 @@ Module LockIA. Section LockIA.
     ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.newlock).
   Proof using SchG.
     init_simF.
-    steps_l; unfold_img_lat_l.
+    steps_l; unfold_lat_img_l.
 
     (* ill-formed argument *)
     destruct (arg↓) as [v|] eqn:E; cycle 1.
@@ -71,7 +71,7 @@ Module LockIA. Section LockIA.
   Lemma acquire_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.acquire).
   Proof using SchG.
     init_simF.
-    steps_l; unfold_img_lat_l.
+    steps_l; unfold_lat_img_l.
 
     (* ill-formed argument *)
     destruct (classic (∃ blk ofs, arg = [Vptr (blk,ofs)]↑)); cycle 1.
@@ -103,7 +103,7 @@ Module LockIA. Section LockIA.
       { SL_red; iFrame "↦". }
       force_l true. forces_l. iSplitL "".
       { repeat (iSplit; et). iExists _; et. }
-      steps_l. unfold_img_lat_l.
+      steps_l. unfold_lat_img_l.
       sch_yield_rr. steps_r. sch_yield_rr. steps_r.
       by_coind CIH. hss_copset. iFrame.
     }
@@ -125,7 +125,7 @@ Module LockIA. Section LockIA.
   Lemma release_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.release).
   Proof using SchG.
     init_simF.
-    steps_l; unfold_img_lat_l.
+    steps_l; unfold_lat_img_l.
 
     (* ill-formed argument *)
     destruct (classic (∃ blk ofs, arg = [Vptr (blk,ofs)]↑)); cycle 1.

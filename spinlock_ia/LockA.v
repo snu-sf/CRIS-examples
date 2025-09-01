@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.spinlock Require Import Header.
+From CRIS.spinlock_ia Require Import Header.
 Require Import ImpPrelude MemHeader MemA.
 Require Import SchHeader SchA.
 From iris Require Import excl.
@@ -88,15 +88,15 @@ Module SpinLockA. Section SpinLockA.
 
   Definition newlock : Any.t → itree crisE Any.t :=
     λ arg,
-      ret <- img_lat false LockAS.newlock_spec 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
+      ret <- lat_img false LockAS.newlock_spec 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition acquire : Any.t → itree crisE Any.t :=
     λ arg,
-      ret <- img_lat true LockAS.acquire_spec 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
+      ret <- lat_img true LockAS.acquire_spec 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition release : Any.t → itree crisE Any.t :=
     λ arg,
-      ret <- img_lat false LockAS.release_spec 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
+      ret <- lat_img false LockAS.release_spec 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition fnsems : fnsems_type :=
     [(Some SpinLockHdr.newlock, (true, wmask_all, scopes, (None, newlock)));

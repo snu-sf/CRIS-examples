@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.spinlock Require Import Header LockI LockA LockIA MainI MainA MainIA.
+From CRIS.spinlock_ia Require Import Header LockI LockA LockIA MainI MainA MainIA.
 Require Import ImpPrelude MemI MemA MemIAproof.
 Require Import SchHeader SchI SchA SchIAproof.
 Require Import Cancel.
