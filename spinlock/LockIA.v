@@ -23,7 +23,7 @@ Module LockIA. Section LockIA.
     ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.newlock).
   Proof.
     init_simF.
-    steps_l; unfold_real_lat_l.
+    steps_l; unfold_lat_real_l.
 
     destruct (arg↓) as [v|] eqn: EQ; cycle 1.
     { sch_yield_l. steps_l. force_l (tt↑). steps_l.
@@ -35,14 +35,14 @@ Module LockIA. Section LockIA.
 
     (* tgt inline - mem alloc *)
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r. force_r 1.
+    unfold_lat_real_r. force_r 1.
     iSplit; et. iIntros "[%blk [-> [↦ _]]]".
     steps_r; hss_r; steps_r.
     sch_yield_rr.
 
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r. force_r (blk, 0%Z, _, _); s.
+    unfold_lat_real_r. force_r (blk, 0%Z, _, _); s.
     iFrame "↦". iSplit; try done. iIntros "[↦ ->]".
     steps_r; hss_r; steps_r.
 
@@ -70,7 +70,7 @@ Module LockIA. Section LockIA.
   Lemma acquire_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.acquire).
   Proof.
     init_simF.
-    steps_l; unfold_real_lat_l.
+    steps_l; unfold_lat_real_l.
 
     (* ill-formed argument *)
     destruct (arg↓) as [l|] eqn : Heqarg; cycle 1.
@@ -91,7 +91,7 @@ Module LockIA. Section LockIA.
 
     unfold_iter_r. steps_r. sch_yield_rr. sch_yield_l; steps_l.
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r.
+    unfold_lat_real_r.
     ru_r. iIntros (pr) "UPD". rename _q into ret.
 
     destruct (classic (ret = (Vint 0)↑)).
@@ -138,7 +138,7 @@ Module LockIA. Section LockIA.
         iExists _; iFrame "I"; done.
       }
       iIntros "[-> PR]".
-      steps_l. unfold_real_lat_l.
+      steps_l. unfold_lat_real_l.
       force_r; iFrame. steps_r. hss. steps_r.
       do 2 sch_yield_rr. steps_r.
       by_coind CIH. iFrame.
@@ -149,7 +149,7 @@ Module LockIA. Section LockIA.
   Lemma release_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.release).
   Proof.
     init_simF.
-    steps_l; unfold_real_lat_l.
+    steps_l; unfold_lat_real_l.
 
     (* ill-formed argument *)
     destruct (arg↓) as [l|] eqn : Heqarg; cycle 1.
@@ -162,7 +162,7 @@ Module LockIA. Section LockIA.
 
     steps_r. sch_yield_rr.
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r.
+    unfold_lat_real_r.
     ru_r. iIntros (pr) "UPD". rename _q into ret.
     sch_yield_l; steps_l. force_l (Vundef↑). steps_l.
     ru_l (⌜ret = (Vint 0)↑⌝ ∗ Own pr)%I.

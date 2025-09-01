@@ -45,7 +45,7 @@ Module MainIA. Section MainIA.
     (* tgt inline - lock acquire *)
     sch_yield_ir. steps_r.
     inline_r. steps_r.
-    real_lat_ir "IST TID".
+    lat_real_ir "IST TID".
     { iFrame. instantiate (1:= (_,_,existT _ _)); s.
       iModIntro. iSplit; et.
       iIntros "[W [[% _] %]]". hss.
@@ -60,14 +60,14 @@ Module MainIA. Section MainIA.
     steps_r. sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
 
     (* tgt inline - mem load *)
-    steps_r. inline_r. steps_r. unfold_real_lat_r.
+    steps_r. inline_r. steps_r. unfold_lat_real_r.
     force_r (blk_v, ofs_v, 1%Qp, Vint x).
     iSplitL "PT"; iFrame; et.
     iIntros "[PT ->]". steps_r. hss. steps_r.
     sch_yield_ir. steps_r. sch_yield_ir. steps_r.
 
     (* tgt inline - mem store *)
-    steps_r. inline_r. steps_r. unfold_real_lat_r.
+    steps_r. inline_r. steps_r. unfold_lat_real_r.
     force_r (blk_v, ofs_v, _, Vint (x + 1)).
     iSplitL "PT"; iFrame; et.
     iIntros "[PT ->]". steps_r. hss. steps_r.
@@ -77,7 +77,7 @@ Module MainIA. Section MainIA.
     { apply frac_auth_update, (Z_local_update _ _ (x + 1) 1); lia. }
 
     (* tgt inline - lock acquire - restore lock protected proposition *)
-    steps_r. inline_r. steps_r. unfold_real_lat_r.
+    steps_r. inline_r. steps_r. unfold_lat_real_r.
     sch_yield_ir. steps_r.
     iApply wsim_unfold; iIntros "W".
     force_r (γ_l, Vptr (blk_l, ofs_l), existT 0 (lock_P (blk_v, ofs_v) γ_v)).
@@ -110,12 +110,12 @@ Module MainIA. Section MainIA.
     steps_l. steps_r. sch_yield_ir.
 
     (* tgt inline - mem alloc - counter allocation *)
-    steps_r. inline_r. steps_r. unfold_real_lat_r.
+    steps_r. inline_r. steps_r. unfold_lat_real_r.
     force_r 1. iSplit; eauto.
     iIntros "[%blk [-> [GRT _]]]". steps_r. hss. steps_r. sch_yield_ir.
 
     (* tgt inline - mem store - counter initialization *)
-    steps_r. inline_r. steps_r. unfold_real_lat_r.
+    steps_r. inline_r. steps_r. unfold_lat_real_r.
     force_r (blk, 0%Z, _, Vint 0). s.
     iFrame; iSplit; eauto.
     iIntros "[PT ->]". steps_r. hss. steps_r. sch_yield_ir.
@@ -126,7 +126,7 @@ Module MainIA. Section MainIA.
     iIntros "[%γ [B W]]".
 
     (* tgt inline - newlock *)
-    steps_r. inline_r. steps_r. unfold_real_lat_r. sch_yield_ir. steps_r.
+    steps_r. inline_r. steps_r. unfold_lat_real_r. sch_yield_ir. steps_r.
     iApply wsim_unfold. iIntros "I".
     force_r (existT 0 (lock_P (blk, 0%Z) γ)).
     iSplitL "B I PT"; eauto.
@@ -181,7 +181,7 @@ Module MainIA. Section MainIA.
 
     (* tgt inline - lock acquire *)
     steps_r. inline_r. steps_r.
-    real_lat_ir "IST TID".
+    lat_real_ir "IST TID".
     { instantiate (1:= (_,_,existT _ _)). s.
       iFrame. iModIntro. iSplit; et.
       iIntros "[W _]"; et.
@@ -197,14 +197,14 @@ Module MainIA. Section MainIA.
     steps_r. sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
     
     (* tgt inline - mem load *)
-    steps_r. inline_r. steps_r. unfold_real_lat_r.
+    steps_r. inline_r. steps_r. unfold_lat_real_r.
     force_r (blk, 0%Z, 1%Qp, Vint 2%Z); s.
     iSplitL "PT"; eauto. iIntros "[PT ->]".
     steps_r. hss. steps_r. sch_yield_ir. steps_r. sch_yield_ir.
     
     (* tgt inline - lock release *)
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r. sch_yield_ir. steps_r.
+    unfold_lat_real_r. sch_yield_ir. steps_r.
     iApply wsim_unfold; iIntros "WINV".
     force_r (γ_l, Vptr bofs, existT 0 (lock_P (blk, 0%Z) γ)). s.
     iSplitL "WINV TKN B PT".

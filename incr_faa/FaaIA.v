@@ -23,12 +23,12 @@ Module FaaIA. Section FaaIA.
     sch_yield_l; steps_l. rename _q into v.
 
     rewrite /MemHdr.faa; steps_r; inline_r.
-    unfold_real_lat_r. force_r (_, _, _, Vint v).
+    unfold_lat_real_r. force_r (_, _, _, Vint v).
     iFrame "ASM". iSplit; et.
     iIntros "[PT ->]". steps_r. hss_r. steps_r.
     
     inline_r.
-    unfold_real_lat_r. force_r (_, _, _, _).
+    unfold_lat_real_r. force_r (_, _, _, _).
     iFrame "PT". iSplit; et.
     iIntros "[PT ->]". steps_r. hss_r. steps_r.
 
@@ -37,11 +37,11 @@ Module FaaIA. Section FaaIA.
     Unshelve. all: try exact 0.
     sch_yield_l; steps_l; clear v; rename _q into v.
     steps_r; inline_r.
-    unfold_real_lat_r. force_r (_, _, _, _).
+    unfold_lat_real_r. force_r (_, _, _, _).
     iFrame. iSplit; et.
     iIntros "[PT ->]". steps_r. hss_r. steps_r.
     steps_r; inline_r.
-    unfold_real_lat_r. force_r (_, _, _, _).
+    unfold_lat_real_r. force_r (_, _, _, _).
     iFrame. iSplit; et.
     iIntros "[PT ->]". steps_r. hss_r. steps_r.
 

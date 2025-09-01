@@ -59,14 +59,14 @@ Module MainIA. Section MainIA.
     rewrite /lock_P; SL_red; iDestruct "P" as "[%x P]"; SL_red; iDestruct "P" as "[PT P]".
     (* tgt inline - mem load *)
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r. force_r (blk_v, ofs_v, 1%Qp, Vint x).
+    unfold_lat_real_r. force_r (blk_v, ofs_v, 1%Qp, Vint x).
     iSplitL "PT"; iFrame; eauto.
     iIntros "[PT %]". hss. steps_r. hss_r; steps_r.
     (* tgt yield *)
     do 2 (sch_yield_ir).
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r. force_r (blk_v, ofs_v, _, Vint (x + 1)).
+    unfold_lat_real_r. force_r (blk_v, ofs_v, _, Vint (x + 1)).
     iSplitL "PT"; iFrame; et.
     iIntros "[PT %]". steps_r. hss_r; steps_r.
     sch_yield_ir.
@@ -111,12 +111,12 @@ Module MainIA. Section MainIA.
 
     (* tgt inline - mem alloc - counter allocation *)
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r. force_r 1; iSplit; eauto.
+    unfold_lat_real_r. force_r 1; iSplit; eauto.
     iIntros "[%blk [% [GRT _]]]"; hss. steps_r. hss_r; steps_r.
     sch_yield_ir.
     (* tgt inline - mem store - counter initialization *)
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r. force_r (blk, 0%Z, _, Vint 0).
+    unfold_lat_real_r. force_r (blk, 0%Z, _, Vint 0).
     iFrame; iSplit; eauto.
     iIntros "[PT %]". steps_r. hss. steps_r.
     sch_yield_ir.
@@ -199,7 +199,7 @@ Module MainIA. Section MainIA.
     sch_yield_ir.
     (* tgt inline - mem load *)
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r. force_r (blk, 0%Z, 1%Qp, Vint 2%Z); s.
+    unfold_lat_real_r. force_r (blk, 0%Z, 1%Qp, Vint 2%Z); s.
     iFrame "PT". iSplit; et.
     iIntros "[PT %]". steps_r. hss. steps_r.
     (* tgt yield *)

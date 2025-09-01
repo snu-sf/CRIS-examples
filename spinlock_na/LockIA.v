@@ -36,7 +36,7 @@ Module LockIA. Section LockIA.
 
     (* tgt inline - mem alloc *)
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r. force_r 1. iSplit; et.
+    unfold_lat_real_r. force_r 1. iSplit; et.
     iIntros "[%blk [% [PT _]]]".
     steps_r. hss_r. steps_r.
 
@@ -45,7 +45,7 @@ Module LockIA. Section LockIA.
 
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r. force_r (_,_,_,_). s. iFrame. iSplit; et.
+    unfold_lat_real_r. force_r (_,_,_,_). s. iFrame. iSplit; et.
     iIntros "[PT %]".
     steps_r. hss_r. steps_r.
 
@@ -88,7 +88,7 @@ Module LockIA. Section LockIA.
     { (* fail case *)
       (* tgt inline - mem cas *)
       steps_r. inline_r. steps_r.
-      unfold_real_lat_r. force_r (_,_,_,_,_,_,_,_,_,_). s.
+      unfold_lat_real_r. force_r (_,_,_,_,_,_,_,_,_,_). s.
       iSplitL "FAIL".
       { iFrame "FAIL"; eauto. }
       iIntros "[% [PT _]]". steps_r. hss. steps_r.
@@ -104,7 +104,7 @@ Module LockIA. Section LockIA.
       iDestruct "SUCC" as "[POINTS_TO [Q TKN]]".
       steps_r. inline_r. steps_r.
 
-      unfold_real_lat_r. force_r (_,_,_,_,_,_,_,_,_,_).
+      unfold_lat_real_r. force_r (_,_,_,_,_,_,_,_,_,_).
       iSplitL "POINTS_TO".
       { iFrame. iSplit; et. }
       iIntros "[% [PT PRE]]".
@@ -136,7 +136,7 @@ Module LockIA. Section LockIA.
     iDestruct "I" as "[LOCKED|UNLOCKED]".
     { (* locked case *)
       steps_r. inline_r. steps_r.
-      unfold_real_lat_r. force_r (_,_,_,_); s.
+      unfold_lat_real_r. force_r (_,_,_,_); s.
       iSplitL "LOCKED"; iFrame; et.
       iIntros "[PT %]".
       hss. steps_r. hss_r. steps_r.

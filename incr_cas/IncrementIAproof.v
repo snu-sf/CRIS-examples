@@ -35,7 +35,7 @@ Module IncrementIA. Section IncrementIA.
 
     sch_yield_l. steps_l. rename _q into v.
 
-    steps_r. inline_r. unfold_real_lat_r. force_r (blk, ofs, 1%Qp, Vint v).
+    steps_r. inline_r. unfold_lat_real_r. force_r (blk, ofs, 1%Qp, Vint v).
     iFrame. iSplit; et.
     iIntros "[PT ->]". steps_r. hss_r. steps_r.
 
@@ -46,7 +46,7 @@ Module IncrementIA. Section IncrementIA.
     sch_yield_rr. steps_r.
 
     sch_yield_l. steps_l. rename _q into v'.
-    inline_r. unfold_real_lat_r. force_r (_, _, _, _, _, _, _, _, _, _).
+    inline_r. unfold_lat_real_r. force_r (_, _, _, _, _, _, _, _, _, _).
     iSplitL "ASM".
     { s. iFrame. repeat (iSplit; eauto). s. des_ifs. }
     iIntros "[-> [GRT _]]". steps_r. hss. steps_r.

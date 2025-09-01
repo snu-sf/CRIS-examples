@@ -89,15 +89,15 @@ Module SpinLockA. Section SpinLockA.
 
   Definition newlock E : Any.t → itree crisE Any.t :=
     λ arg,
-      ret <- real_lat false (LockAS.newlock_spec E) 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
+      ret <- lat_real false (LockAS.newlock_spec E) 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition acquire E : Any.t → itree crisE Any.t :=
     λ arg,
-      ret <- real_lat true (LockAS.acquire_spec E) 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
+      ret <- lat_real true (LockAS.acquire_spec E) 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition release E : Any.t → itree crisE Any.t :=
     λ arg,
-      ret <- real_lat false (LockAS.release_spec E) 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
+      ret <- lat_real false (LockAS.release_spec E) 𝒴 fbody_trivial arg;; 𝒴;;; Ret ret.
 
   Definition fnsems E : fnsems_type :=
     [(Some SpinLockHdr.newlock, (false, wmask_all, scopes, (None, newlock E)));

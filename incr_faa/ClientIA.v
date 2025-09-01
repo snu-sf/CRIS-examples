@@ -108,7 +108,7 @@ Module ClientIA. Section ClientIA.
 
     (* tgt alloc *)
     steps_r; inline_r.
-    unfold_real_lat_r. force_r 1.
+    unfold_lat_real_r. force_r 1.
     iFrame. iSplit; et.
     iIntros "[%blk [-> [PT _]]]". steps_r; hss_r; steps_r.
     sch_yield_ir.
@@ -116,7 +116,7 @@ Module ClientIA. Section ClientIA.
 
     (* tgt store *)
     steps_r. inline_r.
-    unfold_real_lat_r. force_r (_, _, _, _).
+    unfold_lat_real_r. force_r (_, _, _, _).
     iFrame "PT"; iSplit; eauto.
     iIntros "[PT ->]"; steps_r; hss_r; steps_r.
     sch_yield_ir.
@@ -188,7 +188,7 @@ Module ClientIA. Section ClientIA.
     iDestruct "C" as "[CA CF]".
 
     steps_r. inline_r. steps_r.
-    unfold_real_lat_r. force_r (blk, 0%Z, 1%Qp, (Vint 4)).
+    unfold_lat_real_r. force_r (blk, 0%Z, 1%Qp, (Vint 4)).
     iFrame "PT"; iSplit; eauto.
     iIntros "[PT ->]". steps_r; hss_r; steps_r.
 

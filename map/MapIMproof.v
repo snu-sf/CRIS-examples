@@ -106,7 +106,7 @@ Module MapIM. Section MapIM.
     steps_r. inline_r.
 
     (* TGT: prove the precond of alloc *)
-    steps_r. unfold_real_lat_r. force_r sz.
+    steps_r. unfold_lat_real_r. force_r sz.
     iSplit; et. iIntros "[%b [-> PTS]]".
     steps_r. hss. steps_r.
 
@@ -142,7 +142,7 @@ Module MapIM. Section MapIM.
       inline_r. steps_r.
 
       (* TGT: prove the precond of store *)
-      unfold_real_lat_r. force_r (_, (sz - S n')%Z, _, _). s.
+      unfold_lat_real_r. force_r (_, (sz - S n')%Z, _, _). s.
       iPoseProof (big_sepL_insert_acc with "PTS") as "(PT & CTN)".
       { instantiate (2:= (sz - (S n'))).
         rewrite lookup_app_r; rewrite repeat_length; try nia.
@@ -190,7 +190,7 @@ Module MapIM. Section MapIM.
     inline_r.
 
     (* TGT: prove the precond of load *)
-    step_r. unfold_real_lat_r. force_r (_, (ofs + _)%Z, 1%Qp, _).
+    step_r. unfold_lat_real_r. force_r (_, (ofs + _)%Z, 1%Qp, _).
     iPoseProof (big_sepL_lookup_acc with "M") as "(IP & M)".
     { apply fun_to_list_lookup with (i:=Z.to_nat idx). nia. }
     rewrite Z2Nat.id; try nia.
@@ -231,7 +231,7 @@ Module MapIM. Section MapIM.
     inline_r.
 
     (* TGT: prove the precond of store *)
-    steps_r. unfold_real_lat_r. force_r (blk, (ofs + idx)%Z, _, _). s.
+    steps_r. unfold_lat_real_r. force_r (blk, (ofs + idx)%Z, _, _). s.
     iPoseProof (big_sepL_insert_acc with "M") as "(IP & M)".
     { apply fun_to_list_lookup with (i:=Z.to_nat idx). hss. nia. }
     rewrite Z2Nat.id; try nia.
