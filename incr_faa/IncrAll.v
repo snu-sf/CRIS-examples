@@ -3,22 +3,6 @@ Require Import MemI MemA MemIAproof ImpPrelude.
 Require Import SchHeader SchI SchA SchIAproof SchTactics.
 From CRIS.incr_faa Require Import Header ClientI ClientA ClientIA FaaI FaaA FaaIA.
 
-Section TMP.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
-  Context `{_schG: !schG}.
-  Lemma tid_admin_none :
-    own base_γ SchAS.ir_tidRA ⊢ SchAS.tid_admin None.
-  Proof using.
-    rewrite /SchAS.tid_admin. unseal "SchA". et.
-  Qed.
-  Lemma tid_admin_some tid :
-    own base_γ (SchAS.tid_admin_r (Some tid), None) ⊢ SchAS.tid_admin (Some tid).
-  Proof using.
-    rewrite /SchAS.tid_admin. unseal "SchA". et.
-  Qed.
-  
-End TMP.
-
 Module ClientAll.
   Import inv_instances.
 
@@ -174,7 +158,7 @@ Module ClientAll.
     - apply irΣ_valid.
     - simplify_res.
       { rewrite make_own_admin; iFrame.
-        erewrite (*SchAS.*)tid_admin_none.
+        erewrite SchAS.tid_admin_none.
         iMod (SchAS.tid_admin_none_split 0 with "H22") as "[TA TU]".
         iSplitR "TA TU".
         - rewrite /init_cond. iAssert (mem_init csl genv) with "[H24]" as "[$ _]". eauto. done.
