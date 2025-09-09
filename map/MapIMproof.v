@@ -298,9 +298,8 @@ Module MapIM. Section MapIM.
   Lemma sim : ISim.t open MapMMod MapIMod MapM.init_cond IstFull.
   Proof using MapInSp.
     init_sim.
-    - split; eauto. iIntros "_". iSplit.
-      iSplit; eauto.
-      + iPureIntro. prove_scope.
+    - split; eauto. iIntros "_". iModIntro. iSplit.
+      + iSplit; eauto. iPureIntro. prove_scope.
       + iLeft. eauto.
     - eapply simF_init; eauto.
     - eapply simF_get; eauto.

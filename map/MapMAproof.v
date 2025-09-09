@@ -171,7 +171,7 @@ Module MapMA. Section MapMA.
   Lemma sim : ISim.t open MapA MapM MapA.init_cond Ist.
   Proof using MapInSpS MapInSpT.
     init_sim.
-    - split; eauto. iIntros "(IST & P)"; s.
+    - split; eauto. iIntros "(IST & P)"; s. iModIntro.
       iExists _, _. iSplit; eauto. iLeft. iFrame. eauto.
     - apply simF_init; eauto.
     - apply simF_get; eauto.
