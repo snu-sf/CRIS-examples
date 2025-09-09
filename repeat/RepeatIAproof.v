@@ -115,7 +115,7 @@ Module RepeatIA. Section RepeatIA.
   Theorem sim : ISim.t open RepeatAMod RepeatIMod RepeatA.init_cond IstFull.
   Proof.
     init_sim.
-    - split; eauto. iIntros "_". repeat (iSplit; eauto); iPureIntro; ss.
+    - split; eauto. iIntros "_". iModIntro. repeat (iSplit; eauto); iPureIntro; ss.
     - apply simF_repeat; eauto.
   Qed.
 End RepeatIA. 

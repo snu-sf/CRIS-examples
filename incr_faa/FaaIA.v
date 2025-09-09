@@ -56,7 +56,7 @@ Module FaaIA. Section FaaIA.
   Lemma sim : ISim.t open MA MI emp%I IstFull.
   Proof using MemG SchG.
     init_sim.
-    { split; ss; iIntros "_"; iSplit; eauto. }
+    { split; ss; iIntros "_"; iModIntro; iSplit; eauto. }
     { eapply faa2_simF. }
   Qed.
 End FaaIA. End FaaIA.

@@ -100,7 +100,7 @@ Module CellIA. Section CellIA.
   Proof.
     init_sim.
     - split; eauto. iIntros "IC". iDestruct "IC" as (v) "(C & A)".
-      repeat iExists _. iSplit; eauto. iLeft. iFrame.
+      iModIntro. repeat iExists _. iSplit; eauto. iLeft. iFrame.
     - eapply simF_get; eauto.
     - eapply simF_set; eauto.
   Qed.

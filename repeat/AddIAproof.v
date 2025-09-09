@@ -145,7 +145,7 @@ Module AddIA. Section AddIA.
   Theorem sim : ISim.t open AddAMod AddIMod AddA.init_cond IstFull.
   Proof.
     init_sim.
-    - split; eauto. iIntros "_".
+    - split; eauto. iIntros "_". iModIntro.
       repeat (iSplit; eauto); iPureIntro; prove_scope.
     - apply simF_succ; et.
     - apply simF_add; et.

@@ -185,7 +185,7 @@ Module KnotIA. Section KnotIA.
   Theorem sim : ISim.t open KnotAMod KnotIMod (KnotA.init_cond genv) IstFull.
   Proof.
     init_sim.
-    - split; eauto. iIntros "[VF FL]". iSplit; et.
+    - split; eauto. iIntros "[VF FL]". iModIntro. iSplit; et.
       { iPureIntro. split; ss. }
       { unfold Ist, inv. iExists None, _. iSplit; iFrame; et. iPureIntro. ii. inv EQ. }
     - apply simF_rec; et.

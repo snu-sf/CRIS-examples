@@ -278,7 +278,7 @@ Module CtrlIA. Section CtrlIA.
   Theorem sim : ISim.t open RingAMod RingIMod (RingA.init_cond max_size) IstFull.
   Proof using.
     init_sim.
-    - split; eauto. iIntros "R".
+    - split; eauto. iIntros "R". iModIntro.
       iSplitR. { iPureIntro. esplits; s; prove_scope. }
       iExists [], (replicate max_size 0%Z), 0, 0.
       s. iSplitR; eauto.
