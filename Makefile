@@ -42,6 +42,10 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R spinlock_na $(CRISMODULE).spinlock_na"; \
 	 echo "-R incr_faa $(CRISMODULE).incr_faa"; \
 	 echo "-R incr_cas $(CRISMODULE).incr_cas"; \
+	 echo "-R single_coin $(CRISMODULE).single_coin"; \
+	 echo "-R multi_coin $(CRISMODULE).multi_coin"; \
+	 echo "-R cinc $(CRISMODULE).cinc"; \
+	 echo "-R incr $(CRISMODULE).incr"; \
 	 echo $(COQTHEORIES)) > _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 
