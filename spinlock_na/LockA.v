@@ -38,7 +38,7 @@ Module LockAS. Section LockAS.
 
   Definition N_SpinLockA := nroot .@ "spin_lock".
 
-  Definition token n γ : GTerm.t n := <own> γ (Excl ()).
+  Definition token n γ : GTerm.t n := sown γ (Excl ()).
 
   Definition lock_inv {n} bofs (P : GTerm.t n) γ : GTerm.t n :=
     bofs ↦ (Vint 1)

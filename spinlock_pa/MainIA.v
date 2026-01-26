@@ -54,7 +54,7 @@ Module MainIA. Section MainIA.
     iApply wsim_unfold; iIntros "W".
     iMod ("SIM" $! (_,_,existT _ _) with "[W]") as "[PR [W2 [[-> [TKN P]] _]]]".
     { iFrame "I". iFrame. et. }
-    SL_red; iDestruct "P" as "[%x P]"; SL_red; iDestruct "P" as "[PT P]".
+    do 2 rewrite sl_red. iDestruct "P" as "(%x & PT & P)".
     iApply wsim_fold; iFrame.
     forces_r; iFrame.
     steps_r. sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
@@ -82,9 +82,9 @@ Module MainIA. Section MainIA.
     iApply wsim_unfold; iIntros "W".
     force_r (γ_l, Vptr (blk_l, ofs_l), existT 0 (lock_P (blk_v, ofs_v) γ_v)).
     iSplitL "W F PT TKN".
-    { SL_red. rewrite /lock_P; ss.
+    { rewrite /lock_P; ss.
       iFrame "I". iFrame. repeat (iSplit; et). 
-      iExists _; SL_red; iFrame.
+      do 2 rewrite sl_red. iFrame.
     }
     s. iIntros "[W %]"; des; subst.
     iApply wsim_fold; iFrame.
@@ -121,17 +121,15 @@ Module MainIA. Section MainIA.
     iIntros "[PT ->]". steps_r. hss. steps_r. sch_yield_ir.
 
     (* create lock-guarded proposition *)
-    iApply (wsim_own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)).
+    iMod (own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)) as "(%γ & B & W)".
     { eapply frac_auth_valid; ss. }
-    iIntros "[%γ [B W]]".
 
     (* tgt inline - newlock *)
     steps_r. inline_r. steps_r. unfold_lat_real_r. sch_yield_ir. steps_r.
     iApply wsim_unfold. iIntros "I".
     force_r (existT 0 (lock_P (blk, 0%Z) γ)).
     iSplitL "B I PT"; eauto.
-    { iFrame. s. SL_red; iSplit; eauto. iSplit; et.
-      iFrame. iExists _; SL_red; iFrame. }
+    { iFrame. s. rewrite sl_red; iSplit; eauto. iSplit; et. iFrame. }
     iIntros "[WINV [[%v [%γ_l [-> #I]]] %EQ]]". hss.
     iApply wsim_fold; iFrame.
     steps_r. sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
@@ -190,8 +188,8 @@ Module MainIA. Section MainIA.
     steps_r. force_r (γ_l, Vptr bofs, existT 0 (lock_P (blk, 0%Z) γ)). s.
     iFrame. iSplit; eauto.
     iIntros "[WINV [[% [TKN P]] _]]"; hss.
-    SL_red. iCombine "W1 W2" as "W".
-    iDestruct "P" as "[%x P]"; SL_red; iDestruct "P" as "[PT B]".
+    do 3 rewrite sl_red. iCombine "W1 W2" as "W".
+    iDestruct "P" as "(%x & PT & B)".
     iCombine "B W" gives %WF%frac_auth_agree. inv WF.
     iApply wsim_fold; iFrame.
     steps_r. sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
@@ -208,7 +206,7 @@ Module MainIA. Section MainIA.
     iApply wsim_unfold; iIntros "WINV".
     force_r (γ_l, Vptr bofs, existT 0 (lock_P (blk, 0%Z) γ)). s.
     iSplitL "WINV TKN B PT".
-    { iFrame; SL_red. repeat (iSplit; et; iFrame). iExists _; SL_red; iFrame. }
+    { iFrame. do 2 rewrite sl_red. repeat (iSplit; et; iFrame). }
     iIntros "[WINV [-> _]]".
     iApply wsim_fold; iFrame.
     steps_r. sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.

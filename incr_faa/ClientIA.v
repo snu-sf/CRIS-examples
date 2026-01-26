@@ -34,7 +34,7 @@ Module ClientIA. Section ClientIA.
       iIntros "[W [% [-> [TID [% [-> [[-> ->] [C #INV]]]]]]]]". iFrame. eauto.
     - rewrite /postcond /fspec_sch /fspec_simple /fspec_sch /postcond /=.
       iIntros "[W [TID [[-> C] ->]]]". iFrame. iExists _; iSplitR; eauto.
-      iExists _; iSplitR; eauto. SL_red. iSplitR; eauto.
+      iExists _; iSplitR; eauto. rewrite sl_red. iSplitR; eauto.
   Qed.
 
   Lemma incr_simF : ISim.sim_fun open MA MI init_cond IstFull (Some IncrHdr.incr).
@@ -56,27 +56,27 @@ Module ClientIA. Section ClientIA.
     sch_yield_ir.
 
     rewrite /incr_inv.
-    iInv "INV" as "I" "IA". SL_red.
-    iDestruct "I" as (x) "PT". SL_red. iDestruct "PT" as "[PT CA]".
+    iInv "INV" as "I" "IA".
+    iDestruct "I" as (x) "PT". iDestruct "PT" as "[PT CA]".
 
     (* operational atomicity here *)
     forces_r; iFrame "PT"; steps_r.
 
     iMod (counter_incr 1 with "[C CA]") as "[C CA]"; first iFrame.
     iMod ("IA" with "[GRT CA]") as "_".
-    { iExists (x + 1)%Z; SL_red; ss; iFrame. }
+    { iExists (x + 1)%Z; ss; iFrame. }
     sch_yield_ir.
 
     rewrite /incr_inv.
-    iInv "INV" as "I" "IA". SL_red.
-    iDestruct "I" as (y) "PT". SL_red. iDestruct "PT" as "[PT CA]".
+    iInv "INV" as "I" "IA".
+    iDestruct "I" as (y) "PT". iDestruct "PT" as "[PT CA]".
 
     (* operational atomicity here *)
     forces_r; iFrame "PT"; steps_r.
 
     iMod (counter_incr 1 with "[C CA]") as "[C CA]"; first iFrame.
     iMod ("IA" with "[GRT CA]") as "_".
-    { iExists (y + 1)%Z; SL_red; ss; iFrame. }
+    { iExists (y + 1)%Z; ss; iFrame. }
     sch_yield_ir.
 
     steps_r; hss_r; steps_r.
@@ -124,7 +124,7 @@ Module ClientIA. Section ClientIA.
     iMod (own_alloc ((●F 0%Z ⋅ ◯F{1} 0%Z))) as "[%γc [A F]]".
     { apply frac_auth_valid; ss. }
     iMod (inv_alloc (ccounter_syn 0 γc (blk, 0%Z)) _ _ _ N_main with "[PT A]") as "#I"; eauto.
-    { rewrite /ccounter_syn; SL_red; iExists 0; SL_red; iFrame. }
+    { rewrite sl_red. iExists (0%Z). iFrame. }
     iPoseProof (counter_op with "[F]") as "[F1 F2]".
     { rewrite -Qp.half_half -{2}(Z.add_0_r 0%Z). iApply "F". }
 
@@ -167,7 +167,7 @@ Module ClientIA. Section ClientIA.
     force_l (_, _, _); forces_l; iFrame "TKN TID"; iSplit; [iExists _; eauto|]. steps_l.
     call "IST".
     steps_l. iDestruct "ASM" as "[% [-> [% [% ASM]]]]"; hss.
-    iDestruct "ASM" as "[[% ->] [TID ASM]]". hss. SL_red. iDestruct "ASM" as "[[-> ->] Q]".
+    iDestruct "ASM" as "[[% ->] [TID ASM]]". hss. rewrite sl_red. iDestruct "ASM" as "[[-> ->] Q]".
     steps_r. hss_r. steps_r.
     sch_yield_ir.
     sch_yield_l.
@@ -176,12 +176,12 @@ Module ClientIA. Section ClientIA.
     force_l (_, _, _); forces_l; iFrame "TKN2 TID"; iSplit; [iExists _; eauto|]. steps_l.
     call "IST".
     steps_l. iDestruct "ASM" as "[% [-> [% [% ASM]]]]"; hss.
-    iDestruct "ASM" as "[[% ->] [TID ASM]]". hss. SL_red. iDestruct "ASM" as "[[-> ->] Q2]".
+    iDestruct "ASM" as "[[% ->] [TID ASM]]". hss. rewrite sl_red. iDestruct "ASM" as "[[-> ->] Q2]".
     steps_r. hss_r. steps_r.
     sch_yield_ir.
 
-    iInv "I" as "INV" "INVA"; iEval (SL_red) in "INV"; iDestruct "INV" as "[%x INV]".
-    iEval (SL_red) in "INV". iDestruct "INV" as "[PT C]".
+    iInv "I" as "INV" "INVA"; iDestruct "INV" as "[%x INV]".
+    iDestruct "INV" as "[PT C]".
     iCombine "C Q Q2" as "C" gives %[_ WF%frac_auth_agree]. inv WF; ss.
     iDestruct "C" as "[CA CF]".
 
@@ -190,7 +190,7 @@ Module ClientIA. Section ClientIA.
     steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
 
     iMod ("INVA" with "[CA PT]") as "_".
-    { SL_red. iExists 4; SL_red; iFrame. }
+    { iExists 4; iFrame. }
 
     sch_yield_ir. steps_r.
     sch_yield_ir.

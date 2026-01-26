@@ -19,13 +19,13 @@ Module ClientA. Section ClientA.
   Definition N_main : namespace := (nroot .@ IncrHdr.main).
 
   Definition counter γ q (v : Z) : iProp Σ := own γ (◯F{q} v).
-  Definition counter_syn {n} γ q (v : Z) : GTerm.t n := <own> γ (◯F{q} v).
+  Definition counter_syn {n} γ q (v : Z) : GTerm.t n := sown γ (◯F{q} v).
   Definition counter_auth γ (v : Z) : iProp Σ := own γ (●F v).
 
   Definition ccounter_syn n γ bofs : GTerm.t n :=
     (∃ v : τ{Z, n},
-      <own> base_γ (mem_points_to_singleton_r bofs 1%Qp (Vint v))
-      ∗ <own> γ (frac_auth_auth v))%SAT.
+      sown base_γ (mem_points_to_singleton_r bofs 1%Qp (Vint v))
+      ∗ sown γ (frac_auth_auth v))%SAT.
 
   Definition incr_inv n γ bofs : iProp Σ := inv n N_main (ccounter_syn n γ bofs).
 

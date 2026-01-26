@@ -61,7 +61,7 @@ Module LockIA. Section LockIA.
     iApply (winv_fupd (S n)).
     iMod (inv_alloc (LockAS.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA
       with "[↦ P TKN]") as "#I"; ss.
-    { rewrite /lock_inv; SL_red; iRight; iFrame. }
+    { rewrite /lock_inv; iEval (rewrite sl_red); iRight; iFrame. }
     iModIntro; iFrame. iSplit; eauto. iExists _, _; iSplit; eauto.
     rewrite /is_lock; iExists _; iFrame "I"; done.
     Unshelve. all: exact 0.
@@ -100,7 +100,7 @@ Module LockIA. Section LockIA.
       iSplitL "UPD".
       { iIntros ([[γ vl] [n P]]) "/= [W [[% [%bofs #[% I]]] %]]"; destruct bofs as [blk' ofs'].
         iRevert "W". iInv "I" as "INV" "ACC". hss.
-        iEval (SL_red) in "INV". iDestruct "INV" as "[PT | [PT [R TKN]]]".
+        iEval (rewrite sl_red) in "INV". iDestruct "INV" as "[PT | [PT [R TKN]]]".
         { iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [_ [% _]]".
           - iFrame "PT". iSplit; eauto.
           - hss.
@@ -109,9 +109,9 @@ Module LockIA. Section LockIA.
         { s. iFrame "PT". iSplit; eauto. }
         Unshelve. all: try exact 1%Qp; try exact (Vint 0); eauto.
         hss. iMod ("ACC" with "[↦]") as "_".
-        { SL_red; iFrame "↦". }
+        { rewrite sl_red; iFrame "↦". }
         iIntros "$ !>"; iSplit; et.
-        unfold_pre_post. SL_red. iFrame. et.
+        unfold_pre_post. iEval (rewrite sl_red). iFrame. et.
       }
       iIntros "PR".
       steps_l. force_r; iFrame. steps_r. hss. steps_r.
@@ -124,7 +124,7 @@ Module LockIA. Section LockIA.
       iSplitL "UPD".
       { iIntros ([[γ vl] [n P]]) "/= [W [[% [%bofs #[% I]]] %]]"; destruct bofs as [blk' ofs'].
         iRevert "W". iInv "I" as "INV" "ACC". hss.
-        iEval (SL_red) in "INV". iDestruct "INV" as "[PT| [PT [R TKN]]]"; cycle 1.
+        iEval (rewrite sl_red) in "INV". iDestruct "INV" as "[PT| [PT [R TKN]]]"; cycle 1.
         { iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [_ [% _]]".
           - s. iFrame "PT". iSplit; eauto.
           - hss.
@@ -133,7 +133,7 @@ Module LockIA. Section LockIA.
         { s. iFrame "PT". iSplit; eauto. }
         Unshelve. all: try exact 1%Qp; try exact (Vint 0); eauto.
         hss. iMod ("ACC" with "[↦]") as "_".
-        { SL_red; iFrame "↦". }
+        { rewrite sl_red; iFrame "↦". }
         iIntros "$ !>". repeat (iSplit; et).
         iExists _; iFrame "I"; done.
       }
@@ -169,12 +169,12 @@ Module LockIA. Section LockIA.
     iSplitL "UPD".
     { iIntros ([[γ v] [n R]]) "[W [[% [[% [-> #I]] [TKN R]]] _]] /=". hss.
       iRevert "W". iInv "I" as "INV" "ACC".
-      iEval (SL_red) in "INV"; iDestruct "INV" as "[PT | [PT [R' TKN']]]"; cycle 1.
-      { SL_red; iCombine "TKN" "TKN'" gives %WF; inv WF. }
+      iEval (rewrite sl_red) in "INV"; iDestruct "INV" as "[PT | [PT [R' TKN']]]"; cycle 1.
+      { rewrite sl_red; iCombine "TKN" "TKN'" gives %WF; inv WF. }
       iPoseProof ("UPD" $! (_, _, _, _) with "[PT]") as "> [$ [↦ %]]".
       { ss; iFrame "PT"; done. }
       iMod ("ACC" with "[TKN R ↦]") as "_".
-      { SL_red. iRight; iFrame. }
+      { rewrite sl_red. iRight; iFrame. }
       iIntros "$ !>"; eauto.
     }
 

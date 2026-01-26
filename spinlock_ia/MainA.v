@@ -32,7 +32,7 @@ Module MainAS. Section MainAS.
   Definition ir : spinlockmainΓ := *[None].
 
   Definition lock_P loc γ : GTerm.t 0 :=
-    ∃ v : τ{Z}%SAT, loc ↦ (Vint v) ∗ <own> γ (●F v).
+    ∃ v : τ{Z}%SAT, loc ↦ (Vint v) ∗ sown γ (●F v).
 
   Definition init_cond E q : iProp Σ :=
     icond_winv E (icond_sch q emp%I).
@@ -58,7 +58,7 @@ Module MainAS. Section MainAS.
           ∗ own γ_v (◯F{1/2} 0%Z)))%I.
 
   Definition incr_post γ_v : SAny.t → SAny.t → SynDepO :=
-    (λ _ _, existT 0 (<own> γ_v (◯F{1/2} 1%Z)))%SAT.
+    (λ _ _, existT 0 (sown γ_v (◯F{1/2} 1%Z)))%SAT.
 
   Lemma incr_spawnable E q bofs_l bofs_v γ_v :
     SchAS.fspec_spawnable E q (incr_spec E q)
@@ -72,7 +72,7 @@ Module MainAS. Section MainAS.
     }
     { iIntros (vret ret); rewrite /postcond /incr_spec /=.
       iIntros "[$ [$ [[-> F] ->]]]".
-      iFrame. iModIntro; iExists _; iSplit; eauto. iExists _. iSplit; eauto. SL_red; done.
+      iFrame. iModIntro; iExists _; iSplit; eauto. iExists _. iSplit; eauto. rewrite sl_red; done.
     }
   Qed.
 

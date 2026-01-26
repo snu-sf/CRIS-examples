@@ -59,7 +59,7 @@ Module LockIA. Section LockIA.
     iMod (own_alloc (Excl ())) as "[%γ TKN]"; [done|].
     iMod (inv_alloc (LockAS.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA
       with "[↦ P TKN]") as "#I"; ss.
-    { rewrite /lock_inv; SL_red; iRight; iFrame. }
+    { rewrite /lock_inv; iEval (rewrite sl_red); iRight; iFrame. }
     forces_l.
     iSplitR; cycle 1.
     { steps_l. sch_yield_l. step. iSplit; done. }
@@ -93,14 +93,14 @@ Module LockIA. Section LockIA.
     steps_r; inline_r; steps_r.
 
     destruct _q1. s. iDestruct "ASM" as "[[% [% [% #I]]] _]"; des; subst. hss.
-    iInv "I" as "INV" "ACC". iEval (SL_red) in "INV".
+    iInv "I" as "INV" "ACC". iEval (rewrite sl_red) in "INV".
     iDestruct "INV" as "[PT | [PT [R TKN]]]".
     { force_r (_, _, _, _, _, _, _, _, _, _). steps_r. forces_r.
       iSplitL "PT".
       { iFrame. et. }
       steps_r. iDestruct "GRT" as "[[% [↦ _]] %]"; subst. hss.
       steps_r. iMod ("ACC" with "[↦]") as "_".
-      { SL_red; iFrame "↦". }
+      { rewrite sl_red; iFrame "↦". }
       force_l true. forces_l. iSplitL "".
       { repeat (iSplit; et). iExists _; et. }
       steps_l. unfold_lat_img_l.
@@ -112,9 +112,9 @@ Module LockIA. Section LockIA.
       { iFrame. repeat (iSplit; et). }
       steps_r. iDestruct "GRT" as "[[% [↦ _]] %]"; subst. hss.
       steps_r. iMod ("ACC" with "[↦]") as "_".
-      { SL_red; iFrame "↦". }
+      { rewrite sl_red; iFrame "↦". }
       force_l false. forces_l. iSplitL "R TKN".
-      { repeat (iSplit; et). SL_red. iFrame. }
+      { repeat (iSplit; et). iEval (rewrite sl_red). iFrame. }
       steps_l. sch_yield_rr. steps_r. sch_yield_rr. steps_r.
       sch_yield_rr. steps_r. sch_yield_l.
       step; et.
@@ -137,16 +137,16 @@ Module LockIA. Section LockIA.
     steps_r; sch_yield_rr; steps_r.
     sch_yield_l; steps_l. force_l (Vundef↑). 
     destruct _q1. s. iDestruct "ASM" as "[[% [[% [% #I]] [TKN P]]] _]". hss.
-    iInv "I" as "INV" "ACC". iEval (SL_red) in "INV".
+    iInv "I" as "INV" "ACC". iEval (rewrite sl_red) in "INV".
     iDestruct "INV" as "[PT | [PT [R' TKN']]]"; cycle 1.
-    { SL_red. iCombine "TKN" "TKN'" gives %WF; inv WF. }
+    { rewrite sl_red. iCombine "TKN" "TKN'" gives %WF; inv WF. }
     steps_r; inline_r; steps_r.
     force_r (_,_,_,_). forces_r.
     iSplitL "PT".
     { iFrame. et. }
     steps_r. iDestruct "GRT" as "[[↦ %] %]"; hss.
     iMod ("ACC" with "[↦ TKN P]") as "_".
-    { SL_red. iRight. iFrame. }
+    { rewrite sl_red. iRight. iFrame. }
     steps_r. forces_l. iSplit; et.
     steps_l. sch_yield_rr. sch_yield_l.
     step. et.

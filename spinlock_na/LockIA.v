@@ -57,7 +57,7 @@ Module LockIA. Section LockIA.
     (* alloc invariant *)
     iMod (own_alloc (Excl ())) as "[%γ TKN]"; [done|].
     iMod (inv_alloc (LockAS.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA with "[P PT TKN]") as "#I"; eauto.
-    { rewrite /lock_inv /=; SL_red; iRight; iFrame. }
+    { rewrite /lock_inv /=; rewrite sl_red; iRight; iFrame. }
     forces_l. iFrame. iSplit; eauto.
     { iSplit; eauto. rewrite /is_lock. iExists _, _; iSplit; eauto. }
     steps_l. step. eauto.
@@ -83,7 +83,7 @@ Module LockIA. Section LockIA.
     (* tgt yield *)
     sch_yield_ir.
     (* open invariant *)
-    iInv "LOCK" as "I" "Hcl". SL_red.
+    iInv "LOCK" as "I" "Hcl". rewrite sl_red.
     iDestruct "I" as "[FAIL|SUCC]".
     { (* fail case *)
       (* tgt inline - mem cas *)
@@ -113,7 +113,8 @@ Module LockIA. Section LockIA.
       (* tgt yields *)
       do 3 (sch_yield_ir).
       (* src yield *)
-      sch_yield_l. forces_l. iSplitL "Q TKN TID"; SL_red; iFrame; et.
+      sch_yield_l. forces_l. iSplitL "Q TKN TID".
+      { iFrame. iSplit; et. iSplit; et. rewrite sl_red. iFrame. }
       (* both terminate *)
       step; eauto.
     }
@@ -132,7 +133,7 @@ Module LockIA. Section LockIA.
     (* tgt yield *)
     sch_yield_ir.
     (* open invariant *)
-    iInv "LOCK" as "I" "Hcl". SL_red.
+    iInv "LOCK" as "I" "Hcl". rewrite sl_red.
     iDestruct "I" as "[LOCKED|UNLOCKED]".
     { (* locked case *)
       steps_r. inline_r. steps_r.

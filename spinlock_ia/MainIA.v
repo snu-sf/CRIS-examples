@@ -57,8 +57,8 @@ Module MainIA. Section MainIA.
     { steps_r. by_coind CIH. hss_copset. iFrame "L". iFrame. }
     steps_r. iDestruct "GRT" as "[[% [TKN P]] _]". hss.
     sch_yield_ir. steps_r. hss. steps_r.
-    rewrite /lock_P; SL_red; iDestruct "P" as "[%x P]".
-    SL_red; iDestruct "P" as "[PT P]".
+    rewrite /lock_P. iEval (rewrite sl_red) in "P". iDestruct "P" as "[%x P]".
+    rewrite sl_red; iDestruct "P" as "[PT P]".
 
     (* tgt inline - mem load *)
     sch_yield_ir. steps_r. inline_r. force_r (blk_v, ofs_v, 1%Qp, Vint x).
@@ -77,8 +77,7 @@ Module MainIA. Section MainIA.
     iCombine "P F" as "C". iMod (own_update with "C") as "[F P]".
     { apply frac_auth_update, (Z_local_update _ _ (x + 1) 1); lia. }
     force_r (γ_l, Vptr (blk_l, ofs_l), existT 0 (lock_P (blk_v, ofs_v) γ_v)).
-    forces_r. SL_red. iFrame "L". iFrame. iSplitL "F PT".
-    { repeat (iSplit; et). iExists _. SL_red. iFrame. }
+    forces_r. rewrite sl_red. rewrite sl_red. iFrame "L". iFrame. iSplitR; et.
     steps_r. iDestruct "GRT" as "%"; hss.
     sch_yield_ir. steps_r. hss. steps_r.
 
@@ -119,15 +118,14 @@ Module MainIA. Section MainIA.
     hss. steps_r. sch_yield_ir.
     
     (* create lock-guarded proposition *)
-    iApply (wsim_own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)).
+    iMod (own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)) as "(%γ & B & W)".
     { eapply frac_auth_valid; ss. }
-    iIntros "[%γ [B W]]".
 
     (* tgt inline - newlock *)
     steps_r. inline_r. steps_r. unfold_lat_img_r. sch_yield_ir.
     force_r (existT 0 (lock_P (blk, 0%Z) γ)). forces_r.
     iSplitL "B PT"; eauto.
-    { repeat (iSplit; et). SL_red. iExists _. SL_red. iFrame. }
+    { repeat (iSplit; et). rewrite sl_red. iExists _. iFrame. }
     steps_r. iDestruct "GRT" as "[[%v [%γ_l [-> [% [% #I]]]]] _]". hss.
     sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
     iDestruct "W" as "[W1 W2]".
@@ -189,8 +187,8 @@ Module MainIA. Section MainIA.
     steps_r. iDestruct "GRT" as "[[-> [TKN P]] _]". hss.
     sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
 
-    SL_red. iCombine "W1 W2" as "W".
-    iDestruct "P" as "[%x P]"; SL_red; iDestruct "P" as "[PT B]".
+    do 3 rewrite sl_red. iCombine "W1 W2" as "W".
+    iDestruct "P" as "[%x P]"; iDestruct "P" as "[PT B]".
     iCombine "B W" gives %WF%frac_auth_agree. inv WF.
     
     (* tgt inline - mem load *)
@@ -203,9 +201,9 @@ Module MainIA. Section MainIA.
     steps_r. inline_r. steps_r. unfold_lat_img_r. sch_yield_ir.
     force_r (γ_l, Vptr bofs, existT 0 (lock_P (blk, 0%Z) γ)). forces_r.
     iSplitL "TKN B PT".
-    { repeat (iSplit; et); SL_red; iFrame.
+    { repeat (iSplit; et).
       - iExists _. iFrame "I". et.
-      - iExists _. SL_red. iFrame.
+      - rewrite sl_red. iFrame. rewrite sl_red. iExists _. iFrame.
     }
     steps_r. iDestruct "GRT" as "%"; des; hss.
     sch_yield_ir. steps_r. hss. steps_r.

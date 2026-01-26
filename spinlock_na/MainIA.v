@@ -56,7 +56,7 @@ Module MainIA. Section MainIA.
     iPoseProof (SchAS.tid_user_merge with "[TID TID']") as "TID"; iFrame; rewrite Qp.div_2.
     (* tgt yield *)
     sch_yield_ir.
-    rewrite /lock_P; SL_red; iDestruct "P" as "[%x P]"; SL_red; iDestruct "P" as "[PT P]".
+    do 2 rewrite sl_red. iDestruct "P" as "(%x & PT & P)".
     (* tgt inline - mem load *)
     steps_r. inline_r. steps_r.
     force_r (blk_v, ofs_v, 1%Qp, Vint x). forces_r.
@@ -76,10 +76,8 @@ Module MainIA. Section MainIA.
     steps_r. inline_r. steps_r. force_r (tid, (γ_l, Vptr (blk_l, ofs_l), existT 0 (lock_P (blk_v, ofs_v) γ_v))).
     rewrite -{1}(Qp.div_2 q); iPoseProof (SchAS.tid_user_split with "TID") as "[TID1 ITD2]".
     forces_r. iSplitL "TID1 F PT TKN".
-    { SL_red. rewrite /lock_P; ss.
-      iFrame "TID1". iSplit; iFrame; eauto. iSplit; eauto. iSplit.
-      { iExact "I". }
-      { iExists _; SL_red; iFrame. }
+    { do 2 rewrite sl_red. rewrite /lock_P; ss.
+      iFrame "TID1". iSplit; iFrame; eauto.
     }
     steps_r. hss. steps_r.
     (* tgt yield *)
@@ -121,15 +119,14 @@ Module MainIA. Section MainIA.
     steps_r. iDestruct "GRT" as "[[PT %] %]"; subst. hss. steps_r.
     sch_yield_ir.
     (* create lock-guarded proposition *)
-    iApply (wsim_own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)).
+    iMod (own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)) as "(%γ & B & W)".
     { eapply frac_auth_valid; ss. }
-    iIntros "[%γ [B W]]".
     (* tgt inline - newlock *)
     steps_r. inline_r. steps_r.
     force_r (0, existT 0 (lock_P (blk, 0%Z) γ)). forces_r.
     rewrite -{1}(Qp.div_2 q); iPoseProof (SchAS.tid_user_split with "TID") as "[TID1 ITD2]".
     iSplitL "TID1 B PT"; eauto.
-    { iFrame; SL_red; iSplit; eauto. iFrame. iExists _; SL_red; iFrame. }
+    { iFrame; rewrite sl_red; iSplit; eauto. iFrame. }
     steps_r. hss. steps_r.
     (* src/tgt yields *)
     sch_yield_ii; [erewrite Qp.div_2; et|].
@@ -192,8 +189,8 @@ Module MainIA. Section MainIA.
     steps_r. hss. steps_r.
     sch_yield_ii; [erewrite Qp.div_2; et|].
     steps_r. iDestruct "GRT" as "[TID' [[-> [TKN P]] _]]". hss. steps_r.
-    SL_red. iCombine "W1 W2" as "W".
-    iDestruct "P" as "[%x P]"; SL_red; iDestruct "P" as "[PT B]".
+    do 3 rewrite sl_red. iCombine "W1 W2" as "W".
+    iDestruct "P" as "(%x & PT & B)".
     iCombine "B W" gives %WF%frac_auth_agree. inv WF.
     iPoseProof (SchAS.tid_user_merge with "[TID TID']") as "TID"; iFrame; rewrite Qp.div_2.
     sch_yield_ir.
@@ -209,9 +206,7 @@ Module MainIA. Section MainIA.
     force_r (_, (γ_l, Vptr bofs_l, existT 0 (lock_P (blk, 0%Z) γ))). forces_r.
     rewrite -{1}(Qp.div_2 q); iPoseProof (SchAS.tid_user_split with "TID") as "[TID1 ITD2]".
     iSplitL "TKN TID1 B PT".
-    { iFrame; SL_red. iSplit; eauto. iFrame. iSplit; eauto. iSplit; eauto.
-      iExists _; SL_red; iFrame.
-    }
+    { iFrame. do 2 rewrite sl_red. iSplit; eauto. iFrame. iSplit; eauto. }
     steps_r. hss. steps_r.
     (* tgt yield *)
     sch_yield_ii; [erewrite Qp.div_2; et|].
