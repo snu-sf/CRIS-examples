@@ -124,7 +124,7 @@ Section KnotAS.
           (fun vret => (⌜vret = (Vint (Z.of_nat (f n)))↑⌝ ∗ knot_frag (Some f))%I))).
 
   Definition KnotRecSp: spl_type :=
-    Seal.sealing CRIS [(Some KnotHdr.rec, Some rec_spec)].
+    Seal.sealing CRIS [(Some KnotHdr.rec, fsp_some rec_spec)].
 
   Definition knot_spec : fspec :=
     fspec_simple (X:=(nat -> nat))
@@ -138,8 +138,8 @@ Section KnotAS.
 
   Definition KnotSp : spl_type :=
     Seal.sealing CRIS 
-      [(Some KnotHdr.rec, Some rec_spec); 
-      (Some KnotHdr.knot, Some knot_spec)].
+      [(Some KnotHdr.rec, fsp_some rec_spec);
+      (Some KnotHdr.knot, fsp_some knot_spec)].
 
 End KnotAS.
 
@@ -149,8 +149,8 @@ Section KnotA.
   Definition scopes := ["Knot"].
 
   Definition fnsems genv SpRec SpFun : fnsems_type :=
-    [(Some KnotHdr.rec, (true, wmask_all, scopes, (Some rec_spec, pure_body)));
-     (Some KnotHdr.knot, (true, wmask_all, scopes, (Some (knot_spec genv SpRec SpFun), fbody_trivial)))].
+    [(Some KnotHdr.rec, (true, wmask_all, scopes, (fsp_some rec_spec, pure_body)));
+     (Some KnotHdr.knot, (true, wmask_all, scopes, (fsp_some (knot_spec genv SpRec SpFun), fbody_trivial)))].
 
   Program Definition smod genv SpRec SpFun : SMod.t :=
   {|

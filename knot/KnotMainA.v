@@ -50,11 +50,11 @@ Section KnotMainAS.
 
   Definition MainFunSp : spl_type := 
     Seal.sealing CRIS
-      [(Some KnotMainHdr.fib, Some fib_spec)].
+      [(Some KnotMainHdr.fib, fsp_some fib_spec)].
 
   Definition MainSp : spl_type :=
     Seal.sealing CRIS
-      [(Some "fib", Some fib_spec); (None, None)].
+      [(Some "fib", fsp_some fib_spec); (None, fsp_none)].
 End KnotMainAS.
 
 Section KnotMainA.
@@ -66,8 +66,8 @@ Section KnotMainA.
     λ _, (if with_pure then pure else Ret ()↑);;; Ret (Vint (Z.of_nat (Fib 10))).
 
   Definition fnsems genv SpRec : fnsems_type :=
-    [(Some KnotMainHdr.fib, (true, wmask_all, scopes, (Some (fib_spec genv SpRec), pure_body)));
-     (None, (true, wmask_all, scopes, (None, cfunU main_body)))].
+    [(Some KnotMainHdr.fib, (true, wmask_all, scopes, (fsp_some (fib_spec genv SpRec), pure_body)));
+     (None, (true, wmask_all, scopes, (fsp_none, cfunU main_body)))].
 
   Program Definition smod genv SpRec : SMod.t :=
   {|

@@ -55,7 +55,7 @@ Section ctxr.
   Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cannonG}.
 
-  Theorem ctxr (Sp_s : string → option fspec):
+  Theorem ctxr (Sp_s : sp_type):
     ctx_refines
       (CannonA.t Sp_s, CannonA.init_cond)
       (CannonI.t, emp%I).

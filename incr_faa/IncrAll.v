@@ -33,7 +33,7 @@ Module ClientAll.
   Local Definition mod_top : Mod.t := SMod.to_mod sp_none (SMod.cancel smod_src).
   Local Definition mod_tgt : Mod.t := ClientI.t ★ FaaI.t ★ (MemI.t csl genv) ★ (SchI.t).
 
-  Local Definition sp : string → option fspec := sp_from smod_src.
+  Local Definition sp : sp_type := sp_from smod_src.
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
   (* Local Definition SchInSp0: sp_incl (SchAS.sp ⊤ (to_sp [])) (to_sp (SchAS.sp ⊤ (to_sp []))).

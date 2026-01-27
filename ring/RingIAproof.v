@@ -16,7 +16,7 @@ Module RingIA. Section RingIA.
   Definition CellIG start len :=
     Mod.addL (List.map CellI.t (seq start len)).
 
-  Theorem correct max_size (SpR SpC : string -> option fspec)
+  Theorem correct max_size (SpR SpC : sp_type)
     :
     ctx_refines
       ((RingA.t max_size SpR) ★ (CtrlIA.CellG SpC 0 max_size),

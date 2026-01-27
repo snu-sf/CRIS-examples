@@ -23,7 +23,7 @@ Module SingleCoinPA. Section SingleCoinPA.
   Context `{_prophG: !prophG}.
   Context `{_coinG: !coinG}.
 
-  Context (sp : string → option fspec).
+  Context (sp : sp_type).
 
   Local Definition MA := SingleCoinA.t sp.
   Local Definition MI := SingleCoinP.t ★ ProphecyA.t sp.

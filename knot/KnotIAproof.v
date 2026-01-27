@@ -104,7 +104,7 @@ Module KnotIA. Section KnotIA.
     { iSplitR "FL PT".
       - unfold precond. ss. iFrame. iSplit.
         + iPureIntro. eexists; esplits; et. econs; et.
-          econs; [|replace rec_spec with (fspec_flat (Some rec_spec)) by ss; refl].
+          econs; [|replace (fspec_to_rel rec_spec) with (fspec_flat (Some rec_spec)) by ss; refl].
           apply RecInSp. unfold KnotRecSp. unseal CRIS. ss.
         + iPureIntro. eexists; esplits; et. rewrite -OrdArith.mult_from_nat. apply OrdArith.le_from_nat. nia. 
       - iExists _, _, _, _. repeat (iSplit; et). iExists (Some _f_spec), _. iSplit.
@@ -168,7 +168,7 @@ Module KnotIA. Section KnotIA.
     steps_l. force_l. steps_l. force_l. force_l.
     iSplitL "FG"; iFrame; et.
     { iSplit; et. iPureIntro. eexists. esplit; et. econs; et.
-      econs; [|replace rec_spec with (fspec_flat (Some rec_spec)) by ss; refl].
+      econs; [|replace (fspec_to_rel rec_spec) with (fspec_flat (Some rec_spec)) by ss; refl].
       apply RecInSp. unfold KnotRecSp. unseal CRIS. ss.
     }
     steps_l.

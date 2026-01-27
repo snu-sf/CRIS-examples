@@ -11,7 +11,7 @@ Module MainIA. Section MainIA.
   Definition Ist: alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ st_src st_tgt, emp%I.
 
-  Context (sp: string -> option fspec).
+  Context (sp: sp_type).
   Context (sp_input: sp CtxHdr.input = None).
   Context (sp_foo: sp CtxHdr.foo = None).
   

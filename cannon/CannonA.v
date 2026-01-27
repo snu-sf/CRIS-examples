@@ -56,7 +56,7 @@ Module CannonAS. Section CannonAS.
     )%I.
 
   Definition Sp : spl_type :=
-    Seal.sealing CRIS [(Some CannonHdr.fire, Some fire_spec)].
+    Seal.sealing CRIS [(Some CannonHdr.fire, fsp_some fire_spec)].
 
   Lemma Sp_nodup : List.NoDup (List.map fst Sp).
   Proof. unfold Sp. unseal CRIS. prove_nodup. Qed.
@@ -77,7 +77,7 @@ Module CannonA. Section CannonA.
       Ret r.
 
   Definition fnsems : fnsems_type :=
-    [(Some CannonHdr.fire, (true, wmask_all, scopes, (Some CannonAS.fire_spec, cfunU fire)))].
+    [(Some CannonHdr.fire, (true, wmask_all, scopes, (fsp_some CannonAS.fire_spec, cfunU fire)))].
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

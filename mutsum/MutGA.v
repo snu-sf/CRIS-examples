@@ -16,10 +16,10 @@ Module MutGA. Section MutGA.
          (λ vret, (⌜vret = (Vint (Z.of_nat (sum n)))↑⌝)%I))).
          
   Definition SpG: spl_type :=
-    Seal.sealing CRIS [(Some MutHdr.mutg, Some g_spec)].
+    Seal.sealing CRIS [(Some MutHdr.mutg, fsp_some g_spec)].
 
   Definition fnsems : fnsems_type :=
-    [(Some MutHdr.mutg, (true, wmask_all, scopes, (Some g_spec, pure_body)))].
+    [(Some MutHdr.mutg, (true, wmask_all, scopes, (fsp_some g_spec, pure_body)))].
 
   Program Definition smod: SMod.t :=
   {|

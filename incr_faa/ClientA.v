@@ -54,7 +54,7 @@ Module ClientA. Section ClientA.
   Definition init_cond E q : iProp Σ := winv (E, E) ∗ SchAS.tid_user q 0.
 
   Definition sp E q : spl_type :=
-    [(Some IncrHdr.incr, Some (incr_spec E q));
+    [(Some IncrHdr.incr, fsp_some (incr_spec E q));
      (None,              None)].
 
   (* Module definition *)
@@ -74,8 +74,8 @@ Module ClientA. Section ClientA.
       𝒴;;; Ret (tt↑).
 
   Definition fnsems E q : fnsems_type :=
-    [(Some IncrHdr.incr, (true, wmask_all, scopes, (Some (incr_spec E q), cfunN (sfunN incr))));
-     (None,              (true, wmask_all, scopes, (None,                 main)))].
+    [(Some IncrHdr.incr, (true, wmask_all, scopes, (fsp_some (incr_spec E q), cfunN (sfunN incr))));
+     (None,              (true, wmask_all, scopes, (fsp_none,                 main)))].
 
   Program Definition smod E q : SMod.t := {|
     SMod.scopes := scopes;

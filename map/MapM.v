@@ -54,10 +54,10 @@ Module MapMS. Section MapMS.
 
   Definition sp : spl_type :=
     Seal.sealing CRIS
-      [(Some MapHdr.init, Some init_spec);
-       (Some MapHdr.get, Some get_spec);
-       (Some MapHdr.set, Some set_spec);
-       (Some MapHdr.set_by_user, Some set_by_user_spec)].
+      [(Some MapHdr.init, fsp_some init_spec);
+       (Some MapHdr.get, fsp_some get_spec);
+       (Some MapHdr.set, fsp_some set_spec);
+       (Some MapHdr.set_by_user, fsp_some set_by_user_spec)].
 
   Lemma sp_nodup : List.NoDup (List.map fst sp).
   Proof. by rewrite /sp; unseal CRIS; prove_nodup. Qed.
@@ -119,10 +119,10 @@ Module MapM. Section MapM.
       ccallU MapHdr.set [Vint k; Vint v].
 
   Definition fnsems : fnsems_type :=
-    [(Some MapHdr.init, (true, wmask_all, scopes, (Some MapMS.init_spec, cfunU init)));
-     (Some MapHdr.get, (true, wmask_all, scopes, (Some MapMS.get_spec, cfunU get)));
-     (Some MapHdr.set, (true, wmask_all, scopes, (Some MapMS.set_spec, cfunU set)));
-     (Some MapHdr.set_by_user, (true, wmask_all, scopes, (Some MapMS.set_by_user_spec, cfunU set_by_user)))].
+    [(Some MapHdr.init, (true, wmask_all, scopes, (fsp_some MapMS.init_spec, cfunU init)));
+     (Some MapHdr.get, (true, wmask_all, scopes, (fsp_some MapMS.get_spec, cfunU get)));
+     (Some MapHdr.set, (true, wmask_all, scopes, (fsp_some MapMS.set_spec, cfunU set)));
+     (Some MapHdr.set_by_user, (true, wmask_all, scopes, (fsp_some MapMS.set_by_user_spec, cfunU set_by_user)))].
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
@@ -137,3 +137,4 @@ Module MapM. Section MapM.
 
   Definition t Sp := Seal.sealing CRIS (@SMod.to_mod Σ Sp smod).
 End MapM. End MapM.
+

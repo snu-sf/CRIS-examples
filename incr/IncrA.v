@@ -25,7 +25,7 @@ Module IncrA. Section IncrA.
         (λ arg, ⌜arg = [Vptr bofs]↑⌝,
         λ ret, ⌜ret = Vundef↑⌝)))%I.
 
-  Definition fnsems q : fnsems_type := [(Some IncrHdr.incr, (true, wmask_all, scopes, (Some (incr_spec q), cfunU incr)))].
+  Definition fnsems q : fnsems_type := [(Some IncrHdr.incr, (true, wmask_all, scopes, (fsp_some (incr_spec q), cfunU incr)))].
 
   Program Definition Mod q : SMod.t := {|
     SMod.scopes := scopes;

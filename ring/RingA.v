@@ -10,10 +10,10 @@ Module RingAS. Section RingAS.
   Context `{!cellG}.
 
   Definition Sp : spl_type :=
-    Seal.sealing CRIS [(Some RingHdr.init, Some fspec_trivial);
-                       (Some RingHdr.get_size, Some fspec_trivial);
-                       (Some RingHdr.enqueue, Some fspec_trivial);
-                       (Some RingHdr.dequeue, Some fspec_trivial)].
+    Seal.sealing CRIS [(Some RingHdr.init, fsp_some fspec_trivial);
+                       (Some RingHdr.get_size, fsp_some fspec_trivial);
+                       (Some RingHdr.enqueue, fsp_some fspec_trivial);
+                       (Some RingHdr.dequeue, fsp_some fspec_trivial)].
 
   Lemma Sp_nodup : List.NoDup (List.map fst Sp).
   Proof. unfold Sp. unseal CRIS. prove_nodup. Qed.
@@ -61,10 +61,10 @@ Module RingA. Section RingA.
   .
 
   Definition fnsems : fnsems_type :=
-    [(Some RingHdr.init, (true, wmask_all, scopes, (None, cfunU init)));
-     (Some RingHdr.get_size, (true, wmask_all, scopes, (None, cfunU get_size)));
-     (Some RingHdr.enqueue, (true, wmask_all, scopes, (None, cfunU enqueue)));
-     (Some RingHdr.dequeue, (true, wmask_all, scopes, (None, cfunU dequeue)))].
+    [(Some RingHdr.init, (true, wmask_all, scopes, (fsp_none, cfunU init)));
+     (Some RingHdr.get_size, (true, wmask_all, scopes, (fsp_none, cfunU get_size)));
+     (Some RingHdr.enqueue, (true, wmask_all, scopes, (fsp_none, cfunU enqueue)));
+     (Some RingHdr.dequeue, (true, wmask_all, scopes, (fsp_none, cfunU dequeue)))].
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

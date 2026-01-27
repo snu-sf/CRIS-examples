@@ -16,10 +16,10 @@ Module MutFA. Section MutFA.
          (λ vret, (⌜vret = (Vint (Z.of_nat (sum n)))↑⌝)%I))).
          
   Definition SpF: spl_type :=
-    Seal.sealing CRIS [(Some MutHdr.mutf, Some f_spec)].
+    Seal.sealing CRIS [(Some MutHdr.mutf, fsp_some f_spec)].
 
   Definition fnsems : fnsems_type :=
-    [(Some MutHdr.mutf, (true, wmask_all, scopes, (Some f_spec, pure_body)))].
+    [(Some MutHdr.mutf, (true, wmask_all, scopes, (fsp_some f_spec, pure_body)))].
 
   Program Definition smod: SMod.t :=
   {|

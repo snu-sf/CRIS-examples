@@ -76,9 +76,9 @@ Module LockAS. Section LockAS.
       )))%I.
 
   Definition sp E q : spl_type :=
-    [(Some SpinLockHdr.newlock, Some (newlock_spec E q));
-     (Some SpinLockHdr.acquire, Some (acquire_spec E q));
-     (Some SpinLockHdr.release, Some (release_spec E q))].
+    [(Some SpinLockHdr.newlock, fsp_some (newlock_spec E q));
+     (Some SpinLockHdr.acquire, fsp_some (acquire_spec E q));
+     (Some SpinLockHdr.release, fsp_some (release_spec E q))].
 End LockAS. End LockAS.
 
 (* Module definition *)
@@ -104,9 +104,9 @@ Module SpinLockA. Section SpinLockA.
     λ _, 𝒴;;; Ret Vundef.
 
   Definition fnsems E q : fnsems_type :=
-    [(Some SpinLockHdr.newlock, (true, wmask_all, scopes, (Some (LockAS.newlock_spec E q), cfunU newlock)));
-     (Some SpinLockHdr.acquire, (true, wmask_all, scopes, (Some (LockAS.acquire_spec E q), cfunU acquire)));
-     (Some SpinLockHdr.release, (true, wmask_all, scopes, (Some (LockAS.release_spec E q), cfunU release)))].
+    [(Some SpinLockHdr.newlock, (true, wmask_all, scopes, (fsp_some (LockAS.newlock_spec E q), cfunU newlock)));
+     (Some SpinLockHdr.acquire, (true, wmask_all, scopes, (fsp_some (LockAS.acquire_spec E q), cfunU acquire)));
+     (Some SpinLockHdr.release, (true, wmask_all, scopes, (fsp_some (LockAS.release_spec E q), cfunU release)))].
 
   Program Definition smod E q : SMod.t := {|
     SMod.scopes := [];

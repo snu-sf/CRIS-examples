@@ -99,7 +99,7 @@ Module IncrIA. Section IncrIA.
 
   Definition x := ProphecyA.t.
   
-  Context (q : Qp) (E : coPset) (sp : string → option fspec).
+  Context (q : Qp) (E : coPset) (sp : sp_type).
   Context (sp_user : spl_type).
   Context `{sp_incl (SchAS.sp sp_user E q) sp}.
 

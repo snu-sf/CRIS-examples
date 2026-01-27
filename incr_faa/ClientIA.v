@@ -10,7 +10,7 @@ Module ClientIA. Section ClientIA.
 
   Context (E : coPset) (q : Qp) (Hsub : ↑N_main ⊆ E).
   Context (sp_user : spl_type).
-  Context (sp_s : string → option fspec).
+  Context (sp_s : sp_type).
   Context (Hsch : sp_incl (SchAS.sp sp_user E q) sp_s).
   Context (Hclient : spl_sub (ClientA.sp E q) sp_user).
 
@@ -29,7 +29,8 @@ Module ClientIA. Section ClientIA.
         existT 0 ((⌜vret = ret ∧ vret = tt↑↑⌝ ∗ counter_syn γ (1/2) (v + 2))%SAT)).
   Proof using.
     rewrite /SchAS.fspec_spawnable /fspec_sch /fspec_virtual /precond /postcond /incr_spec /=.
-    ii; ss. eexists (x1, (bofs, v, γ)); split; red; ii.
+    ii; ss. rr in ValidSP; des; subst. eexists _, _; split; [rr; et|].
+    instantiate (1:=(x, (bofs, v, γ))); split; red; ii.
     - rewrite /precond /fspec_sch /fspec_simple /fspec_sch /precond /=.
       iIntros "[W [% [-> [TID [% [-> [[-> ->] [C #INV]]]]]]]]". iFrame. eauto.
     - rewrite /postcond /fspec_sch /fspec_simple /fspec_sch /postcond /=.
@@ -214,7 +215,7 @@ End ClientIA.
 Section ctxr.
   Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG, !incrG}.
 
-  Definition ctxr (E : coPset) (q : Qp) (sp_s : string → option fspec) (sp_user : spl_type) :
+  Definition ctxr (E : coPset) (q : Qp) (sp_s : sp_type) (sp_user : spl_type) :
     ↑ClientA.N_main ⊆ E →
     spl_sub (ClientA.sp E q) sp_user →
     sp_incl (SchAS.sp sp_user E q) sp_s →
