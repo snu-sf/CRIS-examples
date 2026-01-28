@@ -46,24 +46,21 @@ Module LockAS. Section LockAS.
 
   (* Function specs *)
 
-  Definition newlock_spec : fspecS :=
-    from_fspec
+  Definition newlock_spec : fspec :=
       (fspec_winv (↑N_SpinLockA) (* namespace for invariant access *)
          (fspec_simple (X:= {n : level & GTerm.t n})
            (λ '(existT n P),
             ((λ arg, ⌜∃ v: list val, arg = v↑⌝ ∗ ⟦P⟧),
              (λ ret, ∃ v γ, ⌜ret = v↑⌝ ∗ is_lock γ v P))%I))).
 
-  Definition acquire_spec : fspecS :=
-    from_fspec
+  Definition acquire_spec : fspec :=
       (fspec_winv (↑N_SpinLockA)
          (fspec_simple (X:= (_ * _ * {n & GTerm.t n}))
             (λ '(γ, v, (existT n P)),
              ((λ arg, ⌜arg = [v]↑⌝ ∗ is_lock γ v P),
               (λ ret, ⌜ret = Vundef↑⌝ ∗ ⟦token n γ⟧ ∗ ⟦P⟧))%I))).
 
-  Definition release_spec : fspecS :=
-    from_fspec
+  Definition release_spec : fspec :=
       (fspec_winv (↑N_SpinLockA)
          (fspec_simple (X:= (_ * _ * {n & GTerm.t n}))
             (λ '(γ, v, (existT n P)),

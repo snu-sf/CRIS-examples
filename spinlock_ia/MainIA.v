@@ -34,7 +34,7 @@ Module MainIA. Section MainIA.
   Proof using LockInE SchInSp_s MainInSp.
     init_simF.
     (* process src precondition *)
-    steps_l. iDestruct "ASM" as "[TID [[-> [%γ_l [#I F]]] ->]]". hss.
+    steps_l. iDestruct "ASM" as "[TID [-> [-> [%γ_l [#I F]]]]]". hss.
     destruct _q5 as [blk_l ofs_l], _q6 as [blk_v ofs_v].
     rename _q4 into γ_v, _q1 into tid.
 
@@ -55,7 +55,7 @@ Module MainIA. Section MainIA.
     force_r. iFrame "L". iSplit; eauto.
     steps_r. destruct _q; [|clear CIH].
     { steps_r. by_coind CIH. hss_copset. iFrame "L". iFrame. }
-    steps_r. iDestruct "GRT" as "[[% [TKN P]] _]". hss.
+    steps_r. iDestruct "GRT" as "[_ [% [TKN P]]]". hss.
     sch_yield_ir. steps_r. hss. steps_r.
     rewrite /lock_P. iEval (rewrite sl_red) in "P". iDestruct "P" as "[%x P]".
     rewrite sl_red; iDestruct "P" as "[PT P]".
@@ -63,13 +63,13 @@ Module MainIA. Section MainIA.
     (* tgt inline - mem load *)
     sch_yield_ir. steps_r. inline_r. force_r (blk_v, ofs_v, 1%Qp, Vint x).
     forces_r. iFrame "PT". iSplit; et.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
+    steps_r. iDestruct "GRT" as "[-> [PT ->]]". hss. steps_r.
     sch_yield_ir. steps_r. sch_yield_ir.
 
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r. force_r (blk_v, ofs_v, _, Vint (x + 1)).
     forces_r. iFrame "PT". iSplit; et.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
+    steps_r. iDestruct "GRT" as "[-> [PT ->]]". hss. steps_r.
     sch_yield_ir.
     
     (* tgt inline - lock release *)
@@ -108,13 +108,13 @@ Module MainIA. Section MainIA.
     (* tgt inline - mem alloc - counter allocation *)
     steps_r. inline_r. steps_r. force_r 1.
     forces_r. iSplit; et.
-    steps_r. iDestruct "GRT" as "[[%blk [-> [GRT _]]] ->]".
+    steps_r. iDestruct "GRT" as "[-> [%blk [-> [GRT _]]]]".
     hss. steps_r. sch_yield_ir.
 
     (* tgt inline - mem store - counter initialization *)
     steps_r. inline_r. steps_r. force_r (blk, 0%Z, _, Vint 0).
     forces_r. iFrame; iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]".
+    steps_r. iDestruct "GRT" as "[-> [PT ->]]".
     hss. steps_r. sch_yield_ir.
     
     (* create lock-guarded proposition *)
@@ -126,7 +126,7 @@ Module MainIA. Section MainIA.
     force_r (existT 0 (lock_P (blk, 0%Z) γ)). forces_r.
     iSplitL "B PT"; eauto.
     { repeat (iSplit; et). rewrite sl_red. iExists _. iFrame. }
-    steps_r. iDestruct "GRT" as "[[%v [%γ_l [-> [% [% #I]]]]] _]". hss.
+    steps_r. iDestruct "GRT" as "[_ [%v [%γ_l [-> [% [% #I]]]]]]". hss.
     sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
     iDestruct "W" as "[W1 W2]".
 
@@ -184,7 +184,7 @@ Module MainIA. Section MainIA.
     iFrame "I". iSplit; eauto.
     steps_r. destruct _q.
     { steps_r. hss. by_coind CIH. iFrame "I". iFrame. }
-    steps_r. iDestruct "GRT" as "[[-> [TKN P]] _]". hss.
+    steps_r. iDestruct "GRT" as "[_ [-> [TKN P]]]". hss.
     sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
 
     do 3 rewrite sl_red. iCombine "W1 W2" as "W".
@@ -194,7 +194,7 @@ Module MainIA. Section MainIA.
     (* tgt inline - mem load *)
     steps_r. inline_r. steps_r. force_r (blk, 0%Z, 1%Qp, Vint 2%Z); s.
     forces_r. iSplitL "PT"; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss.
+    steps_r. iDestruct "GRT" as "[-> [PT ->]]". hss.
     steps_r. sch_yield_ir. steps_r. sch_yield_ir.
 
     (* tgt inline - lock release *)

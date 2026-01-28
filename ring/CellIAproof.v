@@ -35,7 +35,7 @@ Module CellIA. Section CellIA.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "((% & C) & %)". subst. hss.
+    steps_l. iDestruct "ASM" as "(% & (% & C))". subst. hss.
     iDestruct "IST" as (vany v0) "(% & [(C' & A)|(% & P & A)])".
     { iExFalso. iApply (cell_unique with "C' C"). }
     subst. hss. rename _q into v.
@@ -60,7 +60,7 @@ Module CellIA. Section CellIA.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "((% & [P|C]) & %)";
+    steps_l. iDestruct "ASM" as "(% & (% & [P|C]))";
       subst; hss; rename _q1 into v, _q2 into v'; unfold Ist.
     { (* A case with a resource [P: pending idx] *)
       iDestruct "IST" as (vany v0) "(% & [(C & A)|(% & P' & A)])"; cycle 1.

@@ -71,7 +71,7 @@ Module MainAS. Section MainAS.
       iFrame. iModIntro. iSplit; eauto.
     }
     { iIntros (vret ret); rewrite /postcond /incr_spec /=.
-      iIntros "[$ [$ [[-> F] ->]]]".
+      iIntros "[$ [$ [-> [-> F]]]]".
       iFrame. iModIntro; iExists _; iSplit; eauto. iExists _. iSplit; eauto. rewrite sl_red; done.
     }
   Qed.

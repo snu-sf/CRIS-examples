@@ -34,7 +34,7 @@ Module ClientIA. Section ClientIA.
     - rewrite /precond /fspec_sch /fspec_simple /fspec_sch /precond /=.
       iIntros "[W [% [-> [TID [% [-> [[-> ->] [C #INV]]]]]]]]". iFrame. eauto.
     - rewrite /postcond /fspec_sch /fspec_simple /fspec_sch /postcond /=.
-      iIntros "[W [TID [[-> C] ->]]]". iFrame. iExists _; iSplitR; eauto.
+      iIntros "[W [TID [-> [-> C]]]]". iFrame. iExists _; iSplitR; eauto.
       iExists _; iSplitR; eauto. rewrite sl_red. iSplitR; eauto.
   Qed.
 
@@ -42,7 +42,7 @@ Module ClientIA. Section ClientIA.
   Proof using Hsch Hclient Hsub.
     init_simF.
 
-    steps_l. iDestruct "ASM" as "[TID [[-> [C #INV]] ->]]". hss_l.
+    steps_l. iDestruct "ASM" as "[TID [-> [-> [C #INV]]]]". hss_l.
     destruct _q5 as [b ofs]. rename _q1 into tid, _q4 into γ, _q6 into v.
 
     steps_l. hss. steps_l.
@@ -110,14 +110,14 @@ Module ClientIA. Section ClientIA.
     (* tgt alloc *)
     steps_r; inline_r.
     force_r 1; forces_r; iSplit; eauto.
-    steps_r; iDestruct "GRT" as "[[%blk [-> [PT _]]] ->]"; hss_r; steps_r.
+    steps_r; iDestruct "GRT" as "[-> [%blk [-> [PT _]]]]"; hss_r; steps_r.
     sch_yield_ir.
     sch_yield_ir.
 
     (* tgt store *)
     steps_r. inline_r.
     force_r (_, _, _, _); forces_r; iFrame "PT"; iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]"; hss_r; steps_r.
+    steps_r. iDestruct "GRT" as "[-> [PT ->]]"; hss_r; steps_r.
     sch_yield_ir.
     sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l. sch_yield_l. steps_l.
 
@@ -188,7 +188,7 @@ Module ClientIA. Section ClientIA.
 
     steps_r. inline_r. steps_r. force_r (blk, 0%Z, 1%Qp, (Vint 4)). steps_r. forces_r.
     iSplitL "PT"; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss. steps_r.
+    steps_r. iDestruct "GRT" as "[-> [PT ->]]". hss. steps_r.
 
     iMod ("INVA" with "[CA PT]") as "_".
     { iExists 4; iFrame. }

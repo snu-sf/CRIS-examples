@@ -28,7 +28,7 @@ Module LockIA. Section LockIA.
 
     (* preprocess initial conditions *)
     steps_l. rename _q1 into tid, _q into vret. destruct _q2 as [n P]; s.
-    iDestruct "ASM" as "[TID [P ->]]". hss.
+    iDestruct "ASM" as "[TID [-> P]]". hss.
     steps_r.
 
     (* tgt yield *)
@@ -37,7 +37,7 @@ Module LockIA. Section LockIA.
     (* tgt inline - mem alloc *)
     steps_r. inline_r. steps_r.
     force_r 1. forces_r. iSplit; et.
-    steps_r. iDestruct "GRT" as "[[%blk [% [PT _]]] %]"; subst.
+    steps_r. iDestruct "GRT" as "[% [%blk [% [PT _]]]]"; subst.
     hss_r. steps_r.
 
     (* tgt yield *)
@@ -46,7 +46,7 @@ Module LockIA. Section LockIA.
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r.
     force_r (_,_,_,_). forces_r. iFrame. iSplit; et.
-    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst.
+    steps_r. iDestruct "GRT" as "[% [PT %]]"; subst.
     hss_r. steps_r.
 
     (* src/tgt yield *)
@@ -68,7 +68,7 @@ Module LockIA. Section LockIA.
     init_simF.
 
     (* process src precondition *)
-    steps_l. iDestruct "ASM" as "[TID [[-> #LOCK] ->]]". hss.
+    steps_l. iDestruct "ASM" as "[TID [-> [-> #LOCK]]]". hss.
     iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs]. steps_r.
 
     (* start coinduction for lock acquire/failure *)
@@ -91,7 +91,7 @@ Module LockIA. Section LockIA.
       force_r (_,_,_,_,_,_,_,_,_,_). forces_r.
       iSplitL "FAIL".
       { iFrame "FAIL"; eauto. }
-      steps_r. iDestruct "GRT" as "[[% [PT _]] %]"; subst. hss. steps_r.
+      steps_r. iDestruct "GRT" as "[% [% [PT _]]]"; subst. hss. steps_r.
       iMod ("Hcl" with "[PT]") as "_". { iFrame. }
       
       (* tgt yields *)
@@ -107,7 +107,7 @@ Module LockIA. Section LockIA.
       force_r (_,_,_,_,_,_,_,_,_,_). forces_r.
       iSplitL "POINTS_TO".
       { iFrame. iSplit; et. }
-      steps_r. iDestruct "GRT" as "[[% [PT PRE]] %]"; subst.
+      steps_r. iDestruct "GRT" as "[% [% [PT PRE]]]"; subst.
       hss_r. steps_r.
       iMod ("Hcl" with "[PT]") as "_". { iFrame. }
       (* tgt yields *)
@@ -126,7 +126,7 @@ Module LockIA. Section LockIA.
     init_simF.
     (* process src precondition *)
     steps_l.
-    iDestruct "ASM" as "[TID [(% & #LOCK & TKN & Q) %]]".
+    iDestruct "ASM" as "[TID [% (% & #LOCK & TKN & Q)]]".
     iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs].
     hss.
     steps_r.
@@ -139,7 +139,7 @@ Module LockIA. Section LockIA.
       steps_r. inline_r. steps_r.
       force_r (_,_,_,_). forces_r.
       iSplitL "LOCKED"; iFrame; et.
-      steps_r. iDestruct "GRT" as "[[PT %] %]"; subst.
+      steps_r. iDestruct "GRT" as "[% [PT %]]"; subst.
       hss. steps_r.
       iMod ("Hcl" with "[PT Q TKN]") as "_".
       { iRight. iFrame. }

@@ -29,21 +29,21 @@ Module LockIA. Section LockIA.
     { sch_yield_l. steps_l. force_l (tt↑). steps_l.
       ru_l False%I. iSplitL; cycle 1.
       { iIntros "F". iExFalso. et. }
-      iIntros ([]) "[_ [[% _] _]]"; subst; hss.
+      iIntros ([]) "[_ [_ [% _]]]". des; subst; hss.
     }
     steps_r. sch_yield_rr.
 
     (* tgt inline - mem alloc *)
     steps_r. inline_r. steps_r.
     unfold_lat_real_r. force_r 1.
-    iSplit; et. iIntros "[%blk [-> [↦ _]]]".
+    iSplit; et. iIntros "[_ [%blk [-> [↦ _]]]]".
     steps_r; hss_r; steps_r.
     sch_yield_rr.
 
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r.
     unfold_lat_real_r. force_r (blk, 0%Z, _, _); s.
-    iFrame "↦". iSplit; try done. iIntros "[↦ ->]".
+    iFrame "↦". iSplit; try done. iIntros "[_ [↦ ->]]".
     steps_r; hss_r; steps_r.
 
     (* src/tgt yield *)
@@ -55,7 +55,7 @@ Module LockIA. Section LockIA.
     ru_l emp%I.
     iSplitR "IST"; cycle 1.
     { iIntros "_". steps_l. sch_yield_l. step. iSplit; done. }
-    iIntros ([n P]) "[W [[_ P] _]]"; s.
+    iIntros ([n P]) "[W [_ [_ P]]]"; s.
     iSplitR; [eauto|].
     unfold_pre_post. iRevert "W".
     iApply (winv_fupd (S n)).
@@ -77,7 +77,7 @@ Module LockIA. Section LockIA.
     { sch_yield_l. steps_l. force_l false. force_l (tt↑). steps_l.
       ru_l False%I. iSplitL; cycle 1.
       { iIntros "F". iExFalso. et. }
-      iIntros ([[] []]) "[_ [[% _] _]]"; subst; hss.
+      iIntros ([[] []]) "[_ [_ [% _]]]"; subst; hss.
     }
     destruct (or_else (pargs [Tptr] l) (0, 0%Z)) as [blk ofs] eqn: EQ.
     hss. steps_r.
@@ -98,14 +98,14 @@ Module LockIA. Section LockIA.
     { force_l false. steps_l. force_l (Vundef↑). steps_l.
       ru_l (Own pr)%I.
       iSplitL "UPD".
-      { iIntros ([[γ vl] [n P]]) "/= [W [[% [%bofs #[% I]]] %]]"; destruct bofs as [blk' ofs'].
+      { iIntros ([[γ vl] [n P]]) "/= [W [% [% [%bofs #[% I]]]]]"; destruct bofs as [blk' ofs'].
         iRevert "W". iInv "I" as "INV" "ACC". hss.
         iEval (rewrite sl_red) in "INV". iDestruct "INV" as "[PT | [PT [R TKN]]]".
-        { iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [_ [% _]]".
+        { iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [_ [_ [% _]]]".
           - iFrame "PT". iSplit; eauto.
           - hss.
         }
-        iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [$ [% [↦ _]]] /=".
+        iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [$ [_ [% [↦ _]]]]".
         { s. iFrame "PT". iSplit; eauto. }
         Unshelve. all: try exact 1%Qp; try exact (Vint 0); eauto.
         hss. iMod ("ACC" with "[↦]") as "_".
@@ -122,14 +122,14 @@ Module LockIA. Section LockIA.
     { force_l true. steps_l.
       ru_l (⌜ret = (Vint 1)↑⌝ ∗ Own pr)%I.
       iSplitL "UPD".
-      { iIntros ([[γ vl] [n P]]) "/= [W [[% [%bofs #[% I]]] %]]"; destruct bofs as [blk' ofs'].
+      { iIntros ([[γ vl] [n P]]) "/= [W [% [% [%bofs #[% I]]]]]"; destruct bofs as [blk' ofs'].
         iRevert "W". iInv "I" as "INV" "ACC". hss.
         iEval (rewrite sl_red) in "INV". iDestruct "INV" as "[PT| [PT [R TKN]]]"; cycle 1.
-        { iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [_ [% _]]".
+        { iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [_ [_ [% _]]]".
           - s. iFrame "PT". iSplit; eauto.
           - hss.
         }
-        iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [$ [% [↦ _]]] /=".
+        iPoseProof ("UPD" $! (_, _, _, _, _, _, _, _, _, _) with "[PT]") as "> [$ [_ [% [↦ _]]]] /=".
         { s. iFrame "PT". iSplit; eauto. }
         Unshelve. all: try exact 1%Qp; try exact (Vint 0); eauto.
         hss. iMod ("ACC" with "[↦]") as "_".
@@ -156,7 +156,7 @@ Module LockIA. Section LockIA.
     { sch_yield_l. steps_l. force_l (tt↑). steps_l.
       ru_l False%I. iSplitL; cycle 1.
       { iIntros "F". iExFalso. et. }
-      iIntros ([[] []]) "[_ [[% _] _]]"; subst; hss.
+      iIntros ([[] []]) "[_ [_ [% _]]]"; subst; hss.
     }
     destruct (or_else (pargs [Tptr] l) (0, 0%Z)) as [blk ofs] eqn: EQ.
 
@@ -167,11 +167,11 @@ Module LockIA. Section LockIA.
     sch_yield_l; steps_l. force_l (Vundef↑). steps_l.
     ru_l (⌜ret = (Vint 0)↑⌝ ∗ Own pr)%I.
     iSplitL "UPD".
-    { iIntros ([[γ v] [n R]]) "[W [[% [[% [-> #I]] [TKN R]]] _]] /=". hss.
+    { iIntros ([[γ v] [n R]]) "[W [_ [% [[% [-> #I]] [TKN R]]]]] /=". hss.
       iRevert "W". iInv "I" as "INV" "ACC".
       iEval (rewrite sl_red) in "INV"; iDestruct "INV" as "[PT | [PT [R' TKN']]]"; cycle 1.
       { rewrite sl_red; iCombine "TKN" "TKN'" gives %WF; inv WF. }
-      iPoseProof ("UPD" $! (_, _, _, _) with "[PT]") as "> [$ [↦ %]]".
+      iPoseProof ("UPD" $! (_, _, _, _) with "[PT]") as "> [$ [_ [↦ %]]]".
       { ss; iFrame "PT"; done. }
       iMod ("ACC" with "[TKN R ↦]") as "_".
       { rewrite sl_red. iRight; iFrame. }

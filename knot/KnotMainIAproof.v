@@ -145,7 +145,7 @@ Module KnotMainIA. Section KnotMainIA.
     }
 
     (* TGT: take a postcondition of "fib" *)
-    steps_r. iDestruct "GRT" as "[[% FG] %]"; des; subst; hss. steps_r. inv H3.
+    steps_r. iDestruct "GRT" as "[% [% FG]]"; des; subst; hss. steps_r. inv H3.
 
     (* TGT: find a block of the function "rec" using the postcondition of "fib" *)
     rewrite FBLOCK; hss. steps_r.

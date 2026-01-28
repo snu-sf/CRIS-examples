@@ -26,10 +26,10 @@ Module FaaIA. Section FaaIA.
 
     rewrite /MemHdr.faa; steps_r; inline_r.
     force_r (_, _, _, Vint v); forces_r; iFrame "ASM"; iSplit; eauto.
-    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r.
+    steps_r; iDestruct "GRT" as "[-> [PT ->]]"; hss_r.
     steps_r; inline_r.
     force_r (_, _, _, _); forces_r; iFrame "PT"; iSplit; eauto.
-    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r. steps_r.
+    steps_r; iDestruct "GRT" as "[-> [PT ->]]"; hss_r. steps_r.
 
     force_l; iFrame "PT"; steps_l.
 
@@ -38,10 +38,10 @@ Module FaaIA. Section FaaIA.
     sch_yield_l; steps_l; clear v; rename _q into v.
     steps_r; inline_r.
     force_r (_, _, _, _); forces_r; iFrame "ASM"; iSplit; eauto.
-    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r.
+    steps_r; iDestruct "GRT" as "[-> [PT ->]]"; hss_r.
     steps_r; inline_r.
     force_r (_, _, _, _); forces_r; iFrame "PT"; iSplit; eauto.
-    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r.
+    steps_r; iDestruct "GRT" as "[-> [PT ->]]"; hss_r.
 
     force_l; iFrame "PT"; steps_l.
     steps_r.

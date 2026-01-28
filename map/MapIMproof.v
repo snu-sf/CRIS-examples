@@ -87,7 +87,7 @@ Module MapIM. Section MapIM.
 
     (* preprocess given assumptions *)
     steps_l.
-    iDestruct "ASM" as "[[[-> %] P] ->]". hss.
+    iDestruct "ASM" as "[-> [[-> %] P]]". hss.
 
     (* SRC: handle the IST of Map and the precond of init *)
     iDestruct "IST" as (????) "([-> ->] & (% & [% | (P' & IST)]) & %)";
@@ -108,7 +108,7 @@ Module MapIM. Section MapIM.
     force_r; iSplit; first done.
 
     (* TGT: handle the postcond of alloc *)
-    steps_r. iDestruct "GRT" as "[[%b [-> PTS]] ->]".
+    steps_r. iDestruct "GRT" as "[-> [%b [-> PTS]]]".
     hss. steps_r. hss.
 
     (* prepare and start an induction *)
@@ -154,13 +154,13 @@ Module MapIM. Section MapIM.
       rewrite !Z.add_0_l Nat2Z.inj_sub; try nia.
       (* , Zpos_P_of_succ_nat, <-Nat2Z.inj_succ, Nat2Z.inj_sub; try nia. *)
       iSplitL "PT".
-      { iSplitL; cycle 1.
-        { iPureIntro. do 3 f_equal. rewrite Z.div_mul; eauto. }
-        iSplit; et. rewrite Z.div_mul; eauto.
+      { iFrame. iSplitL; cycle 1.
+        { iPureIntro. do 3 f_equal. }
+        rewrite Z.div_mul; eauto.
       }
 
       (* TGT: handle the postcond of store *)
-      steps_r. iDestruct "GRT" as "[[GRT ->] ->]". hss.
+      steps_r. iDestruct "GRT" as "[-> [GRT ->]]". hss.
       iSpecialize ("CTN" $! (Vint 0)). iPoseProof ("CTN" with "GRT") as "PTS".
       (* rewrite -> !Zpos_P_of_succ_nat, <-!Nat2Z.inj_succ. *)
       replace (sz - S n' + 1)%Z with (sz - n')%Z by nia.
@@ -208,7 +208,7 @@ Module MapIM. Section MapIM.
     iSplitL "IP"; eauto.
     
     (* TGT: handle the postcond of load *)
-    steps_r. iDestruct "GRT" as "[[GRT ->] ->]". hss. steps_r.
+    steps_r. iDestruct "GRT" as "[-> [GRT ->]]". hss. steps_r.
 
     (* prove the IST of Map *)
     step. repeat (iSplit; eauto).
@@ -251,7 +251,7 @@ Module MapIM. Section MapIM.
     iSplitL "IP". { eauto. }
 
     (* TGT: handle the postcond of load *)
-    steps_r. iDestruct "GRT" as "[[GRT ->] ->]". hss. steps_r. steps_l.
+    steps_r. iDestruct "GRT" as "[-> [GRT ->]]". hss. steps_r. steps_l.
 
     (* SRC: prove the postcond of set *)
     force_l. force_l. iSplitL "". { eauto. }
@@ -286,7 +286,7 @@ Module MapIM. Section MapIM.
     steps_r. call "IST".
 
     (* SRC: handle the postcond of set *)
-    steps_l. iDestruct "ASM" as "(_ & ->)". hss.
+    steps_l. iDestruct "ASM" as "(-> & _)". hss.
 
     (* SRC: prove the postcond of set_by_user *)
     force_l. force_l. iSplitL "". { eauto. }

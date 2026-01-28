@@ -39,7 +39,7 @@ Module IncrementIA. Section IncrementIA.
 
     steps_r. inline_r. force_r (blk, ofs, 1%Qp, Vint v). steps_r.
     forces_r. iFrame "ASM". iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[[PT ->] ->]". hss_r. steps_r.
+    steps_r. iDestruct "GRT" as "[-> [PT ->]]". hss_r. steps_r.
 
     force_l false. steps_l. force_l; iFrame "PT". steps_l. sch_yield_l. steps_l.
     unfold_iterC_l. steps_l.
@@ -53,7 +53,7 @@ Module IncrementIA. Section IncrementIA.
     { iSplit; eauto. iSplit; [iPureIntro; split; [refl|ss]|ss]. des_ifs. }
     Unshelve. all: try exact 0; try exact 1%Qp; try exact (Vint 0).
 
-    steps_r. iDestruct "GRT" as "[[-> [GRT _]] ->]". hss_r. steps_r.
+    steps_r. iDestruct "GRT" as "[-> [-> [GRT _]]]". hss_r. steps_r.
     destruct (dec v' v) as [?|Heq]; [subst; ss|ss].
     { force_l true. steps_l. force_l; iFrame "GRT"; steps_l.
       sch_yield_rr. steps_r.

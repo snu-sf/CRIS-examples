@@ -85,7 +85,7 @@ Module KnotIA. Section KnotIA.
     steps_r. force_r (blk0, 0%Z, 1%Qp, (Vptr (fb, 0%Z))). forces_r.
     iSplitL "VF".
     { iSplit; eauto. unfold var_points_to. rewrite FIND0. iFrame. et. }
-    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst. hss.
+    steps_r. iDestruct "GRT" as "[% [PT %]]"; subst. hss.
 
     (* TGT: get blocks of the function pointer and "rec" *)
     steps_r. dup FN. inv FN. rewrite FBLOCK. hss.
@@ -143,7 +143,7 @@ Module KnotIA. Section KnotIA.
     (* SRC: precondition *)
     steps_l.
     rename _q into new_spec.
-    iDestruct "ASM" as "((%FB & [%old OLD]) & %Q)". des; subst. hss. steps_r.
+    iDestruct "ASM" as "(%Q & (%FB & [%old OLD]))". des; subst. hss. steps_r.
     iDestruct "IST" as (? ? ? ?) "(%ST & [% IST] & %E)"; des; subst.
     iDestruct "IST" as (? ?) "(% & FL & VF)".
 
@@ -157,7 +157,7 @@ Module KnotIA. Section KnotIA.
     steps_r. inline_r. steps_r.
     force_r (blk0, 0%Z, _, Vptr (fb, 0%Z)). forces_r. iSplitL "VF".
     { iSplit; et. unfold var_points_to. rewrite FIND0; eauto. }
-    steps_r. iDestruct "GRT" as "[[VF %] %]". hss; steps_r.
+    steps_r. iDestruct "GRT" as "[% [VF %]]". hss; steps_r.
 
     (* RA: update spec *)
     rewrite FINDR; hss. steps_r.

@@ -26,7 +26,7 @@ Module CannonIA. Section CannonIA.
     init_simF.
 
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "((%Y & B) & %Q)". subst. hss.
+    steps_l. iDestruct "ASM" as "(%Q & (%Y & B))". subst. hss.
     unfold Ist. iDestruct "IST" as "[[% R] | F]"; des; subst; cycle 1. 
     (* already fired *)
     { iExFalso. iApply FiredBall. iFrame. }

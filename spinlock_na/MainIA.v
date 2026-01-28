@@ -34,7 +34,7 @@ Module MainIA. Section MainIA.
   Proof using SchInSp_s SchInSp_t MainInSp.
     init_simF.
     (* process src precondition *)
-    steps_l. iDestruct "ASM" as "[TID [[-> [%γ_l [#I F]]] ->]]". hss.
+    steps_l. iDestruct "ASM" as "[TID [-> [-> [%γ_l [#I F]]]]]". hss.
     destruct _q5 as [blk_l ofs_l], _q6 as [blk_v ofs_v].
     rename _q4 into γ_v, _q1 into tid.
     (* main code *)
@@ -52,7 +52,7 @@ Module MainIA. Section MainIA.
     sch_yield_ii; [erewrite Qp.div_2; et|].
 
     (* (* success case *) *)
-    steps_r. iDestruct "GRT" as "[TID' [[-> [TKN P]] _]]". hss. steps_r.
+    steps_r. iDestruct "GRT" as "[TID' [<- [_ [TKN P]]]]". hss. steps_r.
     iPoseProof (SchAS.tid_user_merge with "[TID TID']") as "TID"; iFrame; rewrite Qp.div_2.
     (* tgt yield *)
     sch_yield_ir.
@@ -61,14 +61,14 @@ Module MainIA. Section MainIA.
     steps_r. inline_r. steps_r.
     force_r (blk_v, ofs_v, 1%Qp, Vint x). forces_r.
     iSplitL "PT"; iFrame; eauto.
-    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst. hss. steps_r.
+    steps_r. iDestruct "GRT" as "[% [PT %]]"; subst. hss. steps_r.
     (* tgt yield *)
     do 2 (sch_yield_ir).
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r.
     force_r (blk_v, ofs_v, _, Vint (x + 1)). forces_r.
     iSplitL "PT"; iFrame; et.
-    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst. hss_r; steps_r.
+    steps_r. iDestruct "GRT" as "[% [PT %]]"; subst. hss_r; steps_r.
     sch_yield_ir.
     iCombine "P F" as "C". iMod (own_update with "C") as "[F C]".
     { apply frac_auth_update, (Z_local_update _ _ (x + 1) 1); lia. }
@@ -82,7 +82,7 @@ Module MainIA. Section MainIA.
     steps_r. hss. steps_r.
     (* tgt yield *)
     sch_yield_ii; [erewrite Qp.div_2; et|].
-    steps_r. iDestruct "GRT" as "[TID' [-> _]]". hss. steps_r.
+    steps_r. iDestruct "GRT" as "[TID' [<- _]]". hss. steps_r.
     iPoseProof (SchAS.tid_user_merge with "[TID TID']") as "TID"; iFrame; rewrite Qp.div_2.
     sch_yield_ir.
     (* src yield *)
@@ -110,13 +110,13 @@ Module MainIA. Section MainIA.
     (* tgt inline - mem alloc - counter allocation *)
     steps_r. inline_r. steps_r.
     force_r 1. forces_r. iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[[%blk [% [GRT _]]] %]"; subst. hss. steps_r.
+    steps_r. iDestruct "GRT" as "[% [%blk [% [GRT _]]]]"; subst. hss. steps_r.
     sch_yield_ir.
     (* tgt inline - mem store - counter initialization *)
     steps_r. inline_r. steps_r.
     force_r (blk, 0%Z, _, Vint 0). forces_r.
     iFrame; iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst. hss. steps_r.
+    steps_r. iDestruct "GRT" as "[% [PT %]]"; subst. hss. steps_r.
     sch_yield_ir.
     (* create lock-guarded proposition *)
     iMod (own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)) as "(%γ & B & W)".
@@ -130,7 +130,7 @@ Module MainIA. Section MainIA.
     steps_r. hss. steps_r.
     (* src/tgt yields *)
     sch_yield_ii; [erewrite Qp.div_2; et|].
-    steps_r. iDestruct "GRT" as "[TID' [[%val [%γ_l [-> #I]]] %EQ]]".
+    steps_r. iDestruct "GRT" as "[TID' [%EQ [%val [%γ_l [% #I]]]]]".
     hss. steps_r.
     iPoseProof (SchAS.tid_user_merge with "[TID TID']") as "TID"; iFrame; rewrite Qp.div_2.
     sch_yield_ir.
@@ -188,7 +188,7 @@ Module MainIA. Section MainIA.
     iFrame. iSplit; eauto.
     steps_r. hss. steps_r.
     sch_yield_ii; [erewrite Qp.div_2; et|].
-    steps_r. iDestruct "GRT" as "[TID' [[-> [TKN P]] _]]". hss. steps_r.
+    steps_r. iDestruct "GRT" as "[TID' [<- [_ [TKN P]]]]". hss. steps_r.
     do 3 rewrite sl_red. iCombine "W1 W2" as "W".
     iDestruct "P" as "(%x & PT & B)".
     iCombine "B W" gives %WF%frac_auth_agree. inv WF.
@@ -198,7 +198,7 @@ Module MainIA. Section MainIA.
     steps_r. inline_r. steps_r.
     force_r (blk, 0%Z, 1%Qp, Vint 2%Z). forces_r.
     iFrame "PT". iSplit; et.
-    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst. hss. steps_r.
+    steps_r. iDestruct "GRT" as "[% [PT %]]"; subst. hss. steps_r.
     (* tgt yield *)
     do 2 (sch_yield_ir).
     (* tgt inline - lock release *)
@@ -210,7 +210,7 @@ Module MainIA. Section MainIA.
     steps_r. hss. steps_r.
     (* tgt yield *)
     sch_yield_ii; [erewrite Qp.div_2; et|].
-    steps_r. iDestruct "GRT" as "[TID' [-> _]]". hss. steps_r.
+    steps_r. iDestruct "GRT" as "[TID' [<- _]]". hss. steps_r.
     iPoseProof (SchAS.tid_user_merge with "[TID TID']") as "TID"; iFrame; rewrite Qp.div_2.
     sch_yield_ir.
     (* both output - counter value *)
