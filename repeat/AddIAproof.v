@@ -65,7 +65,7 @@ Module AddIA. Section AddIA.
     iDestruct "ASM" as "%". hss. steps_l.
 
     (* SRC: find apc in sp *)
-    assert (SPAPC: sp APCHdr.apc = Some apc_spec).
+    assert (SPAPC: sp APCHdr.apc = fsp_some apc_spec).
     { apply SpPureInSp, APCInSpPure. rewrite /Sp. unseal CRIS; ss. }
     rewrite SPAPC.
 
@@ -103,7 +103,7 @@ Module AddIA. Section AddIA.
     iDestruct "ASM" as "%". hss. steps_l.
 
     (* SRC: find apc in sp *)
-    assert (SPAPC: sp APCHdr.apc = Some apc_spec).
+    assert (SPAPC: sp APCHdr.apc = fsp_some apc_spec).
     { apply SpPureInSp, APCInSpPure. rewrite /Sp. unseal CRIS; ss. }
     rewrite SPAPC.
 

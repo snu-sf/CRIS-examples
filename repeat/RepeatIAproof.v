@@ -42,7 +42,7 @@ Module RepeatIA. Section RepeatIA.
     iDestruct "ASM" as "%". hss. dup H3. inv H3. steps_l.
 
     (* SRC: find apc in sp *)
-    assert (SPAPC: sp APCHdr.apc = Some apc_spec).
+    assert (SPAPC: sp APCHdr.apc = fsp_some apc_spec).
     { apply SpPureInSp. apply APCInSpPure. rewrite /Sp. unseal CRIS. ss. }
     rewrite SPAPC.
 
