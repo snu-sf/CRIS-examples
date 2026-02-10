@@ -2,7 +2,7 @@ Require Import CRIS.
 Require Import CellioHeader CtxHeader.
 
 Module CellioI. Section CellioI.
-  Context `{Σ: GRA}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
 
   Definition scopes := [CellioHdr.mn].
   Definition v_cv := (CellioHdr.mn) ↯ "cv".
@@ -18,17 +18,16 @@ Module CellioI. Section CellioI.
       i <- cgetU v_cv;;
       Ret (i : Z)↑.
 
-  Definition fnsems : fnsems_type :=
-    [(Some CellioHdr.set, (false, wmask_all, scopes, (None, set)));
-     (Some CellioHdr.get, (false, wmask_all, scopes, (None, get)))].
+  Definition fnsems : fnsemmap :=
+    {[Some CellioHdr.set := Some (msk_real (msk_scp scopes msk_true), (fsp_none, set));
+      Some CellioHdr.get := Some (msk_real (msk_scp scopes msk_true), (fsp_none, get))]}.
 
   Program Definition smod: SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [(v_cv, (0%Z)↑)];
+    SMod.initial_st := {[v_cv := Some ((0%Z)↑)]};
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
+  Definition t := SMod.to_mod ∅ smod.
 End CellioI. End CellioI.

@@ -19,7 +19,7 @@ End CellioRA.
 Hint Unfold subG_cellioG cellio_inG : GRA_index.
 
 Module CellioA. Section CellioA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
   Context `{_cellioG: !cellioG}.
 
   Definition auth (v : Z) : iProp Σ :=
@@ -27,10 +27,6 @@ Module CellioA. Section CellioA.
 
   Definition cell (v : Z) : iProp Σ :=
     own base_γ (◯E v).
-
-  Definition ir : DRA_mk RA := ●E 0%Z ⋅ ◯E 0%Z.
-  Lemma ir_valid : ✓ ir. Proof. rewrite /ir. eapply excl_auth_valid. Qed.
-  Definition irΓ : cellioΓ := *[Some ir].
 
   Lemma cell_auth_get v v':
     cell v -∗ auth v' -∗ ⌜v = v'⌝.
@@ -66,22 +62,21 @@ Module CellioA. Section CellioA.
       Ret x↑.
 
   Definition scopes := [CellioHdr.mn].
-  
-  Definition fnsems : fnsems_type :=
-    [(Some CellioHdr.set, (true, wmask_all, scopes, (fsp_some fspec_trivial, set)));
-     (Some CellioHdr.get, (true, wmask_all, scopes, (fsp_some fspec_trivial, get)))].
+
+  Definition fnsems : fnsemmap :=
+    {[Some CellioHdr.set := Some (msk_scp scopes msk_true, (fsp_some fspec_trivial, set));
+      Some CellioHdr.get := Some (msk_scp scopes msk_true, (fsp_some fspec_trivial, get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
   Definition init_cond : iProp Σ :=
     CellioA.auth 0.
 
-  (* We can use sp_none because Cellio will be removed before cancellation *)
-  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
+  (* We can use ∅ because Cellio will be removed before cancellation *)
+  Definition t := SMod.to_mod ∅ smod.
 End CellioA. End CellioA.

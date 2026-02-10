@@ -3,10 +3,20 @@ Require Import CellioA CtxHeader CellioHeader.
 
 Set Implicit Arguments.
 
+Module MainAS. Section MainAS.
+  Import CellioA.
+  Context `{!crisG Γ Σ α β τ _S _I, !cellioG}.
+
+  Definition main_spec : fspec :=
+    fspec_simple (fun _ : unit =>
+                    ( fun arg => cell 0
+                    , fun ret => True))%I.
+
+End MainAS. End MainAS.
+
 Module MainA. Section MainA.
   Import CellioA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{_cellioG: !cellioG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellioG}.
                 
   Definition scopes : list string := [].
 
@@ -17,19 +27,16 @@ Module MainA. Section MainA.
       '_: unit <- trigger (IO "Print" i);;
       Ret tt↑.
   
-  Definition fnsems : fnsems_type :=
-    [(None, (true, wmask_all, scopes, (None, main)))].
+  Definition fnsems : fnsemmap :=
+    {[None := Some (msk_scp scopes msk_true, (fsp_some MainAS.main_spec, main))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition init_cond : iProp Σ := (cell 0)%I.
-
-  Definition t sp := Seal.sealing CRIS (SMod.to_mod sp smod).
+  Definition t sp := SMod.to_mod sp smod.
 
 End MainA. End MainA.

@@ -7,13 +7,6 @@ Module CellioAll. Section CellioAll.
 
   Local Instance Γ : HRA := ##[invΓ; cellioΓ].
   Local Instance Σ : GRA := ##[Γ; invΣ].
-  Local Definition irΓ : Γ := **[ir_invΓ; CellioA.irΓ].
-  Local Definition irΣ : Σ := **[irΓ; ir_invΣ].
-  Lemma irΣ_valid : ✓ (irΣ ⋅ ir_own_admin).
-  Proof.
-    solve_ir_valid.
-    apply CellioA.ir_valid.
-  Qed.
 
   Variable CtxI: SMod.t.
   Hypothesis ctx_real: real_smod CtxI.

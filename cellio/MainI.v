@@ -4,7 +4,7 @@ Require Import CellioHeader CtxHeader.
 Set Implicit Arguments.
 
 Module MainI. Section MainI.
-  Context `{Σ: GRA}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
 
   Definition scopes : list string := [].
 
@@ -16,16 +16,15 @@ Module MainI. Section MainI.
       trigger (@IO _ unit "Print" x);;;
       Ret tt↑.
   
-  Definition fnsems : fnsems_type :=
-    [(None, (false, wmask_all, scopes, (None, main)))].
+  Definition fnsems : fnsemmap :=
+    {[None := Some (msk_real (msk_scp scopes msk_true), (fsp_none, main))]}.
 
   Program Definition smod: SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
   
-  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
+  Definition t := SMod.to_mod ∅ smod.
 End MainI. End MainI.
