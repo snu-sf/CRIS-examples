@@ -1,46 +1,38 @@
 Require Import CRIS.
-
-Require Import KnotHeader MemHeader.
-
-Set Implicit Arguments.
+Require Export KnotHeader MemHeader.
 
 Module KnotI. Section KnotI.
-  Local Open Scope string_scope.
-  Context {Σ: GRA}.
+  Context `{!crisG Σ Γ α β τ Hinv Hsub, !concGS}.
 
   Definition scopes := ["Knot"].
 
-  Definition knotF genv : list val -> itree crisE val :=
-    fun varg =>
+  Definition knotF genv : list val → itree crisE val :=
+    λ varg,
       fb <- (pargs [Tblk] varg)?;;
       blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;
       '_: val <- ccallU MemHdr.store [Vptr (blk, 0%Z); Vptr (fb, 0%Z)];;
       rb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr.rec)?;;
-      Ret (Vptr (rb, 0%Z))
-  .
+      Ret (Vptr (rb, 0%Z)).
 
-  Definition recF genv : list val -> itree crisE val :=
-    fun varg =>
+  Definition recF genv : list val → itree crisE val :=
+    λ varg,
       n <- (pargs [Tint] varg)?;;
       blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;
       'fb: val <- ccallU MemHdr.load [Vptr (blk, 0%Z)];; fb <- (unblk fb)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
       rb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr.rec)?;;
-      ccallU fn [Vptr (rb, 0%Z); Vint n]
-  .
+      ccallU fn [Vptr (rb, 0%Z); Vint n].
 
-  Definition fnsems genv : fnsems_type :=
-    [(Some KnotHdr.rec, (false, wmask_all, scopes, (None, cfunU (recF genv))));
-     (Some KnotHdr.knot, (false, wmask_all, scopes, (None, cfunU (knotF genv))))].
+  Definition fnsems (genv : GEnv.t) : fnsemmap :=
+    {[Some KnotHdr.rec := Some (msk_scp scopes msk_true, (None, cfunU (recF genv)));
+      Some KnotHdr.knot := Some (msk_scp scopes msk_true, (None, cfunU (knotF genv)))]}.
   
-  Program Definition smod genv : SMod.t :=
-  {|
+  Program Definition smod genv : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems genv;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition t genv := Seal.sealing CRIS (SMod.to_mod sp_none (smod genv)).
+  Definition t genv := SMod.to_mod ∅ (smod genv).
 End KnotI. End KnotI.

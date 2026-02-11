@@ -1,19 +1,13 @@
 Require Import CRIS.
-
-Require Import KnotHeader KnotMainHeader KnotA.
 Require Import APCHeader APC APCA.
-
-Set Implicit Arguments.
+Require Export KnotHeader KnotMainHeader KnotA.
 
 Module KnotMainA. Section KnotMainA.
   Import KnotA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{_memG: !memG}.
-  Context `{_knotG: !knotG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !memGS, !knotGS}.
 
   (* Specifications *)
-
-  Fixpoint Fib (n: nat): nat :=
+  Fixpoint Fib (n : nat) : nat :=
     match n with
     | 0 => 1
     | S n' =>
@@ -24,62 +18,48 @@ Module KnotMainA. Section KnotMainA.
       end
     end.
 
-  Lemma unfold_fib n
-    (COND: n > 1)
-    :
-    Fib n = Fib (n - 1) + Fib (n - 2).
+  Lemma unfold_fib n (COND: n > 1) : Fib n = Fib (n - 1) + Fib (n - 2).
   Proof.
     destruct n; try nia. destruct n; try nia.
     unfold Fib at 1. des_ifs.
   Qed.
 
-  (***************)
-Section KnotMainAS.
-
-  Variable genv: GEnv.t.
-  Variable SpRec: spl_type.
-  Variable SpPure: spl_type.
-  Variable Sp: spl_type.
+  Context (genv : GEnv.t) (sp_rec : specmap).
 
   Definition fib_spec : fspec :=
-    fspec_apc (λ '(n, INV), (2 * (n: nat))%ord)
-      (fun '(n, INV) => 
-        ((fun varg => (⌜∃ fb, varg = [Vptr (fb, 0%Z); Vint (Z.of_nat n)]↑ ∧ (intrange_64 n) ∧
-                          fb_has_spec_in genv SpRec fb (mrec_spec Fib INV)⌝ ∗ INV)%I),
-         (fun vret => (⌜vret = (Vint (Z.of_nat (Fib n)))↑⌝ ∗ INV)%I))).
+    fspec_apc (λ '(n, _), (2 * (n : nat))%ord)
+      (λ '(n, INV),
+        ((λ varg, (⌜∃ fb, varg = [Vptr (fb, 0%Z); Vint (Z.of_nat n)]↑ ∧ (intrange_64 n) ∧
+                          fb_has_spec_in genv sp_rec fb (mrec_spec Fib INV)⌝ ∗ INV)%I),
+         (λ vret, (⌜vret = (Vint (Z.of_nat (Fib n)))↑⌝ ∗ INV)%I))).
 
-  Definition MainFunSp : spl_type := 
-    Seal.sealing CRIS
-      [(Some KnotMainHdr.fib, fsp_some fib_spec)].
+  Definition main_spec : fspec :=
+    fspec_simple (λ _ : unit,
+      ((λ varg, ⌜varg = tt↑⌝ ∗ knot_frag None),
+       (λ vret, emp)))%I.
 
-  Definition MainSp : spl_type :=
-    Seal.sealing CRIS
-      [(Some "fib", fsp_some fib_spec); (None, fsp_none)].
-End KnotMainAS.
+  Definition main_fun_sp : specmap :=  {[speckey_fn KnotMainHdr.fib := fspec_to_rel fib_spec]}.
+  Definition main_sp : specmap := {[speckey_fn "fib" := fspec_to_rel fib_spec]}.
 
-Section KnotMainA.
   Definition scopes := ["KnotMain"].
 
-  Variable with_pure: bool.  
-  
+  Context (with_pure : bool).
+
   Definition main_body: () → itree crisE val :=
     λ _, (if with_pure then pure else Ret ()↑);;; Ret (Vint (Z.of_nat (Fib 10))).
 
-  Definition fnsems genv SpRec : fnsems_type :=
-    [(Some KnotMainHdr.fib, (true, wmask_all, scopes, (fsp_some (fib_spec genv SpRec), pure_body)));
-     (None, (true, wmask_all, scopes, (fsp_none, cfunU main_body)))].
+  Definition fnsems : fnsemmap :=
+    {[Some KnotMainHdr.fib := Some (msk_scp scopes msk_true, (fsp_some fib_spec, pure_body));
+      None := Some (msk_scp scopes msk_true, (fsp_some main_spec, cfunU main_body))]}.
 
-  Program Definition smod genv SpRec : SMod.t :=
-  {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
-    SMod.fnsems := fnsems genv SpRec;
-    SMod.initial_st := [];
+    SMod.fnsems := fnsems;
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition init_cond : iProp Σ := knot_init%I.
+  Definition init_cond : iProp Σ := knot_frag None.
 
-  Definition t genv SpRec Sp := Seal.sealing CRIS (SMod.to_mod Sp (smod genv SpRec)).
-End KnotMainA.
+  Definition t sp := SMod.to_mod sp (smod).
 End KnotMainA. End KnotMainA.

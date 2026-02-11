@@ -5,222 +5,205 @@ Require Import KnotHeader KnotMainHeader KnotI KnotMainI.
 Require Import KnotA KnotMainA.
 Require Import KnotIAproof KnotMainIAproof.
 
-Module KnotAll.
-  Import inv_instances.
+Section KnotAux.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !knotGS}.
 
   (* mem *)
   Local Definition csl : string → bool := λ _, false.
   (* global environment *)
   Local Definition genv : GEnv.t := KnotGEnv.t ++ KnotMainGEnv.t.
-  
-  Local Instance Γ : HRA := ##[invΓ; memΓ; knotΓ].
-  Local Instance Σ : GRA := ##[Γ; invΣ].
-  (* initial resource *)
-  Local Definition irΓ : Γ := **[ir_invΓ; ir_memΓ csl genv; ir_knotAΓ].
-  Local Definition irΣ : Σ := **[irΓ; ir_invΣ].
-
-  Lemma irΣ_valid : ✓ (irΣ ⋅ ir_own_admin).
-  Proof.
-    solve_ir_valid.
-    - apply ir_memRA_valid.
-    - apply ir_knotRA_valid.
-  Qed.
 
   (* pure sp *)
-  Local Definition sp_rec : spl_type := KnotA.KnotRecSp.
-  Local Definition sp_fun : spl_type := KnotMainA.MainFunSp genv sp_rec.
-  Local Definition sp_pure : spl_type :=
-    (KnotMainA.MainFunSp genv sp_rec) ++ KnotA.KnotRecSp.
+  Local Definition sp_rec : specmap := KnotA.knot_rec_sp.
+  Local Definition sp_fun : specmap := KnotMainA.main_fun_sp genv sp_rec.
+  Local Definition sp_pure : specmap := KnotMainA.main_fun_sp genv sp_rec ∪ KnotA.knot_rec_sp.
 
   Local Definition smod_src : SMod.t :=
-    (KnotMainA.smod false genv sp_rec) ☆ (KnotA.smod genv sp_rec sp_fun)
-    ☆ APCC.smod.
-  Local Definition sp : sp_type := sp_from smod_src.
-
-  Local Definition mod_top : Mod.t := SMod.to_mod sp_none (SMod.cancel smod_src).
+    (KnotMainA.smod genv sp_rec false) ☆ (KnotA.smod genv sp_rec sp_fun) ☆ APCC.smod.
+  Local Definition sp : specmap := SMod.conc_sp_from smod_src.
+  Local Definition mod_top : Mod.t := SMod.to_mod ∅ (SMod.cancel smod_src).
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
-  Local Definition mod_tgt : Mod.t :=
-    KnotMainI.t genv ★ KnotI.t genv ★ MemI.t csl genv ★ APCI.t.
+  Local Definition mod_tgt : Mod.t := KnotMainI.t genv ★ KnotI.t genv ★ MemI.t csl genv ★ APCI.t.
 
-  Local Lemma genv_wf : GEnv.wf genv.
-  Proof. cbn. prove_nodup. Qed.
+  Local Lemma genv_wf : GEnv.wf genv. Proof. cbn. prove_nodup. Qed.
 
-  Local Definition init_cond : iProp Σ :=
-    winv (⊤,⊤) ∗ KnotMainA.init_cond ∗ (KnotA.init_cond genv) ∗ (MemA.init_cond csl genv).
+  Local Definition init_cond : iProp Σ := KnotA.init_cond genv ∗ MemA.init_cond csl genv.
 
   Lemma cancel_src :
-    refines (mod_top, init_cond)
+    refines (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ KnotA.knot_frag None ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
             (mod_src, init_cond).
   Proof.
     eapply Cancel.cancellation.
-    - ii; des; subst; inv FIND; ss; rewrite ->!eq_rel_dec_correct in *; des_ifs.
-    - econs; [refl|]; i; inv NS; des; inv H; des; inv H1;
-      rewrite ->!eq_rel_dec_correct in *; des_ifs.
-    - econs; prove_nodup.
+    { repeat apply SMod.cancellable_add; r; mod_tac ss. }
+    { assert (Ht : SMod.conc_sp_from smod_src !! speckey_entry =
+        fsp_some (KnotMainA.main_spec)); last (rewrite Ht; clear Ht).
+      { rewrite lookup_insert_ne // lookup_kmap_Some; exists None; split; ss. }
+      eexists _, _; splits.
+      { ss; exists (tt); split; refl. }
+      { iIntros "[? [? [? $]]]"; ss. }
+      { unfold_pre_post. iIntros "% % [% %] //". }
+    }
   Qed.
 
-  (* Ltac prove_sp :=
-    rewrite /APCA.Sp /KnotA.KnotRecSp /KnotA.KnotSp /KnotMainA.MainFunSp /KnotMainA.MainSp;
-    rewrite /sp /sp_pure /sp_fun /sp_rec /smod_src /sp_pure /sp_incl /sp_sub /find_body /pure_specbody /sp_from /option_map;
-    rewrite /sp_fun /sp_rec /APCA.Sp /KnotA.KnotRecSp /KnotA.KnotSp /KnotMainA.MainFunSp /KnotMainA.MainSp;
-    try unseal CRIS; try prove_nodup;
-    ii; ss; rewrite ->!eq_rel_dec_correct in *; des_ifs; ss; eexists; ss. *)
-
-  (* Refinement between spec/impl of whole program (linked module) *)
   Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
   Proof.
     eapply ctxr_refines.
-    rewrite /mod_src /mod_tgt !add_interp_comm.
+    rewrite /mod_src /mod_tgt !SMod.to_mod_add.
 
     (* abstraction of Mem *)
     etrans; cycle 1.
-    { do 3 ctxr_rotate. do 3 ctxr_drop.
-      eapply MemIA.ctxr.
-    }
-
+    { do 3 ctxr_rotate. do 3 ctxr_drop. eapply MemIA.ctxr. }
     (* abstraction of APCI to APCA *)
     etrans; cycle 1.
-    { ctxr_rotate. do 3 ctxr_drop.
-      eapply APCIA.ctxr.
-    }
-
+    { ctxr_rotate. do 3 ctxr_drop. eapply APCIA.ctxr. }
     (* abstraction of Knot *)
     etrans; cycle 1.
     { ctxr_drop.
-      eapply KnotIA.ctxr with (Sp:=sp) (SpPure:=sp_pure) (SpRec:=sp_rec) (SpFun:=sp_fun).
+      eapply KnotIA.ctxr with (sp:=sp) (sp_pure:=sp_pure) (sp_rec:=sp_rec) (sp_fun:=sp_fun); eauto.
       { eapply genv_wf. }
       { unfold genv. eapply incl_appl; refl. }
-      { unfold sp_rec. ss. }
-      { unfold sp, APCA.Sp. unseal CRIS.
-        rewrite /sp_from /= /to_sp /= /sp_incl; split; try prove_nodup.
-        i. des_ifs; ss; unfold dec, option_Dec, AList.option_Dec_obligation_1 in *; des_ifs. }
-      { rewrite /sp_fun /sp_pure /spl_sub. i. eapply alist_find_app; eauto. }
-      { rewrite /sp_pure /sp /sp_from /to_sp /sp_incl /=.
-        rewrite /KnotMainA.MainFunSp /KnotA.KnotRecSp /KnotMainA.fib_spec
-          /KnotA.rec_spec /KnotA.knot_spec /APCA.apc_spec; unseal CRIS; ss; i;
-        des; try prove_nodup; i; des_ifs. }
+      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
+          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      }
+      { apply map_union_subseteq_l. }
+      { apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq;
+          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      }
     }
-
     (* abstraction of KnotMain *)
     etrans; cycle 1.
-    { ctxr_norm. eapply KnotMainIA.ctxr.
-    { eapply genv_wf. }
+    { ctxr_norm. eapply KnotMainIA.ctxr; eauto.
+      { eapply genv_wf. }
       { unfold genv. eapply incl_appr; refl. }
-      { unfold sp_rec. ss. }
-      { unfold sp, KnotA.KnotRecSp. unseal CRIS.
-        rewrite /sp_from /= /to_sp /= /sp_incl; split; try prove_nodup.
-        i. des_ifs; ss; unfold dec, option_Dec, AList.option_Dec_obligation_1 in *; des_ifs. }
-      { rewrite /APCA.Sp /sp /sp_incl. unseal CRIS; try prove_nodup.
-        i. des_ifs; ss; unfold dec, option_Dec, AList.option_Dec_obligation_1 in *; des_ifs. }
-      { rewrite /sp_rec /sp_pure /spl_sub. i. eapply alist_find_comm.
-        { rewrite /KnotA.KnotRecSp /KnotMainA.MainFunSp. unseal CRIS. prove_nodup. }
-        eapply alist_find_app; eauto. }
-      { rewrite /sp_pure /sp /sp_from /to_sp /sp_incl /=.
-        rewrite /KnotMainA.MainFunSp /KnotA.KnotRecSp /KnotMainA.fib_spec
-          /KnotA.rec_spec /KnotA.knot_spec /APCA.apc_spec; unseal CRIS; ss; i;
-        des; try prove_nodup; i; des_ifs. }
+      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
+          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      }
+      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
+          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      }
+      { apply map_union_subseteq_r.
+        rewrite /KnotMainA.main_fun_sp /KnotA.knot_rec_sp.
+        apply map_disjoint_insert_l_2; simpl_map; auto with map_disjoint.
+      }
+      { apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq;
+          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      }
     }
-
     (* abstraction of APCA to APCC *)
     etrans; cycle 1.
     { do 2 ctxr_rotate. ctxr_drop.
       eapply APCAC.ctxr.
-      - rewrite /APCA.Sp /sp /sp_incl; unseal CRIS; try prove_nodup.
-        i. des_ifs; ss; unfold dec, option_Dec, AList.option_Dec_obligation_1 in *; des_ifs.
-      - rewrite /sp_incl /sp_pure /sp /KnotMainA.MainFunSp /KnotA.KnotRecSp.
-        unseal CRIS; split; try prove_nodup.
-        i. des_ifs; ss; unfold dec, option_Dec, AList.option_Dec_obligation_1 in *; des_ifs.
-      - rewrite /sp_pure /KnotMainA.MainFunSp /KnotA.KnotRecSp /KnotMainA.t /KnotA.t.
-        unseal CRIS.
-        i; des_ifs; ss; unfold dec, option_Dec, AList.option_Dec_obligation_1 in *; des_ifs.
-        + do 2 eexists. rewrite /find_body; ss.
-        + do 2 eexists. rewrite /find_body; ss.
+      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
+          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      }
+      { apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq;
+          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      }
+      { rewrite /sp_pure /KnotMainA.main_fun_sp /KnotA.knot_rec_sp.
+        intros ? ? [?%lookup_singleton_Some|?%lookup_singleton_Some]%lookup_union_Some; des; clarify.
+        { rewrite /find_body; simpl_map; esplits; eauto. }
+        { rewrite /find_body; simpl_map; esplits; eauto. }
+        clear H2. apply map_disjoint_insert_l_2; simpl_map; auto with map_disjoint.
+      }
     }
-
     (* elimination of pure call *)
     etrans; cycle 1.
     { do 3 ctxr_rotate. do 2 ctxr_drop. ctxr_rotate.
-      eapply KnotMainIA.ctxr_close with (Sp:=sp) (SpPure:=sp_pure).
+      eapply KnotMainIA.ctxr_close with (sp:=sp) (sp_pure:=sp_pure) (sp_fun:=sp_fun); eauto.
       { eapply genv_wf. }
       { unfold genv. eapply incl_appr; refl. }
-      { rewrite /spl_sub; i; eauto. }
-      { unfold sp, KnotA.KnotRecSp. unseal CRIS.
-        rewrite /sp_from /= /to_sp /= /sp_incl; split; try prove_nodup.
-        i. des_ifs; ss; unfold dec, option_Dec, AList.option_Dec_obligation_1 in *; des_ifs. }
-      { rewrite /APCA.Sp /sp /sp_incl. unseal CRIS; try prove_nodup.
-        i. des_ifs; ss; unfold dec, option_Dec, AList.option_Dec_obligation_1 in *; des_ifs. }
-      { rewrite /sp_rec /sp_pure /spl_sub. i. eapply alist_find_comm.
-        { rewrite /KnotA.KnotRecSp /KnotMainA.MainFunSp. unseal CRIS. prove_nodup. }
-        eapply alist_find_app; eauto. }
-      { rewrite /sp_pure /sp /sp_from /to_sp /sp_incl /=.
-        rewrite /KnotMainA.MainFunSp /KnotA.KnotRecSp /KnotMainA.fib_spec
-          /KnotA.rec_spec /KnotA.knot_spec /APCA.apc_spec; unseal CRIS; ss; i;
-        des; try prove_nodup; i; des_ifs. }
+      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
+          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      }
+      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
+          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      }
+      { apply map_union_subseteq_r.
+        rewrite /KnotMainA.main_fun_sp /KnotA.knot_rec_sp.
+        apply map_disjoint_insert_l_2; simpl_map; auto with map_disjoint.
+      }
+      { apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq;
+          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      }
     }
-
     (* elimination of mem *)
     etrans; cycle 1.
-    { do 2 ctxr_rotate. do 3 ctxr_drop. eapply CFilter.elim_module. }
+    { do 2 ctxr_rotate. do 3 ctxr_drop. eapply elim_module. }
     rewrite -mod_add_empty_r.
 
     etrans; cycle 1.
     { ctxr_swap. ctxr_rotate. ctxr_refl. }
 
-    rewrite /KnotMainA.t /KnotA.t /MemA.t /APCC.t. unseal CRIS.
     eapply ctxr_cond_strengthen.
-    iIntros "[? [? ?]]". iFrame.
+    iIntros "[$ $]".
+  Unshelve. exact ∅.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines (mod_top, init_cond)
-            (mod_tgt, emp%I).
+    refines
+      (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ KnotA.knot_frag None ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+      (mod_tgt, emp%I).
   Proof.
     etrans.
     { eapply cancel_src. }
     { eapply src_tgt. }
   Qed.
 
-  Lemma tgt_wf:
-    Mod.wf mod_tgt.
+  Lemma tgt_wf : Mod.wf mod_tgt.
   Proof.
-    rewrite /mod_tgt /KnotMainI.t /KnotI.t /MemI.t /APCI.t. unseal CRIS. prove_nodup. 
-  Qed.
-
-  Local Transparent mem_points_to_singleton_r.
-  Local Transparent CEnv.load_genv.
-  
-  Lemma init_cond_valid:
-    ∃ rs, ✓ rs ∧ (Own rs ⊢ init_cond).
-  Proof.
-    exists (irΣ ⋅ ir_own_admin). split.
-    - apply irΣ_valid.
-    - simplify_res.
-      { rewrite make_own_admin; iFrame.
-        iDestruct "H14" as "[A F]". iFrame.
-        iDestruct "H16" as "[A F]". iFrame.
-        rewrite /KnotA.var_points_to; s.
-        assert (mem_init_frag_r csl genv ≡
-                mem_points_to_singleton_r (2, 0%Z) 1 (Vint 0)).
-        { rewrite /mem_init_frag_r /mem_points_to_singleton_r /=. f_equiv.
-          intros blk ofs. rewrite /mem_init_val; ss. do 3 (destruct blk; hss).
-          { rewrite discrete_fun_lookup_singleton. destruct ofs; hss. }
-          do 3 (destruct blk; hss).
-        }
-        rewrite H. iFrame.
+    rewrite /mod_tgt; eapply Mod.add_wf.
+    { econs; eauto; [mod_tac|prove_nodup]. }
+    { eapply Mod.add_wf.
+      { econs; eauto; [mod_tac|prove_nodup]. }
+      { eapply Mod.add_wf.
+        { econs; eauto; [mod_tac|prove_nodup]. }
+        { econs; eauto; [mod_tac|prove_nodup]. }
+        { set_solver. }
+        { prove_nodup; set_solver. }
       }
-      all: solve_res.
+      { rewrite Mod.dom_fnsems_add; set_solver. }
+      { prove_nodup; set_solver. }
+    }
+    { rewrite !Mod.dom_fnsems_add; set_solver. }
+    { prove_nodup; set_solver. }
   Qed.
-  
+End KnotAux.
+
+Module KnotAll.
+  Import inv_instances.
+
+  Local Instance Γ : HRA := ##[invΓ; concΓ; memΓ; knotΓ].
+  Local Instance Σ : GRA := ##[Γ; invΣ].
+
   Theorem behavioral_refinement :
-    ∃ src_res tgt_res, refines_lmod
-      (Mod.to_lmod mod_top src_res)
-      (Mod.to_lmod mod_tgt tgt_res).
+    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : concGS) (_ : knotGS) (_ : memGS)
+      src_res tgt_res,
+      refines_lmod
+        (Mod.to_lmod mod_top src_res)
+        (Mod.to_lmod mod_tgt tgt_res).
   Proof.
-    move: (top_tgt)=>H; rewrite /refines in H; des; ss.
-    hexploit H; eauto using tgt_wf. clear H; intros [WF H].
-    assert (IV:= init_cond_valid). des.
-    destruct (H rs); des; et.
-    rewrite IV0 /init_cond {1}winv_split_empty. iIntros "[[? ?] ?]". iFrame; done.
+    apply own_admin_soundness.
+    iMod winv_alloc as "[% [% [% [% ?]]]]"; iExists _, _, _, _.
+    iMod conc_alloc as "[% ?]"; iExists _.
+    iMod (knot_alloc ) as "[% [? ?]]"; iExists _.
+    iMod (mem_alloc csl genv) as "[% ?]"; iExists _.
+    pose proof (top_tgt tgt_wf) as Href.
+    iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
+    iPoseProof (Own_valid with "R") as "%".
+    rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
+    clear Href; intros [? Href].
+    iPureIntro; hexploit (Href res); eauto.
+    { rewrite Hres; iIntros "[W [[$ [$ [$ $]]] [$ [$ [$ ?]]]]]".
+      rewrite {1}winv_split_empty comm //. iDestruct "W" as "[$ $]".
+      rewrite /KnotA.var_points_to /mem_init_val /genv /KnotGEnv.t /KnotMainGEnv.t.
+      Local Transparent CEnv.id2blk CEnv.load_genv.
+      rewrite /CEnv.id2blk /CEnv.load_genv /=.
+      iApply (own_update with "[$]").
+      apply cmra_update_included, mem_init_auth_r_valid.
+      rewrite /mem_init_val /=. hss.
+    }
+    intros [rt ?].
+    exists res, rt; by des.
   (*SLOW*)Qed.
 End KnotAll.
 

@@ -1,16 +1,13 @@
 Require Import CRIS.
-
-Require Import KnotHeader KnotMainHeader.
-
-Set Implicit Arguments.
+Require Export KnotHeader KnotMainHeader.
 
 Module KnotMainI. Section KnotMainI.
-  Context {Σ: GRA}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
 
   Definition scopes := ["KnotMain"].
 
-  Definition fibF genv : list val -> itree crisE val :=
-    fun varg =>
+  Definition fibF genv : list val → itree crisE val :=
+    λ varg,
       '(fb, n):_ <- (pargs [Tblk; Tint] varg)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
       assume(intrange_64 n);;;
@@ -21,25 +18,23 @@ Module KnotMainI. Section KnotMainI.
         'n1: val <- ccallU fn [Vint (n - 2)];; 'n1: Z <- (unint n1)?;;
         Ret (Vint (n0 + n1)).
 
-  Definition mainF genv : () -> itree crisE val :=
-    fun '() =>
+  Definition mainF genv : () → itree crisE val :=
+    λ '(),
       fibb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotMainHdr.fib)?;;
       'fb: val <- ccallU KnotHdr.knot [Vptr (fibb, 0%Z)];; 'fb: mblock <- (unblk fb)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
       ccallU fn [Vint 10].
 
-  Definition fnsems genv : fnsems_type :=
-    [(Some KnotMainHdr.fib, (false, wmask_all, scopes, (None, cfunU (fibF genv))));
-     (None, (false, wmask_all, scopes, (None, cfunU (mainF genv))))].
-  
-  Program Definition smod genv: SMod.t :=
-  {|
+  Definition fnsems (genv : GEnv.t) : fnsemmap :=
+    {[Some KnotMainHdr.fib := Some (msk_scp scopes msk_true, (None, cfunU (fibF genv)));
+      None := Some (msk_scp scopes msk_true, (None, cfunU (mainF genv)))]}.
+
+  Program Definition smod genv : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems genv;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition t genv := Seal.sealing CRIS (SMod.to_mod sp_none (smod genv)).
+  Definition t genv := SMod.to_mod ∅ (smod genv).
 End KnotMainI. End KnotMainI.
