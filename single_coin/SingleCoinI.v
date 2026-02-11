@@ -2,8 +2,7 @@ Require Import CRIS.
 Require Import SingleCoinHeader.
 
 Module SingleCoinI. Section SingleCoinI.
-
-  Context `{Σ: GRA}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
 
   Definition scopes := ["SingleCoin"].
   Definition v_coins := "SingleCoin" ↯ "coins".
@@ -17,7 +16,7 @@ Module SingleCoinI. Section SingleCoinI.
   Definition read : nat → itree crisE bool :=
     λ idx,
       'cs : list (option bool) <- cgetU v_coins;;
-      match nth_error cs idx with
+      match cs !! idx with
       | Some (Some b) => Ret b
       | Some None =>
           b <- trigger (Choose bool);;
@@ -26,18 +25,16 @@ Module SingleCoinI. Section SingleCoinI.
       | None => triggerUB
       end.
 
-  Definition fnsems : fnsems_type :=
-    [(Some SingleCoinHdr.new, (false, wmask_all, scopes, (None, cfunU new)));
-     (Some SingleCoinHdr.read, (false, wmask_all, scopes, (None, cfunU read)))
-    ].
+  Definition fnsems : fnsemmap :=
+    {[Some SingleCoinHdr.new := Some (msk_real (msk_scp scopes msk_true), (None, cfunU new));
+      Some SingleCoinHdr.read := Some (msk_real (msk_scp scopes msk_true), (None, cfunU read))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [(v_coins, (@nil (option bool))↑)];
+    SMod.initial_st := {[v_coins := Some (@nil (option bool))↑]};
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition t : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none Mod).
+  Definition t : Mod.t := SMod.to_mod ∅ Mod.
 End SingleCoinI. End SingleCoinI.
