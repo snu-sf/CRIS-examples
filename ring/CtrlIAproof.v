@@ -199,7 +199,7 @@ Module CtrlIA. Section CtrlIA.
     { iFrame. eauto. }
 
     (* TGT: take steps using GRT from set_spec *)
-    steps_r. iDestruct "GRT" as "((% & CELL) & %)". subst. hss.
+    steps_r. iDestruct "GRT" as "(% & (% & CELL))". subst. hss.
     steps_r. hss. forces_l. step.
     iSplitL ""; eauto.
 
@@ -252,7 +252,7 @@ Module CtrlIA. Section CtrlIA.
     iSplitL "Q". { iFrame. eauto. }
 
     (* TGT: take steps using GRT from get_spec *)
-    steps_r. iDestruct "GRT" as "((% & CELL) & %)". subst. hss.
+    steps_r. iDestruct "GRT" as "(% & (% & CELL))". subst. hss.
     steps_r. hss. forces_l. step.
     iSplitL ""; eauto.
 

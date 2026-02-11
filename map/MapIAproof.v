@@ -8,7 +8,7 @@ Module MapIA. Section MapIA.
   Context `{!mapG}.
   Context `{!memG}.
 
-  Lemma ctxr (sp_s : string → option fspec)
+  Lemma ctxr (sp_s : sp_type)
       (MapInSpMap : sp_incl MapAS.sp sp_s) :
     ctx_refines
       ((MapA.t sp_s) ★ (MemA.t), (MapA.init_cond ∗ MapM.init_cond)%I)

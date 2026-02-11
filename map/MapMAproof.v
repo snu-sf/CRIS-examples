@@ -36,7 +36,7 @@ Module MapMA. Section MapMA.
     init_simF.
 
     steps_l.
-    iDestruct "ASM" as "[[[-> %range] P] ->]".
+    iDestruct "ASM" as "[-> [[-> %range] P]]".
 
     (* SRC: handle the IST of Map and the precond of init *)
     iDestruct "IST" as (f sz) "(% & [(% & P0 & INIT) | (P' & B & U)])"; cycle 1.
@@ -48,7 +48,7 @@ Module MapMA. Section MapMA.
     iSplitL "P0". { iFrame. eauto. }
 
     (* TGT: handle the postcond of init *)
-    hss. steps_r. iDestruct "GRT" as "(_ & %)". hss.
+    hss. steps_r. iDestruct "GRT" as "(% & %)". hss.
     
     (* SRC: prove the postcond of init *)
     iMod (initialize with "INIT") as "(ALLOC & UNALLOC & INIT)".
@@ -65,7 +65,7 @@ Module MapMA. Section MapMA.
     init_simF.
 
     steps_l.
-    iDestruct "ASM" as "((-> & MAP) & ->)".
+    iDestruct "ASM" as "(-> & (-> & MAP))".
     rename _q1 into k.
 
     (* SRC: handle the IST of Map and the precond of get *)
@@ -83,7 +83,7 @@ Module MapMA. Section MapMA.
     force_r; iSplit; first eauto.
 
     (* TGT: handle the postcond of get *)
-    steps_r. hss. steps_r. iDestruct "GRT" as "(_ & <-)".
+    steps_r. hss. steps_r. iDestruct "GRT" as "(<- & _)".
 
     (* SRC: prove the postcond of get *)
     force_l. force_l.
@@ -102,7 +102,7 @@ Module MapMA. Section MapMA.
     (* SRC: handle the IST of Map and the precond of set *)
     do 2 step_l.
     destruct _q as [[k w] v]. steps_l.
-    iDestruct "ASM" as "((-> & MAP) & ->)".
+    iDestruct "ASM" as "(-> & (-> & MAP))".
     iDestruct "IST" as (f sz) "(% & [(% & P0 & INIT)|(P' & B & U)])".
     { iExFalso. iApply (initial_map_points_to with "INIT MAP"). }
     des. hss. steps_l. hss. steps_l. hss.
@@ -116,7 +116,7 @@ Module MapMA. Section MapMA.
     force_r; iSplit; first done. steps_r. hss. steps_r.
 
     (* TGT: handle the postcond of set *)
-    iDestruct "GRT" as "(_ & <-)".
+    iDestruct "GRT" as "(<- & _)".
     
     (* SRC : prove the postcond of set *)
     iPoseProof (auth_allocated_set with "B MAP") as ">(B & MAP)".
@@ -133,7 +133,7 @@ Module MapMA. Section MapMA.
 
     (* SRC: handle the IST of Map and the precond of set_by_user *)
     do 2 step_l. destruct _q as [k w]. steps_l.
-    iDestruct "ASM" as "((-> & MAP) & ->)".
+    iDestruct "ASM" as "(-> & (-> & MAP))".
     hss. steps_l.
 
     (* TGT: prove the precond of set_by_user *)
@@ -153,13 +153,13 @@ Module MapMA. Section MapMA.
     call "IST".
 
     (* SRC: handle the postcond of set *)
-    steps_l. iDestruct "ASM" as "((-> & MAP) & ->)". hss.
+    steps_l. iDestruct "ASM" as "(-> & (-> & MAP))". hss.
 
     (* TGT: prove the postcond of set *)
     steps_l. force_r. force_r. iSplitR. { iFrame. eauto. }
 
     (* TGT: handle the postcond of set_by_user *)
-    steps_r. hss. steps_r. iDestruct "GRT" as "(_ & <-)".
+    steps_r. hss. steps_r. iDestruct "GRT" as "(<- & _)".
     
     (* SRC: prove the postcond of set_by_user *)
     force_l. force_l. iSplitL "MAP". { iFrame. eauto. }

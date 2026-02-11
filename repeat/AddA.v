@@ -33,7 +33,7 @@ Module AddAS. Section AddAS.
 
   Definition Sp : spl_type :=
     Seal.sealing CRIS
-      [(Some AddHdr.succ, Some succ_spec); (Some AddHdr.add, Some add_spec)].
+      [(Some AddHdr.succ, fsp_some succ_spec); (Some AddHdr.add, fsp_some add_spec)].
   
   Lemma Sp_nodup: List.NoDup (List.map fst Sp).
   Proof. unfold Sp. unseal CRIS. prove_nodup. Qed.
@@ -47,8 +47,8 @@ Module AddA. Section AddA.
   Definition scopes := [AddHdr.mn].
 
   Definition fnsems : fnsems_type :=
-    [(Some AddHdr.succ, (true, wmask_all, scopes, (Some AddAS.succ_spec, pure_body)));
-     (Some AddHdr.add, (true,wmask_all, scopes, (Some AddAS.add_spec, pure_body)))].
+    [(Some AddHdr.succ, (true, wmask_all, scopes, (fsp_some AddAS.succ_spec, pure_body)));
+     (Some AddHdr.add, (true,wmask_all, scopes, (fsp_some AddAS.add_spec, pure_body)))].
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

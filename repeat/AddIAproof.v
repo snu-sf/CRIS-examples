@@ -22,8 +22,8 @@ Module AddIA. Section AddIA.
   (* SPC Hypothesis *)
   Context (APCInSpPure : spl_sub APCA.Sp sp_pure).
   Context (SpPureInSp : sp_incl sp_pure sp).
-  Context (repeatInSpPure : alist_find (Some RepeatHdr.repeat) sp_pure = Some (Some (RepeatAS.repeat_spec sp_pure_fun genv))).
-  Context (succInSpPureFun : alist_find (Some AddHdr.succ) sp_pure_fun = Some (Some AddAS.succ_spec)).
+  Context (repeatInSpPure : alist_find (Some RepeatHdr.repeat) sp_pure = Some (fsp_some (RepeatAS.repeat_spec sp_pure_fun genv))).
+  Context (succInSpPureFun : alist_find (Some AddHdr.succ) sp_pure_fun = Some (fsp_some AddAS.succ_spec)).
 
   (* Modules *)
   Local Definition APCA := (APCA.t sp_pure sp).
@@ -65,7 +65,7 @@ Module AddIA. Section AddIA.
     iDestruct "ASM" as "%". hss. steps_l.
 
     (* SRC: find apc in sp *)
-    assert (SPAPC: sp APCHdr.apc = Some apc_spec).
+    assert (SPAPC: sp APCHdr.apc = fsp_some apc_spec).
     { apply SpPureInSp, APCInSpPure. rewrite /Sp. unseal CRIS; ss. }
     rewrite SPAPC.
 
@@ -103,7 +103,7 @@ Module AddIA. Section AddIA.
     iDestruct "ASM" as "%". hss. steps_l.
 
     (* SRC: find apc in sp *)
-    assert (SPAPC: sp APCHdr.apc = Some apc_spec).
+    assert (SPAPC: sp APCHdr.apc = fsp_some apc_spec).
     { apply SpPureInSp, APCInSpPure. rewrite /Sp. unseal CRIS; ss. }
     rewrite SPAPC.
 
@@ -123,7 +123,8 @@ Module AddIA. Section AddIA.
       - exists AddHdr.succ, blk. rewrite Z2Nat.id; et. hrepeat split; et. unfold_intrange_64; des_ifs_safe; hrepeat destruct Z_le_gt_dec; ss; try lia.
         (* succ has sufficient spec *)
         econs; et. unfold succ_spec, fspec_imply.
-        ii. exists x1. split; r; ii; iIntros; iModIntro; hss.
+        ii. rr in ValidSP; des; subst. eexists _,_. split; [rr; et|].
+        instantiate (1:=x). split; r; ii; iIntros; iModIntro; hss.
         iPureIntro. split; ss. exists vo. split; et. eapply Ord.le_trans; et. apply Ord.lt_le. apply Ord.omega_upperbound.
       - exists (Ord.omega + (Z.to_nat n))%ord. split; et. apply Ord.le_refl. }
     unfold postcond. ss.
@@ -160,8 +161,8 @@ Section ctxr.
         (GEnvIncl : incl AddGEnv.t ge)
         (APCInSpPure : spl_sub APCA.Sp sp_pure)
         (SpPureInSp : sp_incl sp_pure sp)
-        (repeatInSpPure: alist_find (Some RepeatHdr.repeat) sp_pure = Some (Some (RepeatAS.repeat_spec sp_pure_fun ge)))
-        (succInSpPureFun : alist_find (Some AddHdr.succ) sp_pure_fun = Some (Some AddAS.succ_spec)) :
+        (repeatInSpPure: alist_find (Some RepeatHdr.repeat) sp_pure = Some (fsp_some (RepeatAS.repeat_spec sp_pure_fun ge)))
+        (succInSpPureFun : alist_find (Some AddHdr.succ) sp_pure_fun = Some (fsp_some AddAS.succ_spec)) :
     ctx_refines
       ((AddA.t sp) ★ (RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I)
       ((AddI.t ge)    ★ (RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I).

@@ -38,7 +38,7 @@ Module RepeatAS. Section RepeatAS.
           (λ ret, ⌜ret = (Vint (repeat_fun f_sem n x))↑⌝%I))).
 
   Definition Sp: spl_type :=
-    Seal.sealing CRIS [(Some RepeatHdr.repeat, Some (repeat_spec genv))].
+    Seal.sealing CRIS [(Some RepeatHdr.repeat, fsp_some (repeat_spec genv))].
 
 End RepeatAS. End RepeatAS.
 
@@ -49,7 +49,7 @@ Module RepeatA. Section RepeatA.
   Definition scopes := [RepeatHdr.mn].
 
   Definition fnsems genv sp_pure : fnsems_type :=
-    [(Some RepeatHdr.repeat, (true, wmask_all, scopes, (Some (RepeatAS.repeat_spec sp_pure genv), pure_body)))].
+    [(Some RepeatHdr.repeat, (true, wmask_all, scopes, (fsp_some (RepeatAS.repeat_spec sp_pure genv), pure_body)))].
 
   Program Definition smod genv sp_pure : SMod.t := {|
     SMod.scopes := scopes;

@@ -7,27 +7,27 @@ Local Open Scope nat_scope.
 
 Module CellioIA. Section CellioIA.
   Import CellioA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{_cellioG: !cellioG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellioG}.
 
-  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ :=
-    λ st_src st_tgt,
-      (∃ v, ⌜st_tgt = [(CellioI.v_cv, v↑)]⌝ ∗ auth v)%I.
+  Definition Ist : ist_type Σ :=
+    fun st_src st_tgt =>
+      (∃ v, ⌜st_tgt = {[CellioI.v_cv := Some (v↑)]}⌝ ∗ auth v)%I.
 
   Local Definition CellioI := (CellioI.t).
   Local Definition CellioA := (CellioA.t).
 
-  Lemma simF_set : ISim.sim_fun open CellioA CellioI CellioA.init_cond Ist (Some CellioHdr.set).
+  Lemma simF_set : ISim.sim_fun open CellioA CellioI Ist (Some CellioHdr.set).
   Proof using.
-    init_simF.
-    
+    iStartSim. unfold CellioI.set, CellioA.set.
+
     (* Take (x:Z) & cell(x) *)
     steps_l. iDestruct "ASM" as "->".
 
     (* Call Input() simultaneously *)
     steps_r.
-    call "IST"; eauto.
-    steps_l. hss. steps_r. hss. steps_r.
+    call "IST". iIntros (ret st_src' st_tgt') "IST".
+    steps_r. steps_l. destruct Any.downcast; [|steps_l; ss]. hss.
+    steps_r. steps_l.
 
     (* Give cell(i) *)
     iDestruct "IST" as (v) "(% & AUTH)". subst.
@@ -46,9 +46,9 @@ Module CellioIA. Section CellioIA.
     iExists _. iFrame. eauto.
   (*SLOW*)Qed.
   
-  Lemma simF_get : ISim.sim_fun open CellioA CellioI CellioA.init_cond Ist (Some CellioHdr.get).
+  Lemma simF_get : ISim.sim_fun open CellioA CellioI Ist (Some CellioHdr.get).
   Proof using.
-    init_simF.
+    iStartSim. unfold CellioI.get, CellioA.get.
 
     (* Take (x:Z) & cell(x) *)
     steps_l. iDestruct "ASM" as "->".
@@ -70,7 +70,7 @@ Module CellioIA. Section CellioIA.
   Lemma sim : ISim.t open CellioA CellioI CellioA.init_cond Ist.
   Proof using.
     init_sim.
-    - split; et. iIntros "H". iExists _. iFrame. eauto.
+    - iIntros "H". iExists _. iFrame. et.
     - apply simF_set; eauto.
     - apply simF_get; eauto.
   Qed.

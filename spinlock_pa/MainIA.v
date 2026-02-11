@@ -34,7 +34,7 @@ Module MainIA. Section MainIA.
   Proof using LockInE SchInSp_s MainInSp.
     init_simF.
     (* process src precondition *)
-    steps_l. iDestruct "ASM" as "[TID [[-> [%γ_l [#I F]]] ->]]". hss.
+    steps_l. iDestruct "ASM" as "[TID [-> [-> [%γ_l [#I F]]]]]". hss.
     destruct _q5 as [blk_l ofs_l], _q6 as [blk_v ofs_v].
     rename _q4 into γ_v, _q1 into tid.
     (* main code *)
@@ -48,11 +48,11 @@ Module MainIA. Section MainIA.
     lat_real_ir "IST TID".
     { iFrame. instantiate (1:= (_,_,existT _ _)); s.
       iModIntro. iSplit; et.
-      iIntros "[W [[% _] %]]". hss.
+      iIntros "[W [% [% _]]]". hss.
     }
     steps_r. ru_r. iIntros (?) "SIM". unfold_pre_post.
     iApply wsim_unfold; iIntros "W".
-    iMod ("SIM" $! (_,_,existT _ _) with "[W]") as "[PR [W2 [[-> [TKN P]] _]]]".
+    iMod ("SIM" $! (_,_,existT _ _) with "[W]") as "[PR [W2 [_ [-> [TKN P]]]]]".
     { iFrame "I". iFrame. et. }
     do 2 rewrite sl_red. iDestruct "P" as "(%x & PT & P)".
     iApply wsim_fold; iFrame.
@@ -63,14 +63,14 @@ Module MainIA. Section MainIA.
     steps_r. inline_r. steps_r. unfold_lat_real_r.
     force_r (blk_v, ofs_v, 1%Qp, Vint x).
     iSplitL "PT"; iFrame; et.
-    iIntros "[PT ->]". steps_r. hss. steps_r.
+    iIntros "[_ [PT ->]]". steps_r. hss. steps_r.
     sch_yield_ir. steps_r. sch_yield_ir. steps_r.
 
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r. unfold_lat_real_r.
     force_r (blk_v, ofs_v, _, Vint (x + 1)).
     iSplitL "PT"; iFrame; et.
-    iIntros "[PT ->]". steps_r. hss. steps_r.
+    iIntros "[_ [PT ->]]". steps_r. hss. steps_r.
     sch_yield_ir. steps_r.
 
     iCombine "P F" as "C". iMod (own_update with "C") as "[F C]".
@@ -112,13 +112,13 @@ Module MainIA. Section MainIA.
     (* tgt inline - mem alloc - counter allocation *)
     steps_r. inline_r. steps_r. unfold_lat_real_r.
     force_r 1. iSplit; eauto.
-    iIntros "[%blk [-> [GRT _]]]". steps_r. hss. steps_r. sch_yield_ir.
+    iIntros "[_ [%blk [-> [GRT _]]]]". steps_r. hss. steps_r. sch_yield_ir.
 
     (* tgt inline - mem store - counter initialization *)
     steps_r. inline_r. steps_r. unfold_lat_real_r.
     force_r (blk, 0%Z, _, Vint 0). s.
     iFrame; iSplit; eauto.
-    iIntros "[PT ->]". steps_r. hss. steps_r. sch_yield_ir.
+    iIntros "[_ [PT ->]]". steps_r. hss. steps_r. sch_yield_ir.
 
     (* create lock-guarded proposition *)
     iMod (own_alloc (●F 0%Z ⋅ ◯F{1} 0%Z)) as "(%γ & B & W)".
@@ -130,7 +130,7 @@ Module MainIA. Section MainIA.
     force_r (existT 0 (lock_P (blk, 0%Z) γ)).
     iSplitL "B I PT"; eauto.
     { iFrame. s. rewrite sl_red; iSplit; eauto. iSplit; et. iFrame. }
-    iIntros "[WINV [[%v [%γ_l [-> #I]]] %EQ]]". hss.
+    iIntros "[WINV [%EQ [%v [%γ_l [-> #I]]]]]". hss.
     iApply wsim_fold; iFrame.
     steps_r. sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
     sch_yield_l. steps_l. force_l (v, Vptr (blk, 0%Z)).
@@ -187,7 +187,7 @@ Module MainIA. Section MainIA.
     iApply wsim_unfold; iIntros "WINV".
     steps_r. force_r (γ_l, Vptr bofs, existT 0 (lock_P (blk, 0%Z) γ)). s.
     iFrame. iSplit; eauto.
-    iIntros "[WINV [[% [TKN P]] _]]"; hss.
+    iIntros "[WINV [_ [% [TKN P]]]]"; hss.
     do 3 rewrite sl_red. iCombine "W1 W2" as "W".
     iDestruct "P" as "(%x & PT & B)".
     iCombine "B W" gives %WF%frac_auth_agree. inv WF.
@@ -197,7 +197,7 @@ Module MainIA. Section MainIA.
     (* tgt inline - mem load *)
     steps_r. inline_r. steps_r. unfold_lat_real_r.
     force_r (blk, 0%Z, 1%Qp, Vint 2%Z); s.
-    iSplitL "PT"; eauto. iIntros "[PT ->]".
+    iSplitL "PT"; eauto. iIntros "[_ [PT ->]]".
     steps_r. hss. steps_r. sch_yield_ir. steps_r. sch_yield_ir.
     
     (* tgt inline - lock release *)
@@ -207,7 +207,7 @@ Module MainIA. Section MainIA.
     force_r (γ_l, Vptr bofs, existT 0 (lock_P (blk, 0%Z) γ)). s.
     iSplitL "WINV TKN B PT".
     { iFrame. do 2 rewrite sl_red. repeat (iSplit; et; iFrame). }
-    iIntros "[WINV [-> _]]".
+    iIntros "[WINV [_ ->]]".
     iApply wsim_fold; iFrame.
     steps_r. sch_yield_ir. steps_r. hss. steps_r. sch_yield_ir.
 

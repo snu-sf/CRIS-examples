@@ -64,20 +64,20 @@ Module MainAS. Section MainAS.
     SchAS.fspec_spawnable E q (incr_spec E q)
       (incr_pre bofs_l bofs_v γ_v) (incr_post γ_v).
   Proof.
-    intros x_s; ss.
-    exists (x_s, (bofs_l, bofs_v, γ_v)); split.
+    ii. rr in ValidSP; des; subst. s in x. eexists _,_; split; [rr; et|].
+    instantiate (1:=(x, (bofs_l, bofs_v, γ_v))). split.
     { intros varg arg. unfold_pre_post.
       iIntros "[W [%va [-> [TID [%sarg [-> [-> [-> P]]]]]]]]".
       iFrame. iModIntro. iSplit; eauto.
     }
     { iIntros (vret ret); rewrite /postcond /incr_spec /=.
-      iIntros "[$ [$ [[-> F] ->]]]".
+      iIntros "[$ [$ [-> [-> F]]]]".
       iFrame. iModIntro; iExists _; iSplit; eauto. iExists _. iSplit; eauto. rewrite sl_red; done.
     }
   Qed.
 
   Definition sp E q : spl_type :=
-    [(Some SpinLockMainHdr.incr, Some (incr_spec E q))].
+    [(Some SpinLockMainHdr.incr, fsp_some (incr_spec E q))].
 End MainAS. End MainAS.
 
 (* Module definition *)
@@ -109,8 +109,8 @@ Module SpinLockMainA. Section SpinLockMainA.
     λ _, 𝒴;;; Ret Vundef.
 
   Definition fnsems E q : fnsems_type :=
-    [(None,                      (true, wmask_all, scopes, (None, main)));
-     (Some SpinLockMainHdr.incr, (true, wmask_all, scopes, (Some (MainAS.incr_spec E q), cfunN (sfunN incr))))].
+    [(None,                      (true, wmask_all, scopes, (fsp_none, main)));
+     (Some SpinLockMainHdr.incr, (true, wmask_all, scopes, (fsp_some (MainAS.incr_spec E q), cfunN (sfunN incr))))].
 
   Program Definition smod E q : SMod.t := {|
     SMod.scopes := [];

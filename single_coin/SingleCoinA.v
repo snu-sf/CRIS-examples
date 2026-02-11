@@ -100,8 +100,8 @@ Module SingleCoinA. Section SingleCoinA.
   Definition scopes : list string := [].
 
   Definition fnsems : fnsems_type :=
-    [(Some SingleCoinHdr.new, (true, wmask_all, scopes, (Some new_spec, fbody_trivial)));
-     (Some SingleCoinHdr.read, (true, wmask_all, scopes, (Some read_spec, fbody_trivial)))
+    [(Some SingleCoinHdr.new, (true, wmask_all, scopes, (fsp_some new_spec, fbody_trivial)));
+     (Some SingleCoinHdr.read, (true, wmask_all, scopes, (fsp_some read_spec, fbody_trivial)))
     ].
 
   Program Definition Mod : SMod.t := {|

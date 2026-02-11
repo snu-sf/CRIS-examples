@@ -101,8 +101,8 @@ Module CellAS. Section CellAS.
       (λ ret, ⌜ret = tt↑⌝ ∗ cell v)))%I.
 
   Definition Sp : spl_type :=
-    Seal.sealing CRIS [(Some (CellHdr.get idx), Some get_spec);
-                       (Some (CellHdr.set idx), Some set_spec)].
+    Seal.sealing CRIS [(Some (CellHdr.get idx), fsp_some get_spec);
+                       (Some (CellHdr.set idx), fsp_some set_spec)].
 
   Lemma Sp_nodup : List.NoDup (List.map fst Sp).
   Proof. unfold Sp. unseal CRIS. prove_nodup. Qed.
@@ -120,8 +120,8 @@ Module CellA. Section CellA.
   Definition scopes := [CellHdr.mn idx].
 
   Definition fnsems : fnsems_type :=
-    [(Some (CellHdr.get idx), (true, wmask_all, scopes, (Some (CellAS.get_spec idx), fbody_trivial)));
-     (Some (CellHdr.set idx), (true, wmask_all, scopes, (Some (CellAS.set_spec idx), fbody_trivial)))].
+    [(Some (CellHdr.get idx), (true, wmask_all, scopes, (fsp_some (CellAS.get_spec idx), fbody_trivial)));
+     (Some (CellHdr.set idx), (true, wmask_all, scopes, (fsp_some (CellAS.set_spec idx), fbody_trivial)))].
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

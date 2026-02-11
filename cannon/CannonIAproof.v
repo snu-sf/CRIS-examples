@@ -26,7 +26,7 @@ Module CannonIA. Section CannonIA.
     init_simF.
 
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "((%Y & B) & %Q)". subst. hss.
+    steps_l. iDestruct "ASM" as "(%Q & (%Y & B))". subst. hss.
     unfold Ist. iDestruct "IST" as "[[% R] | F]"; des; subst; cycle 1. 
     (* already fired *)
     { iExFalso. iApply FiredBall. iFrame. }
@@ -55,7 +55,7 @@ Section ctxr.
   Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{!cannonG}.
 
-  Theorem ctxr (Sp_s : string → option fspec):
+  Theorem ctxr (Sp_s : sp_type):
     ctx_refines
       (CannonA.t Sp_s, CannonA.init_cond)
       (CannonI.t, emp%I).

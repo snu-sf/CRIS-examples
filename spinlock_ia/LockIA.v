@@ -28,7 +28,7 @@ Module LockIA. Section LockIA.
     (* ill-formed argument *)
     destruct (arg↓) as [v|] eqn:E; cycle 1.
     { sch_yield_l. steps_l. destruct _q.
-      iDestruct "ASM" as "[[% _] _]". des; subst. hss.
+      iDestruct "ASM" as "[_ [% _]]". des; subst. hss.
     }
 
     (* tgt yield *)
@@ -37,7 +37,7 @@ Module LockIA. Section LockIA.
     (* tgt inline - mem alloc *)
     steps_r. inline_r. steps_r. force_r 1. forces_r.
     iSplit; et.
-    steps_r. iDestruct "GRT" as "[[%blk [-> [↦ _]]] ->]".
+    steps_r. iDestruct "GRT" as "[-> [%blk [-> [↦ _]]]]".
     hss_r; steps_r.
 
     (* tgt yield *)
@@ -46,14 +46,14 @@ Module LockIA. Section LockIA.
     (* tgt inline - mem store *)
     steps_r. inline_r. steps_r. force_r (blk, 0%Z, _, _); s. steps_r. forces_r.
     iFrame "↦". iSplit; try done.
-    steps_r. iDestruct "GRT" as "[[↦ ->] ->]".
+    steps_r. iDestruct "GRT" as "[-> [↦ ->]]".
     hss_r; steps_r.
 
     (* src/tgt yield *)
     sch_yield_rr. sch_yield_l; steps_l.
 
     force_l ((Vptr (blk, 0%Z))↑). steps_l. destruct _q as [n P]. s.
-    iDestruct "ASM" as "[[% P] _]". des. hss.
+    iDestruct "ASM" as "[_ [% P]]". des. hss.
 
     (* lock token allocation *)
     iMod (own_alloc (Excl ())) as "[%γ TKN]"; [done|].
@@ -75,7 +75,7 @@ Module LockIA. Section LockIA.
 
     (* ill-formed argument *)
     destruct (classic (∃ blk ofs, arg = [Vptr (blk,ofs)]↑)); cycle 1.
-    { sch_yield_l. steps_l. destruct _q1. iDestruct "ASM" as "[[% L] _]".
+    { sch_yield_l. steps_l. destruct _q1. iDestruct "ASM" as "[_ [% L]]".
       subst. iDestruct "L" as "[% [% _]]". destruct bofs. subst. exfalso. et.
     }
     des; subst; hss.
@@ -92,13 +92,13 @@ Module LockIA. Section LockIA.
     sch_yield_rr; sch_yield_l; steps_l.
     steps_r; inline_r; steps_r.
 
-    destruct _q1. s. iDestruct "ASM" as "[[% [% [% #I]]] _]"; des; subst. hss.
+    destruct _q1. s. iDestruct "ASM" as "[_ [% [% [% #I]]]]"; des; subst. hss.
     iInv "I" as "INV" "ACC". iEval (rewrite sl_red) in "INV".
     iDestruct "INV" as "[PT | [PT [R TKN]]]".
     { force_r (_, _, _, _, _, _, _, _, _, _). steps_r. forces_r.
       iSplitL "PT".
       { iFrame. et. }
-      steps_r. iDestruct "GRT" as "[[% [↦ _]] %]"; subst. hss.
+      steps_r. iDestruct "GRT" as "[% [% [↦ _]]]"; subst. hss.
       steps_r. iMod ("ACC" with "[↦]") as "_".
       { rewrite sl_red; iFrame "↦". }
       force_l true. forces_l. iSplitL "".
@@ -110,7 +110,7 @@ Module LockIA. Section LockIA.
     { force_r (_, _, _, _, _, _, _, _, _, _). steps_r. forces_r.
       iSplitL "PT".
       { iFrame. repeat (iSplit; et). }
-      steps_r. iDestruct "GRT" as "[[% [↦ _]] %]"; subst. hss.
+      steps_r. iDestruct "GRT" as "[% [% [↦ _]]]"; subst. hss.
       steps_r. iMod ("ACC" with "[↦]") as "_".
       { rewrite sl_red; iFrame "↦". }
       force_l false. forces_l. iSplitL "R TKN".
@@ -129,14 +129,14 @@ Module LockIA. Section LockIA.
 
     (* ill-formed argument *)
     destruct (classic (∃ blk ofs, arg = [Vptr (blk,ofs)]↑)); cycle 1.
-    {  sch_yield_l. steps_l. destruct _q1. iDestruct "ASM" as "[[% [L _]] _]".
+    {  sch_yield_l. steps_l. destruct _q1. iDestruct "ASM" as "[_ [% [L _]]]".
       subst. iDestruct "L" as "[% [% _]]". destruct bofs. subst. exfalso. et.
     }
     des; subst; hss.
 
     steps_r; sch_yield_rr; steps_r.
     sch_yield_l; steps_l. force_l (Vundef↑). 
-    destruct _q1. s. iDestruct "ASM" as "[[% [[% [% #I]] [TKN P]]] _]". hss.
+    destruct _q1. s. iDestruct "ASM" as "[_ [% [[% [% #I]] [TKN P]]]]". hss.
     iInv "I" as "INV" "ACC". iEval (rewrite sl_red) in "INV".
     iDestruct "INV" as "[PT | [PT [R' TKN']]]"; cycle 1.
     { rewrite sl_red. iCombine "TKN" "TKN'" gives %WF; inv WF. }
@@ -144,7 +144,7 @@ Module LockIA. Section LockIA.
     force_r (_,_,_,_). forces_r.
     iSplitL "PT".
     { iFrame. et. }
-    steps_r. iDestruct "GRT" as "[[↦ %] %]"; hss.
+    steps_r. iDestruct "GRT" as "[% [↦ %]]"; hss.
     iMod ("ACC" with "[↦ TKN P]") as "_".
     { rewrite sl_red. iRight. iFrame. }
     steps_r. forces_l. iSplit; et.

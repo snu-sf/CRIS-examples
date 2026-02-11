@@ -18,7 +18,7 @@ Module RepeatIA. Section RepeatIA.
   Context (SpPureInSp : sp_incl sp_pure sp).
   Context (SpPureFunInSpPure : spl_sub sp_pure_fun sp_pure).
   Context (repeatInSpPure : alist_find (Some RepeatHdr.repeat) sp_pure 
-            = Some (Some (RepeatAS.repeat_spec sp_pure_fun genv))). (* to avoid recursive definition of SpPure *)
+            = Some (fsp_some (RepeatAS.repeat_spec sp_pure_fun genv))). (* to avoid recursive definition of SpPure *)
 
   (* Modules *)
   Local Definition APCA := (APCA.t sp_pure sp).
@@ -42,7 +42,7 @@ Module RepeatIA. Section RepeatIA.
     iDestruct "ASM" as "%". hss. dup H3. inv H3. steps_l.
 
     (* SRC: find apc in sp *)
-    assert (SPAPC: sp APCHdr.apc = Some apc_spec).
+    assert (SPAPC: sp APCHdr.apc = fsp_some apc_spec).
     { apply SpPureInSp. apply APCInSpPure. rewrite /Sp. unseal CRIS. ss. }
     rewrite SPAPC.
 
@@ -127,7 +127,7 @@ Section ctxr.
         (APCInSpPure : spl_sub APCA.Sp sp_pure)
         (SpPureInSp : sp_incl sp_pure sp)
         (SpPureFunInSpPure : spl_sub sp_pure_fun sp_pure)
-        (repeatInSpPure: alist_find (Some RepeatHdr.repeat) sp_pure = Some (Some (RepeatAS.repeat_spec sp_pure_fun ge))) :
+        (repeatInSpPure: alist_find (Some RepeatHdr.repeat) sp_pure = Some (fsp_some (RepeatAS.repeat_spec sp_pure_fun ge))) :
     ctx_refines
       ((RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I)
       ((RepeatI.t ge)                    ★ (APCA.t sp_pure sp), emp%I).

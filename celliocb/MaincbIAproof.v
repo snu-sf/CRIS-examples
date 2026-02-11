@@ -11,7 +11,7 @@ Module MaincbIA. Section MaincbIA.
   Definition Ist: alist key Any.t -> alist key Any.t -> iProp Σ :=
     λ st_src st_tgt, emp%I.
 
-  Context (sp: string -> option fspec).
+  Context (sp: sp_type).
   Context (sp_foo: sp CtxcbHdr.foo = None).
   
   Local Definition CelliocbA := (CelliocbA.t).
