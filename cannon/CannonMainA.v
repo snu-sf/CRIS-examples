@@ -2,20 +2,9 @@ Require Import CRIS.
 Require Import ImpPrelude.
 Require Import CannonHeader CannonMainI CannonA CannonHeader.
 
-Set Implicit Arguments.
-
-Module MainAS. Section MainAS.
-  Import CannonAS.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-
-  Definition Sp : spl_type :=
-    Seal.sealing CRIS [(None, None)].
-End MainAS. End MainAS.
-
 Module MainA. Section MainA.
-  Import CannonAS.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!cannonG}.
+  Import CannonA.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cannonGS}.
 
   Variable num_fire : nat.
 
@@ -33,18 +22,17 @@ Module MainA. Section MainA.
   Definition main : list val → itree crisE unit :=
     λ _, main_repeat num_fire.
 
-  Definition fnsems : fnsems_type :=
-    [(None, (true, wmask_all, scopes, (None, cfunU main)))].
+  Definition main_spec : fspec := fspec_simple (λ _ : unit, ((λ _, Ball), (λ _, True%I))).
+
+  Definition fnsems : fnsemmap :=
+    {[None := Some (msk_scp scopes msk_true, (fsp_some main_spec, cfunU main))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition init_cond : iProp Σ := Ball.
-
-  Definition t Sp := Seal.sealing CRIS (SMod.to_mod Sp smod).
+  Definition t sp := SMod.to_mod sp smod.
 End MainA. End MainA.

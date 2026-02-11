@@ -1,15 +1,10 @@
-Require Import CRIS.
-Require Import ImpPrelude.
+Require Import CRIS ImpPrelude.
 Require Import CannonHeader.
 
-Set Implicit Arguments.
-
 Module MainI. Section MainI.
-  Local Open Scope string_scope.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cannonGS}.
 
-  Context `{Σ : GRA}.
-
-  Variable num_fire: nat.
+  Variable num_fire : nat.
 
   Definition scopes := ["Main"].
 
@@ -25,16 +20,14 @@ Module MainI. Section MainI.
   Definition main : list val → itree crisE unit :=
     λ _, main_repeat num_fire.
 
-  Definition fnsems : fnsems_type :=
-    [(None, (false, wmask_all, scopes, (None, cfunU main)))].
+  Definition fnsems : fnsemmap := {[None := Some (msk_scp scopes msk_true, (None, cfunU main))]}.
   
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
+  Definition t := SMod.to_mod ∅ smod.
 End MainI. End MainI.

@@ -3,62 +3,57 @@ Require Import ImpPrelude.
 Require Import CannonHeader CannonI CannonA.
 Require Import CannonMainI CannonMainA.
 
-Set Implicit Arguments.
-
-Local Open Scope nat_scope.
-
 Module CannonMainIA. Section CannonMainIA.
-  Import CannonAS.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!cannonG}.
+  Import CannonA CannonMainA.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cannonGS}.
 
-  Context (SpMain : sp_type).
-  Context (CannonInMain : sp_incl CannonAS.Sp SpMain).
+  Context (sp : specmap).
+  Context (CannonInMain : CannonA.sp ⊆ sp).
 
-  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ :=
-    λ _ _, (True)%I.
+  Definition Ist : ist_type Σ := λ _ _, True%I.
 
-  Local Definition MainAMod := (MainA.t 1 SpMain).
-  Local Definition MainIMod := (MainI.t 1).
+  Local Notation MainAMod := (MainA.t 1 sp).
+  Local Notation MainIMod := (MainI.t 1).
   
-  Lemma simF_main : ISim.sim_fun open MainAMod MainIMod MainA.init_cond Ist None.
-  Proof using SpMain CannonInMain.
-    init_simF.
+  Lemma simF_main : ISim.sim_fun open MainAMod MainIMod Ist None.
+  Proof using CannonInMain.
+    iStartSim.
 
     (* SRC: precondition *)
-    steps_l. iDestruct "IST" as "[% B]"; des; hss.
+    steps_l. iDestruct "ASM" as "[-> B]". destruct Any.downcast; steps_l; ss. simpl_sp.
 
     (* SRC: prove the precondition of "fire" *)
     steps_r. force_l. instantiate (1:=()). force_l.
-    force_l. iSplitL "B"; et. steps_l.
+    force_l. iFrame; iSplit; eauto. steps_l.
 
     (* SRC, TGT; call "fire" and take a postcondition *)
-    call ""; et. steps_l. iDestruct "ASM" as "[% %]"; des; subst. hss.
+    call "IST"; eauto. clear dependent st_src st_tgt. iIntros (ret st_src st_tgt) "IST".
+    steps_l. iDestruct "ASM" as "[% %]"; des; subst. hss.
     steps_r. hss. steps_r.
     
     (* SRC, TGT: print 1 *)
     step. steps_l. steps_r.
 
     (* SRC: prove the postcondition & IST *)
+    forces_l. iSplit; eauto.
     step. iFrame; et.
   (*SLOW*)Qed.
 
-  Theorem sim : ISim.t open MainAMod MainIMod MainA.init_cond Ist.
-  Proof using SpMain CannonInMain.
+  Theorem sim : ISim.t open MainAMod MainIMod emp%I Ist.
+  Proof using CannonInMain.
     init_sim.
-    - eapply simF_main.
+    { iIntros "_"; done. }
+    { eapply simF_main. }
   Qed.
 End CannonMainIA.
 
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!cannonG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cannonGS}.
 
-  Theorem ctxr (SpMain : sp_type)
-    (CannonInMain : sp_incl CannonAS.Sp SpMain)
-  :
+  Theorem ctxr (sp : specmap) :
+    CannonA.sp ⊆ sp →
     ctx_refines
-      (MainA.t 1 SpMain, (MainA.init_cond))
-      (MainI.t 1, (emp%I)).
-  Proof. eapply main_adequacy, sim; eauto. Qed.
+      (MainA.t 1 sp, emp%I)
+      (MainI.t 1,    emp%I).
+  Proof. i; eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End CannonMainIA.

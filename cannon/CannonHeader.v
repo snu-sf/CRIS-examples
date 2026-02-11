@@ -1,8 +1,5 @@
-Require Import CRIS.
-Require Import ImpPrelude.
+Require Import String.
 
 Module CannonHdr.
-
-Definition fire := "Cannon.fire".
-
+Definition fire : string := "Cannon.fire".
 End CannonHdr.
