@@ -4,24 +4,18 @@ Require Import RingHeader CellHeader
   RingA CtrlI CellA CellI
   CtrlIAproof CellIAproof.
 
-Set Implicit Arguments.
-
-Local Open Scope nat_scope.
-
 (* Contextual Refinement Proof *)
 Module RingIA. Section RingIA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!cellG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellGS}.
 
   Definition CellIG start len :=
     Mod.addL (List.map CellI.t (seq start len)).
 
-  Theorem correct max_size (SpR SpC : sp_type)
-    :
+  Lemma ctxr max_size (sps spt : specmap) :
     ctx_refines
-      ((RingA.t max_size SpR) ★ (CtrlIA.CellG SpC 0 max_size),
+      ((RingA.t max_size sps) ★ (CtrlIA.CellG spt 0 max_size),
        (RingA.init_cond max_size) ∗ ([∗ list] i↦x ∈ seq 0 max_size, CellA.init_cond i))%I
-      ((CtrlI.t max_size)      ★ (CellIG 0 max_size),
+      ((CtrlI.t max_size)     ★ (CellIG 0 max_size),
        emp%I).
   Proof using.
     etrans.

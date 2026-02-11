@@ -1,19 +1,14 @@
 Require Import CRIS.
-
 Require Import ImpPrelude.
 Require Import RingHeader CellHeader.
 
-Set Implicit Arguments.
-
 Module CtrlI. Section CtrlI.
-  Local Open Scope nat_scope.
-
-  Context `{Σ : GRA}.
+  Context `{!crisG Γ Σ α β τ _I _S, !concGS}.
 
   (* A maximum size of the ring buffer *)
   Variable max_size : nat.
 
-  Definition scopes := ["Ring"].
+  Definition scopes : list string := ["Ring"].
   Definition v_hd := "Ring" ↯ "hd".
   Definition v_tl := "Ring" ↯ "tl".
 
@@ -56,20 +51,18 @@ Module CtrlI. Section CtrlI.
         trigger (@IO _ void "error" "dequeue failed: cannot dequeue from an empty queue");;; Ret 0%Z
   .
 
-  Definition fnsems : fnsems_type :=
-    [(Some RingHdr.init, (false, wmask_all, scopes, (None, cfunU init)));
-     (Some RingHdr.get_size, (false, wmask_all, scopes, (None, cfunU get_size)));
-     (Some RingHdr.enqueue, (false, wmask_all, scopes, (None, cfunU enqueue)));
-     (Some RingHdr.dequeue, (false, wmask_all, scopes, (None, cfunU dequeue)))].
+  Definition fnsems : fnsemmap :=
+    {[Some RingHdr.init := Some (msk_real (msk_scp scopes msk_true), (None, cfunU init));
+      Some RingHdr.get_size := Some (msk_real (msk_scp scopes msk_true), (None, cfunU get_size));
+      Some RingHdr.enqueue := Some (msk_real (msk_scp scopes msk_true), (None, cfunU enqueue));
+      Some RingHdr.dequeue := Some (msk_real (msk_scp scopes msk_true), (None, cfunU dequeue))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [(v_hd,0↑);(v_tl,0↑)];
+    SMod.initial_st := {[v_hd := Some 0↑; v_tl := Some 0↑]};
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
-
+  Definition t := SMod.to_mod ∅ smod.
 End CtrlI. End CtrlI.

@@ -1,41 +1,29 @@
 Require Import CRIS.
-
 Require Import ImpPrelude.
 Require Import CellHeader CellI CellA.
 
-Set Implicit Arguments.
-
-Local Open Scope nat_scope.
-
 (* Simulation Proof *)
 Module CellIA. Section CellIA.
-  Import CellAS.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!cellG}.
+  Import CellA.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellGS}.
+  Context (sp_s : specmap) (idx : nat).
 
-  Variable idx : nat.
-
-  Context (Sp_s : sp_type).
-
-  Definition Ist : alist key Any.t -> alist key Any.t -> iProp Σ :=
+  Definition Ist : ist_type Σ :=
     (λ st_src st_tgt,
        ∃ vany v,
-        ⌜st_tgt = [(CellI.v_cv idx, vany)]⌝
+        ⌜st_tgt = {[CellI.v_cv idx := Some vany]}⌝
         ∗ ((cell idx v ∗ auth idx v) ∨ (⌜vany = v↑⌝ ∗ pending idx ∗ auth idx v)))%I.
 
   (* Definitions of two Cell modules *)
-  Local Definition CellAMod := (CellA.t idx Sp_s).
+  Local Definition CellAMod := (CellA.t idx sp_s).
   Local Definition CellIMod := (CellI.t idx).
 
-  (*************)
-
-  Lemma simF_get : ISim.sim_fun open CellAMod CellIMod (CellA.init_cond idx) Ist (Some (CellHdr.get idx)).
+  Lemma simF_get : ISim.sim_fun open CellAMod CellIMod Ist (Some (CellHdr.get idx)).
   Proof using.
-    init_simF.
+    iStartSim.
 
-    (* Simulation Starts Here *)
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "(% & (% & C))". subst. hss.
+    steps_l. iDestruct "ASM" as "(% & % & C)". subst. hss_r.
     iDestruct "IST" as (vany v0) "(% & [(C' & A)|(% & P & A)])".
     { iExFalso. iApply (cell_unique with "C' C"). }
     subst. hss. rename _q into v.
@@ -47,21 +35,18 @@ Module CellIA. Section CellIA.
 
     (* SRC: take steps *)
     forces_l. iSplitL "C". { eauto. }
-    steps_l. steps_r.
 
     step. iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
   (*SLOW*)Qed.
 
-  Lemma simF_set:
-    ISim.sim_fun open CellAMod CellIMod True%I Ist (Some (CellHdr.set idx)).
+  Lemma simF_set : ISim.sim_fun open CellAMod CellIMod Ist (Some (CellHdr.set idx)).
   Proof using.
-    init_simF.
+    iStartSim.
 
-    (* Simulation Starts Here *)
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "(% & (% & [P|C]))";
-      subst; hss; rename _q1 into v, _q2 into v'; unfold Ist.
+    steps_l. destruct _q as [v v'].
+    iDestruct "ASM" as "(% & % & [P|C])"; subst.
     { (* A case with a resource [P: pending idx] *)
       iDestruct "IST" as (vany v0) "(% & [(C & A)|(% & P' & A)])"; cycle 1.
       { iExFalso. iApply (pending_unique with "P' P"). }
@@ -70,10 +55,10 @@ Module CellIA. Section CellIA.
       iMod (cell_auth_set with "C A") as "(C & A)".
 
       (* TGT, SRC: take steps *)
-      steps_r. hss.
+      steps_r.
       forces_l. iSplitL "C". { eauto. } steps_l.
       (* Prove the IST *)
-      steps_r. step.
+      step.
       iSplit; eauto.
       iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
     }
@@ -99,10 +84,9 @@ Module CellIA. Section CellIA.
   Theorem sim : ISim.t open CellAMod CellIMod (CellA.init_cond idx) Ist.
   Proof.
     init_sim.
-    - split; eauto. iIntros "IC". iDestruct "IC" as (v) "(C & A)".
-      iModIntro. repeat iExists _. iSplit; eauto. iLeft. iFrame.
+    - iIntros "IC". iDestruct "IC" as (v) "(C & A)".
+      repeat iExists _. iSplit; eauto. iLeft. iFrame.
     - eapply simF_get; eauto.
     - eapply simF_set; eauto.
   Qed.
-
 End CellIA. End CellIA.

@@ -2,34 +2,31 @@ Require Import CRIS.
 Require Import ImpPrelude.
 Require Import RingHeader CellHeader.
 
-Section RA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  
-  Local Definition pendingUR := (nat -d> optionUR (exclR unitO)).
-  Local Definition cellUR := (nat -d> optionUR (exclR ZO)).
-  Local Definition RA := prodUR pendingUR (authUR cellUR).
-  
-  Class cellG `{!crisG Γ Σ α β τ _S _I} := {
-    cell_inG :: inG RA Γ;
-  }.
-  Definition cellΓ : HRA := #[RA].
-  Global Instance subG_cellG : subG cellΓ Γ → cellG.
-  Proof. solve_inG. Defined.
-End RA.
-Hint Unfold subG_cellG cell_inG : GRA_index.
+Local Definition pendingUR := (nat -d> optionUR (exclR unitO)).
+Local Definition cellUR := (nat -d> optionUR (exclR ZO)).
+Local Definition RA := prodUR pendingUR (authUR cellUR).
 
-Module CellAS. Section CellAS.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!cellG}.
+Class cellGpreS `{!crisG Γ Σ α β τ _S _I} := {
+  #[local] cell_inG :: inG RA Γ;
+}.
+Class cellGS `{!crisG Γ Σ α β τ _S _I} := {
+  #[local] cellGS_cellGpreS :: cellGpreS;
+  cell_name : gname;
+}.
+Definition cellΓ : HRA := #[RA].
+Global Instance subG_cellGpreS `{!crisG Γ Σ α β τ _S _I} : subG cellΓ Γ → cellGpreS.
+Proof. solve_inG. Qed.
+
+Module CellA. Section CellA.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellGS}.
 
   (* Index of this Cell *)
   Variable idx : nat.
 
   (* Resources *)
-
   (* Holds an exclusive token ensuring uniqueness of the pending state *)
   Definition pending : iProp Σ :=
-    own base_γ (((λ n, if Nat.eq_dec n idx then Some (Excl ()) else ε) : pendingUR, ε)).
+    own cell_name (((λ n, if Nat.eq_dec n idx then Some (Excl ()) else ε) : pendingUR, ε)).
 
   (* Raw representation of the cell's value as an exclusive resource at [idx] *)
   Definition cellraw_r (v : Z) : cellUR :=
@@ -37,14 +34,13 @@ Module CellAS. Section CellAS.
 
   (* A fragmental view on the value [v] that the cell at [idx] currently holds *)
   Definition cell (v : Z) : iProp Σ :=
-    own base_γ ((ε, ◯ (cellraw_r v)) : RA).
+    own cell_name ((ε, ◯ (cellraw_r v)) : RA).
 
   (* Authoritative ownership asserting that the cell at [idx] definitively stores [v]. *)
   Definition auth (v : Z) : iProp Σ :=
-    own base_γ ((ε, ● (cellraw_r v)) : RA).
+    own cell_name ((ε, ● (cellraw_r v)) : RA).
 
   (* Lemmas *)
-
   (* Two simultaneous pending assertions for the same cell are contradictory. *)
   Lemma pending_unique : pending -∗ pending -∗ False.
   Proof.
@@ -100,39 +96,30 @@ Module CellAS. Section CellAS.
      ((λ arg, ⌜arg = v↑⌝ ∗ (pending ∨ cell v0)),
       (λ ret, ⌜ret = tt↑⌝ ∗ cell v)))%I.
 
-  Definition Sp : spl_type :=
-    Seal.sealing CRIS [(Some (CellHdr.get idx), fsp_some get_spec);
-                       (Some (CellHdr.set idx), fsp_some set_spec)].
+  Definition sp : specmap :=
+    {[speckey_fn (CellHdr.get idx) := fspec_to_rel get_spec;
+      speckey_fn (CellHdr.set idx) := fspec_to_rel set_spec]}.
 
-  Lemma Sp_nodup : List.NoDup (List.map fst Sp).
-  Proof. unfold Sp. unseal CRIS. prove_nodup. Qed.
-End CellAS. End CellAS.
+  Definition scopes : list string := [CellHdr.mn idx].
 
-(* Define CellA Module *)
-Module CellA. Section CellA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!cellG}.
-
-  (* Index of this Cell *)
-  Variable idx : nat.
-
-  (* Scopes *)
-  Definition scopes := [CellHdr.mn idx].
-
-  Definition fnsems : fnsems_type :=
-    [(Some (CellHdr.get idx), (true, wmask_all, scopes, (fsp_some (CellAS.get_spec idx), fbody_trivial)));
-     (Some (CellHdr.set idx), (true, wmask_all, scopes, (fsp_some (CellAS.set_spec idx), fbody_trivial)))].
+  Definition fnsems : fnsemmap :=
+    {[Some (CellHdr.get idx) := Some (msk_scp scopes msk_true, (fsp_some get_spec, fbody_trivial));
+      Some (CellHdr.set idx) := Some (msk_scp scopes msk_true, (fsp_some set_spec, fbody_trivial))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition init_cond : iProp Σ :=
-    (∃ v, CellAS.cell idx v ∗ CellAS.auth idx v)%I.
+  Definition t sp := SMod.to_mod sp smod.
 
-  Definition t sp := Seal.sealing CRIS (SMod.to_mod sp smod).
+  Definition init_cond : iProp Σ := (∃ v, cell v ∗ auth v)%I.
 End CellA. End CellA.
+
+(* Lemma cell_alloc `{!crisG Γ Σ α β τ _S _I, !cellGpreS} idx v :
+  ⊢ o=> ∃ (_ : cellGS), CellA.pending idx ∗ CellA.auth idx v.
+Proof.
+  iMod (own_alloc ((λ n, if Nat.eq_dec n idx then Some (Excl ()) else ε) : pendingUR, ε) ⋅
+    ). *)
