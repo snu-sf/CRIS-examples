@@ -1,75 +1,73 @@
 Require Import CRIS.
-From CRIS.spinlock_na Require Import Header LockI LockA.
-Require Import ImpPrelude MemA.
+Require Import ImpPrelude MemA MemTactics.
+Require Import LockHeader LockI LockA.
 Require Import SchHeader SchA SchTactics.
 
 Module LockIA. Section LockIA.
-  Import LockAS.
-  Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG, !spinlockG}.
+  Import LockA.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !memGS, !schGS, !spinlockG}.
 
   Context (E : coPset) (Hsub : ↑N_SpinLockA ⊆ E).
-  Context (tidq : Qp).
-  Context (sp_user : spl_type).
-  Context (sp : sp_type).
-  Context (SchInSp : sp_incl (SchAS.sp sp_user E tidq) sp).
+  Context (sp_user sp : specmap).
+  Context (SchInSp : (SchA.sp sp_user E) ⊆ sp).
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Local Definition MemA := MemA.t.
-  Local Definition SpinLockA := (SpinLockA.t E tidq sp).
+  Local Definition MemA := MemA.t sp.
+  Local Definition SpinLockA := (LockA.t E sp).
   Local Definition SpinLockI := (SpinLockI.t).
   Local Definition IstFull := (IstProd (IstSB SpinLockA.(Mod.scopes) IstTrue) IstEq).
   Local Notation MA := (SpinLockA ★ MemA).
   Local Notation MI := (SpinLockI ★ MemA).
 
-  Lemma newlock_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.newlock).
+  Lemma newlock_simF : ISim.sim_fun open MA MI IstFull (Some SpinLockHdr.newlock).
   Proof using SchInSp Hsub.
-    init_simF.
+    iStartSim.
 
     (* preprocess initial conditions *)
-    steps_l. rename _q1 into tid, _q into vret. destruct _q2 as [n P]; s.
-    iDestruct "ASM" as "[TID [P ->]]". hss.
-    steps_r.
+    steps_l. destruct _q as [[stid mtid] [n P]]. rename _q0 into varg.
+    iDestruct "ASM" as "[TID [-> P]]"; s. destruct Any.downcast; s; [|step_l; ss].
+    steps_r. step_l.
 
     (* tgt yield *)
-    sch_yield_ir.
+    sch_yield_ir "IST" "TID".
 
     (* tgt inline - mem alloc *)
-    steps_r. inline_r. steps_r.
-    force_r 1. forces_r. iSplit; et.
-    steps_r. iDestruct "GRT" as "[[%blk [% [PT _]]] %]"; subst.
-    hss_r. steps_r.
+    steps_r.
+    iApply wsim_mem_alloc; ss.
+    iIntros (blk) "[↦ _]". steps_r. hss_r. steps_r.
 
     (* tgt yield *)
-    sch_yield_ir.
+    sch_yield_ir "IST" "TID".
 
     (* tgt inline - mem store *)
-    steps_r. inline_r. steps_r.
-    force_r (_,_,_,_). forces_r. iFrame. iSplit; et.
-    steps_r. iDestruct "GRT" as "[[PT %] %]"; subst.
-    hss_r. steps_r.
+    steps_r.
+    iApply (wsim_mem_store with "↦"); ss.
+    iIntros "↦". steps_r. hss_r. steps_r.
 
     (* src/tgt yield *)
-    sch_yield_ir. steps_r.
+    sch_yield_ir "IST" "TID". steps_r.
     sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l.
 
     (* prove source postcondition *)
     (* alloc invariant *)
     iMod (own_alloc (Excl ())) as "[%γ TKN]"; [done|].
-    iMod (inv_alloc (LockAS.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA with "[P PT TKN]") as "#I"; eauto.
-    { rewrite /lock_inv /=; rewrite sl_red; iRight; iFrame. }
+    iMod (inv_alloc (LockA.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA with "[P ↦ TKN]")
+      as "#I"; eauto.
+    { solve_base_sl_red. iRight; iFrame. }
     forces_l. iFrame. iSplit; eauto.
     { iSplit; eauto. rewrite /is_lock. iExists _, _; iSplit; eauto. }
-    steps_l. step. eauto.
+    steps_l. step. iFrame. eauto.
   (*SLOW*)Qed.
 
-  Lemma acquire_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.acquire).
+  Lemma acquire_simF : ISim.sim_fun open MA MI IstFull (Some SpinLockHdr.acquire).
   Proof using SchInSp Hsub.
-    init_simF.
+    iStartSim.
 
     (* process src precondition *)
-    steps_l. iDestruct "ASM" as "[TID [[-> #LOCK] ->]]". hss.
-    iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs]. steps_r.
+    steps_l. destruct _q as [[stid mtid] [[γ vlk] [n P]]]. rename _q0 into varg. s.
+    iDestruct "ASM" as "[TID [-> [-> #LOCK]]]". hss_l. hss_r.
+    iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs]; subst. steps_r. steps_l.
 
     (* start coinduction for lock acquire/failure *)
     iApply wsim_reset.
@@ -81,75 +79,76 @@ Module LockIA. Section LockIA.
 
     unfold_iterC_r. steps_r.
     (* tgt yield *)
-    sch_yield_ir.
+    sch_yield_ir "IST" "TID".
     (* open invariant *)
-    iInv "LOCK" as "I" "Hcl". rewrite sl_red.
+    iInv "LOCK" as "I" "Hcl".
     iDestruct "I" as "[FAIL|SUCC]".
     { (* fail case *)
       (* tgt inline - mem cas *)
-      steps_r. inline_r. steps_r.
-      force_r (_,_,_,_,_,_,_,_,_,_). forces_r.
-      iSplitL "FAIL".
-      { iFrame "FAIL"; eauto. }
-      steps_r. iDestruct "GRT" as "[[% [PT _]] %]"; subst. hss. steps_r.
-      iMod ("Hcl" with "[PT]") as "_". { iFrame. }
+      steps_r.
+      iApply (wsim_mem_cas _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ emp%I with "FAIL"); ss.
+      { ss. iIntros "_ !>"; eauto. }
+      iIntros "↦ _"; case_decide; first done.
+      iMod ("Hcl" with "[↦]") as "_". { iFrame. }
+      steps_r. hss_r. steps_r.
       
       (* tgt yields *)
-      sch_yield_ir. steps_r.
-      sch_yield_ir. steps_r.
+      sch_yield_ir "IST" "TID". steps_r.
+      sch_yield_ir "IST" "TID". steps_r.
       by_coind CIH. iFrame. done.
     }
     { (* success case *)
       (* tgt inline - mem cas *)
-      iDestruct "SUCC" as "[POINTS_TO [Q TKN]]".
-      steps_r. inline_r. steps_r.
+      steps_r.
+      iDestruct "SUCC" as "[↦ [Q TKN]]".
+      iApply (wsim_mem_cas _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ emp%I with "↦"); ss.
+      { ss. iIntros "_ !>"; eauto. }
+      iIntros "↦ _"; case_decide; last done.
+      iMod ("Hcl" with "[↦]") as "_". { iFrame. }
+      steps_r. hss_r. steps_r.
 
-      force_r (_,_,_,_,_,_,_,_,_,_). forces_r.
-      iSplitL "POINTS_TO".
-      { iFrame. iSplit; et. }
-      steps_r. iDestruct "GRT" as "[[% [PT PRE]] %]"; subst.
-      hss_r. steps_r.
-      iMod ("Hcl" with "[PT]") as "_". { iFrame. }
       (* tgt yields *)
-      do 3 (sch_yield_ir).
+      do 3 (sch_yield_ir "IST" "TID"; norm_r).
+
       (* src yield *)
       sch_yield_l. forces_l. iSplitL "Q TKN TID".
-      { iFrame. iSplit; et. iSplit; et. rewrite sl_red. iFrame. }
+      { solve_base_sl_red; iFrame; repeat iSplit; et. rewrite /token. solve_base_sl_red. }
       (* both terminate *)
-      step; eauto.
+      step; iFrame; eauto.
     }
   Unshelve. all: try exact 1%Qp. all: try exact Vundef.
   (*SLOW*)Qed.
 
-  Lemma release_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.release).
+  Lemma release_simF : ISim.sim_fun open MA MI IstFull (Some SpinLockHdr.release).
   Proof using SchInSp Hsub.
-    init_simF.
+    iStartSim.
     (* process src precondition *)
-    steps_l.
-    iDestruct "ASM" as "[TID [(% & #LOCK & TKN & Q) %]]".
-    iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs].
-    hss.
-    steps_r.
+    steps_l. destruct _q as [[stid mtid] [[γ vlk] [n P]]]. rename _q0 into varg.
+    iDestruct "ASM" as "[TID (% & % & #LOCK & TKN & Q)]".
+    iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs]. subst.
+    hss_l; hss_r.
+    steps_l; steps_r.
     (* tgt yield *)
-    sch_yield_ir.
+    sch_yield_ir "IST" "TID".
     (* open invariant *)
-    iInv "LOCK" as "I" "Hcl". rewrite sl_red.
+    iInv "LOCK" as "I" "Hcl".
     iDestruct "I" as "[LOCKED|UNLOCKED]".
     { (* locked case *)
       steps_r. inline_r. steps_r.
       force_r (_,_,_,_). forces_r.
       iSplitL "LOCKED"; iFrame; et.
-      steps_r. iDestruct "GRT" as "[[PT %] %]"; subst.
-      hss. steps_r.
+      steps_r. iDestruct "GRT" as "[% [PT %]]"; subst.
+      hss_r. steps_r.
       iMod ("Hcl" with "[PT Q TKN]") as "_".
-      { iRight. iFrame. }
+      { iRight. rewrite /token; solve_base_sl_red. iFrame. solve_base_sl_red. }
       (* tgt yield *)
-      sch_yield_ir.
+      sch_yield_ir "IST" "TID".
       (* src yield *)
       sch_yield_l. steps_l. forces_l. iFrame. iSplit; et. step. iFrame; et.
     }
     { (* unlocked case - ex falso quodlibet *)
       iDestruct "UNLOCKED" as "[PT [Q' TKN']]".
+      solve_base_sl_red.
       iCombine "TKN TKN'" gives %Hv. done.
     }
   (*SLOW*)Qed.
@@ -158,16 +157,16 @@ Module LockIA. Section LockIA.
   Lemma sim : ISim.t open MA MI init_cond IstFull.
   Proof.
     init_sim.
-    { split; et. }
     { apply newlock_simF. }
     { apply acquire_simF. }
     { apply release_simF. }
+    { iIntros "$"; iExists _, _, _, _; iFrame; eauto. }
   Qed.
 
   (* ctxr works as a unit in compositions of module simulations *)
   Lemma ctxr :
     ctx_refines
-      (SpinLockA.t E tidq sp ★ MemA.t, emp%I)
-      (SpinLockI.t           ★ MemA.t, emp%I).
+      (LockA.t E sp ★ MemA.t sp, emp%I)
+      (SpinLockI.t  ★ MemA.t sp, emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End LockIA. End LockIA.

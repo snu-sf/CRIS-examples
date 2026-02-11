@@ -1,6 +1,6 @@
 Require Import CRIS.
-Require Export ImpPrelude SchHeader SchA SchTactics MemA.
-From CRIS.incr_faa Require Import Header.
+Require Export ImpPrelude SchA SchTactics MemA.
+Require Import FaaHeader.
 From iris Require Import frac_auth numbers.
 
 Section RA.
@@ -11,12 +11,11 @@ Section RA.
   Global Instance subG_incrG : subG incrΓ Γ → incrG.
   Proof. solve_inG. Defined.
 End RA.
-Hint Unfold subG_incrG incr_inG : GRA_index.
 
 Module ClientA. Section ClientA.
-  Context `{!crisG Γ Σ α β τ _S _I, !memG, !schG, !incrG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !memGS, !schGS, !incrG}.
 
-  Definition N_main : namespace := (nroot .@ IncrHdr.main).
+  Definition N_main N : namespace := (N .@ IncrHdr.main).
 
   Definition counter γ q (v : Z) : iProp Σ := own γ (◯F{q} v).
   Definition counter_syn {n} γ q (v : Z) : GTerm.t n := sown γ (◯F{q} v).
@@ -24,10 +23,10 @@ Module ClientA. Section ClientA.
 
   Definition ccounter_syn n γ bofs : GTerm.t n :=
     (∃ v : τ{Z, n},
-      sown base_γ (mem_points_to_singleton_r bofs 1%Qp (Vint v))
-      ∗ sown γ (frac_auth_auth v))%SAT.
+      bofs ↦ Vint v ∗
+      sown γ (frac_auth_auth v))%SAT.
 
-  Definition incr_inv n γ bofs : iProp Σ := inv n N_main (ccounter_syn n γ bofs).
+  Definition incr_inv n N γ bofs : iProp Σ := inv n (N_main N) (ccounter_syn n γ bofs).
 
   (* rules *)
   Lemma counter_op γ v1 q1 v2 q2 :
@@ -43,19 +42,17 @@ Module ClientA. Section ClientA.
     iFrame; done.
   Qed.
 
-  Definition incr_spec E q : fspec :=
-    fspec_winv E
-      (fspec_sch q
-        (fspec_simple (λ '(bofs, v, γ),
-          (λ varg, ⌜varg = ([Vptr bofs]↑↑)↑⌝ ∗ counter γ (1/2) v ∗ incr_inv 0 γ bofs,
-          λ vret, ⌜vret = (tt↑↑)↑⌝ ∗ counter γ (1/2) (v + 2))
-        )))%I.
+  Definition incr_spec N : fspec :=
+    fspec_sch (↑N)
+      (fspec_mk
+        (λ '(bofs, v, γ) varg arg,
+          ⌜varg = ([Vptr bofs]↑↑)↑ ∧ arg = varg⌝ ∗ counter γ (1/2) v ∗ incr_inv 0 N γ bofs)
+        (λ '(bofs, v, γ) vret ret, ⌜vret = (tt↑↑)↑ ∧ ret = vret⌝ ∗ counter γ (1/2) (v + 2)))%I.
 
-  Definition init_cond E q : iProp Σ := winv (E, E) ∗ SchAS.tid_user q 0.
+  (* Definition init_cond E : iProp Σ := winv (E, E) ∗ Tid 0 0. *)
 
-  Definition sp E q : spl_type :=
-    [(Some IncrHdr.incr, Some (incr_spec E q));
-     (None,              None)].
+  Definition sp N : specmap :=
+    {[speckey_fn IncrHdr.incr := fspec_to_rel (incr_spec N)]}.
 
   (* Module definition *)
   Definition scopes : list string := [].
@@ -73,17 +70,16 @@ Module ClientA. Section ClientA.
       𝒴;;; trigger (IO (O:=unit) "OUT" 4%Z);;;
       𝒴;;; Ret (tt↑).
 
-  Definition fnsems E q : fnsems_type :=
-    [(Some IncrHdr.incr, (true, wmask_all, scopes, (Some (incr_spec E q), cfunN (sfunN incr))));
-     (None,              (true, wmask_all, scopes, (None,                 main)))].
+  Definition fnsems (N : namespace) : fnsemmap :=
+    {[Some IncrHdr.incr := Some (msk_scp scopes msk_true, (fsp_some (incr_spec N), cfunN (sfunN incr)));
+      None := Some (msk_scp scopes msk_true, (fsp_some (fspec_sch (↑N) fspec_trivial), main))]}.
 
-  Program Definition smod E q : SMod.t := {|
+  Program Definition smod N : SMod.t := {|
     SMod.scopes := scopes;
-    SMod.fnsems := fnsems E q;
-    SMod.initial_st := [];
+    SMod.fnsems := fnsems N;
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition t E q sp : Mod.t := Seal.sealing CRIS (SMod.to_mod sp (smod E q)).
+  Definition t N sp : Mod.t := SMod.to_mod sp (smod N).
 End ClientA. End ClientA.

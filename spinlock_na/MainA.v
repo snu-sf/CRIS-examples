@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.spinlock_na Require Import Header LockA.
+Require Import LockHeader LockA.
 Require Import ImpPrelude SchHeader SchA MemHeader MemA.
 From iris Require Import frac_auth numbers.
 
@@ -16,29 +16,18 @@ Section RA.
   Global Instance subG_spinlockmainG : subG spinlockmainΓ Γ → spinlockmainG.
   Proof. solve_inG. Defined.
 End RA.
-Hint Unfold subG_spinlockmainG spinlockmain_inG : GRA_index.
 
 (* Spec definition *)
 (* Define 1) initial resource 2) function specs 3) sp here. *)
-Module MainAS. Section MainAS.
-  Import LockAS.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
-  Context `{_memG: !memG}.
-  Context `{_schG: !schG}.
-  Context `{_spinlockG: !spinlockG}.
-  Context `{_spinlockmainG: !spinlockmainG}.
-
-  (* initial resource *)
-  Definition ir : spinlockmainΓ := *[None].
+Module MainA. Section MainA.
+  Import LockA.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !memGS, !schGS, !spinlockG, !spinlockmainG}.
 
   Definition lock_P loc γ : GTerm.t 0 :=
     ∃ v : τ{Z}%SAT, loc ↦ (Vint v) ∗ sown γ (●F v).
 
-  Definition init_cond E q : iProp Σ :=
-    icond_winv E (icond_sch q emp%I).
-
-  Definition incr_spec E q : fspec :=
-    fspec_winv E (fspec_sch q
+  Definition incr_spec E : fspec :=
+    (fspec_sch E
       (fspec_simple (λ '(bofs_l, bofs_v, γ_v),
         ((λ arg,
           ⌜arg = ([Vptr bofs_l; Vptr bofs_v]↑↑)↑⌝ ∗
@@ -57,42 +46,31 @@ Module MainAS. Section MainAS.
       ∗ ∃ γ_l, is_lock γ_l (Vptr bofs_l) (lock_P bofs_v γ_v)
           ∗ own γ_v (◯F{1/2} 0%Z)))%I.
 
-  Definition incr_post γ_v : SAny.t → SAny.t → SynDepO :=
+  Definition incr_post γ_v : SAny.t → SAny.t → leibnizO {n & GTerm.t n} :=
     (λ _ _, existT 0 (sown γ_v (◯F{1/2} 1%Z)))%SAT.
 
-  Lemma incr_spawnable E q bofs_l bofs_v γ_v :
-    SchAS.fspec_spawnable E q (incr_spec E q)
-      (incr_pre bofs_l bofs_v γ_v) (incr_post γ_v).
+  Lemma incr_spawnable E bofs_l bofs_v γ_v :
+    ⊢ SchA.fspec_spawnable (incr_spec E) (incr_pre bofs_l bofs_v γ_v) (incr_post γ_v).
   Proof.
-    intros x_s; ss.
-    exists (x_s, (bofs_l, bofs_v, γ_v)); split.
-    { intros varg arg. unfold_pre_post.
-      iIntros "[W [%va [-> [TID [%sarg [-> [-> [-> P]]]]]]]]".
-      iFrame. iModIntro. iSplit; eauto.
-    }
-    { iIntros (vret ret); rewrite /postcond /incr_spec /=.
-      iIntros "[$ [$ [[-> F] ->]]]".
-      iFrame. iModIntro; iExists _; iSplit; eauto. iExists _. iSplit; eauto. rewrite sl_red; done.
-    }
+    iApply SchA.fspec_sch_spawnable; first done.
+    iIntros "%P1 %Q1 [% [-> ->]]"; iExists _, _; iSplit; first (iPureIntro).
+    { exists (bofs_l, bofs_v, γ_v); split; ss. }
+    iIntros (varg arg) "[%va [%sarg [[-> ->] [-> [-> ?]]]]]"; des; clarify.
+    iIntros "!>"; iSplitL; first iFrame; eauto.
+    iIntros "%% [-> [-> ?]] !>"; iExists _, _; iSplit; eauto.
+    solve_base_sl_red; iSplit; done.
   Qed.
 
-  Definition sp E q : spl_type :=
-    [(Some SpinLockMainHdr.incr, Some (incr_spec E q))].
-End MainAS. End MainAS.
+  Definition main_spec (N : namespace) : fspec := fspec_sch (↑N) fspec_trivial.
 
-(* Module definition *)
-(* Define three components for a module:
-  1) scope
-  2) code (via itree)
-  3) initial state (via Any.t)
-*)
-Module SpinLockMainA. Section SpinLockMainA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
-  Context `{_memG: !memG}.
-  Context `{_schG: !schG}.
-  Context `{_spinlockG: !spinlockG}.
-  Context `{_spinlockmainG: !spinlockmainG}.
-                        
+  Definition sp E : specmap := {[speckey_fn SpinLockMainHdr.incr := fspec_to_rel (incr_spec E)]}.
+
+  (* Module definition *)
+  (* Define three components for a module:
+    1) scope
+    2) code (via itree)
+    3) initial state (via Any.t)
+  *)
   Definition scopes : list string := [].
 
   Definition main : Any.t → itree crisE Any.t :=
@@ -108,17 +86,16 @@ Module SpinLockMainA. Section SpinLockMainA.
   Definition incr : list val → itree crisE val :=
     λ _, 𝒴;;; Ret Vundef.
 
-  Definition fnsems E q : fnsems_type :=
-    [(None,                      (true, wmask_all, scopes, (None, main)));
-     (Some SpinLockMainHdr.incr, (true, wmask_all, scopes, (Some (MainAS.incr_spec E q), cfunN (sfunN incr))))].
+  Definition fnsems (N : namespace) : fnsemmap :=
+    {[None := Some (msk_scp scopes msk_true, (fsp_some (main_spec N), main));
+      Some SpinLockMainHdr.incr := Some (msk_scp scopes msk_true, (fsp_some (incr_spec (↑N)), cfunN (sfunN incr)))]}.
 
-  Program Definition smod E q : SMod.t := {|
-    SMod.scopes := [];
-    SMod.fnsems := fnsems E q;
-    SMod.initial_st := []
+  Program Definition smod N : SMod.t := {|
+    SMod.scopes := scopes;
+    SMod.fnsems := fnsems N;
+    SMod.initial_st := ∅
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Defined.
+  Solve All Obligations with mod_tac.
 
-  Definition t E q sp : Mod.t := Seal.sealing CRIS SMod.to_mod sp (smod E q).
-End SpinLockMainA. End SpinLockMainA.
+  Definition t N sp : Mod.t := SMod.to_mod sp (smod N).
+End MainA. End MainA.

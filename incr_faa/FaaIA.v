@@ -1,62 +1,43 @@
 Require Import CRIS.
-From CRIS.incr_faa Require Import Header FaaI FaaA.
-Require Import ImpPrelude MemHeader MemA SchA SchTactics SchHeader.
+Require Import SchTactics MemTactics.
+Require Export FaaHeader FaaI FaaA.
 
 Module FaaIA. Section FaaIA.
-  Context `{CrisG: !crisG Γ Σ α β τ _S _I}.
-  Context `{MemG: !memG}.
-  Context `{SchG: !schG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !memGS, !schGS}.
+  Context (sp : specmap).
 
   Local Definition IstFull := (IstProd (IstSB FaaA.t.(Mod.scopes) IstTrue) IstEq).
-  Local Definition MA := (FaaA.t ★ MemA.t).
-  Local Definition MI := (FaaI.t ★ MemA.t).
+  Local Definition MA := (FaaA.t ★ MemA.t sp).
+  Local Definition MI := (FaaI.t ★ MemA.t sp).
 
-  Lemma faa2_simF : ISim.sim_fun open MA MI True%I IstFull (Some FaaHdr.faa2).
-  Proof using MemG SchG.
-    init_simF.
+  Lemma faa2_simF : ISim.sim_fun open MA MI IstFull (Some FaaHdr.faa2).
+  Proof using.
+    iStartSim.
 
     steps_l.
-    destruct _q0 as [blk ofs]. destruct _q as [ | v [|? ?]]; ss; destruct v; ss.
-    hss. inv G0.
+    destruct (arg ↓) as [[|v [|v' l]]|]; steps_l; ss.
+    destruct v as [|[blk ofs]|]; step_l; ss.
 
-    steps_l. steps_r.
+    steps_r. sch_yield_rr "IST". steps_r.
+    rewrite /MemHdr.faa; steps_r.
 
-    sch_yield_rr.
-    sch_yield_l; steps_l. rename _q into v.
+    sch_yield_l; steps_l. rename _q into v. load_r "ASM".
+    steps_r. hss_r. steps_r. store_r "ASM".
+    steps_r. hss_r. steps_r. force_l; iFrame "ASM". steps_l.
+    sch_yield_rr "IST".
 
-    rewrite /MemHdr.faa; steps_r; inline_r.
-    force_r (_, _, _, Vint v); forces_r; iFrame "ASM"; iSplit; eauto.
-    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r.
-    steps_r; inline_r.
-    force_r (_, _, _, _); forces_r; iFrame "PT"; iSplit; eauto.
-    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r. steps_r.
-
-    force_l; iFrame "PT"; steps_l.
-
-    sch_yield_rr.
-    Unshelve. all: try exact 0.
-    sch_yield_l; steps_l; clear v; rename _q into v.
-    steps_r; inline_r.
-    force_r (_, _, _, _); forces_r; iFrame "ASM"; iSplit; eauto.
-    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r.
-    steps_r; inline_r.
-    force_r (_, _, _, _); forces_r; iFrame "PT"; iSplit; eauto.
-    steps_r; iDestruct "GRT" as "[[PT ->] ->]"; hss_r.
-
-    force_l; iFrame "PT"; steps_l.
     steps_r.
-    sch_yield_rr.
-    steps_r.
-    sch_yield_l; steps_l.
-    step.
-    iSplit; done.
-  Unshelve. all: eauto.
+    sch_yield_l; steps_l. clear v. rename _q into v.
+    load_r "ASM". steps_r. hss_r. steps_r.
+    store_r "ASM". steps_r. hss_r. steps_r.
+    force_l; iFrame "ASM". steps_l.
+    sch_yield_rr "IST". sch_yield_l. step. iFrame; done.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MA MI emp%I IstFull.
-  Proof using MemG SchG.
+  Proof.
     init_sim.
-    { split; ss; iIntros "_"; iModIntro; iSplit; eauto. }
     { eapply faa2_simF. }
+    { iIntros "_"; iExists _, _, _, _; iSplit; eauto. }
   Qed.
 End FaaIA. End FaaIA.

@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.spinlock_na Require Import Header.
+Require Import LockHeader.
 Require Import ImpPrelude SchHeader MemHeader.
 
 (* Implementation of the spinlock library *)
@@ -9,7 +9,7 @@ Require Import ImpPrelude SchHeader MemHeader.
   3) initial state (via Any.t)
 *)
 Module SpinLockI. Section SpinLockI.
-  Context {Σ : GRA}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
 
   Definition scopes : list string := [].
 
@@ -37,19 +37,17 @@ Module SpinLockI. Section SpinLockI.
       𝒴;;; '_ : val <- ccallU MemHdr.store (x ++ [Vint 0]);;
       𝒴;;; Ret Vundef.
 
-  Definition fnsems : fnsems_type :=
-  [(Some SpinLockHdr.newlock, (false, wmask_all, scopes, (None, cfunU newlock)));
-   (Some SpinLockHdr.acquire, (false, wmask_all, scopes, (None, cfunU acquire)));
-   (Some SpinLockHdr.release, (false, wmask_all, scopes, (None, cfunU release)))].
+  Definition fnsems : fnsemmap :=
+    {[Some SpinLockHdr.newlock := Some (msk_real (msk_scp scopes msk_true), (None, cfunU newlock));
+      Some SpinLockHdr.acquire := Some (msk_real (msk_scp scopes msk_true), (None, cfunU acquire));
+      Some SpinLockHdr.release := Some (msk_real (msk_scp scopes msk_true), (None, cfunU release))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Defined.
+  Solve All Obligations with mod_tac.
 
-  Definition t : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
-
+  Definition t : Mod.t := SMod.to_mod ∅ smod.
 End SpinLockI. End SpinLockI.

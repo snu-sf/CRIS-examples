@@ -1,11 +1,11 @@
 Require Import CRIS.
 Require Import ImpPrelude.
-Require Import SchHeader SchA SchTactics.
+Require Import SchHeader SchA.
 Require Import MemHeader MemA.
-From CRIS.incr_cas Require Import Header.
+Require Import IncrementHeader.
 
 Module IncrementA. Section IncrementA.
-  Context `{!crisG Γ Σ α β τ _S _I, !memG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !concGS}.
 
   Definition scopes : list string := [].
 
@@ -23,16 +23,15 @@ Module IncrementA. Section IncrementA.
         else trigger (Guarantee (bofs ↦ Vint v));;; 𝒴;;; Ret (inl tt)
       ) ().
 
-  Definition fnsems : fnsems_type :=
-    [(Some IncrementHdr.increment, (true, wmask_all, scopes, (None, (cfunU increment))))].
+  Definition fnsems : fnsemmap :=
+    {[Some IncrementHdr.increment := Some (msk_scp scopes msk_true, (None, cfunU increment))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition t : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
+  Definition t : Mod.t := SMod.to_mod ∅ smod.
 End IncrementA. End IncrementA.
