@@ -5,7 +5,7 @@ Set Implicit Arguments.
 
 Module MutFA. Section MutFA.
   Import MutAUX.
-  Context `{!crisG Γ Σ α β τ _S _I}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS}.
 
   Definition scopes := ["MutF"].
 
@@ -15,22 +15,21 @@ Module MutFA. Section MutFA.
         ((λ varg, (⌜varg = [Vint (Z.of_nat n)]↑ ∧ n < mut_max⌝)%I),
          (λ vret, (⌜vret = (Vint (Z.of_nat (sum n)))↑⌝)%I))).
          
-  Definition SpF: spl_type :=
-    Seal.sealing CRIS [(Some MutHdr.mutf, fsp_some f_spec)].
+  Definition SpF: specmap :=
+    {[speckey_fn MutHdr.mutf := fspec_to_rel f_spec]}.
 
-  Definition fnsems : fnsems_type :=
-    [(Some MutHdr.mutf, (true, wmask_all, scopes, (fsp_some f_spec, pure_body)))].
+  Definition fnsems : fnsemmap :=
+    {[Some MutHdr.mutf := Some (msk_scp scopes msk_true, (fsp_some f_spec, pure_body))]}.
 
   Program Definition smod: SMod.t :=
   {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Definition t Sp := Seal.sealing CRIS (SMod.to_mod Sp smod).
+  Definition t Sp := SMod.to_mod Sp smod.
 End MutFA. End MutFA.

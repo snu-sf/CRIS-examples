@@ -6,17 +6,16 @@ Set Implicit Arguments.
 
 Module MutFIA. Section MutFIA.
   Import MutAUX.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
+  Context `{_crisG: !crisG Γ Σ α β τ Hinv Hsub, !concGS}.
 
-  Context (Sp: sp_type).
-  Context (SpPure: spl_type).
+  Context (Sp SpPure: specmap).
 
-  Context (APCInSp : sp_incl APCA.Sp Sp).
-  Context (GInPure : spl_sub MutGA.SpG SpPure).
-  Context (PureInSp : sp_incl SpPure Sp).
+  Context (APCInSp : APCA.sp ⊆ Sp).
+  Context (GInPure : MutGA.SpG ⊆ SpPure).
+  Context (PureInSp : SpPure ⊆ Sp).
 
-  Definition Ist: alist key Any.t -> alist key Any.t -> iProp Σ :=
-    λ _ _, (True)%I.
+  Definition Ist : gmap key (option Any.t) → gmap key (option Any.t) → iProp Σ :=
+    (λ _ _, True)%I.
 
   Local Definition MutFAMod := (MutFA.t Sp ★ APCA.t SpPure Sp).
   Local Definition MutFIMod := (MutFI.t ★ APCA.t SpPure Sp).
@@ -25,9 +24,9 @@ Module MutFIA. Section MutFIA.
   (*************)
 
   Lemma simF_mutf:
-    ISim.sim_fun open MutFAMod MutFIMod MutFA.init_cond IstFull (Some MutHdr.mutf).
+    ISim.sim_fun open MutFAMod MutFIMod IstFull (Some MutHdr.mutf).
   Proof using _crisG APCInSp GInPure PureInSp.
-    init_simF.
+    iStartSim.
 
     (* SRC: precondition *)
     steps_l. iDestruct "ASM" as "((%Y & %B) & %Q)". subst; hss.
@@ -38,7 +37,11 @@ Module MutFIA. Section MutFIA.
     (* destruct cases of the number of recursive call *)
     destruct _q; s.
     { (* f(0) *)
-      steps_r. steps_l. forces_l. iSplitR; et. steps_l. 
+      rewrite /pure_body /cfunN. hss_l.
+      steps_r. steps_l.
+      erewrite lookup_weaken; [| |eapply APCInSp]; cycle 1.
+      { rewrite /APCA.sp. simpl_map. refl. }
+      forces_l. iSplitR; et. steps_l. 
 
       (* SRC: inlining APC *)
       inline_l. steps_l. iDestruct "ASM" as "[-> <-]"; hss. steps_l.
@@ -54,7 +57,10 @@ Module MutFIA. Section MutFIA.
 
     (* f(S n) *)
     replace (S _q - 1)%Z with (Z.of_nat _q) by nia.
-    steps_l. force_l vo. steps_l. forces_l. iSplitR; eauto.
+    rewrite /pure_body /cfunN. hss_l.
+    steps_l. erewrite lookup_weaken; [| |eapply APCInSp]; cycle 1.
+    { rewrite /APCA.sp. simpl_map; refl. }
+    force_l vo. steps_l. forces_l. iSplitR; eauto.
 
     (* SRC: inlining APC in order to call mutg *)
     inline_l. steps_l. iDestruct "ASM" as "[-> <-]"; hss. steps_l.
@@ -64,8 +70,8 @@ Module MutFIA. Section MutFIA.
     steps_r. apc_call "IST"; eauto.
     { instantiate (1:=0). eapply OrdArith.lt_from_nat. nia. }
     { instantiate (1:=_q). eapply Ord.lt_le_lt; eauto. eapply OrdArith.lt_from_nat. nia. }
-    { apply GInPure. unfold MutGA.SpG. unseal CRIS. ss. }
     { iFrame. iPureIntro. esplits; eauto; [nia|refl]. }
+    iIntros (???) "ISTPOST".
     iDestruct "ISTPOST" as "[IST ->]".
 
     (* SRC: jump APC *)
@@ -79,26 +85,25 @@ Module MutFIA. Section MutFIA.
     Unshelve. all: ss.
     { eapply mut_max_intrange; eauto. }
     { exact (0↑). }
+    { exact (0↑). }
   (*SLOW*)Qed.
 
   Theorem sim:
     ISim.t open MutFAMod MutFIMod MutFA.init_cond IstFull.
   Proof.
     init_sim.
-    - splits; eauto. iIntros "C". iFrame. iPureIntro.
-      rewrite /MutFA.scopes /state_scopes /incl //.
     - eapply simF_mutf.
+    - iIntros "C". iFrame. do 4 iExists _. iPureIntro; esplits; eauto; set_solver.
   Qed.
 End MutFIA.
 
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _S _I}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
 
-  Theorem ctxr (Sp : sp_type) (SpPure : spl_type)
-    (APCInSp : sp_incl APCA.Sp Sp)
-    (GInPure : spl_sub MutGA.SpG SpPure)
-    (PureInSp : sp_incl SpPure Sp)
-  :
+  Theorem ctxr (Sp SpPure : specmap)
+    (APCInSp : APCA.sp ⊆ Sp)
+    (GInPure : MutGA.SpG ⊆ SpPure)
+    (PureInSp : SpPure ⊆ Sp) :
     ctx_refines
       (MutFA.t Sp ★ APCA.t SpPure Sp, MutFA.init_cond)
       (MutFI.t ★ APCA.t SpPure Sp, emp%I).

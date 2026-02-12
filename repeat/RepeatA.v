@@ -8,10 +8,10 @@ Set Implicit Arguments.
 
 (* Define Specification *)
 Module RepeatAS. Section RepeatAS.
-  Context `{!crisG Γ Σ α β τ _S _I}.
+  Context `{!crisG Σ Γ α β τ Hinv Hsub, !concGS}.
 
   Context (genv : GEnv.t).
-  Context (sp_pure : spl_type).
+  Context (sp_pure : specmap).
 
   (* mathematical repeat *)
   Fixpoint repeat_fun A (f: A → A) (n: nat) (a: A): A :=
@@ -37,29 +37,28 @@ Module RepeatAS. Section RepeatAS.
                       ⌝%I),
           (λ ret, ⌜ret = (Vint (repeat_fun f_sem n x))↑⌝%I))).
 
-  Definition Sp: spl_type :=
-    Seal.sealing CRIS [(Some RepeatHdr.repeat, fsp_some (repeat_spec genv))].
+  Definition Sp: specmap :=
+    {[speckey_fn RepeatHdr.repeat := fspec_to_rel (repeat_spec genv)]}.
 
 End RepeatAS. End RepeatAS.
 
 (* Define Module *)
 Module RepeatA. Section RepeatA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS}.
 
   Definition scopes := [RepeatHdr.mn].
 
-  Definition fnsems genv sp_pure : fnsems_type :=
-    [(Some RepeatHdr.repeat, (true, wmask_all, scopes, (fsp_some (RepeatAS.repeat_spec sp_pure genv), pure_body)))].
+  Definition fnsems (genv : GEnv.t) (sp_pure: specmap) : fnsemmap :=
+    {[Some RepeatHdr.repeat := Some (msk_scp scopes msk_true, (fsp_some (RepeatAS.repeat_spec sp_pure genv), pure_body))]}.
 
   Program Definition smod genv sp_pure : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems genv sp_pure;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
   Definition init_cond : iProp Σ := emp%I.
 
-  Definition t genv sp sp_pure := Seal.sealing CRIS (SMod.to_mod sp (smod genv sp_pure)).
+  Definition t genv sp sp_pure := SMod.to_mod sp (smod genv sp_pure).
 End RepeatA. End RepeatA.

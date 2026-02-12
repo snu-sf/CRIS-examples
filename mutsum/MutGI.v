@@ -5,7 +5,7 @@ Require Import MutHeader.
 Set Implicit Arguments.
 
 Module MutGI. Section MutGI.
-  Context {Σ: GRA}.
+  Context `{!crisG Σ Γ α β τ Hinv Hsub, !concGS}.
 
   Definition scopes := ["MutG"].
 
@@ -25,17 +25,16 @@ Module MutGI. Section MutGI.
       )
   .
 
-  Definition fnsems : fnsems_type :=
-    [(Some MutHdr.mutg, (false, wmask_all, scopes, (None, cfunU gF)))].
+  Definition fnsems : fnsemmap :=
+    {[Some MutHdr.mutg := Some (msk_scp scopes msk_true, (None, cfunU gF))]}.
   
   Program Definition smod: SMod.t :=
   {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
+  Definition t := SMod.to_mod ∅ smod.
 End MutGI. End MutGI.
