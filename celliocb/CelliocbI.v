@@ -1,5 +1,5 @@
 Require Import CRIS.
-Require Import CelliocbHeader.
+Require Import CelliocbHeader CtxcbHeader.
 
 Set Implicit Arguments.
 
@@ -9,7 +9,7 @@ Set Implicit Arguments.
    the value stored in the cell. *)
 
 Module CelliocbI. Section CelliocbI.
-  Context `{Σ : GRA}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
 
   Definition scopes := [CelliocbHdr.mn].
   Definition v_cv := (CelliocbHdr.mn) ↯ "cv".
@@ -28,17 +28,17 @@ Module CelliocbI. Section CelliocbI.
       i <- cgetU v_cv;;
       Ret (i : Z)↑.
 
-  Definition fnsems : fnsems_type :=
-    [(Some CelliocbHdr.set, (false, wmask_all, scopes, (None, cfunU set)));
-     (Some CelliocbHdr.get, (false, wmask_all, scopes, (None, get)))].
+
+  Definition fnsems : fnsemmap :=
+    {[Some CelliocbHdr.set := Some ((msk_scp scopes msk_true), (None, cfunU set));
+      Some CelliocbHdr.get := Some ((msk_scp scopes msk_true), (None, get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [(v_cv, (0%Z)↑)];
+    SMod.initial_st := {[v_cv := Some (0%Z)↑]};
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
+  Definition t := SMod.to_mod ∅ smod.
 End CelliocbI. End CelliocbI.

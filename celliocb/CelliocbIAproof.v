@@ -5,28 +5,28 @@ Local Open Scope nat_scope.
 
 Module CelliocbIA. Section CelliocbIA.
   Import CelliocbA.
-  Context `{!crisG Γ Σ α β τ _S _I, !celliocbG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !celliocbGS}.
 
-  Definition Ist : alist key Any.t → alist key Any.t → iProp Σ :=
-    λ st_src st_tgt,
-      (∃ v, ⌜st_tgt = [(CelliocbI.v_cv, v↑)]⌝ ∗ auth v)%I.
+  Definition Ist : ist_type Σ :=
+    (λ st_s st_t, (∃ v, ⌜st_t = {[CelliocbI.v_cv := Some v↑]}⌝ ∗ auth v))%I.
 
-  Local Definition CelliocbI := (CelliocbI.t).
-  Local Definition CelliocbA := (CelliocbA.t).
+  Local Definition CelliocbIMod := (CelliocbI.t).
+  Local Definition CelliocbAMod := (CelliocbA.t).
 
   Lemma simF_set :
-    ISim.sim_fun open CelliocbA CelliocbI CelliocbA.init_cond Ist (Some CelliocbHdr.set).
+    ISim.sim_fun open CelliocbAMod CelliocbIMod Ist (Some CelliocbHdr.set).
   Proof using.
-    init_simF.
+    iStartSim.
   
     (* Take (x:Z) & cell(x) *)
-    steps_l. hss.
-    rename _q into cb. rename _q0 into v.
+    steps_l. destruct Any.downcast; steps_l; des_ifs.
 
     (* Call cb() simultaneously *)
-    steps_r. hss. steps_r.
-    call "IST".
-    steps_l. hss. rename _q into v_new.
+    steps_r. 
+    call "IST". iIntros "% % % IST". 
+    steps_l. steps_r.
+    destruct Any.downcast; steps_l; des_ifs.
+    rename z into v_new.
     
     (* Give cell(i) *)
     iDestruct "IST" as (v') "(% & AUTH)". subst.
@@ -42,9 +42,10 @@ Module CelliocbIA. Section CelliocbIA.
     iExists v_new. iFrame; hss.
   (*SLOW*)Qed.
   
-  Lemma simF_get : ISim.sim_fun open CelliocbA CelliocbI CelliocbA.init_cond Ist (Some CelliocbHdr.get).
+  Lemma simF_get : ISim.sim_fun open CelliocbAMod CelliocbIMod Ist (Some CelliocbHdr.get).
   Proof using.
-    init_simF.
+    iStartSim.
+    unfold get, CelliocbI.get.
 
     (* Take (x:Z) & cell(x) *)
     steps_l. 
@@ -62,10 +63,10 @@ Module CelliocbIA. Section CelliocbIA.
     iExists _. iFrame; eauto.
   (*SLOW*)Qed.
   
-  Lemma sim : ISim.t open CelliocbA CelliocbI CelliocbA.init_cond Ist.
+  Lemma sim : ISim.t open CelliocbAMod CelliocbIMod CelliocbA.init_cond Ist.
   Proof using.
     init_sim.
-    - split; et. iIntros "H". iExists _. iFrame. eauto.
+    - iIntros. iExists _. iFrame. eauto.
     - apply simF_set; eauto.
     - apply simF_get; eauto.
   Qed.
