@@ -1,35 +1,35 @@
 Require Import CRIS.
 Require Import CelliocbHeader.
 
-Set Implicit Arguments.
+Local Definition RA := authUR (optionUR (exclR ZO)).
 
-Section CelliocbRA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
+Class celliocbGpreS `{!crisG Γ Σ α β τ _S _I} := {
+  #[local] celliocb_inG :: inG RA Γ;
+}.
 
-  Local Definition RA := authUR (optionUR (exclR ZO)).
+Class celliocbGS `{!crisG Γ Σ α β τ _S _I} := {
+  #[local] celliocbGS_celliocbGpreS :: celliocbGpreS;
+  celliocb_name : gname;
+}.
 
-  Class celliocbG `{!crisG Γ Σ α β τ _S _I} := {
-    celliocb_inG :: inG RA Γ;
-  }.
-  Definition celliocbΓ : HRA := #[RA].
-  Global Instance subG_celliocbG : subG celliocbΓ Γ → celliocbG.
-  Proof. solve_inG. Defined.
-End CelliocbRA.  
-Hint Unfold subG_celliocbG celliocb_inG : GRA_index.
+Definition celliocbΓ : HRA := #[RA].
+Global Instance subG_celliocbGpreS `{!crisG Γ Σ α β τ _S _I} : subG celliocbΓ Γ → celliocbGpreS.
+Proof. solve_inG. Defined.
+(* Hint Unfold subG_celliocbG celliocb_inG : GRA_index. *)
 
 Module CelliocbA. Section CelliocbA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{_celliocbG: !celliocbG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
+  Context `{_celliocbG: !celliocbGS}.
 
   Definition auth (v : Z) : iProp Σ :=
-    own base_γ (●E v).
+    own celliocb_name (●E v).
 
   Definition cell (v : Z) : iProp Σ :=
-    own base_γ (◯E v).
+    own celliocb_name (◯E v).
 
   Definition ir : DRA_mk RA := ●E 0%Z ⋅ ◯E 0%Z.
   Lemma ir_valid : ✓ ir. Proof. rewrite /ir. eapply excl_auth_valid. Qed.
-  Definition irΓ : celliocbΓ := *[Some ir].
+  (* Definition irΓ : celliocbΓ := *[Some ir]. *)
 
   Lemma cell_auth_get v v':
     cell v -∗ auth v' -∗ ⌜v = v'⌝.
@@ -65,20 +65,19 @@ Module CelliocbA. Section CelliocbA.
 
   Definition scopes := [CelliocbHdr.mn].
   
-  Definition fnsems : fnsems_type :=
-    [(Some CelliocbHdr.set, (true, wmask_all, scopes, (None, cfunU set)));
-     (Some CelliocbHdr.get, (true, wmask_all, scopes, (None, get)))].
+  Definition fnsems : fnsemmap :=
+    {[Some CelliocbHdr.set := Some (msk_scp scopes msk_true, (None, cfunU set));
+      Some CelliocbHdr.get := Some (msk_scp scopes msk_true, (None, get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
   Definition init_cond : iProp Σ := auth 0.
 
   (* We can use sp_none because Cellio will be removed before cancellation *)
-  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
+  Definition t := SMod.to_mod ∅ smod.
 End CelliocbA. End CelliocbA.

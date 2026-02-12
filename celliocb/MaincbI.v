@@ -1,10 +1,8 @@
 Require Import CRIS.
 Require Import MaincbHeader CelliocbHeader CtxcbHeader.
 
-Set Implicit Arguments.
-
 Module MaincbI. Section MaincbI.
-  Context `{Σ: GRA}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
 
   Definition scopes := ["Main"].
 
@@ -27,20 +25,19 @@ Module MaincbI. Section MaincbI.
       x <- ccallU (Y:=Z) CelliocbHdr.get tt;;
       trigger (@IO _ unit "Print" x);;;
       Ret tt↑.
-  
-  Definition fnsems : fnsems_type :=
-    [(Some MaincbHdr.input_stdin, (false, wmask_all, scopes, (None, input_stdin)));
-     (Some MaincbHdr.input_db, (false, wmask_all, scopes, (None, input_db)));
-     (MaincbHdr.main, (false, wmask_all, scopes, (None, main)))].
+
+  Definition fnsems : fnsemmap :=
+    {[Some MaincbHdr.input_stdin  := Some ((msk_scp scopes msk_true), (None, input_stdin));
+      Some MaincbHdr.input_db     := Some ((msk_scp scopes msk_true), (None, input_db));
+      MaincbHdr.main         := Some ((msk_scp scopes msk_true), (None, main))]}.
 
   Program Definition smod: SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [];
+    SMod.initial_st := ∅;
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
   
-  Definition t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
+  Definition t := SMod.to_mod ∅ smod.
 End MaincbI. End MaincbI.
 
