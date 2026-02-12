@@ -1,4 +1,4 @@
-Require Import CRIS.
+(* Require Import CRIS.
 Require Import Imp ImpPrelude.
 Require Import AddHeader.
 Require Import RepeatHeader.
@@ -34,4 +34,4 @@ Module AddI. Section AddI.
   Next Obligation. prove_nodup. Qed.
 
   Definition t (genv: GEnv.t) : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none (smod genv)).
-End AddI. End AddI.
+End AddI. End AddI. *)

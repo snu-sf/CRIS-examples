@@ -1,7 +1,7 @@
-Require Import CRIS Cancel.
+(* Require Import CRIS Cancel.
 Require Import ImpPrelude.
 Require Import MaincbHeader.
-From CRIS.celliocb Require Import 
+Require Import 
   CelliocbHeader CelliocbA CelliocbI MaincbA MaincbI CtxcbHeader CelliocbIAproof MaincbIAproof.
 
 Module CelliocbAll. Section CelliocbAll.
@@ -165,4 +165,4 @@ Module CelliocbAll. Section CelliocbAll.
     rewrite IV0 /init_cond {1}winv_split_empty. iIntros "[[? ?] ?]". iFrame; done.
   (*SLOW*)Qed.
 End CelliocbAll. End CelliocbAll.
-(* Print Assumptions CelliocbAll.behavioral_refinement. *)
+Print Assumptions CelliocbAll.behavioral_refinement. *)

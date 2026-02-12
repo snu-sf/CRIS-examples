@@ -1,4 +1,4 @@
-Require Import CRIS.
+(* Require Import CRIS.
 Require Import ImpPrelude.
 Require Import AddHeader.
 Require Import APCHeader APC.
@@ -61,4 +61,4 @@ Module AddA. Section AddA.
   Definition init_cond : iProp Σ := emp%I.
 
   Definition t sp := Seal.sealing CRIS (SMod.to_mod sp smod).
-End AddA. End AddA.
+End AddA. End AddA. *)

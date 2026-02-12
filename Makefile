@@ -29,25 +29,24 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R $(CRISMODULE)/prophecy $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/imp_system $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/extract $(CRISMODULE)"; \
-	 echo "-R $(CRISMODULE)/promise_free $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/helping $(CRISMODULE)"; \
 	 echo "-R cannon $(CRISMODULE).cannon"; \
 	 echo "-R cellio $(CRISMODULE).cellio"; \
 	 echo "-R celliocb $(CRISMODULE).celliocb"; \
+	 echo "-R elimination_stack $(CRISMODULE).elimination_stack"; \
+	 echo "-R hybrid_mem $(CRISMODULE).hybrid_mem"; \
+	 echo "-R incr_cas $(CRISMODULE).incr_cas"; \
+	 echo "-R incr_faa $(CRISMODULE).incr_faa"; \
 	 echo "-R knot $(CRISMODULE).knot"; \
 	 echo "-R map $(CRISMODULE).map"; \
 	 echo "-R mutsum $(CRISMODULE).mutsum"; \
+	 echo "-R priority_queue $(CRISMODULE).priority_queue"; \
+	 echo "-R promise_free $(CRISMODULE).promise_free"; \
 	 echo "-R repeat $(CRISMODULE).repeat"; \
 	 echo "-R ring $(CRISMODULE).ring"; \
-	 echo "-R spinlock_pa $(CRISMODULE).spinlock_pa"; \
-	 echo "-R spinlock_ia $(CRISMODULE).spinlock_ia"; \
-	 echo "-R spinlock_na $(CRISMODULE).spinlock_na"; \
-	 echo "-R incr_faa $(CRISMODULE).incr_faa"; \
-	 echo "-R incr_cas $(CRISMODULE).incr_cas"; \
+	 echo "-R scheduler $(CRISMODULE).scheduler"; \
 	 echo "-R single_coin $(CRISMODULE).single_coin"; \
-	 echo "-R multi_coin $(CRISMODULE).multi_coin"; \
-	 echo "-R cinc $(CRISMODULE).cinc"; \
-	 echo "-R incr $(CRISMODULE).incr"; \
+	 echo "-R spinlock_na $(CRISMODULE).spinlock_na"; \
 	 echo $(COQTHEORIES)) > _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 

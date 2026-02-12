@@ -3,10 +3,9 @@ Require Import CelliocbA CtxcbHeader CelliocbHeader MaincbHeader.
 
 Module MaincbA. Section MaincbA.
   Import CelliocbA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
-  Context `{_celliocbG: !celliocbGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !celliocbGS}.
                 
-  Definition scopes := ["Main"].
+  Definition scopes : list string := [].
 
   Definition main_spec : fspec :=
     fspec_simple (λ _ : unit, 
@@ -36,5 +35,4 @@ Module MaincbA. Section MaincbA.
   Definition init_cond : iProp Σ := cell 0.
 
   Definition t sp := SMod.to_mod sp smod.
-
 End MaincbA. End MaincbA.

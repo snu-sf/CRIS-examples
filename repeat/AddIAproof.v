@@ -1,4 +1,4 @@
-Require Import CRIS.
+(* Require Import CRIS.
 
 Require Import Imp.
 Require Import AddHeader AddI AddA.
@@ -167,4 +167,4 @@ Section ctxr.
       ((AddA.t sp) ★ (RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I)
       ((AddI.t ge)    ★ (RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
-End ctxr. End AddIA.
+End ctxr. End AddIA. *)

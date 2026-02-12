@@ -15,8 +15,7 @@ Module MainIA. Section MainIA.
   Local Definition MainA := (MainA.t sp).
   Local Definition IstFull := (IstProd (IstSB MainA.(Mod.scopes) IstTrue) IstEq).
 
-  Lemma simF_main:
-    ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull None.
+  Lemma simF_main : ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull None.
   Proof using sp_input sp_foo.
     iStartSim. unfold MainI.main, MainA.main.
 
@@ -57,8 +56,7 @@ Module MainIA. Section MainIA.
     Unshelve. all:(exact ()).
   (*SLOW*)Qed.
 
-  Theorem sim :
-    ISim.t open MainA (MainI.t ★ CellioA) emp%I IstFull.
+  Lemma sim : ISim.t open MainA (MainI.t ★ CellioA) emp%I IstFull.
   Proof using sp_input sp_foo.
     init_sim.
     - iIntros "_". unfold IstFull, IstProd.

@@ -149,12 +149,11 @@ Module CtrlIA. Section CtrlIA.
     iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst. hss.
 
     (* TGT, SRC: take steps *)
-    steps_r. hss_r. steps_r. hss_r. steps_r.
-    steps_l. hss. step. iSplitL "". { rewrite Nat.add_comm Nat.add_sub. eauto. }
+    steps_r. steps_l. step. iSplitL "". { rewrite Nat.add_comm Nat.add_sub. eauto. }
 
     (* Prove the IST *)
     iExists _, _, st_tgtR, st_tgtR.
-    do 3 (iSplit; eauto).
+    repeat iSplit; eauto.
     repeat iExists _. iFrame. eauto.
   (*SLOW*)Qed.
 
@@ -169,16 +168,15 @@ Module CtrlIA. Section CtrlIA.
     steps_l; steps_r.
     iDestruct "IST" as (? ? ? ?) "(% & (% & IST) & %)". des; subst.
     iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst.
-    steps_l. hss. steps_l.
+    steps_l.
     rename q into v. rename q' into l.
 
     (* TGT: check the length of the queue *)
-    steps_r. hss. steps_r. hss. steps_r.
-    rewrite Nat.add_sub'; des_ifs; cycle 1.
+    steps_r. rewrite Nat.add_sub'; des_ifs; cycle 1.
     { step. ss. }
 
     (* SRC: take steps *)
-    steps_l. hss.
+    steps_l.
 
     apply Nat.ltb_lt in Heq. rewrite length_app in H8.
     assert (UBND:= Nat.mod_upper_bound (tl + List.length v) max_size).
@@ -197,8 +195,8 @@ Module CtrlIA. Section CtrlIA.
     { iFrame. eauto. }
 
     (* TGT: take steps using GRT from set_spec *)
-    steps_r. iDestruct "GRT" as "(% & % & CELL)". subst. hss.
-    steps_r. hss. forces_l. step.
+    steps_r. iDestruct "GRT" as "(% & % & CELL)". subst.
+    steps_r. step.
     iSplitL ""; eauto.
 
     (* Prove the IST *)
@@ -208,7 +206,7 @@ Module CtrlIA. Section CtrlIA.
     iSplitL "".
     { iPureIntro. esplits; eauto.
       - rewrite length_app. s. nia.
-      - rewrite !length_app. s. nia.
+      - rewrite !length_app. s. hss. nia.
     }
     iSplitL "LIVE CELL".
     + iApply big_sepL_app. iFrame. s. rewrite Nat.add_0_r. eauto.
@@ -227,25 +225,24 @@ Module CtrlIA. Section CtrlIA.
     steps_l. destruct Any.downcast; last (steps_l; case_match; steps_l; ss).
     steps_l; steps_r.
     iDestruct "IST" as (? ? ? ?) "(% & (% & IST) & %)". des; subst.
-    iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst. hss.
-    steps_l. hss.
+    iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst.
 
     (* TGT: check the length of the queue *)
-    steps_r. hss. steps_r. hss. steps_r. steps_l.
+    steps_l. steps_r.
     destruct q; ss.
     { rewrite Nat.add_0_r Nat.sub_diag. s. step. ss. }
     replace (tl + S(List.length q) - tl) with (S(List.length q)) by nia. s.
     rewrite !length_app in H8.
 
     (* SRC: take steps *)
-    steps_l. hss.
+    steps_l.
     assert (UBND:= Nat.mod_upper_bound tl max_size).
     revert H1 H2.
     rewrite (@cellgroup_split (tl mod max_size)); try nia.
     i; move_aux.
 
     (* TGT: inline CellHdr.get *)
-    step_r. inline_r. forces_r. iDestruct "LIVE" as "(Q & LIVE)".
+    steps_r. inline_r. forces_r. iDestruct "LIVE" as "(Q & LIVE)".
     rewrite !Nat.add_0_r.
     iSplitL "Q". { iFrame. eauto. }
 

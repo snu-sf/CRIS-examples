@@ -18,8 +18,7 @@ Module IncrementIA. Section IncrementIA.
     destruct (arg ↓) as [[|v [|v' l]]|]; step_l; ss.
     destruct v as [|[blk ofs]|]; step_l; ss. steps_r.
 
-    sch_yield_rr "IST". steps_r.
-    sch_yield_rr "IST". steps_r.
+    sch_yield_rr "IST". sch_yield_rr "IST".
     sch_yield_l. norm_l.
 
     iApply wsim_reset.
@@ -34,15 +33,10 @@ Module IncrementIA. Section IncrementIA.
 
     sch_yield_l. steps_l. rename _q into v.
 
-    steps_r. inline_r. force_r (blk, ofs, 1%Qp, Vint v).
-    forces_r. iFrame "ASM". iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[-> [↦ ->]]". rewrite Any.upcast_downcast /=. steps_r.
-
-    force_l false. steps_l. force_l; iFrame "↦". steps_l. sch_yield_l. steps_l.
+    load_r "ASM". force_l false. steps_l. force_l; iFrame "ASM". steps_l. sch_yield_l. steps_l.
     unfold_iterC_l. steps_l.
 
-    sch_yield_rr "IST". steps_r.
-    sch_yield_rr "IST". steps_r.
+    sch_yield_rr "IST". sch_yield_rr "IST".
 
     sch_yield_l. steps_l. rename _q into v'.
     iApply (wsim_mem_cas with "ASM"); [prove_inline_cond|ss|eauto| | | ].
@@ -51,19 +45,17 @@ Module IncrementIA. Section IncrementIA.
     { iIntros "_"; iExists 1%Qp, 1%Qp, Vundef, Vundef; ss. }
     iIntros "↦ _".
 
-    steps_r. rewrite Any.upcast_downcast /=. steps_r.
+    steps_r.
     repeat case_bool_decide; subst; ss.
     { force_l true. steps_l. force_l; iFrame "↦"; steps_l.
-      sch_yield_rr "IST". steps_r.
-      sch_yield_rr "IST"; steps_r.
+      sch_yield_rr "IST". sch_yield_rr "IST".
       case_decide; [|ss].
       steps_r.
       sch_yield_l. steps_l. step. iSplit; done.
     }
     { force_l false.
       forces_l. iFrame "↦". steps_l.
-      sch_yield_rr "IST"; steps_r.
-      sch_yield_rr "IST"; steps_r.
+      sch_yield_rr "IST". sch_yield_rr "IST".
       case_decide; first clarify.
       steps_r.
       sch_yield_l. steps_l.

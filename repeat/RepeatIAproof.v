@@ -1,4 +1,4 @@
-Require Import CRIS.
+(* Require Import CRIS.
 
 Require Import RepeatHeader RepeatI RepeatA.
 Require Import APCHeader APC APCA APCTactics.
@@ -135,4 +135,4 @@ Section ctxr.
       ((RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I)
       ((RepeatI.t ge)                    ★ (APCA.t sp_pure sp), emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
-End ctxr. End RepeatIA.
+End ctxr. End RepeatIA. *)

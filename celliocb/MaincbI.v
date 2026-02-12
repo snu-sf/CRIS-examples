@@ -4,7 +4,7 @@ Require Import MaincbHeader CelliocbHeader CtxcbHeader.
 Module MaincbI. Section MaincbI.
   Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
 
-  Definition scopes := ["Main"].
+  Definition scopes : list string := [].
 
   Definition input_stdin: Any.t -> itree crisE Any.t :=
     λ _,

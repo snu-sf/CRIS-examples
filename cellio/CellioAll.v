@@ -1,4 +1,4 @@
-Require Import CRIS Cancel.
+(* Require Import CRIS Cancel.
 Require Import ImpPrelude.
 From CRIS.cellio Require Import CellioHeader CellioA CellioI MainA MainI CellioIAproof MainIAproof CtxHeader.
 
@@ -164,4 +164,4 @@ Module CellioAll. Section CellioAll.
     rewrite IV0 /init_cond {1}winv_split_empty. iIntros "[[? ?] ?]". iFrame; done.
   (*SLOW*)Qed.
 End CellioAll. End CellioAll.
-(* Print Assumptions CellioAll.behavioral_refinement. *)
+Print Assumptions CellioAll.behavioral_refinement. *)

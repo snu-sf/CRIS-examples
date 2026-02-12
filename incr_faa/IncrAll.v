@@ -139,7 +139,7 @@ Module ClientAll.
   Local Instance Γ : HRA := ##[invΓ; concΓ; memΓ; newschΓ; incrΓ].
   Local Instance Σ : GRA := ##[Γ; invΣ; newschΣ].
 
-  Theorem behavioral_refinement :
+  Lemma behavioral_refinement :
     ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : concGS) (_ : schGS) (_ : memGS)
       src_res tgt_res,
     refines_lmod

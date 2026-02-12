@@ -21,16 +21,13 @@ Module FaaIA. Section FaaIA.
     steps_r. sch_yield_rr "IST". steps_r.
     rewrite /MemHdr.faa; steps_r.
 
-    sch_yield_l; steps_l. rename _q into v. load_r "ASM".
-    steps_r. hss_r. steps_r. store_r "ASM".
-    steps_r. hss_r. steps_r. force_l; iFrame "ASM". steps_l.
+    sch_yield_l; steps_l. rename _q into v.
+    load_r "ASM". store_r "ASM". force_l; iFrame "ASM". steps_l.
     sch_yield_rr "IST".
 
-    steps_r.
     sch_yield_l; steps_l. clear v. rename _q into v.
-    load_r "ASM". steps_r. hss_r. steps_r.
-    store_r "ASM". steps_r. hss_r. steps_r.
-    force_l; iFrame "ASM". steps_l.
+    load_r "ASM". store_r "ASM".
+    force_l; iFrame "ASM".
     sch_yield_rr "IST". sch_yield_l. step. iFrame; done.
   (*SLOW*)Qed.
 

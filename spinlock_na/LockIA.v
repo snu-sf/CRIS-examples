@@ -33,20 +33,17 @@ Module LockIA. Section LockIA.
     sch_yield_ir "IST" "TID".
 
     (* tgt inline - mem alloc *)
-    steps_r.
     iApply wsim_mem_alloc; ss.
-    iIntros (blk) "[↦ _]". steps_r. hss_r. steps_r.
+    iIntros (blk) "[↦ _]". steps_r.
 
     (* tgt yield *)
     sch_yield_ir "IST" "TID".
 
     (* tgt inline - mem store *)
-    steps_r.
-    iApply (wsim_mem_store with "↦"); ss.
-    iIntros "↦". steps_r. hss_r. steps_r.
+    store_r "↦".
 
     (* src/tgt yield *)
-    sch_yield_ir "IST" "TID". steps_r.
+    sch_yield_ir "IST" "TID".
     sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l.
 
     (* prove source postcondition *)
@@ -57,7 +54,7 @@ Module LockIA. Section LockIA.
     { solve_base_sl_red. iRight; iFrame. }
     forces_l. iFrame. iSplit; eauto.
     { iSplit; eauto. rewrite /is_lock. iExists _, _; iSplit; eauto. }
-    steps_l. step. iFrame. eauto.
+    step. iFrame. eauto.
   (*SLOW*)Qed.
 
   Lemma acquire_simF : ISim.sim_fun open MA MI IstFull (Some SpinLockHdr.acquire).
@@ -66,8 +63,9 @@ Module LockIA. Section LockIA.
 
     (* process src precondition *)
     steps_l. destruct _q as [[stid mtid] [[γ vlk] [n P]]]. rename _q0 into varg. s.
-    iDestruct "ASM" as "[TID [-> [-> #LOCK]]]". hss_l. hss_r.
-    iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs]; subst. steps_r. steps_l.
+    iDestruct "ASM" as "[TID [-> [-> #LOCK]]]".
+    iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs]; subst.
+    steps_r. steps_l.
 
     (* start coinduction for lock acquire/failure *)
     iApply wsim_reset.
@@ -85,16 +83,14 @@ Module LockIA. Section LockIA.
     iDestruct "I" as "[FAIL|SUCC]".
     { (* fail case *)
       (* tgt inline - mem cas *)
-      steps_r.
       iApply (wsim_mem_cas _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ emp%I with "FAIL"); ss.
       { ss. iIntros "_ !>"; eauto. }
       iIntros "↦ _"; case_decide; first done.
       iMod ("Hcl" with "[↦]") as "_". { iFrame. }
-      steps_r. hss_r. steps_r.
+      steps_r.
       
       (* tgt yields *)
-      sch_yield_ir "IST" "TID". steps_r.
-      sch_yield_ir "IST" "TID". steps_r.
+      sch_yield_ir "IST" "TID". sch_yield_ir "IST" "TID".
       by_coind CIH. iFrame. done.
     }
     { (* success case *)
@@ -105,10 +101,10 @@ Module LockIA. Section LockIA.
       { ss. iIntros "_ !>"; eauto. }
       iIntros "↦ _"; case_decide; last done.
       iMod ("Hcl" with "[↦]") as "_". { iFrame. }
-      steps_r. hss_r. steps_r.
+      steps_r.
 
       (* tgt yields *)
-      do 3 (sch_yield_ir "IST" "TID"; norm_r).
+      do 3 (sch_yield_ir "IST" "TID").
 
       (* src yield *)
       sch_yield_l. forces_l. iSplitL "Q TKN TID".
@@ -126,7 +122,6 @@ Module LockIA. Section LockIA.
     steps_l. destruct _q as [[stid mtid] [[γ vlk] [n P]]]. rename _q0 into varg.
     iDestruct "ASM" as "[TID (% & % & #LOCK & TKN & Q)]".
     iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs]. subst.
-    hss_l; hss_r.
     steps_l; steps_r.
     (* tgt yield *)
     sch_yield_ir "IST" "TID".
@@ -138,7 +133,7 @@ Module LockIA. Section LockIA.
       force_r (_,_,_,_). forces_r.
       iSplitL "LOCKED"; iFrame; et.
       steps_r. iDestruct "GRT" as "[% [PT %]]"; subst.
-      hss_r. steps_r.
+      steps_r.
       iMod ("Hcl" with "[PT Q TKN]") as "_".
       { iRight. rewrite /token; solve_base_sl_red. iFrame. solve_base_sl_red. }
       (* tgt yield *)

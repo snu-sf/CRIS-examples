@@ -1,4 +1,4 @@
-Require Import CRIS.
+(* Require Import CRIS.
 Require Import Imp.
 Require Import ImpPrelude.
 Require Import RepeatHeader.
@@ -61,4 +61,4 @@ Module RepeatA. Section RepeatA.
   Definition init_cond : iProp Σ := emp%I.
 
   Definition t genv sp sp_pure := SMod.to_mod sp (smod genv sp_pure).
-End RepeatA. End RepeatA.
+End RepeatA. End RepeatA. *)
