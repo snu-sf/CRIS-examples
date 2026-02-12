@@ -1,9 +1,6 @@
 Require Import CRIS.
-
 Require Import MemHeader.
-From CRIS.map Require Import Header.
-
-Set Implicit Arguments.
+Require Export MapHeader.
 
 (*** module I Map
 private data := NULL
@@ -22,8 +19,7 @@ def set_by_user(k : int) ≡
 ***)
 
 Module MapI. Section MapI.
-  Local Open Scope string_scope.
-  Context `{Σ : GRA}.
+  Context `{!crisG Σ Γ α β τ Hinv Hsub, !concGS}.
 
   Definition scopes := ["Map"].
   Definition v_hptr := "Map" ↯ "hptr".
@@ -34,8 +30,8 @@ Module MapI. Section MapI.
       'hptr : val <- ccallU MemHdr.alloc [Vint sz];;
       cput v_hptr hptr;;;
       (iterC
-         (fun i =>
-            if (Z_lt_le_dec i sz)
+         (λ i,
+            if (decide (i < sz)%Z)
             then
               vptr <- (vadd hptr (Vint (i * 8)))?;;
               'u : val <- ccallU MemHdr.store [vptr; Vint 0];;
@@ -66,19 +62,18 @@ Module MapI. Section MapI.
       v <- trigger (IO "input" ());;
       ccallU MapHdr.set [Vint k; Vint v].
 
-  Definition fnsems : fnsems_type :=
-    [(Some MapHdr.init, (false, wmask_all, scopes, (None, cfunU init)));
-     (Some MapHdr.get,  (false, wmask_all, scopes, (None, cfunU get)));
-     (Some MapHdr.set,  (false, wmask_all, scopes, (None, cfunU set)));
-     (Some MapHdr.set_by_user, (false, wmask_all, scopes, (None, cfunU set_by_user)))].
+  Definition fnsems : fnsemmap :=
+    {[Some MapHdr.init := Some (msk_scp scopes msk_true, (None, cfunU init));
+      Some MapHdr.get := Some (msk_scp scopes msk_true, (None, cfunU get));
+      Some MapHdr.set := Some (msk_scp scopes msk_true, (None, cfunU set));
+      Some MapHdr.set_by_user := Some (msk_scp scopes msk_true, (None, cfunU set_by_user))]}.
   
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [(v_hptr, Vnullptr↑)];
+    SMod.initial_st := {[v_hptr := Some Vnullptr↑]};
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition t : Mod.t := Seal.sealing CRIS (SMod.to_mod sp_none smod).
+  Definition t : Mod.t := SMod.to_mod ∅ smod.
 End MapI. End MapI.

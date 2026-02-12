@@ -1,46 +1,39 @@
 Require Import CRIS.
-
-From CRIS.map Require Import Header MapM.
-
-Set Implicit Arguments.
+Require Export MapHeader MapM.
 
 (* Resource algebra for MapM ⊆ MapA *)
-Section RA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
+Local Definition RA := prodUR (optionUR (exclR unitO)) (authUR (Z -d> optionUR (exclR ZO))).
 
-  Local Definition RA :=
-    prodUR (optionUR (exclR unitO)) (authUR (Z -d> optionUR (exclR ZO))).
+Class mapGpreS `{!crisG Γ Σ α β τ _S _I} := {
+  #[local] map_inG :: inG RA Γ;
+}.
+Class mapGS `{!crisG Γ Σ α β τ _S _I} := {
+  #[local] mapGS_mapGpreS :: mapGpreS;
+  map_name : gname;
+}.
+Definition mapΓ : HRA := #[RA].
+Global Instance subG_mapGpreS `{!crisG Γ Σ α β τ _S _I} : subG mapΓ Γ → mapGpreS.
+Proof. solve_inG. Defined.
 
-  Class mapG `{!crisG Γ Σ α β τ _S _I} := {
-      map_inG :: inG RA Γ
-    }.
-  Definition mapΓ : HRA := #[RA].
-  Global Instance subG_mapG : subG mapΓ Γ → mapG.
-  Proof. solve_inG. Defined.
-End RA.  
-Hint Unfold subG_mapG map_inG : GRA_index.
+Module MapA. Section MapA.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !mapGS, !mapMGS}.
 
-Module MapAS. Section MapAS.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!mapMG}.
-  Context `{!mapG}.
-
-  Definition pending : iProp Σ := own base_γ (Some (Excl ()), ε).
+  Definition pending : iProp Σ := own map_name (Some (Excl ()), ε).
 
   Local Definition initial_fun : Z -d> optionUR (exclR ZO) := λ z, Some (Excl 0%Z).
-  Definition initial_map : iProp Σ := own base_γ (ε, ● initial_fun ⋅ ◯ initial_fun).
+  Definition initial_map : iProp Σ := own map_name (ε, ● initial_fun ⋅ ◯ initial_fun).
 
   Definition auth_allocated (f : Z → Z) : iProp Σ :=
-    own base_γ (ε, ● ((λ k, Some (Excl (f k))) : Z -d> optionUR (exclR ZO))).
+    own map_name (ε, ● ((λ k, Some (Excl (f k))) : Z -d> optionUR (exclR ZO))).
   Definition auth_unallocated (sz : Z) : iProp Σ :=
-    own base_γ
+    own map_name
       (ε,
       ◯ ((λ k,
         if (Z_gt_le_dec 0 k)
         then Some (Excl 0%Z)
         else if (Z_gt_le_dec sz k) then ε else Some (Excl 0%Z)) : Z -d> optionUR (exclR ZO)))%Z.
   Definition points_to (k v : Z) : iProp Σ :=
-    own base_γ (ε, ◯ (discrete_fun_singleton k (Some (Excl v)))).
+    own map_name (ε, ◯ (discrete_fun_singleton k (Some (Excl v)))).
   Definition initial_points_tos (sz : nat) : iProp Σ :=
     ([∗ list] i↦v ∈ (repeat (0 : Z) sz), points_to i%Z v)%I.
 
@@ -54,17 +47,16 @@ Module MapAS. Section MapAS.
     initial_map ==∗ auth_allocated (λ _ : Z, 0%Z) ∗ auth_unallocated sz ∗ initial_points_tos sz.
   Proof using.
     induction sz; ss.
-    { rewrite /initial_map /initial_fun /auth_allocated /auth_unallocated /initial_points_tos; unseal "MapAS".
-      iIntros "[I1 I2]"; iSplitL "I1"; first iModIntro; iFrame.
-      iSplitL; last iModIntro; ss; iApply (own_update with "I2").
+    { iIntros "[I1 I2]"; iSplitL "I1"; first iModIntro; iFrame.
+      iSplitL; last iModIntro; ss; last rewrite /initial_points_tos //=.
+      iApply (own_update with "I2").
       apply prod_update; ss.
       rewrite cmra_update_proper; try reflexivity.
       f_equiv. ii; des_ifs; lia.
     }
     { iIntros "I"; iMod (IHsz with "I") as "[I1 [I2 I3]]".
-      rewrite /initial_map /initial_fun /auth_allocated /auth_unallocated /initial_points_tos; unseal "MapAS".
       replace (S sz) with (sz + 1); last by lia.
-      rewrite repeat_app big_opL_app repeat_length; ss.
+      rewrite /initial_points_tos repeat_app big_opL_app repeat_length; ss.
       iSplitL "I1"; first by iModIntro; iFrame.
       iMod (own_update with "I2") as "[I1 I2]"; cycle 1.
       { iModIntro; iFrame. }
@@ -79,7 +71,7 @@ Module MapAS. Section MapAS.
 
   Lemma initial_map_points_to k v : initial_map -∗ points_to k v -∗ False.
   Proof using.
-    rewrite /initial_map /points_to /initial_fun; unseal "MapAS".
+    rewrite /initial_map /points_to /initial_fun.
     iIntros "[I1 I2] PT"; iCombine "I2" "PT" as "I" gives %FALSE.
     rewrite -pair_op pair_valid /= -auth_frag_op auth_frag_valid in FALSE.
     destruct FALSE as [_ FALSE]. specialize (FALSE k); ss.
@@ -88,7 +80,7 @@ Module MapAS. Section MapAS.
 
   Lemma auth_unallocated_points_to sz k v : auth_unallocated sz -∗ points_to k v -∗ ⌜(0 <= k < sz)%Z⌝.
   Proof using.
-    rewrite /auth_unallocated /points_to; unseal "MapAS".
+    rewrite /auth_unallocated /points_to.
     iIntros "I PT"; iCombine "I" "PT" as "I" gives %wf.
     rewrite -pair_op pair_valid /= -auth_frag_op auth_frag_valid in wf.
     destruct wf as [_ wf]. specialize (wf k); ss.
@@ -98,7 +90,7 @@ Module MapAS. Section MapAS.
 
   Lemma auth_allocated_get f k v : auth_allocated f -∗ points_to k v -∗ ⌜f k = v⌝.
   Proof using.
-    rewrite /auth_allocated /points_to; unseal "MapAS".
+    rewrite /auth_allocated /points_to.
     iIntros "A P"; iCombine "A" "P" as "A" gives %wf.
     rewrite -pair_op pair_valid auth_both_valid_discrete /= in wf; des.
     apply (discrete_fun_included_spec_1 _ _ k) in wf0; ss; rewrite discrete_fun_lookup_singleton in wf0.
@@ -108,7 +100,7 @@ Module MapAS. Section MapAS.
   Lemma auth_allocated_set f k v w :
     auth_allocated f -∗ points_to k w ==∗ auth_allocated (<[k := v]> f) ∗ points_to k v.
   Proof using.
-    rewrite /auth_allocated /points_to; unseal "MapAS".
+    rewrite /auth_allocated /points_to.
     iIntros "AU PT"; iCombine "AU" "PT" as "AU".
     iMod (own_update with "AU") as "[AU PT]"; last by iModIntro; iSplitL "AU"; iFrame.
     apply prod_update, auth_update, discrete_fun_local_update; intros x; ss.
@@ -123,63 +115,51 @@ Module MapAS. Section MapAS.
     }
   Qed.
 
-  Section spec.
-    Definition init_spec : fspec :=
-      fspec_simple
-        (λ sz : nat,
-          (λ varg, ⌜varg = [Vint sz]↑ ∧ (8 * (Z.of_nat sz) < modulus_64)%Z⌝ ∗ pending,
-           λ vret, ⌜vret = Vundef↑⌝ ∗ initial_points_tos sz))%I.
+  Definition init_spec : fspec :=
+    fspec_simple
+      (λ sz : nat,
+        (λ varg, ⌜varg = [Vint sz]↑ ∧ (8 * (Z.of_nat sz) < modulus_64)%Z⌝ ∗ pending,
+          λ vret, ⌜vret = Vundef↑⌝ ∗ initial_points_tos sz))%I.
 
-    Definition get_spec: fspec :=
-      fspec_simple
-        (λ '(k, v),
-          (λ varg, ⌜varg = [Vint k]↑⌝ ∗ points_to k v,
-           λ vret, ⌜vret = (Vint v)↑⌝ ∗ points_to k v))%I.
+  Definition get_spec: fspec :=
+    fspec_simple
+      (λ '(k, v),
+        (λ varg, ⌜varg = [Vint k]↑⌝ ∗ points_to k v,
+          λ vret, ⌜vret = (Vint v)↑⌝ ∗ points_to k v))%I.
 
-    Definition set_spec: fspec :=
-      fspec_simple
-        (λ '(k, w, v),
-          (λ varg, ⌜varg = [Vint k; Vint v]↑⌝ ∗ points_to k w,
-           λ vret, ⌜vret = Vundef↑⌝ ∗ points_to k v))%I.
+  Definition set_spec: fspec :=
+    fspec_simple
+      (λ '(k, w, v),
+        (λ varg, ⌜varg = [Vint k; Vint v]↑⌝ ∗ points_to k w,
+          λ vret, ⌜vret = Vundef↑⌝ ∗ points_to k v))%I.
 
-    Definition set_by_user_spec: fspec :=
-      fspec_simple
-        (λ '(k, w),
-          (λ varg, ⌜varg = [Vint k]↑⌝ ∗ points_to k w,
-           λ vret, ⌜vret = Vundef↑⌝ ∗ ∃ v, points_to k v))%I.
-    
-    Definition sp : spl_type :=
-      Seal.sealing CRIS
-        [(Some MapHdr.init, fsp_some init_spec);
-        (Some MapHdr.get, fsp_some get_spec);
-        (Some MapHdr.set, fsp_some set_spec);
-        (Some MapHdr.set_by_user, fsp_some set_by_user_spec)].
-    
-    Lemma sp_nodup : List.NoDup (List.map fst sp).
-    Proof. unfold sp. unseal CRIS. prove_nodup. Qed.
-  End spec.
-End MapAS. End MapAS.
+  Definition set_by_user_spec: fspec :=
+    fspec_simple
+      (λ '(k, w),
+        (λ varg, ⌜varg = [Vint k]↑⌝ ∗ points_to k w,
+          λ vret, ⌜vret = Vundef↑⌝ ∗ ∃ v, points_to k v))%I.
 
-(*** module A Map
-private map := (fun k => 0)
+  Definition sp : specmap :=
+    {[speckey_fn MapHdr.init := fspec_to_rel init_spec;
+      speckey_fn MapHdr.get := fspec_to_rel get_spec;
+      speckey_fn MapHdr.set := fspec_to_rel set_spec;
+      speckey_fn MapHdr.set_by_user := fspec_to_rel set_by_user_spec]}.
 
-def init(sz : int) ≡
-  skip
+  (*** module A Map
+  private map := (fun k => 0)
 
-def get(k : int) : int ≡
-  return map[k]
+  def init(sz : int) ≡
+    skip
 
-def set(k : int, v : int) ≡
-  map := map[k ← v]
+  def get(k : int) : int ≡
+    return map[k]
 
-def set_by_user(k : int) ≡
-  set(k, input())
-***)
+  def set(k : int, v : int) ≡
+    map := map[k ← v]
 
-Module MapA. Section MapA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!mapMG}.
-  Context `{!mapG}.
+  def set_by_user(k : int) ≡
+    set(k, input())
+  ***)
 
   Definition scopes := ["Map"].
   Definition v_map := "Map" ↯ "map".
@@ -203,22 +183,20 @@ Module MapA. Section MapA.
       v <- trigger (IO "input" ());;
       ccallN MapHdr.set [Vint k; Vint v].
 
-  Definition fnsems : fnsems_type :=
-    [(Some MapHdr.init, (true, wmask_all, scopes, (fsp_some MapAS.init_spec, fbody_trivial)));
-     (Some MapHdr.get,  (true, wmask_all, scopes, (fsp_some MapAS.get_spec, cfunN get)));
-     (Some MapHdr.set,  (true, wmask_all, scopes, (fsp_some MapAS.set_spec, cfunN set)));
-     (Some MapHdr.set_by_user, (true, wmask_all, scopes, (fsp_some MapAS.set_by_user_spec, cfunN set_by_user)))].
+  Definition fnsems : fnsemmap :=
+    {[Some MapHdr.init := Some (msk_scp scopes msk_true, (fsp_some init_spec, fbody_trivial));
+      Some MapHdr.get := Some (msk_scp scopes msk_true, (fsp_some get_spec, cfunN get));
+      Some MapHdr.set := Some (msk_scp scopes msk_true, (fsp_some set_spec, cfunN set));
+      Some MapHdr.set_by_user := Some (msk_scp scopes msk_true, (fsp_some set_by_user_spec, cfunN set_by_user))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [(v_map, (λ _ : Z, 0%Z)↑)];
+    SMod.initial_st := {[v_map := Some (λ _ : Z, 0%Z)↑]};
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition init_cond : iProp Σ :=
-    (MapAS.initial_map ∗ MapMS.pending)%I.
+  Definition init_cond : iProp Σ := (MapA.initial_map ∗ MapM.pending)%I.
 
-  Definition t sp := Seal.sealing CRIS (SMod.to_mod sp smod).
+  Definition t sp := SMod.to_mod sp smod.
 End MapA. End MapA.

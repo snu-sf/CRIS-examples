@@ -1,32 +1,26 @@
 Require Import CRIS.
-
-From CRIS.map Require Import Header.
-
-Set Implicit Arguments.
+Require Export MapHeader.
 
 (* Resource algebra for MapI ⊆ MapM *)
-Section RA.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  
-  Class mapMG `{!crisG Γ Σ α β τ _S _I} := {
-    mapM_inG :: inG (exclR unitO) Γ;
-  }.
-  Definition mapMΓ : HRA := #[exclR unitO].
-  Global Instance subG_mapMG : subG mapMΓ Γ → mapMG.
-  Proof. solve_inG. Defined.
-End RA.
-Hint Unfold subG_mapMG mapM_inG : GRA_index.
 
-Module MapMS. Section MapMS.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!mapMG}.
+Class mapMGpreS `{!crisG Γ Σ α β τ _S _I} := {
+  #[local] mapM_inG :: inG (exclR unitO) Γ;
+}.
+Class mapMGS `{!crisG Γ Σ α β τ _S _I} := {
+  #[local] mapMGS_mapMGpreS :: mapMGpreS;
+  mapM_name : gname;
+}.
+Definition mapMΓ : HRA := #[exclR unitO].
+Global Instance subG_mapMG `{!crisG Γ Σ α β τ _S _I} : subG mapMΓ Γ → mapMGpreS.
+Proof. solve_inG. Defined.
 
-  Definition pending : iProp Σ := own base_γ (Excl ()).
+Module MapM. Section MapM.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !mapMGS}.
+
+  Definition pending : iProp Σ := own mapM_name (Excl ()).
+
   Lemma pending_unique : pending -∗ pending -∗ False.
-  Proof.
-    rewrite /pending; unseal "MapMS".
-    iIntros "P1 P2"; iCombine "P1 P2" as "P" gives %CONT; ss.
-  Qed.
+  Proof. rewrite /pending. iIntros "P1 P2"; iCombine "P1 P2" as "P" gives %CONT; ss. Qed.
 
   Definition init_spec : fspec :=
     fspec_simple
@@ -52,38 +46,31 @@ Module MapMS. Section MapMS.
         (λ varg, ⌜varg = [Vint k]↑⌝,
          λ vret, emp))%I.
 
-  Definition sp : spl_type :=
-    Seal.sealing CRIS
-      [(Some MapHdr.init, fsp_some init_spec);
-       (Some MapHdr.get, fsp_some get_spec);
-       (Some MapHdr.set, fsp_some set_spec);
-       (Some MapHdr.set_by_user, fsp_some set_by_user_spec)].
+  Definition sp : specmap :=
+    {[ speckey_fn MapHdr.init := fspec_to_rel init_spec;
+       speckey_fn MapHdr.get := fspec_to_rel get_spec;
+       speckey_fn MapHdr.set := fspec_to_rel set_spec;
+       speckey_fn MapHdr.set_by_user := fspec_to_rel set_by_user_spec
+    ]}.
 
-  Lemma sp_nodup : List.NoDup (List.map fst sp).
-  Proof. by rewrite /sp; unseal CRIS; prove_nodup. Qed.
-End MapMS. End MapMS.
+  (*** module M Map
+  private map := (fun k => 0)
+  private size := 0
 
-(*** module M Map
-private map := (fun k => 0)
-private size := 0
+  def init(sz : int) ≡
+    size := sz
 
-def init(sz : int) ≡
-  size := sz
+  def get(k : int) : int ≡
+    assume(0 ≤ k < size)
+    return map[k]
 
-def get(k : int) : int ≡
-  assume(0 ≤ k < size)
-  return map[k]
+  def set(k : int, v : int) ≡
+    assume(0 ≤ k < size)
+    map := map[k ← v]
 
-def set(k : int, v : int) ≡
-  assume(0 ≤ k < size)
-  map := map[k ← v]
-
-def set_by_user(k : int) ≡
-  set(k, input())
-***)
-Module MapM. Section MapM.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{!mapMG}.
+  def set_by_user(k : int) ≡
+    set(k, input())
+  ***)
 
   Definition scopes := ["Map"].
   Definition v_size := "Map" ↯ "size".
@@ -118,23 +105,18 @@ Module MapM. Section MapM.
       v <- trigger (IO "input" ());;
       ccallU MapHdr.set [Vint k; Vint v].
 
-  Definition fnsems : fnsems_type :=
-    [(Some MapHdr.init, (true, wmask_all, scopes, (fsp_some MapMS.init_spec, cfunU init)));
-     (Some MapHdr.get, (true, wmask_all, scopes, (fsp_some MapMS.get_spec, cfunU get)));
-     (Some MapHdr.set, (true, wmask_all, scopes, (fsp_some MapMS.set_spec, cfunU set)));
-     (Some MapHdr.set_by_user, (true, wmask_all, scopes, (fsp_some MapMS.set_by_user_spec, cfunU set_by_user)))].
+  Definition fnsems : fnsemmap :=
+    {[Some MapHdr.init := Some (msk_scp scopes msk_true, (fsp_some init_spec, cfunU init));
+      Some MapHdr.get := Some (msk_scp scopes msk_true, (fsp_some get_spec, cfunU get));
+      Some MapHdr.set := Some (msk_scp scopes msk_true, (fsp_some set_spec, cfunU set));
+      Some MapHdr.set_by_user := Some (msk_scp scopes msk_true, (fsp_some set_by_user_spec, cfunU set_by_user))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := [(v_size, 0%Z↑);
-                        (v_map,  (λ (_ : Z), 0%Z)↑)];
+    SMod.initial_st := {[v_size := Some 0%Z↑; v_map := Some (λ (_ : Z), 0%Z)↑]};
   |}.
-  Solve All Obligations with prove_scope.
-  Next Obligation. prove_nodup. Qed.
+  Solve All Obligations with mod_tac.
 
-  Definition init_cond : iProp Σ := emp%I.
-
-  Definition t Sp := Seal.sealing CRIS (@SMod.to_mod Σ Sp smod).
+  Definition t sp := SMod.to_mod sp smod.
 End MapM. End MapM.
-
