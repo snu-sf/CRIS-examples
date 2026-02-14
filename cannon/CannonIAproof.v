@@ -3,7 +3,7 @@ Require Import ImpPrelude.
 Require Import CannonHeader CannonI CannonA.
 
 Module CannonIA. Section CannonIA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CANNON: !cannonGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CANNON: !cannonGS}.
   Import CannonA.
 
   Context (sp : specmap).
@@ -44,7 +44,7 @@ Module CannonIA. Section CannonIA.
 End CannonIA.
 
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CANNON: !cannonGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CANNON: !cannonGS}.
 
   Lemma ctxr (sp : specmap) :
     ctx_refines (CannonA.t sp, CannonA.Ready) (CannonI.t, emp%I).

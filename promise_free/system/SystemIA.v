@@ -5,7 +5,7 @@ Require Import PFMemHeader PFMemA HistoryRA AtomicRA.
 
 Module SystemIA. Section SystemIA.
   Import SystemA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS}.
   Context (sp_user sp : specmap).
   Context (size : list Z).
   Context (Hincl : sp_user ⊆ sp).
@@ -236,7 +236,7 @@ Module SystemIA. Section SystemIA.
   (*SLOW*)Qed.
 End SystemIA.
 Section ctx_refines.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS}.
 
   (* Scheduler for WM refines its specification when linked to WMM *)
   Lemma ctxr sp_user sp size :

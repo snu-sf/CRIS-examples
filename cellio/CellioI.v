@@ -2,7 +2,7 @@ Require Import CRIS.
 Require Import CellioHeader CtxHeader.
 
 Module CellioI. Section CellioI.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes := [CellioHdr.mn].
   Definition v_cv := (CellioHdr.mn) ↯ "cv".

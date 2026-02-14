@@ -23,7 +23,7 @@ End RA.
 (* Spec definition *)
 (* Define 1) initial resource 2) function specs 3) sp here. *)
 Module LockA. Section LockA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MEM: !memGS, _SCH: !schGS, _SPINLOCK: !spinlockG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _SCH: !schGS, _SPINLOCK: !spinlockG}.
 
   Definition N_SpinLockA := nroot .@ "spin_lock".
 

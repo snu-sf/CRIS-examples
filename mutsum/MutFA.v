@@ -5,7 +5,7 @@ Set Implicit Arguments.
 
 Module MutFA. Section MutFA.
   Import MutAUX.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, _CONC: !concGS}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub}.
 
   Definition scopes := ["MutF"].
 

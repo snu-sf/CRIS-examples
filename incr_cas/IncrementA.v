@@ -5,7 +5,7 @@ Require Import MemHeader MemA.
 Require Import IncrementHeader.
 
 Module IncrementA. Section IncrementA.
-  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _CONC: !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS}.
 
   Definition scopes : list string := [].
 

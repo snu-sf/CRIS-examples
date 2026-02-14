@@ -1,4 +1,4 @@
-Require Export Common.
+Require Export CRIS.
 Require Export SMod.
 Require Import ImpPrelude.
 Require Export PFMemHeader.

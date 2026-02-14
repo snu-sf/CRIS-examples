@@ -4,7 +4,7 @@ From CRIS.celliocb Require Import CelliocbHeader CelliocbA MaincbHeader MaincbA 
 
 Module MaincbIA. Section MaincbIA.
   Import CelliocbA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELLIOCB: !celliocbGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CELLIOCB: !celliocbGS}.
 
   Context (sp : specmap).
   Context (sp_foo: sp !! speckey_fn CtxcbHdr.foo = None).

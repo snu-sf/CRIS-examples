@@ -17,7 +17,7 @@ Global Instance subG_sysGpreS `{!crisG Γ Σ α β τ _S _I} : subG sysΓ Γ →
 Proof. solve_inG. Defined.
 
 Section SystemRA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _SYS: !sysGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _SYS: !sysGS}.
 
   Definition tview_sys_auth (ths : gmap Ident.t (TView.t * nat)) : iProp Σ :=
     (own sys_name (gmap_view_auth (DfracOwn 1) (to_agree <$> ths)) ∗
@@ -50,7 +50,7 @@ Section SystemRA.
 
 End SystemRA.
 
-Lemma sys_alloc `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, !sysGpreS} :
+Lemma sys_alloc `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, !sysGpreS} :
   tview 1 (TView.init []) o==∗
     ∃ (_ : sysGS), tview_sys_auth {[1%positive := (TView.init [], 0)]} ∗
       tview_sys_gen 1 1 0 (TView.init []).
@@ -68,7 +68,7 @@ Proof.
 Qed.
 
 Module SystemA. Section SystemA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS}.
   Context (sp_user : specmap).
 
   (* Specifications *)

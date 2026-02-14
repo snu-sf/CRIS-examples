@@ -45,7 +45,7 @@ Defined.
 Local Existing Instances ndsGS_ndsGpreS inG_join inG_tid inG_init inG_ctl inG_pub.
 
 Section NDSRA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _NDS: !ndsGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _NDS: !ndsGS}.
   (* Join-related predicates *)
   Definition JoinFrag dq mtid postS : iProp Σ :=
     own join_name ((gmap_view_frag mtid (DfracOwn (dq)%Qp) (to_agree postS)): joinRA).
@@ -90,7 +90,7 @@ Section NDSRA.
 End NDSRA.
 
 Module NDSA. Section NDSA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _NDS: !ndsGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _NDS: !ndsGS}.
 
   (** Initial resource *)
   Definition ir_initRA : DRA_mk initRA := Cinl 1.
@@ -624,7 +624,7 @@ Module NDSA. Section NDSA.
 End NDSA. End NDSA.
 
 Section FSPEC_NDS.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _NDS: !ndsGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _NDS: !ndsGS}.
 
   Definition fspec_nds E (fsp : fspec) : fspec :=
     fspec_winv E

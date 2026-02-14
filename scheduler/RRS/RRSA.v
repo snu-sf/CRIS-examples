@@ -47,7 +47,7 @@ Defined.
 Local Open Scope Qp.
 
 Module RRSAS. Section RRSAS.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS, _rrsG: !rrsGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _rrsG: !rrsGS}.
 
   (** init **)
   Definition Pending : iProp Σ := Seal.sealing RRS (own init_name (Cinl (Excl ()))).
@@ -790,7 +790,7 @@ Module RRSAS. Section RRSAS.
 End RRSAS. End RRSAS.
 
 Module RRSA. Section RRSA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_rrsG: !rrsGS}.
 
   (* Context (parent_yield : string). *)
@@ -889,7 +889,7 @@ End RRSA. End RRSA.
 
 Section FSPEC_RRSCH.
   Import RRSAS.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _CONC: !concGS, _RRS: !rrsGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _RRS: !rrsGS}.
 
   Definition per_tid_fspec (fspecf: nat -> fspec) : fspec :=
     fspec_mk (meta := { i : nat & meta (fspecf i) })

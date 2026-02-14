@@ -18,7 +18,7 @@ Proof. solve_inG. Defined.
 (* Hint Unfold subG_celliocbG celliocb_inG : GRA_index. *)
 
 Module CelliocbA. Section CelliocbA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
   Context `{_CELLIOCB: !celliocbGS}.
 
   Definition auth (v : Z) : iProp Σ :=

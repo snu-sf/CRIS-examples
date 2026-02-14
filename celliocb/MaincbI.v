@@ -2,7 +2,7 @@ Require Import CRIS.
 Require Import MaincbHeader CelliocbHeader CtxcbHeader.
 
 Module MaincbI. Section MaincbI.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes : list string := [].
 

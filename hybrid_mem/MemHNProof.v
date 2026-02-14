@@ -4,7 +4,7 @@ Require Import MemHdr MemLib HybridMem NonDetMem.
 
 
 Module MemHN. Section MemHN.
-  Context `{!crisG Γ Σ α β τ _S _I, _concG: !concGS, _MEM: !memGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS}.
 
   Definition Ist : gmap key (option Any.t) → gmap key (option Any.t) → iProp Σ :=
     λ st_src st_tgt,

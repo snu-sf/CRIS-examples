@@ -18,7 +18,7 @@ Global Instance subG_cellGpreS `{!crisG Γ Σ α β τ _S _I} : subG cellΓ Γ �
 Proof. solve_inG. Qed.
 
 Module CellA. Section CellA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELL: !cellGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CELL: !cellGS}.
 
   (* Index of this Cell *)
   Variable idx : nat.

@@ -11,7 +11,7 @@ Qed.
 
 (* Simulation Proof *)
 Module CtrlIA. Section CtrlIA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELL: !cellGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CELL: !cellGS}.
 
   Variable max_size : nat.
 

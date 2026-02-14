@@ -5,7 +5,7 @@ Require Import StackHeader.
 Require Import PQueueHeader.
 
 Module PQueueI. Section PQueueI.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes : list string := [].
 

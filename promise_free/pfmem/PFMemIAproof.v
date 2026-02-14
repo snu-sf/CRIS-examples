@@ -3,7 +3,7 @@ Require Import PFMemHeader PFMemI PFMemA HistoryRA AtomicRA.
 Require Import base Time TView View Cell Memory Global Time.
 
 Module PFMemIA. Section PFMemIA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG}.
 
   Context (sp : specmap).
   Context (syn : Threads.syntax).

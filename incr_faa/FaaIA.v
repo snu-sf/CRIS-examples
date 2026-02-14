@@ -3,7 +3,7 @@ Require Import SchTactics MemTactics.
 Require Export FaaHeader FaaI FaaA.
 
 Module FaaIA. Section FaaIA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MEM: !memGS, _SCH: !schGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _SCH: !schGS}.
   Context (sp : specmap).
 
   Local Definition IstFull := (IstProd (IstSB FaaA.t.(Mod.scopes) IstTrue) IstEq).

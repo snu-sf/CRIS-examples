@@ -6,7 +6,7 @@ Require Import RRSHeader RRSA.
 Require Import ltac2_lib.
 
 Section wsim.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _RRS: !rrsGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _RRS: !rrsGS}.
 
   Local Definition state : Type := gmap key (option Any.t).
   Local Definition post (R_s R_t : Type) : Type := state * R_s → state * R_t → iProp Σ.

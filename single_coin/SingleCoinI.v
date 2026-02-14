@@ -2,7 +2,7 @@ Require Import CRIS.
 Require Import SingleCoinHeader.
 
 Module SingleCoinI. Section SingleCoinI.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes := ["SingleCoin"].
   Definition v_coins := "SingleCoin" ↯ "coins".

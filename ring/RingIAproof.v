@@ -6,7 +6,7 @@ Require Import RingHeader CellHeader
 
 (* Contextual Refinement Proof *)
 Module RingIA. Section RingIA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELL: !cellGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CELL: !cellGS}.
 
   Definition CellIG start len :=
     Mod.addL (List.map CellI.t (seq start len)).

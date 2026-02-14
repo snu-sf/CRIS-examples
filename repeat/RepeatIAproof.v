@@ -7,7 +7,7 @@ Set Implicit Arguments.
 
 Module RepeatIA. Section RepeatIA.
   Import RepeatAS APC APCA.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, _CONC: !concGS}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub}.
 
   Context (genv : GEnv.t).
   Context (sp sp_pure sp_pure_fun : specmap).
@@ -124,7 +124,7 @@ Module RepeatIA. Section RepeatIA.
 End RepeatIA. 
 
 Section ctxr.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
 
   Definition ctxr (ge : GEnv.t) (sp sp_pure sp_pure_fun : specmap)
         (APCInSp : APCA.sp ⊆ sp)

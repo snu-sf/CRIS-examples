@@ -3,7 +3,7 @@ Require Import CelliocbA CtxcbHeader CelliocbHeader MaincbHeader.
 
 Module MaincbA. Section MaincbA.
   Import CelliocbA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELLIOCB: !celliocbGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CELLIOCB: !celliocbGS}.
                 
   Definition scopes : list string := [].
 

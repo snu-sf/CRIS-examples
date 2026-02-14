@@ -5,7 +5,7 @@ Require Import CannonMainI CannonMainA.
 
 Module CannonMainIA. Section CannonMainIA.
   Import CannonA CannonMainA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CANNON: !cannonGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CANNON: !cannonGS}.
 
   Context (sp : specmap).
   Context (CannonInMain : CannonA.sp ⊆ sp).
@@ -48,7 +48,7 @@ Module CannonMainIA. Section CannonMainIA.
 End CannonMainIA.
 
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CANNON: !cannonGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CANNON: !cannonGS}.
 
   Theorem ctxr (sp : specmap) :
     CannonA.sp ⊆ sp →

@@ -2,7 +2,7 @@ Require Import CRIS MemA.
 Require Export MapHeader MapA MapM MapI MapIMproof MapMAproof.
 
 Module MapIA. Section MapIA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MAPM: !mapMGS, _MAP: !mapGS, _MEM: !memGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _MAPM: !mapMGS, _MAP: !mapGS, _MEM: !memGS}.
 
   Lemma ctxr (sp_s sp_mem : specmap)
       (MapInSpMap : MapA.sp ⊆ sp_s) :

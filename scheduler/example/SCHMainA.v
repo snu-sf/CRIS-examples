@@ -10,7 +10,7 @@ Require Import SCHMainI.
 Set Implicit Arguments.
 
 Module SCHMainA. Section SCHMainA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_schG: !SchA.schGS}.
   Context `{_rrsG: !RRSA.rrsGS}.
   Context `{_ndsG: !NDSA.ndsGS}.

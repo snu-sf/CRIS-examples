@@ -2,7 +2,7 @@ From CRIS Require Import CRIS.
 Require Import MemHdr MemLib DetMem.
 
 Module HybMem. Section HybMem.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MEM: !memGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS}.
   Import DetMem.
 
   Definition v_mem := "MemH" ↯ "mem".

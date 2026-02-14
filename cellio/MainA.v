@@ -16,7 +16,7 @@ End MainAS. End MainAS.
 
 Module MainA. Section MainA.
   Import CellioA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELLIO: !cellioG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CELLIO: !cellioG}.
                 
   Definition scopes : list string := [].
 

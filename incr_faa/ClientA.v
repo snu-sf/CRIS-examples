@@ -13,7 +13,7 @@ Section RA.
 End RA.
 
 Module ClientA. Section ClientA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MEM: !memGS, _SCH: !schGS, _INCR: !incrG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _SCH: !schGS, _INCR: !incrG}.
 
   Definition N_main N : namespace := (N .@ IncrHdr.main).
 

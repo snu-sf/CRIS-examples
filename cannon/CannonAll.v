@@ -6,7 +6,7 @@ Require Import CannonIAproof CannonMainIAproof.
 
 Section CannonAux.
   Import CannonA.
-  Context `{!crisG Γ Σ α β τ Hsub Hinv, _CONC: !concGS, _CANNON: !cannonGS}.
+  Context `{!crisG Γ Σ α β τ Hsub Hinv, _CANNON: !cannonGS}.
   Local Definition smod_src : SMod.t := CannonA.smod ☆ (MainA.smod 1).
   Local Definition mod_top : Mod.t := (SMod.to_mod ∅ (SMod.cancel smod_src)).
   Local Definition mod_tgt : Mod.t := CannonI.t ★ (MainI.t 1).
@@ -74,27 +74,26 @@ Module CannonAll.
   Local Instance Σ : GRA := ##[Γ; invΣ].
 
   Theorem behavioral_refinement :
-    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : concGS) (_ : cannonGS)
+    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : cannonGS)
       src_res tgt_res,
       refines_lmod
       (Mod.to_lmod mod_top src_res)
       (Mod.to_lmod mod_tgt tgt_res).
   Proof.
     apply own_admin_soundness.
-    iMod winv_alloc as "[% [% [% [% ?]]]]"; iExists _, _, _, _.
-    iMod conc_alloc as "[% ?]"; iExists _.
-    iMod cannon_alloc as "[% [? ?]]"; iExists _.
+    iMod cris_alloc as "[% [% [% [% ?]]]]".
+    iMod cannon_alloc as "[% [? ?]]".
+    iExists _, _, _, _, _.
     pose proof top_tgt as Href.
     iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
     rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
     clear Href; intros [? Href].
     iPureIntro; hexploit (Href res); eauto.
-    { rewrite Hres; iIntros "[W [[$ [$ [$ $]]] [$ $]]]".
+    { rewrite Hres. iIntros "[[W [$ [$ $]]] [$ $]]".
       rewrite {1}winv_split_empty comm //.
     }
-    intros [rt ?].
-    exists res, rt; by des.
+    s; i; des; et.
   Qed.
 (*SLOW*)End CannonAll.
 (* Print Assumptions CannonAll.behavioral_refinement. *)

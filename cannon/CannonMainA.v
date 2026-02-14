@@ -4,7 +4,7 @@ Require Import CannonHeader CannonMainI CannonA CannonHeader.
 
 Module MainA. Section MainA.
   Import CannonA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CANNON: !cannonGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CANNON: !cannonGS}.
 
   Variable num_fire : nat.
 

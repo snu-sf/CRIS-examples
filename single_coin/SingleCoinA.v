@@ -16,7 +16,7 @@ Global Instance subG_coinGpreS `{!crisG Γ Σ α β τ _I _S} : subG coinΓ Γ �
 Proof. solve_inG. Defined.
 
 Section definitions.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _COIN: !coinGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _COIN: !coinGS}.
 
   Definition coin_auth_r (l : list bool) : CoinRA :=
     gmap_view_auth (DfracOwn 1)
@@ -69,7 +69,7 @@ Section definitions.
 End definitions.
 
 Module SingleCoinA. Section SingleCoinA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _COIN: !coinGS, _PROPH: !prophGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _COIN: !coinGS, _PROPH: !prophGS}.
 
   Definition new_spec : fspec :=
     fspec_simple (λ _ : unit,

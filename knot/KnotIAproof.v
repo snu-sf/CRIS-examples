@@ -5,7 +5,7 @@ Require Import KnotI KnotA.
 
 Module KnotIA. Section KnotIA.
   Import KnotA APC APCA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MEM: !memGS, _KNOT: !knotGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _KNOT: !knotGS}.
 
   (* 1. global environment *)
   Context (genv: GEnv.t).

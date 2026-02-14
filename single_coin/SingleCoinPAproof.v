@@ -19,7 +19,7 @@ Qed.
 
 Module SingleCoinPA. Section SingleCoinPA.
   Import SingleCoinA SingleCoinP.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _PROPH: !prophGS, _COIN: !coinGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _PROPH: !prophGS, _COIN: !coinGS}.
   Context (mn : string) (sp : specmap).
 
   Local Notation MA := (SingleCoinA.t sp).

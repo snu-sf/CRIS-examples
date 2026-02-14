@@ -7,7 +7,7 @@ Require Import ltac2_lib.
 
 Module NDSNodeIA. Section NDSNodeIA.
   Import NDSNodeA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_ndsG: !NDSA.ndsGS}.
   Context `{_memGS: !MemLib.memGS}.
 
@@ -140,7 +140,7 @@ Module NDSNodeIA. Section NDSNodeIA.
 End NDSNodeIA. End NDSNodeIA.
 
 Section ctxr.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_schG: !SchA.schGS}.
   Context `{_ndsG: !NDSA.ndsGS}.
   Context `{_memGS: !MemLib.memGS}.

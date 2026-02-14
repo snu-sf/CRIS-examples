@@ -22,7 +22,7 @@ Proof using. solve_inG. Defined.
 Local Open Scope Qp.
 
 Module RRSNodeAS. Section RRSNodeAS.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_schG: !SchA.schGS}.
   Context `{_rrsG: !RRSA.rrsGS}.
   Context `{_memGS: !MemA.memGS}.
@@ -152,7 +152,7 @@ Module RRSNodeAS. Section RRSNodeAS.
 End RRSNodeAS. End RRSNodeAS.
 
 Module RRSNodeA. Section RRSNodeA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_schG: !SchA.schGS}.
   Context `{_rrsG: !RRSA.rrsGS}.
   Context `{_memGS: !MemA.memGS}.

@@ -5,7 +5,7 @@ Require Import RepeatHeader.
 Set Implicit Arguments.
 
 Module RepeatI. Section RepeatI.
-  Context `{!crisG Σ Γ α β τ Hinv Hsub, _CONC: !concGS}.
+  Context `{!crisG Σ Γ α β τ Hinv Hsub}.
 
   Definition scopes := [RepeatHdr.mn].
 

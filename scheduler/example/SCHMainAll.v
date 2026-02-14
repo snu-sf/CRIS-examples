@@ -10,7 +10,7 @@ Require Import NDSNodeI NDSNodeA NDSNodeIAproof.
 Require Import SCHMainI SCHMainA SCHMainIAproof.
 
 Section SCHMainAux.
-  Context `{!crisG Γ Σ α β τ Hsub Hinv, _CONC: !concGS, _SCH: !schGS, _RRS: !rrsGS, _NDS: !ndsGS, _MEM: !memGS, _MEMLIB: !MemLib.memGS, _NODE: !nodeGS}.
+  Context `{!crisG Γ Σ α β τ Hsub Hinv, _SCH: !schGS, _RRS: !rrsGS, _NDS: !ndsGS, _MEM: !memGS, _MEMLIB: !MemLib.memGS, _NODE: !nodeGS}.
   Context (csl : string → bool) (genv : GEnv.t).
 
   (* source module *)
@@ -273,7 +273,7 @@ Module SCHMainAll.
   Local Instance Σ : GRA := ##[Γ; invΣ; newschΣ; rrsΣ; ndsΣ].
 
   Theorem behavioral_refinement :
-    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : concGS)
+    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv)
       (_ : SchA.schGS) (_ : RRSA.rrsGS) (_ : NDSA.ndsGS)
       (_ : MemLib.memGS) (_ : MemA.memGS) (_ : RRSNodeA.nodeGS)
       src_res tgt_res,
@@ -282,24 +282,23 @@ Module SCHMainAll.
       (Mod.to_lmod (mod_tgt csl genv) tgt_res).
   Proof.
     apply own_admin_soundness.
-    iMod winv_alloc as "[% [% [% [% ?]]]]"; iExists _, _, _, _.
-    iMod conc_alloc as "[% ?]". iExists _.
-    iMod sch_alloc as "[% ?]". iExists _.
-    iMod rrs_alloc as "[% [? ?]]"; iExists _.
-    iMod nds_alloc as "[% [? ?]]"; iExists _.
-    iMod MemLib.mem_alloc as "[% ?]"; iExists _.
-    iMod (mem_alloc csl genv) as "[% ?]"; iExists _.
-    iMod rrsnode_alloc as "[% ?]"; iExists _.
+    iMod cris_alloc as "[% [% [% [% ?]]]]".
+    iMod sch_alloc as "[% ?]".
+    iMod rrs_alloc as "[% [? ?]]".
+    iMod nds_alloc as "[% [? ?]]".
+    iMod MemLib.mem_alloc as "[% ?]".
+    iMod (mem_alloc csl genv) as "[% ?]".
+    iMod rrsnode_alloc as "[% ?]".
+    do 10 iExists _.
     pose proof (top_tgt csl genv) as Href.
     iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
     rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
     clear Href; intros [? Href].
     iPureIntro; hexploit (Href res); eauto.
-    { rewrite Hres /=. iIntros "(W & ($ & $ & $ & $) & ($ & $) & $ & $ & $ & $ & [$ _] & [$ _] & $)".
+    { rewrite Hres /=. iIntros "[[W [$ [$ [$ $]]]] [[$ $] [$ [$ [$ [$ [[$ _] [[$ _] $]]]]]]]]".
       rewrite {1}winv_split_empty comm //. }
-    intros [rt ?].
-    exists res, rt; by des.
+    s; i; des; et.
   (*SLOW*)Qed.
 End SCHMainAll.
 (* Print Assumptions SCHMainAll.behavioral_refinement. *)

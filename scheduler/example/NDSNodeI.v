@@ -5,7 +5,7 @@ Require Import NDSNodeHeader.
 Set Implicit Arguments.
 
 Module NDSNodeI. Section NDSNodeI.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
 
   Definition scopes : list string := [NDSNODE].
 

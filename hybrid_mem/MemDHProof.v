@@ -7,7 +7,7 @@ Local Notation _memRA := (mblock -d> Z -d> optionUR (dfrac_agreeR (optionO (leib
 Local Notation memRA := (authUR _memRA)%type.
 
 Section RA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_MEM: !memGS}.
   
   Definition mem_wf (m0: Mem.t): Prop :=
@@ -254,7 +254,7 @@ Section RA.
 End RA.
 
 Module MemDH. Section MemDH.
-  Context `{!crisG Γ Σ α β τ _S _I, _concG: !concGS, _MEM: !memGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS}.
 
   Definition Ist: gmap key (option Any.t) → gmap key (option Any.t) → iProp Σ :=
     λ st_src st_tgt,

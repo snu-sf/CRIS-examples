@@ -3,7 +3,7 @@ Require Import Promises Memory.
 Require Export PFMemHeader.
 
 Module PFMemI. Section PFMemI.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes : list string := ["PFMem"].
   Definition v_config := "PFMem" ↯ "config".

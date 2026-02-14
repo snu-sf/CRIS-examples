@@ -7,7 +7,7 @@ Require Import NDSNodeHeader.
 Set Implicit Arguments.
 
 Module SCHMainI. Section SCHMainI.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
 
   Definition main : Any.t → itree crisE Any.t :=
     λ _,

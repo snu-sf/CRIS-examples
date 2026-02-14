@@ -6,7 +6,7 @@ Require Import RRSNodeHeader.
 Set Implicit Arguments.
 
 Module RRSNodeI. Section RRSNodeI.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
 
   Definition scopes : list string := [RRSNODE].
 

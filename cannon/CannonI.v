@@ -3,7 +3,7 @@ Require Import ImpPrelude.
 Require Import CannonHeader.
 
 Module CannonI. Section CannonI.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes := ["Cannon"].
   Definition v_lv := "Cannon" ↯ "lv". (* local variable *)

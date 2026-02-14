@@ -9,7 +9,7 @@ Set Implicit Arguments.
    the value stored in the cell. *)
 
 Module CelliocbI. Section CelliocbI.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes := [CelliocbHdr.mn].
   Definition v_cv := (CelliocbHdr.mn) ↯ "cv".

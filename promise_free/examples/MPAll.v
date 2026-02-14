@@ -5,7 +5,7 @@ Require Import MPI MPA MPIA.
 Require Import Language.
 
 Section MPAux.
-  Context `{!crisG Γ Σ α β τ Hsub Hinv, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS, _ONESHOT: !one_shotG}.
+  Context `{!crisG Γ Σ α β τ Hsub Hinv, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS, _ONESHOT: !one_shotG}.
 
   Definition lang := Language.mk (λ _ : (), tt) (const False) (λ _ : ProgramEvent.t, λ _ _, True).
   Definition syn : Threads.syntax := IdentMap.singleton 1%positive (existT lang tt).
@@ -123,27 +123,26 @@ Module MPAll.
   Local Instance Σ : GRA := ##[Γ; invΣ].
 
   Theorem behavioral_refinement :
-    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : concGS) (_ : histGS) (_ : sysGS)
+    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : histGS) (_ : sysGS)
       src_res tgt_res,
         refines_lmod
           (Mod.to_lmod mod_top src_res)
           (Mod.to_lmod mod_tgt tgt_res).
   Proof.
     apply own_admin_soundness.
-    iMod winv_alloc as "[% [% [% [% ?]]]]"; iExists _, _, _, _.
-    iMod conc_alloc as "[% ?]"; iExists _.
-    iMod hist_alloc as "[% [? TV]]"; iExists _.
-    iMod (sys_alloc with "TV") as "[% [? ?]]"; iExists _.
+    iMod cris_alloc as "[% [% [% [% ?]]]]".
+    iMod hist_alloc as "[% [? TV]]".
+    iMod (sys_alloc with "TV") as "[% [? ?]]".
+    do 6 iExists _.
     pose proof (top_tgt) as Href.
     iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
     rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
     clear Href; intros [? Href].
     iPureIntro; hexploit (Href res); eauto.
-    { rewrite Hres; iIntros "[W [[$ [$ [$ $]]] [[$ $] [$ $]]]]".
+    { rewrite Hres; iIntros "[[W [$ [$ [$ $]]]] [[$ $] [$ $]]]".
       rewrite {1}winv_split_empty comm //.
     }
-    intros [rt ?].
-    exists res, rt; by des.
+    s; i; des; et.
   (*SLOW*)Qed.
 End MPAll.

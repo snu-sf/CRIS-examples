@@ -6,7 +6,7 @@ Require Import Cancel.
 
 (* Cancellation *)
 Section MainAux.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, _CONC: !concGS, _MEM: !memGS, _SCH: !schGS, _SPINLOCK: !spinlockG, _SPINLOCKMAIN: !spinlockmainG}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, _MEM: !memGS, _SCH: !schGS, _SPINLOCK: !spinlockG, _SPINLOCKMAIN: !spinlockmainG}.
   Context (csl : string → bool) (genv : GEnv.t).
   (* sp of source module (scheduler spec excluded) *)
   Local Definition sp_user : specmap := MainA.sp ⊤.
@@ -164,26 +164,25 @@ Module MainAll.
 
   (* tgt Mod ⊆ cancelled Mod *)
   Theorem behavioral_refinement :
-    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : concGS) (_ : schGS) (_ : memGS)
+    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : schGS) (_ : memGS)
       src_res tgt_res, refines_lmod
       (Mod.to_lmod mod_top src_res)
       (Mod.to_lmod (mod_tgt csl genv) tgt_res).
   Proof.
     apply own_admin_soundness.
-    iMod winv_alloc as "[% [% [% [% ?]]]]"; iExists _, _, _, _.
-    iMod conc_alloc as "[% ?]"; iExists _.
-    iMod sch_alloc as "[% ?]"; iExists _.
-    iMod (mem_alloc csl genv) as "[% ?]"; iExists _.
+    iMod cris_alloc as "[% [% [% [% ?]]]]".
+    iMod sch_alloc as "[% ?]".
+    iMod (mem_alloc csl genv) as "[% ?]".
+    iExists _, _, _, _, _, _.
     pose proof (cancel_tgt csl genv) as Href.
     iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
     rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
     clear Href; intros [? Href].
     iPureIntro; hexploit (Href res); eauto.
-    { rewrite Hres; iIntros "[W [[$ [$ [$ $]]] [[$ $] [$ _]]]]".
+    { rewrite Hres. iIntros "[[W [$ [$ [$ $]]]] [[$ $] [$ _]]]".
       rewrite {1}winv_split_empty comm //.
     }
-    intros [rt ?].
-    exists res, rt; by des.
+    s; i; des; et.
   (*SLOW*)Qed.
 End MainAll.

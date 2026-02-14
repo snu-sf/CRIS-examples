@@ -13,7 +13,7 @@ Require Import ltac2_lib.
 
 Module SCHMainIA. Section SCHMainIA.
   Import SCHMainA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_schG: !SchA.schGS}.
   Context `{_rrsG: !RRSA.rrsGS}.
   Context `{_ndsG: !NDSA.ndsGS}.
@@ -156,7 +156,7 @@ Module SCHMainIA. Section SCHMainIA.
 End SCHMainIA. End SCHMainIA.
 
 Section ctxr.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_schG: !SchA.schGS}.
   Context `{_rrsG: !RRSA.rrsGS}.
   Context `{_ndsG: !NDSA.ndsGS}.

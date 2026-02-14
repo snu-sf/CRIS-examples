@@ -2,7 +2,7 @@ Require Import CRIS ImpPrelude.
 Require Import CannonHeader.
 
 Module MainI. Section MainI.
-  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CANNON: !cannonGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CANNON: !cannonGS}.
 
   Variable num_fire : nat.
 

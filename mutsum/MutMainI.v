@@ -4,7 +4,7 @@ Require Import MutHeader.
 Set Implicit Arguments.
 
 Module MutMainI. Section MutMainI.
-  Context `{!crisG Σ Γ α β τ Hinv Hsub, _CONC: !concGS}.
+  Context `{!crisG Σ Γ α β τ Hinv Hsub}.
 
   Definition scopes := ["MutMain"].
 

@@ -6,7 +6,7 @@ Require Import KnotA KnotMainA.
 Require Import KnotIAproof KnotMainIAproof.
 
 Section KnotAux.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, _CONC: !concGS, _MEM: !memGS, _KNOT: !knotGS}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, _MEM: !memGS, _KNOT: !knotGS}.
 
   (* mem *)
   Local Definition csl : string → bool := λ _, false.
@@ -176,24 +176,24 @@ Module KnotAll.
   Local Instance Σ : GRA := ##[Γ; invΣ].
 
   Theorem behavioral_refinement :
-    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : concGS) (_ : knotGS) (_ : memGS)
+    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : knotGS) (_ : memGS)
       src_res tgt_res,
       refines_lmod
         (Mod.to_lmod mod_top src_res)
         (Mod.to_lmod mod_tgt tgt_res).
   Proof.
     apply own_admin_soundness.
-    iMod winv_alloc as "[% [% [% [% ?]]]]"; iExists _, _, _, _.
-    iMod conc_alloc as "[% ?]"; iExists _.
-    iMod (knot_alloc ) as "[% [? ?]]"; iExists _.
-    iMod (mem_alloc csl genv) as "[% ?]"; iExists _.
+    iMod cris_alloc as "[% [% [% [% ?]]]]".
+    iMod (knot_alloc ) as "[% [? ?]]".
+    iMod (mem_alloc csl genv) as "[% ?]".
+    iExists _, _, _, _, _, _.
     pose proof (top_tgt tgt_wf) as Href.
     iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
     rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
     clear Href; intros [? Href].
     iPureIntro; hexploit (Href res); eauto.
-    { rewrite Hres; iIntros "[W [[$ [$ [$ $]]] [$ [$ [$ ?]]]]]".
+    { rewrite Hres; iIntros "[[W [$ [$ [$ $]]]] [$ [$ [$ ?]]]]".
       rewrite {1}winv_split_empty comm //. iDestruct "W" as "[$ $]".
       rewrite /KnotA.var_points_to /mem_init_val /genv /KnotGEnv.t /KnotMainGEnv.t.
       Local Transparent CEnv.id2blk CEnv.load_genv.
@@ -202,8 +202,7 @@ Module KnotAll.
       apply cmra_update_included, mem_init_auth_r_valid.
       rewrite /mem_init_val /=. hss.
     }
-    intros [rt ?].
-    exists res, rt; by des.
+    s; i; des; et.
   (*SLOW*)Qed.
 End KnotAll.
 
