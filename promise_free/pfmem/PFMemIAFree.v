@@ -5,7 +5,7 @@ Require Import PFMemIAproof.
 
 Section free.
   Import PFMemIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !histGS, !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG}.
 
   Context (sp : specmap).
   Context (syn : Threads.syntax).
@@ -47,7 +47,7 @@ Section free.
     rewrite hist_freeable_auth_eq /hist_freeable_auth_def hist_freeable_eq /hist_freeable_def.
     destruct loc as [[tid | ] bid ofs]; (inv STEP; inv FREE).
     iIntros "[F A]".
-    iDestruct "F" as (? ?) "[% F]". inv H1.
+    iDestruct "F" as (? ?) "[% F]". inv H.
     iCombine "A F" as "A" gives %WF0. eapply auth_both_valid_discrete in WF0. des.
     eapply discrete_fun_included_spec_1 in WF0.
     instantiate (1:= (tid, bid)) in WF0. ss.
@@ -76,7 +76,7 @@ Section free.
       ss.
     }
     iIntros "[F A]".
-    iDestruct "F" as (? ?) "[% F]". inv H1.
+    iDestruct "F" as (? ?) "[% F]". inv H.
     iCombine "A F" as "A" gives %WF0. eapply auth_both_valid_discrete in WF0. des.
     eapply discrete_fun_included_spec_1 in WF0.
     instantiate (1:= (tid0, bid0)) in WF0. ss.
@@ -97,7 +97,7 @@ Section free.
     rewrite hist_freeable_auth_eq /hist_freeable_auth_def hist_freeable_eq /hist_freeable_def.
     destruct loc as [[tid | ] bid ofs]; last (inv STEP; inv FREE).
     iIntros "[F A]".
-    iDestruct "F" as (? ?) "[% F]". inv H1.
+    iDestruct "F" as (? ?) "[% F]". inv H.
     iCombine "A F" as "A". iMod (own_update with "A") as "A"; eauto.
     eapply auth_update_dealloc,  discrete_fun_local_update; intros [tid' bid']; s. 
     inv STEP. inv WF; ss.
@@ -113,12 +113,12 @@ Section free.
     { (* free_get_size *) 
       hexploit free_get_size; eauto. 
       instantiate (1:= {| Loc.tid := Some tid'; Loc.bid := bid'; Loc.ofs := 0 |}). 
-      i. inv H1; rewrite Heq0 Heq1 in H2; inv H2. refl.
+      i. inv H; rewrite Heq0 Heq1 in H0; inv H0. refl.
     }
     { 
       exfalso. hexploit free_get_size; eauto. 
       instantiate (1:= {| Loc.tid := Some tid'; Loc.bid := bid'; Loc.ofs := 0 |}). 
-      i. inv H1; rewrite Heq0 Heq1 in H2; inv H2.
+      i. inv H; rewrite Heq0 Heq1 in H0; inv H0.
     }
     { exfalso.  
       rewrite /Memory.is_freeable /Block.is_freeable in EQ. 
@@ -147,7 +147,7 @@ Section free.
     {
       set (c:=_:HistoryRA.histR_aux).
       set (d:=_:HistoryRA.histR_aux) at 2.
-      assert (c ≡ d); [|rewrite H2 //].
+      assert (c ≡ d); [|rewrite H //].
       subst c d. intros l. destruct l.
       destruct (Loc.id_eq_dec (tid0, bid0) (Some tid, bid)) eqn: EQ; ss.
       { des. subst. rewrite /Memory.accessible /Block.accessible /= EQ.
@@ -226,7 +226,7 @@ Section free.
     { ss. iIntros "[HA _]".
       set (c:=_:HistoryRA.histR_aux).
       set (d:=_:HistoryRA.histR_aux) at 2.
-      assert (c ≡ d); [|rewrite H2 //].
+      assert (c ≡ d); [|rewrite H //].
       subst c d. intros l. destruct l.
       destruct (Loc.id_eq_dec (tid0, bid0) (Some tid, bid)) eqn: EQ; ss.
       { des. subst. rewrite /Memory.accessible /Block.accessible /= EQ.
@@ -267,19 +267,19 @@ Section free.
           { eapply Z.ltb_lt. nia. }
           assert ((sz <? sz)%Z = false).
           { eapply Z.ltb_ge. nia. }
-          rewrite H4 H2 H3 /=.
+          rewrite H1 H H0 /=.
           rewrite discrete_fun_lookup_singleton.
           eapply delete_option_local_update.
           eapply pair_exclusive_l, dfrac_full_exclusive.
         }
         rewrite discrete_fun_lookup_singleton_ne; cycle 1.
-        { ii. rewrite /HistoryRA.shift in H2. eapply Z.eqb_neq in OFS. eapply OFS. inv H2. }
+        { ii. rewrite /HistoryRA.shift in H. eapply Z.eqb_neq in OFS. eapply OFS. inv H. }
         des_ifs; bsimpl; des; try nia.
         { eapply Z.eqb_neq in OFS. eapply Z.ltb_lt in Heq1. eapply Z.ltb_ge in Heq0. nia. }
         { eapply Z.leb_le in Heq0. eapply Z.ltb_lt in Heq1. eapply Z.ltb_ge in Heq. nia. }
       }
       rewrite discrete_fun_lookup_singleton_ne; cycle 1.
-      { ii. des; apply o; inv H2. }
+      { ii. des; apply o; inv H. }
       refl.
     }
     iApply IHsz; iFrame.
@@ -324,10 +324,10 @@ Section free.
     intros [[EQ [_ FREED]] | [NEQ STATE]].
     {
       rewrite /Memory.get_state in FREED.
-      rewrite /Memory.is_prealloced /Block.is_prealloced FREED // in H2.
+      rewrite /Memory.is_prealloced /Block.is_prealloced FREED // in H.
     }
     erewrite free_get_cell; eauto.
-    apply WF; move: H2; rewrite /Memory.is_prealloced /Block.is_prealloced.
+    apply WF; move: H; rewrite /Memory.is_prealloced /Block.is_prealloced.
     move : STATE; rewrite /Memory.get_state.
     intros ->; des_ifs.
   Qed.
@@ -368,18 +368,18 @@ Section free.
         { destruct gl, gl2. inv LOCAL0. ss.
           inv PFG; ss.
           rewrite /Global.promise_free; ss. esplits.
-          { rewrite H3 in FULFILLS. eapply Promises.Promises.fulfills_bot_inv in FULFILLS. des. eauto. }
-          { rewrite H4 in FULFILL. eapply Promises.FreePromises.sfulfill_bot_inv in FULFILL. des. eauto. }
+          { rewrite H in FULFILLS. eapply Promises.Promises.fulfills_bot_inv in FULFILLS. des. eauto. }
+          { rewrite H0 in FULFILL. eapply Promises.FreePromises.sfulfill_bot_inv in FULFILL. des. eauto. }
         }
         { ii; destruct (decide (tid0 = tid)); subst.
-          { hexploit (PFL tid); eauto. s in H4; rewrite IdentMap.gss in H4; inv H4.
+          { hexploit (PFL tid); eauto. s in H0; rewrite IdentMap.gss in H0; inv H0.
             inv LOCAL0; inv FREE; ss.
             rewrite /Local.promise_free; ss.  
             i. des. esplits; eauto.
-            { rewrite H3 in FULFILLS. eapply Promises.Promises.fulfills_bot in FULFILLS. des. eauto. }
-            { rewrite H5 in FULFILL. eapply Promises.FreePromises.sfulfill_bot in FULFILL. des. eauto. } 
+            { rewrite H in FULFILLS. eapply Promises.Promises.fulfills_bot in FULFILLS. des. eauto. }
+            { rewrite H1 in FULFILL. eapply Promises.FreePromises.sfulfill_bot in FULFILL. des. eauto. } 
           }
-          { rewrite IdentMap.gso in H4; clarify; hexploit (PFL tid0); eauto. }
+          { rewrite IdentMap.gso in H0; clarify; hexploit (PFL tid0); eauto. }
         }
       }
       {
@@ -388,11 +388,11 @@ Section free.
         iPoseProof (hist_freeable_size_racy_free with "[FA F]") as ">(% & F & FA)"; eauto; [inv WF; ss|iFrame|].
         subst.
         inv LOCAL0. des. clear i EVENT.
-        inv RACE0. { inv PFG. rewrite H3 /Promises.Promises.bot // in GET. }
+        inv RACE0. { inv PFG. rewrite H /Promises.Promises.bot // in GET. }
         rename to0 into to. 
         rewrite /own_loc_vec. 
         iPoseProof (tview_both_valid with "TA TV") as "%".
-        destruct H3 as [l [lc [FOUND LCEQ]]].
+        destruct H as [l [lc [FOUND LCEQ]]].
         rewrite FOUND in Heq; inv Heq.
         rewrite own_loc_eq /own_loc_def /own_loc_prim.
         iDestruct "OLV" as "[_ OLV]".
@@ -411,7 +411,7 @@ Section free.
         assert (LECUT: Time.lt (View.rlx Vcut loc') to).
         { inv SEEN_LOCAL.
           { ett. eapply l. etrans; eauto. }
-          { ett. eapply l. inv H3; eauto. }
+          { ett. eapply l. inv H; eauto. }
         }
         assert (CUT_GET: Cell.get to (Cell.singleton msg' LT) = Some (from, Message.message val released na)).
         { rewrite CELL_CUT Cell.cut_spec; des_ifs; timetac. }
@@ -423,7 +423,7 @@ Section free.
       inv LOCAL0.
       { des.
         { inv RACE0; ss.
-          { inv PFG. rewrite H4 /Promises.FreePromises.bot // in FREEPROMISE. }
+          { inv PFG. rewrite H0 /Promises.FreePromises.bot // in FREEPROMISE. }
           { exfalso. apply INACCESSIBLE. unfold Memory.accessible, Block.accessible. 
             ss. unfold Memory.is_freeable, Block.is_freeable, Memory.get_size, Block.get_size in *.
             des_ifs. rewrite -Z.leb_le in RACE. rewrite -Z.ltb_lt in RACE1.
@@ -433,11 +433,11 @@ Section free.
             (* alloc_view, duplicated. *)
             iExFalso. ss. inv TEV.
             iPoseProof (tview_both_valid with "TA TV") as "%". des.
-            rewrite Heq in H3. inv H3.
+            rewrite Heq in H. inv H.
             iDestruct "OLV" as "[% OLV]". ss. 
           }
         }
-        { inv PFG. rewrite H4 /Promises.FreePromises.bot // in RACE. }
+        { inv PFG. rewrite H0 /Promises.FreePromises.bot // in RACE. }
       }
       des.
       {
@@ -462,7 +462,7 @@ Section free.
         (* alloc_view, duplicated. *)
         iExFalso.
         iPoseProof (tview_both_valid with "TA TV") as "%". des.
-        rewrite Heq in H3. inv H3.
+        rewrite Heq in H. inv H.
         iDestruct "OLV" as "[% OLV]". ss. inv TEV. ss.
       }
     }

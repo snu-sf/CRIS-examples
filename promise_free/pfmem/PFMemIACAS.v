@@ -5,7 +5,7 @@ Require Import PFMemIAproof.
 
 Section CAS.
   Import PFMemIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !histGS, !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG}.
 
   Context (sp : specmap).
   Context (syn : Threads.syntax).
@@ -52,7 +52,7 @@ Section CAS.
       inv STEP; ss. rename STEP0 into STEP.
       inv STEP. inv LOCAL. clear STATE. inv LOCAL. rename LOCAL0 into LOCAL.
       inv LOCAL. { destruct ordr; ss. } { destruct ordw; ss. }
-      inv RACE. { inv PFG. rewrite H3 /Promises.Promises.bot // in GET. }
+      inv RACE. { inv PFG. rewrite H /Promises.Promises.bot // in GET. }
       hexploit MSG; eauto; intros ->; clear MSG.
       rename to0 into to.
       hexploit (CUT loc to); eauto; intros TOCUT.
@@ -64,8 +64,8 @@ Section CAS.
     { (* inaccessible cas *)
       inv STEP. ss. rename STEP0 into STEP; inv STEP. inv LOCAL. clear STATE EVENT t.
       inv LOCAL. inv RACE; ss.
-      { inv PFG. rewrite H5 in FREEPROMISE.
-        hexploit PFL; eauto; intros INV; inv INV; des; rewrite H5 in FREEPROMISE.
+      { inv PFG. rewrite H1 in FREEPROMISE.
+        hexploit PFL; eauto; intros INV; inv INV; des; rewrite H4 in FREEPROMISE.
       }
     }
     { (* inaccessible cmp cas *)
@@ -76,7 +76,7 @@ Section CAS.
         { (* read ptr is inaccessible *)
           iPoseProof (bi.and_elim_r with "EX") as "EX".
           inv RACE.
-          { inv PFG; rewrite H5 in FREEPROMISE. inv LOCAL; ss. }
+          { inv PFG; rewrite H1 in FREEPROMISE. inv LOCAL; ss. }
           { (* inaccessible read ptr *)
             inv LOCAL. ss. destruct val'; ss; cycle 1.
             { exfalso. hexploit (COMPARABLE to from Val.Vundef); last (intros ?; des; eauto).
@@ -107,7 +107,7 @@ Section CAS.
         }
         { (* expected ptr inaccessible *)
           inv RACE.
-          { inv PFG; rewrite H5 in FREEPROMISE. inv LOCAL; ss. }
+          { inv PFG; rewrite H1 in FREEPROMISE. inv LOCAL; ss. }
           { iPoseProof (bi.and_elim_l with "EX") as "EX".
             iDestruct "EX" as "[%qr [%Cr [%Vr [% [% [[? HIST'] ?]]]]]]".
             iPoseProof (hist_own_hist_cut with "HA HIST'") as "[% [? [? %ACC]]]"; done.
@@ -318,7 +318,7 @@ Section CAS.
         { iPureIntro. split; first done.
           split.
           { inv COMPARE.
-            { eapply Z.eqb_eq in H7; subst; ss. }
+            { eapply Z.eqb_eq in H3; subst; ss. }
             { inv CMP. symmetry in EQ; revert BlOCK EQ; rewrite /Loc.get_tbid.
               destruct loc1, loc2, (TBid.eq_dec _ _); ss.
               intros _ ?%Z.eqb_eq; clarify.
@@ -477,11 +477,11 @@ Section CAS.
       { inv LOCAL1; inv LOCAL2; ss. eapply wf_prealloc_write; eauto. }
       split.
       { inv LOCAL1; inv LOCAL2; ss. inv PFG. econs; ss.
-        rewrite H3 in FULFILL. apply Promises.Promises.fulfill_bot_inv in FULFILL. des; ss.
+        rewrite H in FULFILL. apply Promises.Promises.fulfill_bot_inv in FULFILL. des; ss.
       }
       { intros ???. subst. rewrite IdentMap.Facts.add_o; des_if; intros INV; inv INV; ss.
         { inv LOCAL1; ss. inv LOCAL2; ss. econs; ss.
-          { hexploit PFL; eauto; intros INV; inv INV; rewrite H3 in FULFILL.
+          { hexploit PFL; eauto; intros INV; inv INV; rewrite H in FULFILL.
             apply Promises.Promises.fulfill_bot in FULFILL; des; ss.
           }
           { hexploit PFL; eauto; intros INV; inv INV; ss. }
@@ -615,10 +615,10 @@ Section CAS.
           { inv COMPARE; ii; clarify.
             { inv VAL; clarify. }
             { inv VAL. inv CMP.
-              { apply Loc.eqb_eq in H5; subst.
+              { apply Loc.eqb_eq in H1; subst.
                 symmetry in EQ; apply Z.eqb_neq in EQ; clarify.
               }
-              { apply Loc.eqb_eq in H5; subst.
+              { apply Loc.eqb_eq in H1; subst.
                 destruct (TBid.eq_dec _ _); ss.
               }
             }

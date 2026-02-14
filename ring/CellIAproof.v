@@ -5,7 +5,7 @@ Require Import CellHeader CellI CellA.
 (* Simulation Proof *)
 Module CellIA. Section CellIA.
   Import CellA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELL: !cellGS}.
   Context (sp_s : specmap) (idx : nat).
 
   Definition Ist : ist_type Σ :=

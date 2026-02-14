@@ -5,7 +5,7 @@ Require Import PFMemIAproof.
 
 Section fence.
   Import PFMemIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !histGS, !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG}.
 
   Context (sp : specmap).
   Context (syn : Threads.syntax).
@@ -33,7 +33,7 @@ Section fence.
 
     set (gl2:=_: Global.t) at 5.
     assert (gl2 = gl) by (subst gl2; destruct gl; ss).
-    rewrite H4. clear H4. set (lc2:=_: Local.t).
+    rewrite H0. clear H0. set (lc2:=_: Local.t).
 
     steps_r. set (st_tgt:={[_ := _]}).
 
@@ -55,9 +55,9 @@ Section fence.
         rewrite GL in WF0. destruct gl; ss.
       }
       { i. destruct (decide (tid0 = tid)).
-        { subst. rewrite IdentMap.gss in H4; inv H4.
+        { subst. rewrite IdentMap.gss in H0; inv H0.
           hexploit PFL; eauto. }
-        { rewrite IdentMap.gso in H4; eauto. }
+        { rewrite IdentMap.gso in H0; eauto. }
       }
     }
 

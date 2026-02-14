@@ -5,7 +5,7 @@ Require Import PFMemIAproof.
 
 Section alloc.
   Import PFMemIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !histGS, !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG}.
 
   Context (sp : specmap).
   Context (syn : Threads.syntax).
@@ -22,7 +22,7 @@ Section alloc.
     hist_auth (Memory.cut Vcut (Global.memory gl1))
     ==∗ hist_auth (Memory.cut (View.join Vcut (View.alloc_view_singleton loc sz)) (Global.memory gl2))
         ∗ [∗ list] i ↦ C ∈ (repeat (Cell.init Val.Vundef) (Z.to_nat sz)), hist (loc >> i) 1 C.
-  Proof using H1.
+  Proof using _ATOMIC.
     iIntros "H". rewrite hist_auth_eq /hist_auth_def.
     iMod (own_update with "H") as "[H1 H2]"; [| iSplitL "H1"; [iModIntro; done|]].
     { eapply auth_update_alloc, discrete_fun_local_update; intros l.
@@ -93,10 +93,10 @@ Section alloc.
         { instantiate (1:=l). destruct l; rewrite /Loc.get_tbid; clarify; split; ss. subst tid; ss. }
         intros ACC1; hexploit Memory.alloc_accessible3; eauto. { inv WF; ss. }
         intros [ACC1' | CONT]; cycle 1.
-        { des; exfalso; apply LOC; rewrite /Loc.get_tbid H3 a; ss. }
+        { des; exfalso; apply LOC; rewrite /Loc.get_tbid H0 a; ss. }
         { exfalso; apply n0; split; des; eauto.
           { ii; eapply Memory.prealloced_is_not_accessible; eauto. }
-          rewrite H3 in ACC1; done.
+          rewrite H0 in ACC1; done.
         }
       }
     }
@@ -111,7 +111,7 @@ Section alloc.
     f_equiv. extensionality l; rewrite discrete_fun_lookup_op. des_ifs.
     { rewrite discrete_fun_lookup_singleton_ne; ss.
       revert a a0; rewrite /Loc.get_tbid; destruct loc, l; ss; i; des; clarify. 
-      rewrite /HistoryRA.shift. ii. inv H1. lia.
+      rewrite /HistoryRA.shift. ii. inv H. lia.
     }
     { enough (l = loc >> n).
       { subst l; rewrite discrete_fun_lookup_singleton; ss. }
@@ -153,8 +153,8 @@ Section alloc.
           inv LOCAL0; hexploit (Memory.alloc_accessible3); eauto.
           { inv WF; inv GL_WF; eauto. }
           intros [?|?].
-          { des; ss. eapply WF2 in H5. hexploit Memory.alloc_get_cell; eauto.
-            intros Heq; rewrite -Heq in H5; rewrite -Memory.get_memory_cell H5 in FIND.
+          { des; ss. eapply WF2 in H1. hexploit Memory.alloc_get_cell; eauto.
+            intros Heq; rewrite -Heq in H1; rewrite -Memory.get_memory_cell H1 in FIND.
             rewrite Cell.init_get in FIND; case_match; ss; clarify.
             etrans; last eapply TimeMap.join_r.
             rewrite TimeMap.singletons_spec; case_decide as temp; [refl|exfalso].
@@ -176,10 +176,10 @@ Section alloc.
         { inv WF. inv GL_WF. inv LOCAL0. eapply wf_prealloc_alloc; eauto. }
         { destruct gl, gl2; inv LOCAL0; ss. }
         { ii; destruct (decide (tid0 = tid)); subst.
-          { hexploit (PFL tid); eauto. s in H3; rewrite IdentMap.gss in H3; inv H3.
+          { hexploit (PFL tid); eauto. s in H; rewrite IdentMap.gss in H; inv H.
             inv LOCAL0; inv ALLOC; ss.
           }
-          { rewrite IdentMap.gso in H3; clarify; hexploit (PFL tid0); eauto. }
+          { rewrite IdentMap.gso in H; clarify; hexploit (PFL tid0); eauto. }
         }
       }
       subst config'; iFrame.

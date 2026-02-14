@@ -4,7 +4,7 @@ Require Import MutHeader APCHeader APC.
 Set Implicit Arguments.
 
 Module MutMainA. Section MutMainA.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, _CONC: !concGS}.
 
   Variable with_pure: bool.
   

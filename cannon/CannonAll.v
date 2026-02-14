@@ -6,7 +6,7 @@ Require Import CannonIAproof CannonMainIAproof.
 
 Section CannonAux.
   Import CannonA.
-  Context `{!crisG Γ Σ α β τ Hsub Hinv, !concGS, !cannonGS}.
+  Context `{!crisG Γ Σ α β τ Hsub Hinv, _CONC: !concGS, _CANNON: !cannonGS}.
   Local Definition smod_src : SMod.t := CannonA.smod ☆ (MainA.smod 1).
   Local Definition mod_top : Mod.t := (SMod.to_mod ∅ (SMod.cancel smod_src)).
   Local Definition mod_tgt : Mod.t := CannonI.t ★ (MainI.t 1).

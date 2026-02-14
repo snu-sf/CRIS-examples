@@ -3,7 +3,7 @@ Require Import ImpPrelude.
 Require Import RingHeader CellHeader.
 
 Module CtrlI. Section CtrlI.
-  Context `{!crisG Γ Σ α β τ _I _S, !concGS}.
+  Context `{!crisG Γ Σ α β τ _I _S, _CONC: !concGS}.
 
   (* A maximum size of the ring buffer *)
   Variable max_size : nat.

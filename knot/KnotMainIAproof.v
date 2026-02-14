@@ -4,7 +4,7 @@ Require Import APCTactics APC APCC APCHeader.
 
 Module KnotMainIA. Section KnotMainIA.
   Import KnotA KnotMainA APCA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !memGS, !knotGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MEM: !memGS, _KNOT: !knotGS}.
 
   (* 1. global environment *)
   Context (genv: GEnv.t).
@@ -135,7 +135,7 @@ Module KnotMainIA. Section KnotMainIA.
       iIntros (P Q) "[% [-> ->]]"; iExists _, _; iSplit.
       { iPureIntro; exists (x, knot_frag (Some Fib)); split; ss. }
       iIntros (? ?) "[[% $] %] !>"; iSplit; eauto; iPureIntro; des; esplits; eauto.
-      inv H7. econs; eauto.
+      inv H3. econs; eauto.
       inv SPEC. econs; eauto.
       iIntros (? ?) "[%n [-> ->]]". iPoseProof (WEAK with "[]") as "[% [% [% I]]]".
       { iPureIntro. exists (Fib, n); split; ss. }
@@ -146,7 +146,7 @@ Module KnotMainIA. Section KnotMainIA.
     }
 
     (* TGT: take a postcondition of "fib" *)
-    steps_r. iDestruct "GRT" as "[-> [[% [-> %]] FG]]". steps_r. inv H3.
+    steps_r. iDestruct "GRT" as "[-> [[% [-> %]] FG]]". steps_r. inv H.
 
     (* TGT: find a block of the function "rec" using the postcondition of "fib" *)
     rewrite FBLOCK. steps_r.

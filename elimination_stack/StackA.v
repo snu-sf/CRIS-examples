@@ -19,7 +19,7 @@ Hint Unfold subG_stackG stack_tokG stack_stateG : GRA_index.
 Section definitions.
   Definition jobID : Type := nat * nat * (nat * val * val * gname).
   Definition retID : Type := val.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !memGS, !stackG jobID retID, !schGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MEM: !memGS, !stackG jobID retID, _SCH: !schGS}.
   Context (N : namespace).
 
   Definition offerN := N .@ "offer".
@@ -154,7 +154,7 @@ Module StackM. Section StackM.
   Definition jobID : Type := nat * nat * (nat * val * val * gname).
   Definition retID : Type := val.
 
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !schGS, !memGS, !stackG jobID retID}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _SCH: !schGS, _MEM: !memGS, !stackG jobID retID}.
   Context (mn : string) (N : namespace).
 
   (* Module definitions *)
@@ -201,7 +201,7 @@ Module StackM. Section StackM.
 End StackM. End StackM.
 
 Module StackA. Section StackA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !schGS, !memGS, !stackG jobID retID}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _SCH: !schGS, _MEM: !memGS, !stackG jobID retID}.
   Context (N : namespace).
 
   (* Module definitions *)

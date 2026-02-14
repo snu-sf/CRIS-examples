@@ -8,7 +8,7 @@ Set Implicit Arguments.
 
 (* Define Specification *)
 Module RepeatAS. Section RepeatAS.
-  Context `{!crisG Σ Γ α β τ Hinv Hsub, !concGS}.
+  Context `{!crisG Σ Γ α β τ Hinv Hsub, _CONC: !concGS}.
 
   Context (genv : GEnv.t).
   Context (sp_pure : specmap).
@@ -44,7 +44,7 @@ End RepeatAS. End RepeatAS.
 
 (* Define Module *)
 Module RepeatA. Section RepeatA.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, _CONC: !concGS}.
 
   Definition scopes := [RepeatHdr.mn].
 

@@ -6,7 +6,7 @@ Require Import Cancel.
 
 (* Cancellation *)
 Section MainAux.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !schGS, !spinlockG, !spinlockmainG}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, _CONC: !concGS, _MEM: !memGS, _SCH: !schGS, _SPINLOCK: !spinlockG, _SPINLOCKMAIN: !spinlockmainG}.
   Context (csl : string → bool) (genv : GEnv.t).
   (* sp of source module (scheduler spec excluded) *)
   Local Definition sp_user : specmap := MainA.sp ⊤.

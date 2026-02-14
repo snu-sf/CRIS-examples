@@ -7,8 +7,8 @@ Local Notation _memRA := (mblock -d> Z -d> optionUR (dfrac_agreeR (optionO (leib
 Local Notation memRA := (authUR _memRA)%type.
 
 Section RA.
-  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _concG: !concGS}.
-  Context `{_memGS: !memGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{_MEM: !memGS}.
   
   Definition mem_wf (m0: Mem.t): Prop :=
     forall b ofs v, m0.(Mem.cnts) b ofs = Some v -> b < m0.(Mem.nb)
@@ -44,7 +44,7 @@ Section RA.
     ⊢ |==>
     mem_own mem_name ((● (mem_r ⋅ _points_to_r (Mem.nb mem_t, 0%Z) 1 (repeat Vundef sz))))
     ∗ mem_own mem_name (((◯ _points_to_r (Mem.nb mem_t, 0%Z) 1 (repeat Vundef sz)))).
-  Proof using _memGS. 
+  Proof using _MEM. 
     iIntros "P". rewrite -own_op.
     iApply (own_update with "P"). apply auth_update_alloc.
     apply local_update_discrete. i. rewrite H0.
@@ -162,7 +162,7 @@ Section RA.
     mem_own mem_name ((● mem_r)) ∗ (b, ofs) ⤇{1} v
     ⊢ |==>
     mem_own mem_name ((● mem_ra_upd mem_r b ofs None)).
-  Proof using _memGS.
+  Proof using _MEM.
     Local Opaque discrete_fun_singleton.
     iIntros "P". rewrite -own_op. iApply (own_update with "P").
     eapply auth_update_dealloc, local_update_discrete.
@@ -254,7 +254,7 @@ Section RA.
 End RA.
 
 Module MemDH. Section MemDH.
-  Context `{!crisG Γ Σ α β τ _S _I, _concG: !concGS, !memGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _concG: !concGS, _MEM: !memGS}.
 
   Definition Ist: gmap key (option Any.t) → gmap key (option Any.t) → iProp Σ :=
     λ st_src st_tgt,
@@ -278,8 +278,8 @@ Module MemDH. Section MemDH.
     mem_get mem b ofs = Some v.
   Proof using.
     rr in HIT. depdes HIT. rewrite /mem_get -x. s. destruct x0.
-    symmetry in H0. eapply to_frac_agree_inv in H0. des. ss. subst.
-    rewrite H1. et.
+    symmetry in H. eapply to_frac_agree_inv in H. des. ss. subst.
+    rewrite H0. et.
   Qed.
 
   Lemma simF_alloc : ISim.sim_fun open HybMem DetMem IstFull (Some MemHdr.alloc).
@@ -314,8 +314,8 @@ Module MemDH. Section MemDH.
       iSplitR.
       {
         iPureIntro. splits; ss.
-        - ii. ss. unfold update in *. des_ifs. apply H4 in H1. nia.
-        - ii. ss. unfold update in *.  des_ifs. apply H6 in H1. nia.
+        - ii. ss. unfold update in *. des_ifs. apply H2 in H. nia.
+        - ii. ss. unfold update in *.  des_ifs. apply H4 in H. nia.
       }
       iFrame. iSplitL; eauto.
       iSplitL; cycle 1.
@@ -333,7 +333,7 @@ Module MemDH. Section MemDH.
           unfold not_allocated in *. des.
           esplits; ss; unfold update; des_ifs.
         }
-        destruct H1.
+        destruct H.
         {
           iRight. iLeft. iPureIntro.
           unfold alloc_by_spec in *. des.
@@ -380,7 +380,7 @@ Module MemDH. Section MemDH.
     iSplitR. 
     {
       iPureIntro. splits; ss; try nia.
-      ii. ss. unfold update in *.  des_ifs. apply H6 in H1. nia. 
+      ii. ss. unfold update in *.  des_ifs. apply H4 in H. nia. 
     }
     iFrame. iSplitL; eauto.
     iSplitL; cycle 1.
@@ -402,7 +402,7 @@ Module MemDH. Section MemDH.
         destruct (dec b nb); try nia. ss. rewrite right_id.
         esplits; ss; unfold update; des_ifs.
       }
-      destruct H1.
+      destruct H.
       {
         iRight. iLeft. iPureIntro.
         unfold alloc_by_spec in *. des.
@@ -425,14 +425,14 @@ Module MemDH. Section MemDH.
     {
       iLeft. iPureIntro. unfold not_allocated. s. unfold update.
       do 2 rewrite discrete_fun_lookup_op.
-      rewrite repeat_length H1.
+      rewrite repeat_length H.
       des_ifs; try rewrite right_id; ss.
     }
     iRight. iLeft. iPureIntro.
     unfold alloc_by_spec. ss.
     do 2 rewrite discrete_fun_lookup_op.
     unfold update. destruct (dec nb nb); ss.
-    rewrite repeat_length H1 nth_error_repeat; [|nia].
+    rewrite repeat_length H nth_error_repeat; [|nia].
     des_ifs. rewrite NEXT. esplits; eauto.
 
   (* SLOW *)Qed.
@@ -467,9 +467,9 @@ Module MemDH. Section MemDH.
       {
         iPureIntro. splits; ss; try nia.
         - ii. ss. unfold update in *.
-          des_ifs; eapply H4; eauto.
+          des_ifs; eapply H2; eauto.
         - ii. ss. unfold update in *.
-          des_ifs; eapply H6; eauto.
+          des_ifs; eapply H4; eauto.
       }
       iFrame. iSplit; eauto.
       iSplitL; cycle 1.
@@ -500,7 +500,7 @@ Module MemDH. Section MemDH.
     iSplitR.
     {
       iPureIntro. splits; ss; try nia.
-      ii. ss. unfold update in *. des_ifs; eapply H6; eauto.
+      ii. ss. unfold update in *. des_ifs; eapply H4; eauto.
     }
     iFrame; iSplit; eauto.
     iPureIntro. split; cycle 1.
@@ -607,11 +607,11 @@ Module MemDH. Section MemDH.
       iSplitR. 
       { iPureIntro. splits; ss; try nia. 
         - ii. ss. unfold update in *.
-          des_ifs; eapply H4; eauto. 
+          des_ifs; eapply H2; eauto. 
           destruct (dec b b0); destruct (dec ofs ofs0); ss; subst.
           eapply Heq1.
         - ii. ss. unfold update in *.
-          des_ifs; eapply H6; eauto.
+          des_ifs; eapply H4; eauto.
           destruct (dec b b0); destruct (dec ofs ofs0); ss; subst.
           eapply Heq2.
       }
@@ -648,7 +648,7 @@ Module MemDH. Section MemDH.
     iSplitR. 
     { iPureIntro. splits; ss; try nia. 
       ii. ss. unfold update in *.
-      des_ifs; eapply H6; eauto.
+      des_ifs; eapply H4; eauto.
       destruct (dec b b0); destruct (dec ofs ofs0); ss; subst.
       eapply Heq1.
     }
@@ -851,7 +851,7 @@ Module MemDH. Section MemDH.
     iSplitR. 
     { iPureIntro. splits; ss; try nia. 
       ii. ss. unfold update in *.
-      des_ifs; eapply H6; eauto.
+      des_ifs; eapply H4; eauto.
       destruct (dec b b0); destruct (dec ofs ofs0); ss; subst.
       eapply PT0.
     }

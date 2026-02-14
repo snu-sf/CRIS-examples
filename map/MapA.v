@@ -16,7 +16,7 @@ Global Instance subG_mapGpreS `{!crisG Γ Σ α β τ _S _I} : subG mapΓ Γ →
 Proof. solve_inG. Defined.
 
 Module MapA. Section MapA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !mapGS, !mapMGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MAP: !mapGS, _MAPM: !mapMGS}.
 
   Definition pending : iProp Σ := own map_name (Some (Excl ()), ε).
 

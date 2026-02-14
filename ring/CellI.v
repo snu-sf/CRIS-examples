@@ -4,7 +4,7 @@ Require Import ImpPrelude.
 Require Import CellHeader.
 
 Module CellI. Section CellI.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
 
   (* Index of this Cell *)
   Variable idx : nat.

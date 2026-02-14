@@ -18,7 +18,7 @@ Global Instance subG_cellGpreS `{!crisG Γ Σ α β τ _S _I} : subG cellΓ Γ �
 Proof. solve_inG. Qed.
 
 Module CellA. Section CellA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELL: !cellGS}.
 
   (* Index of this Cell *)
   Variable idx : nat.
@@ -118,7 +118,7 @@ Module CellA. Section CellA.
   Definition init_cond : iProp Σ := (∃ v, cell v ∗ auth v)%I.
 End CellA. End CellA.
 
-(* Lemma cell_alloc `{!crisG Γ Σ α β τ _S _I, !cellGpreS} idx v :
+(* Lemma cell_alloc `{!crisG Γ Σ α β τ _S _I, _CELLPRE: !cellGpreS} idx v :
   ⊢ o=> ∃ (_ : cellGS), CellA.pending idx ∗ CellA.auth idx v.
 Proof.
   iMod (own_alloc ((λ n, if Nat.eq_dec n idx then Some (Excl ()) else ε) : pendingUR, ε) ⋅

@@ -73,7 +73,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     forces_r. iSplit; eauto; ss.
     { instantiate (1:=1). instantiate (1:=[Vint 1]↑). iPureIntro; esplits; eauto; ss. }
     ss. steps_r. iDestruct "GRT" as "[% [% (-> & PT & _)]]".
-    replace (0 + 0%nat)%Z with 0%Z by nia. rewrite <-H0.
+    replace (0 + 0%nat)%Z with 0%Z by nia. rewrite <-H.
     steps_r. steps_l.
 
     assert (rrs_in_sp : (RRSAS.sp sp_user ⊤ get_stid PYIP) ⊆ sp).
@@ -85,7 +85,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     steps_r. inline_r. steps_r. forces_r. iSplitL "PT"; eauto; ss.
     { instantiate (2 := (b, 0%Z, Vundef, Vint 0)); ss. iFrame; eauto. }
     ss. steps_r. iDestruct "GRT" as "[% [PT ->]]".
-    rewrite <-H1. steps_r.
+    rewrite <-H0. steps_r.
 
     rrs_yield_ir "IST" "tidF". rrs_yield_l. steps_l.
     erewrite lookup_weaken; try eapply Hrrs; eauto; cycle 1.
@@ -103,7 +103,7 @@ Module RRSNodeIA. Section RRSNodeIA.
       do 3 iExists _. iSplit; eauto. iSplit; eauto.
       iApply f_spawnable; eauto.
       i. assert (m = 0 ∨ m = 1).
-      { vm_compute in H2. nia. }
+      { vm_compute in H1. nia. }
       { des; subst; ss. }
     }
 
@@ -125,7 +125,7 @@ Module RRSNodeIA. Section RRSNodeIA.
       do 3 iExists _. iSplit; eauto. iSplit; eauto.
       iApply f_spawnable; eauto.
       { split; eauto. vm_compute. econs. refl. }
-      { i. vm_compute in H0. do 3 (destruct m; ss); nia. }
+      { i. vm_compute in H. do 3 (destruct m; ss); nia. }
     }
 
     steps_l; steps_r. call "IST". iIntros (???) "IST".

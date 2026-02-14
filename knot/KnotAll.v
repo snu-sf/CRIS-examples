@@ -6,7 +6,7 @@ Require Import KnotA KnotMainA.
 Require Import KnotIAproof KnotMainIAproof.
 
 Section KnotAux.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !knotGS}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, _CONC: !concGS, _MEM: !memGS, _KNOT: !knotGS}.
 
   (* mem *)
   Local Definition csl : string → bool := λ _, false.
@@ -103,7 +103,7 @@ Section KnotAux.
         intros ? ? [?%lookup_singleton_Some|?%lookup_singleton_Some]%lookup_union_Some; des; clarify.
         { rewrite /find_body; simpl_map; esplits; eauto. }
         { rewrite /find_body; simpl_map; esplits; eauto. }
-        clear H2. apply map_disjoint_insert_l_2; simpl_map; auto with map_disjoint.
+        clear H0. apply map_disjoint_insert_l_2; simpl_map; auto with map_disjoint.
       }
     }
     (* elimination of pure call *)

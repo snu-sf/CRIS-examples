@@ -7,7 +7,7 @@ Local Open Scope nat_scope.
 
 Module CellioIA. Section CellioIA.
   Import CellioA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellioG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELLIO: !cellioG}.
 
   Definition Ist : ist_type Σ :=
     fun st_src st_tgt =>

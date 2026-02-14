@@ -5,7 +5,7 @@ Require Import SchHeader SchA MemA SchTactics MemTactics.
 From iris Require Import frac_auth numbers.
 
 Module MainIA. Section MainIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !memGS, !schGS, !spinlockG, !spinlockmainG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MEM: !memGS, _SCH: !schGS, _SPINLOCK: !spinlockG, _SPINLOCKMAIN: !spinlockmainG}.
   Import LockA MainA.
 
   Context (N : namespace).

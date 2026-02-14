@@ -6,7 +6,7 @@ Set Implicit Arguments.
 
 Module MutFIA. Section MutFIA.
   Import MutAUX.
-  Context `{_crisG: !crisG Γ Σ α β τ Hinv Hsub, !concGS}.
+  Context `{_crisG: !crisG Γ Σ α β τ Hinv Hsub, _CONC: !concGS}.
 
   Context (Sp SpPure: specmap).
 
@@ -98,7 +98,7 @@ Module MutFIA. Section MutFIA.
 End MutFIA.
 
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
 
   Theorem ctxr (Sp SpPure : specmap)
     (APCInSp : APCA.sp ⊆ Sp)

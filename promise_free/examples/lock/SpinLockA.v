@@ -9,7 +9,7 @@ Require Import HistoryRA AtomicRA OneShotRA.
 (* Spec definition *)
 (* Define 1) initial resource 2) function specs 3) sp here. *)
 Module SpinLockA. Section SpinLockA.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS, !atomicG, !schG, !one_shotG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG, _SCH: !schG, _ONESHOT: !one_shotG}.
 
   Definition N_SpinLock := nroot .@ "spin_lock".
 

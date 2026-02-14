@@ -46,7 +46,7 @@ Implicit Types
   (tid : Ident.t) (𝓥 : TView.t).
 
 Section preds.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS}.
 
   (* Hist predicate *)
   Definition hist_def l q C : iProp Σ :=
@@ -112,7 +112,7 @@ Section preds.
 End preds.
 
 Section syn_preds.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS}.
 
   Definition syn_hist n loc q C : GTerm.t n :=
     sown hist_name (◯ (discrete_fun_singleton loc (Some (DfracOwn q, to_agree C)))).
@@ -145,7 +145,7 @@ Lemma shift_nat_assoc l (n1 n2: nat) : (l >> n1) >> n2 = l >> (n1 + n2).
 Proof. case l => ???; rewrite /shift -Z.add_assoc; f_equiv; lia. Qed.
 
 Section hist.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS}.
 
   Lemma hist_own_to_hist_lookup m loc q C :
     hist_auth m -∗ hist loc q C -∗ ⌜ Memory.get_cell loc m = C ⌝.
@@ -155,9 +155,9 @@ Section hist.
     move : WF => /auth_both_valid_discrete [WF _].
     eapply (discrete_fun_included_spec_1 _ _ loc) in WF.
     move : WF; rewrite discrete_fun_lookup_singleton /=; des_ifs.
-    2:{ intros HS; inv HS; destruct x; inv H0. }
+    2:{ intros HS; inv HS; destruct x; inv H. }
     move => /Some_included; case.
-    { intros EQ; inv EQ; ss. apply to_agree_inj in H1; inv H1; ss. }
+    { intros EQ; inv EQ; ss. apply to_agree_inj in H0; inv H0; ss. }
     { move => /pair_included [_ Hin]; move: Hin => /to_agree_included -> //. }
   Qed.
 
@@ -180,7 +180,7 @@ Section hist.
 End hist.
 
 Section tview.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS}.
 
   Lemma tview_both_valid (ths : Threads.t) tid 𝓥 :
     tview_auth ths -∗ tview tid 𝓥
@@ -232,7 +232,7 @@ Section tview.
 End tview.
 
 Section hist_freeable.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS}.
 
   Lemma hist_freeable_auth_alloc lc1 gl1 sz lc2 gl2 loc
       (WF : Global.wf gl1)
@@ -263,7 +263,7 @@ Section hist_freeable.
     remember (Loc.mk _ _ 0) as loc.
     hexploit (Memory.alloc_get_size); eauto; i; des.
     { exfalso; apply NEQ; instantiate (1:=loc) in H1; revert H1; rewrite /Loc.get_tbid; i; clarify. }
-    rewrite H1; des_ifs.
+    rewrite H0; des_ifs.
   Qed.
 
   Lemma hist_freeable_auth_write lc1 gl1 loc from to val releasedm released ord lc2 gl2
@@ -283,7 +283,7 @@ Section hist_freeable.
 End hist_freeable.
 
 Section na_defs.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS}.
 
   Definition own_loc_prim l q C V : iProp Σ :=
     ⌜alloc_local l C V⌝ ∗ hist l q C.
@@ -311,7 +311,7 @@ Section na_defs.
 End na_defs.
 
 Section syn_preds.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS}.
 
   Definition syn_own_loc_prim n l q C V : GTerm.t n :=
     ⌜alloc_local l C V⌝ ∗ syn_hist n l q C.
@@ -394,7 +394,7 @@ Ltac tview_sync H :=
   end.
 
 Section na_props.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS}.
   #[global] Instance alloc_local_mon_pred l C : MonPred (λ V, ⌜alloc_local l C V⌝ : iProp Σ)%I.
   Proof.
     econs; intros ?? Hle; rewrite /view_at /alloc_local /seen_local.
@@ -408,14 +408,14 @@ Section na_props.
     econs; ii; rewrite /view_at own_loc_na_eq; iIntros "[% [% [% [% [% [[H ?] %]]]]]]"; iFrame.
     iSplit; last (iPureIntro; etrans; eauto).
     pose proof (alloc_local_mon_pred l (Cell.singleton (Message.message v V' b) LT)).
-    inv H2. rewrite MonPred_at0 //.
+    inv H1. rewrite MonPred_at0 //.
   Qed.
   
   #[global] Instance own_loc_mon_pred l q : MonPred (l ↦{ q } ?).
   Proof.
     econs; intros ?? Heq; rewrite own_loc_eq; iIntros "[% [% [% [% [H $]]]]]".
     epose proof (alloc_local_mon_pred l (Cell.singleton _ LT)).
-    inv H0; rewrite MonPred_at0 //.
+    inv H; rewrite MonPred_at0 //.
   Qed.
 
   Lemma own_loc_mon_pred_gen l q v V1 V2 : V1 ⊑ V2 → @{V1} l ↦ v ⊢ @{V2} l ↦ v.

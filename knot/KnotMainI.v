@@ -2,7 +2,7 @@ Require Import CRIS.
 Require Export KnotHeader KnotMainHeader.
 
 Module KnotMainI. Section KnotMainI.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
 
   Definition scopes := ["KnotMain"].
 

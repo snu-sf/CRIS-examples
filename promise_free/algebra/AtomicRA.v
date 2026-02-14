@@ -40,7 +40,7 @@ Implicit Types
   (tid : Ident.t) (𝓥 : TView.t).
 
 Section ghost_defs.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS, !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG}.
   (* TODO : last non-atomic view might be useless to carry around in this model *)
   Definition at_last_na γ (Va : View.t) : iProp Σ :=
     own γ ((ε, (ε, Some $ to_agree Va)) : atomicR).
@@ -63,7 +63,7 @@ End ghost_defs.
 (* TODO : add properties, and move to a separate file *)
 
 Section ghost_defs.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS, !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG}.
     
   (* at_exclusive_write *)
   #[global] Instance at_exclusive_write_fractional γ t :
@@ -147,9 +147,9 @@ Section ghost_defs.
     rewrite -cmra_assoc (cmra_assoc (◯ _)) (cmra_comm (◯ _)) -cmra_assoc
             (cmra_assoc (●{_} _) (●{_} _)).
     intros WF; destruct WF as [?%cmra_valid_op_l%auth_auth_dfrac_op_valid _]; des; ss.
-    rewrite dfrac_op_own dfrac_valid_own in H1; split; eauto.
-    apply to_agreeM_agree in H2.
-    apply Cell.ext; intros ts; rewrite ?Cell.to_gmap_spec; rewrite H2; ss.
+    rewrite dfrac_op_own dfrac_valid_own in H; split; eauto.
+    apply to_agreeM_agree in H0.
+    apply Cell.ext; intros ts; rewrite ?Cell.to_gmap_spec; rewrite H0; ss.
   Qed.
 
   Lemma at_writer_exclusive γ ζ1 ζ2 : at_writer γ ζ1 -∗ at_writer γ ζ2 -∗ False.
@@ -288,7 +288,7 @@ Section ghost_defs.
 End ghost_defs.
 
 Section atomic_preds.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS, !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG}.
 
   Definition SeenLocal loc ζ V : iProp Σ :=
     ⌜ View.alloc_view V (Loc.get_tbid loc) (* is not in iRC11 *)
@@ -388,7 +388,7 @@ Global Instance: Params (@AtomicCASerX) 4 := {}.
 Global Instance: Params (@AtomicCASerX) 4 := {}.
 
 Section syn_atomic_preds.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS, !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG}.
 
   Definition syn_SeenLocal n loc ζ V : GTerm.t n :=
     ⌜ View.alloc_view V (Loc.get_tbid loc) (* is not in iRC11 *)
@@ -494,7 +494,7 @@ Notation "l 'casX⊒{' γ ',' t ',' q '}' ζ" := (AtomicCASerX l γ t ζ q)
   (at level 20, format "l  casX⊒{ γ , t , q }  ζ")  : bi_scope.
 
 Section atomic_preds.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS, !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG}.
   (* Instances *)
   #[global] Instance SeenLocal_mon_pred l ζ : MonPred (SeenLocal l ζ).
   Proof.

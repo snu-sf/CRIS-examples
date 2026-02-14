@@ -4,7 +4,7 @@ Require Export KnotHeader KnotMainHeader KnotA.
 
 Module KnotMainA. Section KnotMainA.
   Import KnotA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !memGS, !knotGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MEM: !memGS, _KNOT: !knotGS}.
 
   (* Specifications *)
   Fixpoint Fib (n : nat) : nat :=

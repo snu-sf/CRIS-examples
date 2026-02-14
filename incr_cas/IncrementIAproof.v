@@ -4,7 +4,7 @@ Require Import ImpPrelude MemHeader MemA MemTactics.
 Require Import IncrementHeader IncrementI IncrementA.
 
 Module IncrementIA. Section IncrementIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !concGS, !schGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _CONC: !concGS, _SCH: !schGS}.
   Context (sp : specmap).
 
   Local Definition IstFull := (IstProd (IstSB IncrementA.t.(Mod.scopes) IstTrue) IstEq).

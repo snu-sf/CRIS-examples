@@ -6,7 +6,7 @@ Require Import APCHeader APC APCI APCA APCC.
 Require Import APCIAproof APCACproof.
 
 Section MutAll.
-  Context `{!crisG Γ Σ α β τ Hsub Hinv, !concGS}.
+  Context `{!crisG Γ Σ α β τ Hsub Hinv, _CONC: !concGS}.
 
   Local Definition smod_src : SMod.t := MutMainA.smod false ☆ MutFA.smod ☆ MutGA.smod ☆ APCC.smod.
   Local Definition sp : specmap := SMod.conc_sp_from smod_src.
@@ -28,7 +28,7 @@ Section MutAll.
     { assert (Ht : SMod.conc_sp_from smod_src !! speckey_entry =
         fsp_none); last (rewrite Ht; clear Ht).
       { rewrite lookup_insert_ne // lookup_kmap_None. i; ss.
-        rewrite /SMod.lift_fn in H0. des_ifs. }
+        rewrite /SMod.lift_fn in H. des_ifs. }
       eexists _, _; splits.
       { ss; exists (tt); split; refl. }
       { iIntros "[? [? ?]]"; ss. }
@@ -106,12 +106,12 @@ Section MutAll.
       { eapply apc_in_sp. }
       { eapply pure_in_sp. }
       { i; ss.
-        rewrite /sp_pure lookup_union in H0.
+        rewrite /sp_pure lookup_union in H.
         destruct (String.eq_dec fn MutHdr.mutf).
-        { subst. rewrite lookup_insert lookup_insert_ne // lookup_empty in H0. inv H0. esplits; eauto. }
+        { subst. rewrite lookup_insert lookup_insert_ne // lookup_empty in H. inv H. esplits; eauto. }
         destruct (String.eq_dec fn MutHdr.mutg).
-        { subst. rewrite lookup_insert lookup_insert_ne // lookup_empty in H0. inv H0. esplits; eauto. }
-        rewrite !lookup_insert_ne // in H0; ii; inv H0.
+        { subst. rewrite lookup_insert lookup_insert_ne // lookup_empty in H. inv H. esplits; eauto. }
+        rewrite !lookup_insert_ne // in H; ii; inv H.
       }
     }
 

@@ -16,7 +16,7 @@ Global Instance subG_cannonGpreS `{!crisG Γ Σ α β τ _S _I} : subG cannonΓ 
 Proof. solve_inG. Defined.
 
 Module CannonA. Section CannonA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cannonGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CANNON: !cannonGS}.
 
   Definition Ready : iProp Σ := own cannon_name (●E tt).
   Definition Ball : iProp Σ := own cannon_name (◯E tt).

@@ -3,7 +3,7 @@ Require Import SingleCoinIPproof SingleCoinPAproof.
 Require Import ProphecyFacts.
 
 Module SingleCoinIA. Section SingleCoinIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !prophGS, !coinGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _PROPH: !prophGS, _COIN: !coinGS}.
   Context (sp : specmap).
 
   Local Notation CoinI := (SingleCoinI.t).

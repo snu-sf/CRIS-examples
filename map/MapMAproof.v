@@ -2,7 +2,7 @@ Require Import CRIS.
 Require Export MapHeader MapM MapA.
 
 Module MapMA. Section MapMA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !mapMGS, !mapGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MAPM: !mapMGS, _MAP: !mapGS}.
   Import MapA.
 
   Context (sp_s sp_t : specmap).

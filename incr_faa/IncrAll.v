@@ -4,7 +4,7 @@ Require Import SchHeader SchI SchA SchIAproof SchTactics.
 Require Import FaaHeader ClientI ClientA ClientIA FaaI FaaA FaaIA.
 
 Section ClientAux.
-  Context `{!crisG Γ Σ α β τ Hsub Hinv, !concGS, !memGS, !schGS, !incrG}.
+  Context `{!crisG Γ Σ α β τ Hsub Hinv, _CONC: !concGS, _MEM: !memGS, _SCH: !schGS, _INCR: !incrG}.
   Context (csl : string → bool) (genv : GEnv.t).
 
   (* source module *)

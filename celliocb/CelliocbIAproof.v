@@ -5,7 +5,7 @@ Local Open Scope nat_scope.
 
 Module CelliocbIA. Section CelliocbIA.
   Import CelliocbA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !celliocbGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELLIOCB: !celliocbGS}.
 
   Definition Ist : ist_type Σ :=
     (λ st_s st_t, (∃ v, ⌜st_t = {[CelliocbI.v_cv := Some v↑]}⌝ ∗ auth v))%I.

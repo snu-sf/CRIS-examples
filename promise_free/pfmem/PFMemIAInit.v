@@ -5,7 +5,7 @@ Require Import PFMemIAproof.
 
 Section init.
   Import PFMemIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !histGS, !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG}.
 
   Context (sp : specmap).
   Context (syn : Threads.syntax).

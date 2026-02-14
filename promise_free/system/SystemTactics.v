@@ -1,7 +1,7 @@
 Require Import CRIS SystemHeader SystemA.
 
 Section wsim.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !sysGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _SYS: !sysGS}.
 
   Lemma wsim_system_yield_ir
       fl_src fl_tgt Ist r g R_src R_tgt RR p_src p_tgt

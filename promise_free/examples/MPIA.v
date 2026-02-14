@@ -4,7 +4,7 @@ Require Import SystemHeader SystemA SystemTactics.
 Require Import MPI MPA.
 
 Module MPIA. Section MPIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !histGS, !atomicG, !sysGS, !one_shotG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS, _ONESHOT: !one_shotG}.
   Local Existing Instances one_shot_inG.
 
   Definition Ist : ist_type Σ := λ _ _, emp%I.
@@ -125,7 +125,7 @@ Module MPIA. Section MPIA.
     iApply wsim_reset.
     iStopProof.
 
-    revert st_src. combine_quant st_tgt. clear Hle3 H5. combine_quant V3.
+    revert st_src. combine_quant st_tgt. clear Hle3 H. combine_quant V3.
     eapply wsim_coind.
     (* destruct_quant. *)
     iIntros (g' _ CIH [V3 [st_t st_s]]) "[#[I SN] [FA [P [IST TV]]]]"; s.
@@ -168,10 +168,10 @@ Module MPIA. Section MPIA.
       iIntros (??) "IST TV".
 
       steps_r. des.
-      hexploit (H7 (Cell.max_ts ζ'')); first done; rewrite Cell.singleton_get.
+      hexploit (H1 (Cell.max_ts ζ'')); first done; rewrite Cell.singleton_get.
       des_if; intros INV; inv INV.
       destruct v'; ss.
-      apply Z.eqb_eq in H5; subst.
+      apply Z.eqb_eq in H; subst.
       steps_r.
 
       iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
@@ -185,7 +185,7 @@ Module MPIA. Section MPIA.
       iApply wsim_base.
       iIntros "W".
       iApply ((CIH (V4, (st_tgt, st_src))) with "[-]"); iFrame. iFrame "I".
-      ss. iModIntro. iEval (rewrite H9) in "SN". done.
+      ss. iModIntro. iEval (rewrite H3) in "SN". done.
       Unshelve. all: try exact ⊤; try exact 1%Qp.
     }
     { (* read 1 from flag *)
@@ -402,7 +402,7 @@ Module MPIA. Section MPIA.
   Qed.
 End MPIA.
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !histGS, !atomicG, !sysGS, !one_shotG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS, _ONESHOT: !one_shotG}.
 
   Definition ctxr (sp_s sp_user : specmap) :
     (SystemA.sp sp_user ⊤) ⊆ sp_s →

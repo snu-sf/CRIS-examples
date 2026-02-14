@@ -19,7 +19,7 @@ Qed.
 
 Module SingleCoinPA. Section SingleCoinPA.
   Import SingleCoinA SingleCoinP.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !prophGS, !coinGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _PROPH: !prophGS, _COIN: !coinGS}.
   Context (mn : string) (sp : specmap).
 
   Local Notation MA := (SingleCoinA.t sp).
@@ -59,7 +59,7 @@ Module SingleCoinPA. Section SingleCoinPA.
       iSplitL "F2".
       { iApply ProphecyRA.free_id_iff; [|iFrame].
         intros [name a]; split; ss; des_ifs.
-        { intros t; inv t; des; clarify. inv e. hss. rewrite length_app in H3. ss. lia. }
+        { intros t; inv t; des; clarify. inv e. hss. rewrite length_app in H1. ss. lia. }
         { intros t; des; esplits; eauto. rewrite length_app in t1; ss; lia. }
         { intros [-> [n0 [EQ' GT]]]; esplits; eauto.
           assert (n0 <> length l_t).
@@ -78,7 +78,7 @@ Module SingleCoinPA. Section SingleCoinPA.
       }
       iApply (big_sepL_impl with "PL").
       iModIntro; iIntros (k x) "% [%b' [%ol' H]]".
-      apply lookup_lt_Some in H3; rewrite -EQ in H3.
+      apply lookup_lt_Some in H; rewrite -EQ in H.
       rewrite lookup_app_l //.
       iExists _, _; iFrame.
     }

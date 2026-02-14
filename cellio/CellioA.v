@@ -19,8 +19,8 @@ End CellioRA.
 Hint Unfold subG_cellioG cellio_inG : GRA_index.
 
 Module CellioA. Section CellioA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
-  Context `{_cellioG: !cellioG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
+  Context `{_CELLIO: !cellioG}.
 
   Definition auth (v : Z) : iProp Σ :=
     own base_γ (●E v).

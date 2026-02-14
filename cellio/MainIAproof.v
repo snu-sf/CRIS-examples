@@ -5,7 +5,7 @@ Set Implicit Arguments.
 
 Module MainIA. Section MainIA.
   Import CellioA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellioG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELLIO: !cellioG}.
 
   Context (sp: specmap).
   Context (sp_input: sp !! speckey_fn CtxHdr.input = None).

@@ -7,7 +7,7 @@ Set Implicit Arguments.
 
 Module MutMainIA. Section MutMainIA.
   Import MutAUX.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, _CONC: !concGS}.
 
   Context (Sp SpPure: specmap).
   Context (APCInSp : APCA.sp ⊆ Sp).

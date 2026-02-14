@@ -16,7 +16,7 @@ Global Instance subG_knotG `{!crisG Γ Σ α β τ _S _I} : subG knotΓ Γ → k
 Proof. solve_inG. Qed.
 
 Module KnotA. Section KnotA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !memGS, !knotGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MEM: !memGS, _KNOT: !knotGS}.
 
   Global Instance leibniz_equiv_discrete_funO_natO_natO: LeibnizEquiv (natO -d> natO).
   Proof.
@@ -115,7 +115,7 @@ Module KnotA. Section KnotA.
   Definition t sp := SMod.to_mod sp smod.
 End KnotA. End KnotA.
 
-Lemma knot_alloc `{!crisG Γ Σ α β τ _S _I, !knotGpreS} :
+Lemma knot_alloc `{!crisG Γ Σ α β τ _S _I, _KNOTPRE: !knotGpreS} :
   ⊢ o=> ∃ (_ : knotGS), KnotA.knot_full None ∗ KnotA.knot_frag None.
 Proof.
   iMod (own_alloc (● (Excl' None) ⋅ ◯ (Excl' None))) as "[%γ [? ?]]".

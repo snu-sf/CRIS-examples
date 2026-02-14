@@ -45,7 +45,7 @@ Defined.
 Local Existing Instances ndsGS_ndsGpreS inG_join inG_tid inG_init inG_ctl inG_pub.
 
 Section NDSRA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !ndsGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _NDS: !ndsGS}.
   (* Join-related predicates *)
   Definition JoinFrag dq mtid postS : iProp Σ :=
     own join_name ((gmap_view_frag mtid (DfracOwn (dq)%Qp) (to_agree postS)): joinRA).
@@ -90,7 +90,7 @@ Section NDSRA.
 End NDSRA.
 
 Module NDSA. Section NDSA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !ndsGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _NDS: !ndsGS}.
 
   (** Initial resource *)
   Definition ir_initRA : DRA_mk initRA := Cinl 1.
@@ -135,8 +135,8 @@ Module NDSA. Section NDSA.
         eapply rev_ind; ss. i.
         rewrite last_length seq_S /= imap_app !map_app fmap_app /= Nat.add_0_r.
         f_equal. eauto. }
-      rewrite H1. eapply NoDup_ListNoDup, FinFun.Injective_map_NoDup; eauto.
-      { ii. inv H2; ss. }
+      rewrite H. eapply NoDup_ListNoDup, FinFun.Injective_map_NoDup; eauto.
+      { ii. inv H0; ss. }
       { eapply seq_NoDup. }
     Qed.
 
@@ -153,9 +153,9 @@ Module NDSA. Section NDSA.
       iIntros "PubA PubF". iCombine "PubA PubF" gives %wf.
       rewrite gmap_view_both_dfrac_valid_discrete in wf; des.
       inv wf2. destruct x.
-      { destruct p. rewrite -Some_op -pair_op in H1. inv H1. rewrite H4 in wf1. inv wf1; ss.
-        eapply dfrac_valid_own_l in H1. ss. }
-      inv H1. inv H4; ss.
+      { destruct p. rewrite -Some_op -pair_op in H. inv H. rewrite H2 in wf1. inv wf1; ss.
+        eapply dfrac_valid_own_l in H. ss. }
+      inv H. inv H2; ss.
       destruct tido'; ss.
       { rewrite lookup_insert_ne // in wf0. destruct b; ss.
         { destruct tido; ss.
@@ -166,9 +166,9 @@ Module NDSA. Section NDSA.
             { i. rewrite fmap_app imap_app map_app /= in wf0.
               eapply elem_of_app in wf0. des; eauto.
               eapply elem_of_list_singleton in wf0. inv wf0.
-              rewrite /dec /option_Dec in H2. rewrite /AList.option_Dec_obligation_1 in H2. des_ifs. ss.
-              assert (to_agree false ≼ to_agree true) by rewrite H2 //.
-              eapply to_agree_included in H1. inv H1.
+              rewrite /dec /option_Dec in H0. rewrite /AList.option_Dec_obligation_1 in H0. des_ifs. ss.
+              assert (to_agree false ≼ to_agree true) by rewrite H0 //.
+              eapply to_agree_included in H. inv H.
             }
           }
           { exfalso.
@@ -179,8 +179,8 @@ Module NDSA. Section NDSA.
             { i. rewrite fmap_app imap_app map_app /= in wf0.
               eapply elem_of_app in wf0. des; eauto.
               eapply elem_of_list_singleton in wf0. inv wf0. 
-              assert (to_agree false ≼ to_agree true) by rewrite H2 //.
-              eapply to_agree_included in H1. inv H1.
+              assert (to_agree false ≼ to_agree true) by rewrite H0 //.
+              eapply to_agree_included in H. inv H.
             }
           }
         }
@@ -192,18 +192,18 @@ Module NDSA. Section NDSA.
             { i. rewrite fmap_app imap_app map_app /= in wf0.
               eapply elem_of_app in wf0. des; eauto.
               eapply elem_of_list_singleton in wf0. inv wf0.
-              rewrite /dec /option_Dec in H2. rewrite /AList.option_Dec_obligation_1 in H2. des_ifs.
-              { ii. inv H1.
-                assert (to_agree false ≼ to_agree true) by rewrite H2 //.
-                eapply to_agree_included in H1. inv H1. }
-              { ii. inv H1. }
+              rewrite /dec /option_Dec in H0. rewrite /AList.option_Dec_obligation_1 in H0. des_ifs.
+              { ii. inv H.
+                assert (to_agree false ≼ to_agree true) by rewrite H0 //.
+                eapply to_agree_included in H. inv H. }
+              { ii. inv H. }
             }
           }
         }
       }
       { rewrite lookup_insert // in wf0. inv wf0.
-        assert (to_agree false ≼ to_agree b) by rewrite H2 //.
-        eapply to_agree_included in H1. rewrite <-!H1.
+        assert (to_agree false ≼ to_agree b) by rewrite H0 //.
+        eapply to_agree_included in H. rewrite <-!H.
         destruct tido; ss.
       }
     Qed.
@@ -229,9 +229,9 @@ Module NDSA. Section NDSA.
               { rewrite fmap_app imap_app map_app list_to_map_app.
                 rewrite lookup_union. ss.
                 rewrite lookup_insert_ne; cycle 1.
-                { ii. inv H2. rewrite ->Nat.add_0_r in *.
+                { ii. inv H0. rewrite ->Nat.add_0_r in *.
                   eapply lookup_lt_Some in Heq. rewrite length_fmap in Heq. nia. }
-                { rewrite lookup_empty. hexploit H1; eauto. i. rewrite H2; eauto.
+                { rewrite lookup_empty. hexploit H; eauto. i. rewrite H0; eauto.
                   rewrite right_id. refl. }
               }
               { eapply list_lookup_singleton_Some in IN. des; subst.
@@ -248,19 +248,19 @@ Module NDSA. Section NDSA.
                 { eapply elem_of_list_to_map in L; cycle 1.
                   { eapply NoDup_map_imap. }
                   exfalso. gen L. remember (length l) as len. assert (length l ≤ len)%nat by nia.
-                  clear Heqlen IN Heq H1.
+                  clear Heqlen IN Heq H.
                   gen len. pattern l. eapply rev_ind; ss; i. inv L. rewrite fmap_app imap_app map_app in L.
-                  rewrite last_length in H2. eapply elem_of_app in L. des; eauto.
-                  { hexploit (H1 len); eauto. nia. }
+                  rewrite last_length in H0. eapply elem_of_app in L. des; eauto.
+                  { hexploit (H len); eauto. nia. }
                   ss. eapply elem_of_list_singleton in L. inv L.
-                  rewrite length_fmap in H2. nia. }
+                  rewrite length_fmap in H0. nia. }
               }
             }
           }
-          { rewrite !lookup_insert_ne //; cycle 1. { ii; inv H1. }
+          { rewrite !lookup_insert_ne //; cycle 1. { ii; inv H. }
             set (l := imap pair ths.*1). pattern l. eapply rev_ind; ss.
             { i. destruct x. rewrite !map_app !list_to_map_app; ss.
-              rewrite !lookup_union. rewrite H1. f_equiv.
+              rewrite !lookup_union. rewrite H. f_equiv.
               { refl. }
               destruct (decide (n = n1)); subst.
               { rewrite !lookup_insert. rewrite /dec /option_Dec /AList.option_Dec_obligation_1. des_ifs. }
@@ -270,7 +270,7 @@ Module NDSA. Section NDSA.
         }
         { rewrite lookup_insert_ne; ss. rewrite !lookup_insert; ss. }
       }
-      rewrite H1. refl.
+      rewrite H. refl.
     Qed.
 
     Lemma Public_update_public ths tid (IN: ∃ stid, ths !! tid = Some stid):
@@ -294,9 +294,9 @@ Module NDSA. Section NDSA.
               { rewrite fmap_app imap_app map_app list_to_map_app.
                 rewrite lookup_union. ss.
                 rewrite lookup_insert_ne; cycle 1.
-                { ii. inv H2. rewrite ->Nat.add_0_r in *.
+                { ii. inv H0. rewrite ->Nat.add_0_r in *.
                   eapply lookup_lt_Some in Heq. rewrite length_fmap in Heq. nia. }
-                { rewrite lookup_empty. hexploit H1; eauto. i. rewrite H2.
+                { rewrite lookup_empty. hexploit H; eauto. i. rewrite H0.
                   rewrite right_id. refl. }
               }
               { eapply list_lookup_singleton_Some in IN. des; subst.
@@ -313,19 +313,19 @@ Module NDSA. Section NDSA.
                 { eapply elem_of_list_to_map in L; cycle 1.
                   { eapply NoDup_map_imap. }
                   exfalso. gen L. remember (length l) as len. assert (length l ≤ len)%nat by nia.
-                  clear Heqlen IN Heq H1.
+                  clear Heqlen IN Heq H.
                   gen len. pattern l. eapply rev_ind; ss; i. inv L. rewrite fmap_app imap_app map_app in L.
-                  rewrite last_length in H2. eapply elem_of_app in L. des; eauto.
-                  { hexploit (H1 len); eauto. nia. }
+                  rewrite last_length in H0. eapply elem_of_app in L. des; eauto.
+                  { hexploit (H len); eauto. nia. }
                   ss. eapply elem_of_list_singleton in L. inv L.
-                  rewrite length_fmap in H2. nia. }
+                  rewrite length_fmap in H0. nia. }
               }
             }
           }
-          { rewrite !lookup_insert_ne //; cycle 1. { ii; inv H1. }
+          { rewrite !lookup_insert_ne //; cycle 1. { ii; inv H. }
             set (l := imap pair ths.*1). pattern l. eapply rev_ind; ss.
             { i. destruct x. rewrite !map_app !list_to_map_app; ss.
-              rewrite !lookup_union. rewrite H1. f_equiv.
+              rewrite !lookup_union. rewrite H. f_equiv.
               { refl. }
               destruct (decide (n = n1)); subst.
               { rewrite !lookup_insert. rewrite /dec /option_Dec /AList.option_Dec_obligation_1. des_ifs. }
@@ -335,7 +335,7 @@ Module NDSA. Section NDSA.
         }
         { rewrite lookup_insert_ne; ss. rewrite !lookup_insert; ss. }
       }
-      rewrite H1. refl.
+      rewrite H. refl.
     Qed.
 
     Lemma Public_alloc ths stid_new tido (IN: tido = None ∨ ∃ tid stid, tido = Some tid ∧ ths !! tid = Some stid):
@@ -348,11 +348,11 @@ Module NDSA. Section NDSA.
         { clear IN. rewrite lookup_insert_ne; ss.
           remember (length ths) as len.
           assert (length ths ≤ len)%nat by nia. clear Heqlen.
-          gen H1. pattern ths. eapply rev_ind; ss. i.
-          rewrite last_length in H2. rewrite fmap_app imap_app map_app list_to_map_app lookup_union /= Nat.add_0_r.
+          gen H. pattern ths. eapply rev_ind; ss. i.
+          rewrite last_length in H0. rewrite fmap_app imap_app map_app list_to_map_app lookup_union /= Nat.add_0_r.
           rewrite lookup_insert_ne; cycle 1.
-          { ii. inv H3. rewrite length_fmap in H2. nia. }
-          rewrite lookup_empty right_id. eapply H1. nia.
+          { ii. inv H1. rewrite length_fmap in H0. nia. }
+          rewrite lookup_empty right_id. eapply H. nia.
         }
         refl.
       }
@@ -365,11 +365,11 @@ Module NDSA. Section NDSA.
       rewrite lookup_insert_ne; ss.
       remember (length ths) as len.
       assert (length ths ≤ len)%nat by nia. clear Heqlen.
-      gen H1. pattern ths. eapply rev_ind; ss. i.
-      rewrite last_length in H2. rewrite fmap_app imap_app map_app list_to_map_app lookup_union /= Nat.add_0_r.
+      gen H. pattern ths. eapply rev_ind; ss. i.
+      rewrite last_length in H0. rewrite fmap_app imap_app map_app list_to_map_app lookup_union /= Nat.add_0_r.
       rewrite lookup_insert_ne; cycle 1.
-      { ii. inv H3. rewrite length_fmap in H2. nia. }
-      rewrite lookup_empty right_id. eapply H1. nia.
+      { ii. inv H1. rewrite length_fmap in H0. nia. }
+      rewrite lookup_empty right_id. eapply H. nia.
     Qed.
 
     Lemma Control_nodup :
@@ -624,7 +624,7 @@ Module NDSA. Section NDSA.
 End NDSA. End NDSA.
 
 Section FSPEC_NDS.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !ndsGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _NDS: !ndsGS}.
 
   Definition fspec_nds E (fsp : fspec) : fspec :=
     fspec_winv E
@@ -633,7 +633,7 @@ Section FSPEC_NDS.
         (λ '(mtid, stid, ssch, x) vret ret, Tid mtid stid ssch ∗ postcond fsp x vret ret))%I.
 End FSPEC_NDS.
 
-Lemma nds_alloc `{!crisG Γ Σ α β τ Hsub Hinv, !ndsGpreS} :
+Lemma nds_alloc `{!crisG Γ Σ α β τ Hsub Hinv, _NDS: !ndsGpreS} :
   ⊢ o=> ∃ (_ : ndsGS), NDSA.init_cond ∗ NDSA.InitNDS.
 Proof.
   (* join *)

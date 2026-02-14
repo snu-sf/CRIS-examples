@@ -3,7 +3,7 @@ Require Import ImpPrelude MemHeader SchHeader.
 Require Import IncrementHeader.
 
 Module IncrementI. Section IncrementI.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
 
   Definition scopes : list string := [].
 

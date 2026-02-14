@@ -11,7 +11,7 @@ Qed.
 
 (* Simulation Proof *)
 Module CtrlIA. Section CtrlIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELL: !cellGS}.
 
   Variable max_size : nat.
 
@@ -72,11 +72,11 @@ Module CtrlIA. Section CtrlIA.
     iIntros "H". iApply big_sepL_mod. rewrite length_rotate.
 
     destruct (Nat.eq_decidable (n mod List.length l) 0) as [|LENN].
-    { rewrite H1 Nat.sub_0_r.
+    { rewrite H Nat.sub_0_r.
       unfold rotate. rewrite Nat.Div0.mod_same; eauto.
       rewrite drop_0 take_0 app_nil_r.
       eapply eq_ind; try iAssumption. f_equal. extensionalities. f_equal.
-      rewrite Nat.Div0.add_mod; eauto. rewrite H1 Nat.Div0.mod_mod; eauto.
+      rewrite Nat.Div0.add_mod; eauto. rewrite H Nat.Div0.mod_mod; eauto.
     }
     assert (LE:= Nat.mod_upper_bound n _ LENL).
 
@@ -125,7 +125,7 @@ Module CtrlIA. Section CtrlIA.
     iSplit.
     { iPureIntro. esplits; eauto. s. rewrite length_rotate. eauto. }
 
-    iSplit; eauto. rewrite -H8.
+    iSplit; eauto. rewrite -H4.
     iApply big_sepL_rotate. iApply big_sepL_app.
     iSplitL "LIVE".
     + iApply (big_sepL_impl with "LIVE").
@@ -178,9 +178,9 @@ Module CtrlIA. Section CtrlIA.
     (* SRC: take steps *)
     steps_l.
 
-    apply Nat.ltb_lt in Heq. rewrite length_app in H8.
+    apply Nat.ltb_lt in Heq. rewrite length_app in H4.
     assert (UBND:= Nat.mod_upper_bound (tl + List.length v) max_size).
-    revert H1 H2.
+    revert WFS WFT.
     rewrite (@cellgroup_split ((tl+ List.length v) mod max_size)); try nia.
     i; move_aux.
 
@@ -232,12 +232,12 @@ Module CtrlIA. Section CtrlIA.
     destruct q; ss.
     { rewrite Nat.add_0_r Nat.sub_diag. s. step. ss. }
     replace (tl + S(List.length q) - tl) with (S(List.length q)) by nia. s.
-    rewrite !length_app in H8.
+    rewrite !length_app in H4.
 
     (* SRC: take steps *)
     steps_l.
     assert (UBND:= Nat.mod_upper_bound tl max_size).
-    revert H1 H2.
+    revert WFS WFT.
     rewrite (@cellgroup_split (tl mod max_size)); try nia.
     i; move_aux.
 

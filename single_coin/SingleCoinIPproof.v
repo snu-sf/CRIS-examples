@@ -4,7 +4,7 @@ Require Export ProphecyHeader ProphecyI.
 
 Module SingleCoinIP. Section SingleCoinIP.
   Import SingleCoinP SingleCoinI.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
   Context (mn : string).
 
   Local Notation MA := (SingleCoinP.t mn ★ ProphecyI.t mn).

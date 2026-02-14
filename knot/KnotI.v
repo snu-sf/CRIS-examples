@@ -2,7 +2,7 @@ Require Import CRIS.
 Require Export KnotHeader MemHeader.
 
 Module KnotI. Section KnotI.
-  Context `{!crisG Σ Γ α β τ Hinv Hsub, !concGS}.
+  Context `{!crisG Σ Γ α β τ Hinv Hsub, _CONC: !concGS}.
 
   Definition scopes := ["Knot"].
 

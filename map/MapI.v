@@ -19,7 +19,7 @@ def set_by_user(k : int) ≡
 ***)
 
 Module MapI. Section MapI.
-  Context `{!crisG Σ Γ α β τ Hinv Hsub, !concGS}.
+  Context `{!crisG Σ Γ α β τ Hinv Hsub, _CONC: !concGS}.
 
   Definition scopes := ["Map"].
   Definition v_hptr := "Map" ↯ "hptr".

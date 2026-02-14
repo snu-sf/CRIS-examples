@@ -10,7 +10,7 @@ Require Import NDSNodeI NDSNodeA NDSNodeIAproof.
 Require Import SCHMainI SCHMainA SCHMainIAproof.
 
 Section SCHMainAux.
-  Context `{!crisG Γ Σ α β τ Hsub Hinv, !concGS, !schGS, !rrsGS, !ndsGS, !memGS, !MemLib.memGS, !nodeGS}.
+  Context `{!crisG Γ Σ α β τ Hsub Hinv, _CONC: !concGS, _SCH: !schGS, _RRS: !rrsGS, _NDS: !ndsGS, _MEM: !memGS, _MEMLIB: !MemLib.memGS, _NODE: !nodeGS}.
   Context (csl : string → bool) (genv : GEnv.t).
 
   (* source module *)

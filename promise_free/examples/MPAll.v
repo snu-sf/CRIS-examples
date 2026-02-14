@@ -5,7 +5,7 @@ Require Import MPI MPA MPIA.
 Require Import Language.
 
 Section MPAux.
-  Context `{!crisG Γ Σ α β τ Hsub Hinv, !concGS, !histGS, !atomicG, !sysGS, !one_shotG}.
+  Context `{!crisG Γ Σ α β τ Hsub Hinv, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS, _ONESHOT: !one_shotG}.
 
   Definition lang := Language.mk (λ _ : (), tt) (const False) (λ _ : ProgramEvent.t, λ _ _, True).
   Definition syn : Threads.syntax := IdentMap.singleton 1%positive (existT lang tt).

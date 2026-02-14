@@ -5,7 +5,7 @@ Require Import PFMemIAproof.
 
 Section write.
   Import PFMemIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !histGS, !atomicG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _HIST: !histGS, _ATOMIC: !atomicG}.
 
   Context (sp : specmap).
   Context (syn : Threads.syntax).
@@ -30,7 +30,7 @@ Section write.
       destruct e; inv EVWRITE; inv STEP; clear EVENT; rename STEP0 into STEP; s in STEP; cycle 1.
       { (* RACY WRITE *)
         inv STEP; inv LOCAL. inv LOCAL0. inv RACE.
-        { inv PFG; rewrite H3 in GET; ss. }
+        { inv PFG; rewrite H in GET; ss. }
         iPoseProof (tview_both_valid with "TA TV") as "%IN".
         destruct IN as [l [lc [FOUND LCEQ]]].
         s; rewrite FOUND in Heq; inv Heq.
@@ -44,7 +44,7 @@ Section write.
         assert (LECUT: Time.lt (View.rlx Vcut loc) to0).
         { inv SEEN_LOCAL.
           { ett. eapply l. etrans; eauto. }
-          { ett. eapply l. inv H3; eauto. }
+          { ett. eapply l. inv H; eauto. }
         }
         assert (CUT_GET: Cell.get to0 (Cell.singleton msg' LT) = Some (from, Message.message val0 released na)).
         { rewrite CELL_CUT Cell.cut_spec; des_ifs; timetac. }
@@ -62,7 +62,7 @@ Section write.
         exfalso; inv RACE; try done.
         hexploit (PFL tid); eauto; clear PFL; intros PFL.
         inv PFL; inv PFG.
-        des; rewrite H6 H7 in FREEPROMISE.
+        des; rewrite H2 H3 in FREEPROMISE.
         rewrite Promises.FreePromises.minus_bot in FREEPROMISE. inv FREEPROMISE.
       }
       (* VALID WRITE *)
@@ -82,7 +82,7 @@ Section write.
       assert (TTO: Time.lt t to).
       { inv LOCAL0. inv SEEN_LOCAL; inv WRITABLE.
         { etrans; eauto. }
-        { rewrite H3. auto. }
+        { rewrite H. auto. }
       }
 
       assert (AFTER: Time.lt (View.rlx Vcut loc) to).
@@ -107,7 +107,7 @@ Section write.
             instantiate (1:=t0). instantiate (1:=loc').
             des_ifs.
             { ss; des; clarify.
-              rewrite GET; intros HH; inv HH; revert H7; destruct ord; ss.
+              rewrite GET; intros HH; inv HH; revert H3; destruct ord; ss.
               i. rewrite /TimeMap.join /Time.join /TimeMap.singleton /LocFun.add; des_ifs.
               rewrite Time.le_lteq; right; auto.
             }
@@ -137,9 +137,9 @@ Section write.
                 { exfalso. eapply Memory.prealloced_is_not_accessible; cycle 1.
                   eapply ACC.
                   exploit Memory.add_preserve; eauto. i. des.
-                  rewrite /Memory.is_prealloced /Block.is_prealloced in H3.
+                  rewrite /Memory.is_prealloced /Block.is_prealloced in H.
                   rewrite /Memory.get_state in GET_STATE.
-                  rewrite (GET_STATE loc) in H3; ss.
+                  rewrite (GET_STATE loc) in H; ss.
                 }
               }
             }
@@ -149,7 +149,7 @@ Section write.
             ss.
           }
           { inv WF. inv GL_WF. inv LOCAL0. eapply wf_prealloc_write; eauto. }
-          { inv PFG. inv LOCAL0; econs; ss. inv FULFILL. done. rewrite H3 in GREMOVE.
+          { inv PFG. inv LOCAL0; econs; ss. inv FULFILL. done. rewrite H in GREMOVE.
             hexploit (Promises.Promises.remove_le); eauto.
             intros ?; hexploit (Promises.Promises.antisym); eauto using Promises.Promises.bot_spec.
           }
@@ -158,7 +158,7 @@ Section write.
               hexploit (PFL tid); eauto using F.
               intros PFL'; inv PFL'; inv LOCAL0; econs; ss.
               inv FULFILL; ss.
-              hexploit (Promises.Promises.remove_le); first apply REMOVE. rewrite H3.
+              hexploit (Promises.Promises.remove_le); first apply REMOVE. rewrite H.
               intros ?; hexploit (Promises.Promises.antisym); eauto using Promises.Promises.bot_spec.
             }
             { subst ths2; rewrite IdentMap.gso in LC; ss.
@@ -213,7 +213,7 @@ Section write.
       destruct e; inv EVWRITE; inv STEP; clear EVENT; rename STEP0 into STEP; s in STEP; cycle 1.
       { (* RACY WRITE *)
         inv STEP; inv LOCAL. inv LOCAL0. inv RACE.
-        { inv PFG; rewrite H3 in GET; ss. }
+        { inv PFG; rewrite H in GET; ss. }
         hexploit MSG; eauto; intros ->; clear MSG.
         iPoseProof (tview_both_valid with "TA TV") as "%IN".
         destruct IN as [l [lc [FOUND LCEQ]]].
@@ -223,7 +223,7 @@ Section write.
         rewrite AtomicSeen_eq /AtomicSeen_def.
         iDestruct "SEEN" as "[[_ %SEEN] [AR [%GOODHIST [%Vna' [_ NA]]]]]".
         iPoseProof (at_auth_at_last_na_agree with "AA NA") as "<-".
-        iPoseProof (hist_own_hist_cut with "HA HIST") as "[%t [<- [%H4 %]]]".
+        iPoseProof (hist_own_hist_cut with "HA HIST") as "[%t [<- [%eqcut %]]]".
         iDestruct "AA" as "[AA [AEXCLWRITE _]]".
         iPoseProof (at_writer_base_latest with "AA AR") as "%LE".
         destruct (classic (∃ ts' f' m', Cell.get ts' ζ' = Some (f', m'))) as [HEX|FAL]; cycle 1.
@@ -238,7 +238,7 @@ Section write.
         etrans; first apply LECUT.
         etrans; last apply TS.
         hexploit (LE ts'); eauto; intros ZETA.
-        rewrite H4 Cell.cut_spec in ZETA; des_ifs.
+        rewrite eqcut Cell.cut_spec in ZETA; des_ifs.
       }
       { (* INACCESSIBLE WRITE *)
         ss. inv STEP; inv LOCAL.
@@ -251,7 +251,7 @@ Section write.
         exfalso; inv RACE; try done.
         hexploit (PFL tid); eauto; clear PFL; intros PFL.
         inv PFL; inv PFG.
-        des; rewrite H6 H7 in FREEPROMISE.
+        des; rewrite H2 H3 in FREEPROMISE.
         rewrite Promises.FreePromises.minus_bot in FREEPROMISE. inv FREEPROMISE.
       }
       (* VALID WRITE *)
@@ -371,7 +371,7 @@ Section write.
             hexploit Memory.add_o; eauto.
             instantiate (1:=t). instantiate (1:=loc').
             des_ifs.
-            { ss; des; clarify. rewrite GET; intros HH; inv HH; revert ORDRLX H8; destruct ord; ss. }
+            { ss; des; clarify. rewrite GET; intros HH; inv HH; revert ORDRLX H4; destruct ord; ss. }
             intros GET'; rewrite GET' in GET.
             i; eapply CUT; eauto.
             erewrite <- Memory.add_accessible; eauto.
@@ -382,7 +382,7 @@ Section write.
             ss.
           }
           { inv WF. inv GL_WF. inv LOCAL0. eapply wf_prealloc_write; eauto. }
-          { inv PFG. inv LOCAL0; econs; ss. inv FULFILL. done. rewrite H4 in GREMOVE.
+          { inv PFG. inv LOCAL0; econs; ss. inv FULFILL. done. rewrite H0 in GREMOVE.
             hexploit (Promises.Promises.remove_le); eauto.
             intros ?; hexploit (Promises.Promises.antisym); eauto using Promises.Promises.bot_spec.
           }
@@ -391,7 +391,7 @@ Section write.
               hexploit (PFL tid); eauto using EQ.
               intros PFL'; inv PFL'; inv LOCAL0; econs; ss.
               inv FULFILL; ss.
-              hexploit (Promises.Promises.remove_le); first apply REMOVE. rewrite H4.
+              hexploit (Promises.Promises.remove_le); first apply REMOVE. rewrite H0.
               intros ?; hexploit (Promises.Promises.antisym); eauto using Promises.Promises.bot_spec.
             }
             { subst ths2; rewrite IdentMap.gso in LC; ss.

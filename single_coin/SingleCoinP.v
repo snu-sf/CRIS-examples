@@ -3,7 +3,7 @@ Require Import SingleCoinHeader ProphecyHeader.
 (* From stdpp Require Import strings. *)
 
 Module SingleCoinP. Section SingleCoinP.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
   Context (mn : string).
 
   Definition scopes := ["SingleCoin"].

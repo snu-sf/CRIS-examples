@@ -16,7 +16,7 @@ Global Instance subG_coinGpreS `{!crisG Γ Σ α β τ _I _S} : subG coinΓ Γ �
 Proof. solve_inG. Defined.
 
 Section definitions.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !coinGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _COIN: !coinGS}.
 
   Definition coin_auth_r (l : list bool) : CoinRA :=
     gmap_view_auth (DfracOwn 1)
@@ -58,18 +58,18 @@ Section definitions.
     eapply elem_of_list_to_map in EQ; cycle 1.
     { rewrite fst_zip; [|rewrite length_map length_seq //]. apply NoDup_seq. }
     apply elem_of_lookup_zip_with in EQ; destruct EQ as [? [? [? [EQ ?]]]]; clarify.
-    des. apply lookup_seq in H3; des; clarify; ss.
-    apply Some_pair_included_r in H4. rewrite Some_included_total in H4.
-    apply elem_of_list_split_length in H5. destruct H5 as [l1 [l2 [EQ EQL]]].
+    des. apply lookup_seq in H1; des; clarify; ss.
+    apply Some_pair_included_r in H2. rewrite Some_included_total in H2.
+    apply elem_of_list_split_length in H3. destruct H3 as [l1 [l2 [EQ EQL]]].
     apply map_eq_app in EQ; destruct EQ as [l1' [l2' [-> [EQ1 EQ2]]]].
     destruct l2'; [inv EQ2|ss]. inv EQ2.
-    apply to_agree_included in H4; inv H4.
+    apply to_agree_included in H2; inv H2.
     rewrite length_map. rewrite lookup_app_r // Nat.sub_diag //.
   Qed.
 End definitions.
 
 Module SingleCoinA. Section SingleCoinA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !coinGS, !prophGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _COIN: !coinGS, _PROPH: !prophGS}.
 
   Definition new_spec : fspec :=
     fspec_simple (λ _ : unit,

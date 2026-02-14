@@ -4,7 +4,7 @@ Require Import SystemHeader PFMemHeader.
 Definition tidmap : Type := gmap Ident.t nat.
 
 Module SystemI. Section SystemI.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS}.
 
   Definition scopes : list string := ["System"].
   Definition v_tid := "System" ↯ "tid".

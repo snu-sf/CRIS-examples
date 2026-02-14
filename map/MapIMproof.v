@@ -50,7 +50,7 @@ Qed.
 
 (* Simulation proof *)
 Module MapIM. Section MapIM.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !mapMGS, !memGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MAPM: !mapMGS, _MEM: !memGS}.
   Import MapM.
 
   Definition Ist : ist_type Σ :=
@@ -261,7 +261,7 @@ Module MapIM. Section MapIM.
 End MapIM.
 
 Section MapIM.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !mapMGS, !memGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MAPM: !mapMGS, _MEM: !memGS}.
 
   Lemma ctxr (sp_s sp_mem : specmap) :
     MapM.sp ⊆ sp_s →

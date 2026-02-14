@@ -5,7 +5,7 @@ Set Implicit Arguments.
 
 Module MainAS. Section MainAS.
   Import CellioA.
-  Context `{!crisG Γ Σ α β τ _S _I, !cellioG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CELLIO: !cellioG}.
 
   Definition main_spec : fspec :=
     fspec_simple (fun _ : unit =>
@@ -16,7 +16,7 @@ End MainAS. End MainAS.
 
 Module MainA. Section MainA.
   Import CellioA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellioG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELLIO: !cellioG}.
                 
   Definition scopes : list string := [].
 

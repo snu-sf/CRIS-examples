@@ -15,8 +15,8 @@ Proof. solve_inG. Defined.
 Hint Unfold subG_queueG queue_stateG : GRA_index.
 
 Section definitions.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !schGS, !memGS}.
-  Context `{!stackG StackM.jobID StackM.retID, !queueG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _SCH: !schGS, _MEM: !memGS}.
+  Context `{!stackG StackM.jobID StackM.retID, _QUEUE: !queueG}.
   Context (N : namespace).
 
   Definition queueN : namespace := N.@"queue".
@@ -68,8 +68,8 @@ Section definitions.
 End definitions.
 
 Module PQueueA. Section PQueueA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !schGS, !memGS}.
-  Context `{!stackG StackM.jobID StackM.retID, !queueG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _SCH: !schGS, _MEM: !memGS}.
+  Context `{!stackG StackM.jobID StackM.retID, _QUEUE: !queueG}.
   Context (N : namespace).
 
   Definition scopes : list string := [].
@@ -149,8 +149,8 @@ Module PQueueA. Section PQueueA.
 End PQueueA. End PQueueA.
 
 Module PQueueIA. Section PQueueIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !schGS, !memGS}.
-  Context `{!stackG StackM.jobID StackM.retID, !queueG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _SCH: !schGS, _MEM: !memGS}.
+  Context `{!stackG StackM.jobID StackM.retID, _QUEUE: !queueG}.
 
   Context (N : namespace) (sp sp_user : specmap).
   Context (Hsch : (SchA.sp sp_user (↑N)) ⊆ sp).
@@ -451,8 +451,8 @@ Module PQueueIA. Section PQueueIA.
   Qed.
 End PQueueIA.
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !schGS, !memGS}.
-  Context `{!stackG StackM.jobID StackM.retID, !queueG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _SCH: !schGS, _MEM: !memGS}.
+  Context `{!stackG StackM.jobID StackM.retID, _QUEUE: !queueG}.
 
   Lemma ctxr (N : namespace) (sp_user sp : specmap) :
     SchA.sp sp_user (↑N) ⊆ sp →

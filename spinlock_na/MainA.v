@@ -21,7 +21,7 @@ End RA.
 (* Define 1) initial resource 2) function specs 3) sp here. *)
 Module MainA. Section MainA.
   Import LockA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !memGS, !schGS, !spinlockG, !spinlockmainG}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _MEM: !memGS, _SCH: !schGS, _SPINLOCK: !spinlockG, _SPINLOCKMAIN: !spinlockmainG}.
 
   Definition lock_P loc γ : GTerm.t 0 :=
     ∃ v : τ{Z}%SAT, loc ↦ (Vint v) ∗ sown γ (●F v).

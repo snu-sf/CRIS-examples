@@ -8,7 +8,7 @@ Module RRSIA. Section RRSIA.
   Import RRSAS.
   Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_concG: !concGS}.
-  Context `{!RRSA.rrsGS}.
+  Context `{_RRSA: !RRSA.rrsGS}.
 
   Context (sp (* sp_sch_user *) sp_rrs_user: specmap).
   Context (parent_yield: string).
@@ -137,7 +137,7 @@ Module RRSIA. Section RRSIA.
     steps_l. iApply wsim_bind. iSplitL; cycle 1.
     { instantiate (1:= λ _ _, False%I). iIntros (????) "X"; ss. }
 
-    clear H3. iApply wsim_reset. iStopProof.
+    clear H1. iApply wsim_reset. iStopProof.
     revert st_t'. combine_quant st_s'. combine_quant x.
     eapply wsim_coind. i. destruct_quant CIH.
     destruct a as [x [st_s' st_t']]. s.
@@ -173,7 +173,7 @@ Module RRSIA. Section RRSIA.
       iPoseProof (YieldToken_both with "Ysch Ysch'") as "%"; ss. }
     { iExFalso. iDestruct "IST_init" as "(% & RRIA & PubA)". subst. iCombine "RRIP RRIA" as "RRIA".
       iPoseProof (rrinv_prev_subset with "RRIA") as "%".
-      eapply map_subseteq_spec in H1; eauto.
+      eapply map_subseteq_spec in H; eauto.
       instantiate (1 := Inv). instantiate (1 := size (∅: gmap nat InvO)). rewrite lookup_insert. ss. }
     { iExFalso. iDestruct "IST_private" as "(% & Ys & RRIA & Inv' & NschY & C' & S' & PubA)".
       iPoseProof (Shot_match with "S S'") as "%". subst.
@@ -184,7 +184,7 @@ Module RRSIA. Section RRSIA.
 
     iDestruct "IST_global_in" as "(% & Ys & RRIA & TidF & S' & PubA)". 
     
-    steps_r. steps_l. rewrite H1. steps_r. steps_l.
+    steps_r. steps_l. rewrite H. steps_r. steps_l.
     do 2 (case_decide as H'; ss; clear H').
 
     iPoseProof (Shot_match with "S S'") as "%". subst. 
@@ -222,7 +222,7 @@ Module RRSIA. Section RRSIA.
         destruct (decide (tid = mtid)); subst; cycle 1.
         { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
           case_decide; clarify. iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-        rewrite H1 in Hmtid0. inv Hmtid0.
+        rewrite H in Hmtid0. inv Hmtid0.
         iPoseProof (Public_Auth_Token with "PubA [PubF]") as "%".
         { rewrite /Public. unseal RRS. ss. }
         ss. }
@@ -238,11 +238,11 @@ Module RRSIA. Section RRSIA.
         destruct (decide (tid = mtid)); subst; cycle 1.
         { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
           case_decide; clarify. iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-        rewrite H1 in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
+        rewrite H in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
         rewrite -gmap_view_frag_op dfrac_op_own gmap_view_frag_valid in wf. des; ss. }
       { iExFalso. iDestruct "IST_init" as "(% & RRIA & PubA)". subst. iCombine "RRIP RRIA" as "RRIA".
         iPoseProof (rrinv_prev_subset with "RRIA") as "%".
-        eapply map_choose in H4. des. eapply lookup_weaken in H1; eauto. }
+        eapply map_choose in H2. des. eapply lookup_weaken in H; eauto. }
 
       iDestruct "IST_private" as "(% & Ys & RRIA & Inv' & NschY & C' & S' & PubA)". hss.
       iPoseProof (Tid_Auth_Tid with "[TidA TidF]") as "%Hmtid"; first iFrame.
@@ -254,7 +254,7 @@ Module RRSIA. Section RRSIA.
       rewrite STID in Hmtid0. inv Hmtid0.
 
       erewrite lookup_weaken; cycle 1.
-      { eapply H2. } { etrans; eauto. }
+      { eapply H0. } { etrans; eauto. }
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (mtid, stid, ssch); split; done. }
       
@@ -311,7 +311,7 @@ Module RRSIA. Section RRSIA.
         destruct (decide (tid = 0)); subst; cycle 1.
         { iPoseProof (big_sepL_lookup_acc _ _ 0 with "Ys") as "[YIELD2 _]"; eauto.
           case_decide; clarify; by iPoseProof (YieldToken_both with "Y YIELD2") as "%". }
-        rewrite H1 in Hmtid0. inv Hmtid0.
+        rewrite H in Hmtid0. inv Hmtid0.
         iPoseProof (Public_Auth_Token with "PubA PubF") as "%". ss. }
       { iExFalso. iDestruct "IST_global_in" as "(% & Ys & RRIA & TidF' & S')". hss.
         iPoseProof (Tid_Auth_Tid with "[TidA TidF]") as "%Hmtid"; first iFrame.
@@ -327,7 +327,7 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = 0)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ 0 with "Ys") as "[YIELD2 _]"; eauto.
         case_decide; clarify; by iPoseProof (YieldToken_both with "Y YIELD2") as "%". }
-      rewrite H1 in Hmtid0. inv Hmtid0.
+      rewrite H in Hmtid0. inv Hmtid0.
 
       iPoseProof (rrinv_wf with "RRI") as "%WF".
       iPoseProof (rrinv_match with "[RRIA RRI]") as "%"; first iFrame. subst.
@@ -335,7 +335,7 @@ Module RRSIA. Section RRSIA.
       iCombine "TidF TidF'" as "TidF". rewrite agree_idemp.
 
       erewrite lookup_weaken; cycle 1.
-      { eapply H2. } { etrans; eauto. }
+      { eapply H0. } { etrans; eauto. }
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (0, stid, ssch); split; done. }
 
@@ -399,7 +399,7 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = mtid)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
         case_decide; clarify. iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-      rewrite H1 in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
+      rewrite H in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
       rewrite -gmap_view_frag_op dfrac_op_own gmap_view_frag_valid in wf. des; ss. }
     { iExFalso. iDestruct "IST_init" as "(% & RRIA & PubA)". subst.
       iPoseProof (rrinv_match with "[RRIA RRI]") as "%"; first iFrame. subst; ss. }
@@ -414,7 +414,7 @@ Module RRSIA. Section RRSIA.
     destruct (decide (tid = mtid)); subst; cycle 1.
     { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
       case_decide; clarify. iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-    rewrite H1 in Hmtid0. inv Hmtid0.
+    rewrite H in Hmtid0. inv Hmtid0.
 
     steps_l. steps_r. hss.
     set (size rrinvO) as mtid_new.
@@ -468,7 +468,7 @@ Module RRSIA. Section RRSIA.
       eapply lookup_lt_Some in Hin; rewrite ?length_fmap in Hin; lia. }
 
     do 2 iRight. iLeft. rewrite /Ist_public. iFrame. ss. iSplit; eauto.
-    { iPureIntro. rewrite lookup_app. rewrite H1 //. }
+    { iPureIntro. rewrite lookup_app. rewrite H //. }
     rewrite Nat.add_0_r. des_ifs. iFrame; eauto.
 
     Unshelve. all: ss.
@@ -494,7 +494,7 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = mtid)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
         case_decide; clarify. iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-      rewrite H1 in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
+      rewrite H in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
       rewrite -gmap_view_frag_op dfrac_op_own gmap_view_frag_valid in wf. des; ss. }
     { iExFalso. iDestruct "IST_init" as "(% & RRIA & PubA)". subst.
       iPoseProof (rrinv_match with "[RRIA RRI]") as "%"; first iFrame. subst; ss. }
@@ -509,7 +509,7 @@ Module RRSIA. Section RRSIA.
     destruct (decide (tid = mtid)); subst; cycle 1.
     { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
       case_decide; clarify; by iPoseProof (YieldToken_both with "Y YIELD2") as "%". }
-    rewrite H1 in Hmtid0. inv Hmtid0.
+    rewrite H in Hmtid0. inv Hmtid0.
 
     iPoseProof (rrinv_prev_gen with "RRI") as "[RRI RRIP]".
     assert (NEMP: Inv ≠ ∅) by set_solver.
@@ -524,8 +524,8 @@ Module RRSIA. Section RRSIA.
     do 2 (case_decide as H'; ss; clear H').
     forces_l. iSplitL "T"; first iFrame.
     steps_l. step. steps_l. steps_r. iDestruct "ASM" as "[-> T]". hss.
-    steps_l. steps_r. rewrite H1. case_decide; ss. steps_l. steps_r.
-    eapply lookup_lt_Some in H1 as LEN.
+    steps_l. steps_r. rewrite H. case_decide; ss. steps_l. steps_r.
+    eapply lookup_lt_Some in H as LEN.
     generalize (succ_rr_upperbound mtid (length ths) LEN); intro LEN0.
     eapply lookup_lt_is_Some in LEN0. rewrite /is_Some in LEN0. des. rewrite LEN0.
 
@@ -559,7 +559,7 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = mtid)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
         case_decide; clarify. iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-      rewrite H4 in Hmtid0. inv Hmtid0.
+      rewrite H2 in Hmtid0. inv Hmtid0.
       iPoseProof (Public_Auth_Token with "PubA PubF") as "%"; ss. }
     { iExFalso. iDestruct "IST_global_in" as "(% & Ys & RRIA & TidF' & S')". hss.
       iPoseProof (Tid_Auth_Tid with "[TidA TidF]") as "%Hmtid"; first iFrame.
@@ -573,11 +573,11 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = mtid)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
         case_decide; clarify. iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-      rewrite H4 in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
+      rewrite H2 in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
       rewrite -gmap_view_frag_op dfrac_op_own gmap_view_frag_valid in wf. des; ss. }
     { iExFalso. iDestruct "IST_init" as "(% & RRIA & PubA)". subst. iCombine "RRIP RRIA" as "RRIA".
       iPoseProof (rrinv_prev_subset with "RRIA") as "%".
-      eapply map_choose in NEMP. des. eapply lookup_weaken in H4; eauto. }
+      eapply map_choose in NEMP. des. eapply lookup_weaken in H2; eauto. }
 
     iDestruct "IST_private" as "(% & Ys & RRIA & Inv' & NschY & C' & S' & PubA)". hss.
     iPoseProof (Tid_Auth_Tid with "[TidA TidF]") as "%Hmtid"; first iFrame.
@@ -614,7 +614,7 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = mtid)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
         iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-      rewrite H1 in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
+      rewrite H in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
       rewrite -gmap_view_frag_op dfrac_op_own gmap_view_frag_valid in wf. des; ss. }
     { iExFalso. iDestruct "IST_global_out" as "(% & Ys & RRIA & TidF' & Ysch' & S')".
       iPoseProof (Tid_Auth_Tid with "[TidA TidF]") as "%Hmtid"; first iFrame.
@@ -622,11 +622,11 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = mtid)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
         case_decide; clarify; iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-      rewrite H1 in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
+      rewrite H in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
       rewrite -gmap_view_frag_op dfrac_op_own gmap_view_frag_valid in wf. des; ss. }
     { iExFalso. iDestruct "IST_init" as "[% RRIA]". subst.
       destruct ths; ss. iPoseProof (Tid_Auth_Tid with "[TidA TidF]") as "%"; first iFrame.
-      rewrite lookup_empty in H1. ss. }
+      rewrite lookup_empty in H. ss. }
     { iExFalso. iDestruct "IST_private" as "(% & Ys & RRIA & Inv' & NschY & C' & S')". hss.
       iApply (Control_nodup with "[C C']"); iFrame. }
 
@@ -636,7 +636,7 @@ Module RRSIA. Section RRSIA.
     destruct (decide (tid = mtid)); subst; cycle 1.
     { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
       case_decide; clarify; iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-    rewrite H1 in Hmtid0. inv Hmtid0.
+    rewrite H in Hmtid0. inv Hmtid0.
     iPoseProof (Shot_match with "S S'") as "%"; subst.
 
     iPoseProof (rrinv_prev_gen with "RRIA") as "[RRIA RRIP]".
@@ -660,7 +660,7 @@ Module RRSIA. Section RRSIA.
     iDestruct "IST" as (??????) "(% & TidA & [IST_init | [IST_private | [IST_public | [IST_global_in | IST_global_out]]]])"; des; subst.
     { iExFalso. iDestruct "IST_init" as "(% & RRIA & PubA)". subst. iCombine "RRIP RRIA" as "RRIA".
       iPoseProof (rrinv_prev_subset with "RRIA") as "%".
-      eapply map_choose in NEMP. des. eapply lookup_weaken in H2; eauto. }
+      eapply map_choose in NEMP. des. eapply lookup_weaken in H0; eauto. }
     { iExFalso. iDestruct "IST_private" as "(% & Ys & RRIA & Inv' & NschY & C' & S')". hss.
       iCombine "C C'" as "C". iApply (Control_nodup with "C"). }
     { iExFalso. iDestruct "IST_public" as "(% & Ys & RRIA & NschY & S' & PubA)". hss.
@@ -669,7 +669,7 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = mtid)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
         case_decide; clarify; iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-      rewrite H2 in Hmtid0. inv Hmtid0.
+      rewrite H0 in Hmtid0. inv Hmtid0.
       iPoseProof (Public_Auth_Token with "PubA PubF") as "%"; ss. }
     { iExFalso. iDestruct "IST_global_in" as "(% & Ys & RRIA & TidF' & S')". hss.
       iPoseProof (Tid_Auth_Tid with "[TidA TidF]") as "%Hmtid"; first iFrame.
@@ -684,7 +684,7 @@ Module RRSIA. Section RRSIA.
     destruct (decide (tid = mtid)); subst; cycle 1.
     { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
       case_decide; clarify; iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-    rewrite H2 in Hmtid0. inv Hmtid0.
+    rewrite H0 in Hmtid0. inv Hmtid0.
 
     iCombine "TidF TidF'" as "TidF". rewrite agree_idemp.
 
@@ -719,11 +719,11 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = mtid)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
         case_decide; clarify. iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-      rewrite H1 in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
+      rewrite H in Hmtid0. inv Hmtid0. iCombine "TidF TidF'" gives %wf.
       rewrite -gmap_view_frag_op dfrac_op_own gmap_view_frag_valid in wf. des; ss. }
     { iExFalso. iDestruct "IST_init" as "[% RRIA]". subst.
       destruct ths; ss. iPoseProof (Tid_Auth_Tid with "[TidA TidF]") as "%"; first iFrame.
-      rewrite lookup_empty in H1. ss. }
+      rewrite lookup_empty in H. ss. }
     { iExFalso. iDestruct "IST_private" as "(% & Ys & RRIA & Inv' & NschY & C' & S')". hss.
       iApply (Control_nodup with "[C C']"); iFrame. }
 
@@ -735,7 +735,7 @@ Module RRSIA. Section RRSIA.
     destruct (decide (tid = mtid)); subst; cycle 1.
     { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
       case_decide; clarify. iPoseProof (YieldToken_both with "Y YIELD2") as "%"; ss. }
-    rewrite H1 in Hmtid0. inv Hmtid0.
+    rewrite H in Hmtid0. inv Hmtid0.
 
     steps_l. steps_r. hss. steps_l. steps_r. forces_l. iSplitL "TidF Y T S C PubF"; first iFrame; eauto.
     step. iSplit; eauto. do 6 iExists _. iSplit; eauto. iFrame "TidA". do 2 iRight. iLeft. iFrame; eauto.

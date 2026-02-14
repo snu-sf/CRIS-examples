@@ -3,7 +3,7 @@ Require Import ImpPrelude.
 Require Import RingHeader CellA.
 
 Module RingA. Section RingA.
-  Context `{!crisG Γ Σ α β τ _S _I, !concGS, !cellGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, _CONC: !concGS, _CELL: !cellGS}.
 
   (* Definition sp : specmap :=
     {[speckey_fn RingHdr.init := fspec_to_rel fspec_trivial;
