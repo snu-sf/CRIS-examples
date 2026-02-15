@@ -1,4 +1,4 @@
-(* Require Import CRIS.
+Require Import CRIS.
 
 Require Import RepeatHeader RepeatI RepeatA.
 Require Import APCHeader APC APCA APCTactics.
@@ -38,7 +38,7 @@ Module RepeatIA. Section RepeatIA.
 
     (* SRC: handle the precond of repeat *)
     steps_l. destruct _q as [[n x] f_sem].
-    iDestruct "ASM" as "%". hss. dup H4. inv H4. rewrite /pure_body /cfunN. hss_l.
+    iDestruct "ASM" as "%". hss. dup H3. inv H4. rewrite /pure_body /cfunN. hss_l.
     steps_l.
 
     (* SRC: find apc in sp *)
@@ -73,7 +73,7 @@ Module RepeatIA. Section RepeatIA.
     {
       (* TGT: load fn from function pointer *)
       destruct (Z_lt_le_dec (S n') 1) eqn:E; try lia.
-      rewrite H1. hss. steps_r.
+      rewrite H2. hss. steps_r.
 
       (* SRC: unfold APC *)
       forces_l. iSplit; eauto. steps_l. 
@@ -135,4 +135,4 @@ Section ctxr.
       ((RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I)
       ((RepeatI.t ge)                    ★ (APCA.t sp_pure sp), emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
-End ctxr. End RepeatIA. *)
+End ctxr. End RepeatIA.

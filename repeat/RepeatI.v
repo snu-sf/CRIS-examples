@@ -1,4 +1,4 @@
-(* Require Import CRIS.
+Require Import CRIS.
 Require Import Imp.
 Require Import RepeatHeader.
 
@@ -31,4 +31,4 @@ Module RepeatI. Section RepeatI.
   Solve All Obligations with mod_tac.
 
   Definition t (genv: GEnv.t) : Mod.t := SMod.to_mod ∅ (smod genv).
-End RepeatI. End RepeatI. *)
+End RepeatI. End RepeatI.
