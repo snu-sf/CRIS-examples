@@ -24,7 +24,7 @@ Module MutGIA. Section MutGIA.
   (*************)
 
   Lemma simF_mutg:
-    ISim.sim_fun open MutGAMod MutGIMod IstFull (Some MutHdr.mutg).
+    ISim.sim_fun open MutGAMod MutGIMod IstFull (fid MutHdr.mutg).
   Proof using _crisG APCInSp FInPure PureInSp.
     iStartSim.
     

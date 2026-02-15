@@ -22,7 +22,7 @@ Module MainIA. Section MainIA.
   Local Notation MA := (SpinLockMainA ★ (SpinLockA ★ MemA)).
   Local Notation MI := (SpinLockMainI ★ (SpinLockA ★ MemA)).
 
-  Lemma incr_simF : ISim.sim_fun open MA MI IstFull (Some SpinLockMainHdr.incr).
+  Lemma incr_simF : ISim.sim_fun open MA MI IstFull (fid SpinLockMainHdr.incr).
   Proof using SchInSp_s SchInSp_t MainInSp.
     iStartSim.
     (* process src precondition *)
@@ -74,7 +74,7 @@ Module MainIA. Section MainIA.
     step. iFrame. eauto.
   (*SLOW*)Qed.
 
-  Lemma main_simF : ISim.sim_fun open MA MI IstFull None.
+  Lemma main_simF : ISim.sim_fun open MA MI IstFull entry.
   Proof using SchInSp_s SchInSp_t MainInSp.
     iStartSim. steps_l. destruct _q as [[stid mtid] []]. iDestruct "ASM" as "[TID ->]".
 

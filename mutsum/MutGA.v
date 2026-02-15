@@ -16,10 +16,10 @@ Module MutGA. Section MutGA.
          (λ vret, (⌜vret = (Vint (Z.of_nat (sum n)))↑⌝)%I))).
          
   Definition SpG: specmap :=
-    {[speckey_fn MutHdr.mutg := fspec_to_rel g_spec]}.
+    {[fid MutHdr.mutg @ g_spec]}.
 
   Definition fnsems : fnsemmap :=
-    {[Some MutHdr.mutg := Some (msk_scp scopes msk_true, (fsp_some g_spec, pure_body))]}.
+    {[fid MutHdr.mutg # (msk_scp scopes msk_true, (fsp_some g_spec, pure_body))]}.
 
   Program Definition smod: SMod.t :=
   {|

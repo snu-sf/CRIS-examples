@@ -34,7 +34,7 @@ Module SCHMainIA. Section SCHMainIA.
   Local Definition MA := (SCHMainA.t sp).
   Local Definition MI := (SCHMainI.t).
 
-  Lemma simF_main : ISim.sim_fun open MA MI IstTrue None.
+  Lemma simF_main : ISim.sim_fun open MA MI IstTrue entry.
   Proof using Hschglob (* Hschrrs Hschnds *) Hsch Hrrs Hnds Hrrsnode Hndsnode.
     iStartSim.
 
@@ -49,7 +49,7 @@ Module SCHMainIA. Section SCHMainIA.
     force_l (pre, postS). subst pre postS.
     steps_l. forces_l. iSplitL "RI RV".
     { do 3 iExists _. iSplit; eauto. iFrame. rewrite /SchA.fn_spawnable. iSplit; eauto. iExists _. iSplit; eauto.
-      { iPureIntro. erewrite lookup_weaken; try eapply Hrrs; eauto. rewrite /RRSAS.sp. simpl_map. refl. }
+      { iPureIntro. erewrite lookup_weaken; try eapply Hrrs; et. }
       rewrite /SchA.fspec_spawnable. iIntros (??) "%".
       destruct H as [x [Hpre Hpost]]; ss. rewrite /precond /= /precond in Hpre. rewrite /postcond /= /postcond in Hpost.
       destruct x as [[stid mtid] []].
@@ -65,7 +65,7 @@ Module SCHMainIA. Section SCHMainIA.
         iExists _. iSplitR; eauto. iExists _. iSplitR; eauto. iFrame.
         iDestruct "T" as "(t & T & Y)". iFrame. iSplit; eauto.
         rewrite /RRSAS.fn_spawnable_rr_init. iExists _. iSplit; eauto.
-        { iPureIntro. erewrite lookup_weaken; try eapply Hrrsnode; eauto. rewrite /RRSNodeAS.sp. simpl_map. refl. }
+        { iPureIntro. erewrite lookup_weaken; try eapply Hrrsnode; eauto. }
         rewrite /RRSAS.fspec_spawnable_rr_init. iIntros (??) "%".
         rewrite /fspec_winv /fspec_virtual in H; ss; destruct H as [x [Hpre Hpost]]; ss; rewrite /precond /= /precond in Hpre; rewrite /postcond /= /postcond in Hpost.
         destruct x as [[mtid0 stid0] ssch].
@@ -99,7 +99,7 @@ Module SCHMainIA. Section SCHMainIA.
     force_l (pre, postS). subst pre postS.
     steps_l. forces_l. iSplitL "NI Join".
     { do 3 iExists _. iSplit; eauto. iFrame. rewrite /SchA.fn_spawnable. iSplit; eauto. iExists _. iSplit; eauto.
-      { iPureIntro. erewrite lookup_weaken; try eapply Hnds; eauto. rewrite /NDSA.sp. simpl_map. refl. }
+      { iPureIntro. erewrite lookup_weaken; try eapply Hnds; eauto. }
       rewrite /SchA.fspec_spawnable. iIntros (??) "%".
       destruct H as [x [Hpre Hpost]]; ss. rewrite /precond /= /precond in Hpre. rewrite /postcond /= /postcond in Hpost.
       destruct x as [[stid mtid] []].
@@ -115,7 +115,7 @@ Module SCHMainIA. Section SCHMainIA.
         iExists _. iSplitR; eauto. iExists _. iSplitR; eauto. iFrame.
         iDestruct "T" as "(t & T & Y)". iFrame. iSplit; eauto.
         rewrite /NDSA.fn_spawnable. iExists _. iSplit; eauto.
-        { iPureIntro. erewrite lookup_weaken; try eapply Hndsnode; eauto. rewrite /NDSNodeA.sp. simpl_map. refl. }
+        { iPureIntro. erewrite lookup_weaken; try eapply Hndsnode; eauto. }
         rewrite /NDSA.fspec_spawnable. iIntros (??) "%".
         rewrite /fspec_winv /fspec_virtual in H; ss; destruct H as [x [Hpre Hpost]]; ss; rewrite /precond /= /precond in Hpre; rewrite /postcond /= /postcond in Hpost.
         destruct x as [[mtid0 stid0] ssch].

@@ -26,8 +26,8 @@ Module KnotMainI. Section KnotMainI.
       ccallU fn [Vint 10].
 
   Definition fnsems (genv : GEnv.t) : fnsemmap :=
-    {[Some KnotMainHdr.fib := Some (msk_scp scopes msk_true, (None, cfunU (fibF genv)));
-      None := Some (msk_scp scopes msk_true, (None, cfunU (mainF genv)))]}.
+    {[fid KnotMainHdr.fib # (msk_scp scopes msk_true, (None, cfunU (fibF genv)));
+      entry # (msk_scp scopes msk_true, (None, cfunU (mainF genv)))]}.
 
   Program Definition smod genv : SMod.t := {|
     SMod.scopes := scopes;

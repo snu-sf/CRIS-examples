@@ -26,7 +26,7 @@ Section StackIM.
 
   Local Notation IstFull := (HelpingTactics.IstFull StackM.jobID StackM.retID mn).
 
-  Lemma push_simF : ISim.sim_fun open StackM StackI IstFull (Some StackHdr.push).
+  Lemma push_simF : ISim.sim_fun open StackM StackI IstFull (fid StackHdr.push).
   Proof using.
     iStartSim.
     rewrite /StackM.push; steps_l. steps_r.

@@ -73,7 +73,7 @@ Module SystemA. Section SystemA.
 
   (* Specifications *)
   Definition fspec_spawnable (fn : string) (pre : TView.t → SAny.t → SAny.t → iProp Σ) : iProp Σ :=
-    ∃ fsp, ⌜sp_user !! (speckey_fn fn) = Some fsp⌝ ∗
+    ∃ fsp, ⌜sp_user.1 !! (fid fn) = Some fsp⌝ ∗
       fspec_imply
         fsp
         (fspec_winv ⊤
@@ -152,8 +152,8 @@ Module SystemA. Section SystemA.
           @{Vb} AtomicPtsToX loc γ t ζ mode ∗
           tview_sys tid stid 𝓥')))%I.
 
-  Definition read_spec : fspec_rel :=
-    λ P Q, fspec_to_rel read_spec_0 P Q ∨ fspec_to_rel read_spec_1 P Q.
+  Definition read_spec : fspec :=
+    [read_spec_0; read_spec_1]%cris.
 
   (* non-atomic write *)
   Definition write_spec_0 : fspec :=
@@ -197,17 +197,17 @@ Module SystemA. Section SystemA.
           @{Vb ⊔ TView.cur 𝓥'} AtomicPtsToX loc γ (if mode is SingleWriter then t else tx') ζn mode ∗
           tview_sys tid stid 𝓥')))%I.
 
-  Definition write_spec : fspec_rel := 
-    λ P Q, fspec_to_rel write_spec_0 P Q ∨ fspec_to_rel write_spec_1 P Q.
+  Definition write_spec : fspec := 
+    [write_spec_0; write_spec_1]%cris.
 
   Definition sp (E : coPset) : specmap :=
-    {[speckey_fn SystemHdr._spawn :=  fspec_to_rel _spawn_spec;
-      speckey_fn SystemHdr.spawn :=   fspec_to_rel spawn_spec;
-      speckey_fn SystemHdr.yield :=   fspec_to_rel (yield_spec E);
-      speckey_fn SystemHdr.get_tid := fspec_to_rel get_tid_spec;
-      speckey_fn SystemHdr.alloc := fspec_to_rel alloc_spec;
-      speckey_fn SystemHdr.write := write_spec;
-      speckey_fn SystemHdr.read := read_spec]}.
+    {[fid SystemHdr._spawn  @ _spawn_spec;
+      fid SystemHdr.spawn   @ spawn_spec;
+      fid SystemHdr.yield   @ (yield_spec E);
+      fid SystemHdr.get_tid @ get_tid_spec;
+      fid SystemHdr.alloc   @ alloc_spec;
+      fid SystemHdr.write   @ write_spec;
+      fid SystemHdr.read    @ read_spec]}.
 
   (* Module definitions *)
   Definition scopes : list string := ["System"].
@@ -254,26 +254,19 @@ Module SystemA. Section SystemA.
       ccallN PFMemHdr.read (tid, loc, ord).
 
   Definition fnsems (E : coPset) : fnsemmap :=
-    {[Some SystemHdr._spawn :=
-        Some (msk_scp scopes msk_true, (fsp_some (_spawn_spec), cfunN _spawn));
-      Some SystemHdr.spawn :=
-        Some (msk_scp scopes msk_true, (fsp_some (spawn_spec), cfunN spawn));
-      Some SystemHdr.yield :=
-        Some (msk_scp scopes msk_true, (fsp_some (yield_spec E), cfunN yield));
-      Some SystemHdr.get_tid :=
-        Some (msk_scp scopes msk_true, (fsp_some get_tid_spec, cfunN get_tid));
-      Some SystemHdr.alloc :=
-        Some (msk_scp scopes msk_true, (fsp_some alloc_spec, fbody_trivial));
-      Some SystemHdr.write :=
-        Some (msk_scp scopes msk_true, (fsp_some write_spec, fbody_trivial));
-      Some SystemHdr.read :=
-        Some (msk_scp scopes msk_true, (fsp_some read_spec, fbody_trivial))]}.
+    {[fid SystemHdr._spawn  # (msk_scp scopes msk_true, (fsp_some (_spawn_spec), cfunN _spawn));
+      fid SystemHdr.spawn   # (msk_scp scopes msk_true, (fsp_some (spawn_spec), cfunN spawn));
+      fid SystemHdr.yield   # (msk_scp scopes msk_true, (fsp_some (yield_spec E), cfunN yield));
+      fid SystemHdr.get_tid # (msk_scp scopes msk_true, (fsp_some get_tid_spec, cfunN get_tid));
+      fid SystemHdr.alloc   # (msk_scp scopes msk_true, (fsp_some alloc_spec, fbody_trivial));
+      fid SystemHdr.write   # (msk_scp scopes msk_true, (fsp_some write_spec, fbody_trivial));
+      fid SystemHdr.read    # (msk_scp scopes msk_true, (fsp_some read_spec, fbody_trivial))]}.
 
   Program Definition Mod E : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems E;
     SMod.initial_st := 
-      {[v_tid := Some 1%positive↑; v_tids := Some ({[1%positive := 0]} : tidmap)↑]};
+      {[v_tid # 1%positive↑; v_tids # ({[1%positive := 0]} : tidmap)↑]};
   |}.
   Solve All Obligations with mod_tac.
 

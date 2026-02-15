@@ -11,12 +11,12 @@ Module CellioIA. Section CellioIA.
 
   Definition Ist : ist_type Σ :=
     fun st_src st_tgt =>
-      (∃ v, ⌜st_tgt = {[CellioI.v_cv := Some (v↑)]}⌝ ∗ auth v)%I.
+      (∃ v, ⌜st_tgt = {[CellioI.v_cv # (v↑)]}⌝ ∗ auth v)%I.
 
   Local Definition CellioI := (CellioI.t).
   Local Definition CellioA := (CellioA.t).
 
-  Lemma simF_set : ISim.sim_fun open CellioA CellioI Ist (Some CellioHdr.set).
+  Lemma simF_set : ISim.sim_fun open CellioA CellioI Ist (fid CellioHdr.set).
   Proof using.
     iStartSim. unfold CellioI.set, CellioA.set.
 
@@ -46,7 +46,7 @@ Module CellioIA. Section CellioIA.
     iExists _. iFrame. eauto.
   (*SLOW*)Qed.
   
-  Lemma simF_get : ISim.sim_fun open CellioA CellioI Ist (Some CellioHdr.get).
+  Lemma simF_get : ISim.sim_fun open CellioA CellioI Ist (fid CellioHdr.get).
   Proof using.
     iStartSim. unfold CellioI.get, CellioA.get.
 

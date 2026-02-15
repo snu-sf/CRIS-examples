@@ -66,8 +66,8 @@ Module CelliocbA. Section CelliocbA.
   Definition scopes := [CelliocbHdr.mn].
   
   Definition fnsems : fnsemmap :=
-    {[Some CelliocbHdr.set := Some (msk_scp scopes msk_true, (None, cfunU set));
-      Some CelliocbHdr.get := Some (msk_scp scopes msk_true, (None, get))]}.
+    {[fid CelliocbHdr.set # (msk_scp scopes msk_true, (None, cfunU set));
+      fid CelliocbHdr.get # (msk_scp scopes msk_true, (None, get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

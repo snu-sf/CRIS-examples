@@ -8,14 +8,14 @@ Module MainIA. Section MainIA.
   Context `{!crisG Γ Σ α β τ _S _I, _CELLIO: !cellioG}.
 
   Context (sp: specmap).
-  Context (sp_input: sp !! speckey_fn CtxHdr.input = None).
-  Context (sp_foo: sp !! speckey_fn CtxHdr.foo = None).
+  Context (sp_input: sp.1 !! (fid CtxHdr.input) = None).
+  Context (sp_foo: sp.1 !! (fid CtxHdr.foo) = None).
 
   Local Definition CellioA := (CellioA.t).
   Local Definition MainA := (MainA.t sp).
   Local Definition IstFull := (IstProd (IstSB MainA.(Mod.scopes) IstTrue) IstEq).
 
-  Lemma simF_main : ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull None.
+  Lemma simF_main : ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull entry.
   Proof using sp_input sp_foo.
     iStartSim. unfold MainI.main, MainA.main.
 

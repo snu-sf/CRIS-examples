@@ -9,13 +9,13 @@ Module MemHN. Section MemHN.
   Definition Ist : gmap key (option Any.t) → gmap key (option Any.t) → iProp Σ :=
     λ st_src st_tgt,
       (∃ (mem: Mem.t),
-      ⌜st_src = {[NonDetMem.v_mem := Some mem↑]} ∧ st_tgt = {[HybMem.v_mem := Some mem↑]}⌝)%I.
+      ⌜st_src = {[NonDetMem.v_mem # mem↑]} ∧ st_tgt = {[HybMem.v_mem # mem↑]}⌝)%I.
 
   Local Definition NonDetMem := NonDetMem.t.
   Local Definition HybMem := HybMem.t.
   Local Definition IstFull := (IstProd (IstSB NonDetMem.(Mod.scopes) Ist) IstEq).
 
-  Lemma simF_alloc : ISim.sim_fun open NonDetMem HybMem IstFull (Some MemHdr.alloc).
+  Lemma simF_alloc : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.alloc).
   Proof using.
     iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -40,7 +40,7 @@ Module MemHN. Section MemHN.
     iPureIntro. repeat (esplits; eauto).
   (* SLOW *)Qed.
 
-  Lemma simF_free : ISim.sim_fun open NonDetMem HybMem IstFull (Some MemHdr.free).
+  Lemma simF_free : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.free).
   Proof using.
     iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -63,7 +63,7 @@ Module MemHN. Section MemHN.
     iPureIntro. repeat (esplits; eauto).
   (*SLOW*)Qed.
 
-  Lemma simF_load : ISim.sim_fun open NonDetMem HybMem IstFull (Some MemHdr.load).
+  Lemma simF_load : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.load).
   Proof using.
     iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -88,7 +88,7 @@ Module MemHN. Section MemHN.
     iPureIntro. repeat (esplits; eauto).
   (*SLOW*)Qed.
 
-  Lemma simF_store : ISim.sim_fun open NonDetMem HybMem IstFull (Some MemHdr.store).
+  Lemma simF_store : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.store).
   Proof using.
     iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -114,7 +114,7 @@ Module MemHN. Section MemHN.
     iPureIntro. repeat (esplits; eauto).
   (*SLOW*)Qed.
 
-  Lemma simF_cmp : ISim.sim_fun open NonDetMem HybMem IstFull (Some MemHdr.cmp).
+  Lemma simF_cmp : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.cmp).
   Proof using.
     iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -140,7 +140,7 @@ Module MemHN. Section MemHN.
     iPureIntro. repeat (esplits; eauto).
   (*SLOW*)Qed.
 
-  Lemma simF_cas : ISim.sim_fun open NonDetMem HybMem IstFull (Some MemHdr.cas).
+  Lemma simF_cas : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.cas).
   Proof using.
         iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.

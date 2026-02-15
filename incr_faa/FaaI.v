@@ -11,7 +11,7 @@ Module FaaI. Section FaaI.
     λ arg, 𝒴;;; MemHdr.faa arg;;; 𝒴;;; MemHdr.faa arg;;; 𝒴;;; Ret tt.
 
   Definition fnsems : fnsemmap :=
-    {[Some FaaHdr.faa2 := Some (msk_scp scopes (msk_real msk_true), (None, cfunU faa2))]}.
+    {[fid FaaHdr.faa2 # (msk_scp scopes (msk_real msk_true), (None, cfunU faa2))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

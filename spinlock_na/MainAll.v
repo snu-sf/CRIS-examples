@@ -29,20 +29,20 @@ Section MainAux.
   (* Some assumptions on sp inclusion *)
   Lemma SchInSp : (SchA.sp sp_user ⊤) ⊆ sp.
   Proof.
-    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-      rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+    split; et.
+    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
   Qed.
 
   Lemma MainInSp : MainA.sp ⊤ ⊆ sp_user.
   Proof.
-    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq. rewrite lookup_insert //.
+    split; et.
   Qed.
 
   Lemma UserInSp : sp_user ⊆ sp.
   Proof.
-    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-      rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
-    rewrite !lookup_omap !lookup_fmap !lookup_omap lookup_union_with /MainA.fnsems /SchA.fnsems;
+    split; et.
+    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq.
+    rewrite !lookup_omap !lookup_fmap !lookup_omap lookup_union_with /MainA.fnsems /SchA.fnsems.
     simpl_map; ss.
     rewrite nclose_nroot //.
   Qed.
@@ -54,10 +54,10 @@ Section MainAux.
   Proof.
     eapply Cancel.cancellation.
     { apply SMod.cancellable_add; r; rewrite /= /MainA.fnsems /SchA.fnsems; mod_tac ss. }
-    { assert (Ht : SMod.conc_sp_from smod_src !! speckey_entry =
-        fsp_some (fspec_sch (↑nroot) fspec_trivial)); last (rewrite Ht; clear Ht).
-      { rewrite lookup_insert_ne // lookup_kmap_Some; exists None; split; ss. }
-       eexists _, _; splits.
+    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry =
+                     fsp_some (fspec_sch (↑nroot) fspec_trivial)) by mod_tac.
+      rewrite Ht; clear Ht.
+      eexists _, _; splits.
       { ss; exists (0, 0, tt); split; refl. }
       { rewrite !nclose_nroot. iIntros "[$ [$ [$ $]]]"; ss. }
       { unfold_pre_post. iIntros "% % [_ [_ $]]". }
@@ -76,7 +76,7 @@ Section MainAux.
       eapply SchIA.ctxr.
       - apply SchInSp.
       - apply UserInSp.
-      - rewrite dom_insert elem_of_union; left; apply elem_of_singleton; ss.
+      - et.
     }
 
     (* abstraction of Mem *)

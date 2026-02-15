@@ -38,7 +38,7 @@ Module RepeatAS. Section RepeatAS.
           (λ ret, ⌜ret = (Vint (repeat_fun f_sem n x))↑⌝%I))).
 
   Definition Sp: specmap :=
-    {[speckey_fn RepeatHdr.repeat := fspec_to_rel (repeat_spec genv)]}.
+    {[fid RepeatHdr.repeat @ repeat_spec genv]}.
 
 End RepeatAS. End RepeatAS.
 
@@ -49,7 +49,7 @@ Module RepeatA. Section RepeatA.
   Definition scopes := [RepeatHdr.mn].
 
   Definition fnsems (genv : GEnv.t) (sp_pure: specmap) : fnsemmap :=
-    {[Some RepeatHdr.repeat := Some (msk_scp scopes msk_true, (fsp_some (RepeatAS.repeat_spec sp_pure genv), pure_body))]}.
+    {[fid RepeatHdr.repeat # (msk_scp scopes msk_true, (fsp_some (RepeatAS.repeat_spec sp_pure genv), pure_body))]}.
 
   Program Definition smod genv sp_pure : SMod.t := {|
     SMod.scopes := scopes;

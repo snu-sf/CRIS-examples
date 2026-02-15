@@ -14,13 +14,13 @@ Section read.
   Definition MA := (PFMemA.t sp).
   Definition MI := (PFMemI.t syn size).
 
-  Lemma simF_read : ISim.sim_fun open MA MI PFMemIA.Ist (Some PFMemHdr.read).
+  Lemma simF_read : ISim.sim_fun open MA MI PFMemIA.Ist (fid PFMemHdr.read).
   Proof.
     iStartSim.
-    step_l. destruct _q as [? ? [? | ?]].
+    step_l. destruct _q as [f|[f|[]]].
     { (* non-atomic read *)
       steps_l. rename _q into varg.
-      destruct f as [[[[[[tid loc] ord] val] q] 𝓥] [-> ->]]. unfold_pre_post.
+      destruct f as [[[[[tid loc] ord] val] q] 𝓥]. unfold_pre_post.
       iDestruct "ASM" as "[-> [-> [PT TV]]]". hss_r. steps_r.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
       steps_r. hss. steps_r.
@@ -139,7 +139,7 @@ Section read.
       }
       step. iSplit; eauto.
     }
-    { destruct f as [[[[[[[[[[[tid loc] ord] ζ] ζ'] t] γ] q] mode] 𝓥] Vb] [-> ->]].
+    { destruct f as [[[[[[[[[[tid loc] ord] ζ] ζ'] t] γ] q] mode] 𝓥] Vb].
       steps_l. rename _q into varg.
       iDestruct "ASM" as "[-> [[-> %ORDRLX] [SEEN [PT TV]]]]". hss_r.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".

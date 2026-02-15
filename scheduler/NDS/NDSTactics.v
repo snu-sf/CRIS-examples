@@ -13,8 +13,8 @@ Section wsim.
   Local Definition rel : Type := ∀ R_s R_t : Type,
     post R_s R_t → bool → bool → state * itree crisE R_s → state * itree crisE R_t → iProp Σ.
 
-  Context (fl_s fl_t : gmap (option string) (option (Any.t → itree crisE Any.t))).
-  Context (Ist : gmap key (option Any.t) → gmap key (option Any.t) → iProp Σ).
+  Context (fl_s fl_t : gmap fname (option (Any.t → itree crisE Any.t))).
+  Context (Ist : ist_type Σ).
   Context (R_s R_t : Type).
   Context (RR : post R_s R_t).
   Context (ps pt : bool).
@@ -29,8 +29,8 @@ Section wsim.
       (msk_s msk_t : emask) (sp_s sp_t : specmap) :
     (∀ X, msk_t _ (subevent _ (Choose X))) →
     (msk_t _ (subevent _ (Call NDSHdr.yield ()↑))) →
-    sp_s !! speckey_fn NDSHdr.yield = None →
-    sp_t !! speckey_fn NDSHdr.yield = None →
+    sp_s.1 !! fid NDSHdr.yield = None →
+    sp_t.1 !! fid NDSHdr.yield = None →
     Ist st_src st_tgt ∗
     (∀ st_src st_tgt,
       Ist st_src st_tgt -∗
@@ -76,8 +76,8 @@ Section wsim.
       (msk_s msk_t : emask)
       (sp_s sp_t : specmap)
       (mtid stid ssch : nat) :
-    sp_s !! speckey_fn NDSHdr.yield = fsp_some (NDSA.yield_spec Es) →
-    sp_t !! speckey_fn NDSHdr.yield = None →
+    sp_s.1 !! fid NDSHdr.yield = fsp_some (NDSA.yield_spec Es) →
+    sp_t.1 !! fid NDSHdr.yield = None →
     (∀ X, msk_t _ (subevent _ (Choose X))) →
     (msk_t _ (subevent _ (Call NDSHdr.yield ()↑))) →
     Ist st_src st_tgt ∗ NDSA.Tid mtid stid ssch ∗
@@ -128,8 +128,8 @@ Section wsim.
       (k_t : () → itree crisE R_t)
       (msk_s msk_t : emask)
       (sp_s sp_t : specmap) :
-    sp_s !! speckey_fn NDSHdr.yield = fsp_some (NDSA.yield_spec Es) →
-    sp_t !! speckey_fn NDSHdr.yield = fsp_some (NDSA.yield_spec Et) →
+    sp_s.1 !! fid NDSHdr.yield = fsp_some (NDSA.yield_spec Es) →
+    sp_t.1 !! fid NDSHdr.yield = fsp_some (NDSA.yield_spec Et) →
     img_msk msk_t →
     (∀ fn arg, msk_t _ (subevent _ (Call fn arg)) = true) →
     Et ⊆ Es →
@@ -200,8 +200,8 @@ Section wsim.
       (msk_s msk_t : emask) (sp_s sp_t : specmap) :
     (∀ X, msk_t _ (subevent _ (Choose X))) →
     (msk_t _ (subevent _ (Call NDSHdr.yield_global ()↑))) →
-    sp_s !! speckey_fn NDSHdr.yield_global = None →
-    sp_t !! speckey_fn NDSHdr.yield_global = None →
+    sp_s.1 !! fid NDSHdr.yield_global = None →
+    sp_t.1 !! fid NDSHdr.yield_global = None →
     Ist st_src st_tgt ∗
     (∀ st_src st_tgt,
       Ist st_src st_tgt -∗
@@ -247,8 +247,8 @@ Section wsim.
       (msk_s msk_t : emask)
       (sp_s sp_t : specmap)
       (mtid stid ssch : nat) :
-    sp_s !! speckey_fn NDSHdr.yield_global = fsp_some (NDSA.yield_global_spec Es) →
-    sp_t !! speckey_fn NDSHdr.yield_global = None →
+    sp_s.1 !! fid NDSHdr.yield_global = fsp_some (NDSA.yield_global_spec Es) →
+    sp_t.1 !! fid NDSHdr.yield_global = None →
     (∀ X, msk_t _ (subevent _ (Choose X))) →
     (msk_t _ (subevent _ (Call NDSHdr.yield_global ()↑))) →
     Ist st_src st_tgt ∗ NDSA.Tid mtid stid ssch ∗
@@ -299,8 +299,8 @@ Section wsim.
       (k_t : () → itree crisE R_t)
       (msk_s msk_t : emask)
       (sp_s sp_t : specmap) :
-    sp_s !! speckey_fn NDSHdr.yield_global = fsp_some (NDSA.yield_global_spec Es) →
-    sp_t !! speckey_fn NDSHdr.yield_global = fsp_some (NDSA.yield_global_spec Et) →
+    sp_s.1 !! fid NDSHdr.yield_global = fsp_some (NDSA.yield_global_spec Es) →
+    sp_t.1 !! fid NDSHdr.yield_global = fsp_some (NDSA.yield_global_spec Et) →
     img_msk msk_t →
     (∀ fn arg, msk_t _ (subevent _ (Call fn arg)) = true) →
     Et ⊆ Es →
@@ -368,13 +368,6 @@ End wsim.
 
 Ltac clear_st :=
   hrepeat do 1 match goal with [st: alist key Any.t |- _] => clear st end.
-
-Ltac simpl_sp :=
-  try match goal with
-  | H : ?sp1 ⊆ ?sp2 |- context [?sp2 !! ?key] =>
-    unshelve erewrite (lookup_weaken sp1 sp2 key _ _ H);
-    [|rewrite /sp1; simpl_map; reflexivity|]
-  end.
 
 Ltac nds_yield_rr IST :=
   (norm_l with 

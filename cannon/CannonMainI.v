@@ -20,7 +20,8 @@ Module MainI. Section MainI.
   Definition main : list val → itree crisE unit :=
     λ _, main_repeat num_fire.
 
-  Definition fnsems : fnsemmap := {[None := Some (msk_scp scopes msk_true, (None, cfunU main))]}.
+  Definition fnsems : fnsemmap :=
+    {[entry # (msk_scp scopes msk_true, (None, cfunU main))]}.
   
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

@@ -30,8 +30,8 @@ Module NDSNodeI. Section NDSNodeI.
       Ret (tt↑↑).
 
   Definition fnsems : fnsemmap :=
-    {[Some NDSNodeHdr.f_main := Some (msk_real (msk_scp scopes msk_true), (None, cfunU f_main));
-      Some NDSNodeHdr.f      := Some (msk_real (msk_scp scopes msk_true), (None, cfunU f))]}.
+    {[fid NDSNodeHdr.f_main # (msk_real (msk_scp scopes msk_true), (None, cfunU f_main));
+      fid NDSNodeHdr.f      # (msk_real (msk_scp scopes msk_true), (None, cfunU f))]}.
 
   Program Definition smod: SMod.t :=
   {|

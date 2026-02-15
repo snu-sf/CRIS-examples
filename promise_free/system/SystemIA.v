@@ -10,7 +10,7 @@ Module SystemIA. Section SystemIA.
   Context (size : list Z).
   Context (Hincl : sp_user ⊆ sp).
   Context (Hsysincl : (SystemA.sp sp_user ⊤) ⊆ sp).
-  Context (ConcInGlobal : speckey_concE ∈ dom sp).
+  Context (ConcInGlobal : sp.2).
 
   Local Definition SystemA_s := SystemA.t sp_user ⊤ sp ★ PFMemA.t sp.
   Local Definition SystemI_s := SystemI.t ★ PFMemA.t sp.
@@ -20,15 +20,15 @@ Module SystemIA. Section SystemIA.
     λ st_src st_tgt,
       (∃ (tid : Ident.t) (tids : gmap Ident.t (TView.t * nat)),
         let tids' : gmap Ident.t nat := snd <$> tids in
-        ⌜st_tgt = {[SystemI.v_tid := Some tid↑; SystemI.v_tids := Some tids'↑]} ∧
-         st_src = {[SystemI.v_tid := Some tid↑; SystemI.v_tids := Some tids'↑]}⌝ ∗
+        ⌜st_tgt = {[SystemI.v_tid # tid↑; SystemI.v_tids # tids'↑]} ∧
+         st_src = {[SystemI.v_tid # tid↑; SystemI.v_tids # tids'↑]}⌝ ∗
         tview_sys_auth tids ∗
         ([∗ map] i ↦ stid ∈ (snd <$> delete tid tids),
           (YIELD stid)))%I.
 
   Local Definition IstFull := (IstProd (IstSB (Mod.scopes (SystemA.t sp_user ⊤ sp)) Ist) IstEq).
 
-  Lemma simF__spawn : ISim.sim_fun open SystemA_s SystemI_s IstFull (Some SystemHdr._spawn).
+  Lemma simF__spawn : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr._spawn).
   Proof using Hincl Hsysincl.
     iStartSim.
     steps_l. destruct _q as [].
@@ -37,7 +37,7 @@ Module SystemIA. Section SystemIA.
     iDestruct "IST" as (????) "[[-> ->] [[% IST] ->]]".
     iDestruct "IST" as "[%tid_cur [%tids [[-> ->] [TA TVS]]]]".
     steps_l.
-    unshelve erewrite (lookup_weaken _ _ _ _ _ Hincl); eauto.
+    unshelve erewrite lookup_weaken; try apply Hincl; eauto.
     iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
     { iPureIntro; exists (tid, stid); split; done. }
     iPoseProof ("Hspawn" with "[W PRE TV]") as "> [Pre Post]".
@@ -74,7 +74,7 @@ Module SystemIA. Section SystemIA.
     by_coind CIH; iFrame.
   (*SLOW*)Qed.
 
-  Lemma simF_spawn : ISim.sim_fun open SystemA_s SystemI_s IstFull (Some SystemHdr.spawn).
+  Lemma simF_spawn : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.spawn).
   Proof using Hincl Hsysincl ConcInGlobal.
     iStartSim.
 
@@ -114,7 +114,7 @@ Module SystemIA. Section SystemIA.
 
     unshelve (force_l (exist _ tid_new _)).
     { ss; rewrite lookup_fmap Hnew //. }
-    steps_l. simpl_sp. case_decide; [|set_solver+ConcInGlobal]. forces_l. steps_l.
+    steps_l. simpl_sp. rewrite ConcInGlobal. forces_l. steps_l.
     iApply wsim_spawn. iIntros (nths). steps_l. steps_r.
 
     iMod (own_update with "TA") as "TA".
@@ -147,7 +147,7 @@ Module SystemIA. Section SystemIA.
   Unshelve. ss.
   (*SLOW*)Qed.
 
-  Lemma simF_yield : ISim.sim_fun open SystemA_s SystemI_s IstFull (Some SystemHdr.yield).
+  Lemma simF_yield : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.yield).
   Proof using Hincl Hsysincl ConcInGlobal.
     iStartSim.
 
@@ -168,7 +168,7 @@ Module SystemIA. Section SystemIA.
     destruct _q as [[tid_next stid_next] Hin].
     force_l (exist _ (tid_next, stid_next) Hin). steps_l.
 
-    case_decide; [|set_solver+ConcInGlobal]. s.
+    rewrite ConcInGlobal. s.
     force_l stid. steps_l.
     iAssert (YIELD stid_next ∗
         [∗ map] i ↦ e ∈ (snd <$> delete tid_next tids), YIELD e)%I
@@ -188,7 +188,7 @@ Module SystemIA. Section SystemIA.
     iApply wsim_unfold; iIntros "W".
     force_l; iFrame.
 
-    steps_l; steps_r. case_decide; first set_solver. steps_r.
+    steps_l; steps_r. steps_r.
     iApply wsim_yield; iFrame. iSplit.
     { iExists _, _, st_tgtR, st_tgtR; iSplit; first ss. iSplit; eauto. }
 
@@ -209,7 +209,7 @@ Module SystemIA. Section SystemIA.
     iFrame.
   (*SLOW*)Qed.
 
-  Lemma simF_get_tid : ISim.sim_fun open SystemA_s SystemI_s IstFull (Some SystemHdr.get_tid).
+  Lemma simF_get_tid : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.get_tid).
   Proof using Hincl Hsysincl ConcInGlobal.
     iStartSim.
 
@@ -239,10 +239,10 @@ Section ctx_refines.
   Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS}.
 
   (* Scheduler for WM refines its specification when linked to WMM *)
-  Lemma ctxr sp_user sp size :
+  Lemma ctxr (sp_user sp: specmap) size :
     sp_user ⊆ sp →
     (SystemA.sp sp_user ⊤) ⊆ sp →
-    speckey_concE ∈ dom sp →
+    sp.2 →
     ctx_refines
       (SystemA.t sp_user ⊤ sp ★ PFMemA.t sp, init_cond size)
       (SystemI.t              ★ PFMemA.t sp, emp%I).

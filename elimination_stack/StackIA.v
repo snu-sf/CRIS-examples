@@ -42,6 +42,7 @@ Module StackIM. Section StackIM.
     { multiset_solver. }
     { multiset_solver. }
     { rewrite !Mod.dom_fnsems_add; set_solver. }
+    { mod_tac. }
     { iIntros "I"; repeat iExists _; iFrame; iPureIntro; splits; eauto; ss.
       { rewrite dom_union_with; set_solver. }
       { rewrite left_id_L //. }

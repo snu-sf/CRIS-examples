@@ -45,8 +45,8 @@ Module MPI. Section MPI.
       𝒴;;; Ret Val.zero.
 
   Definition fnsems : fnsemmap :=
-    {[Some MPHdr.mp2 := Some (msk_real (msk_scp scopes msk_true), (None, cfunU (sfunU mp2)));
-      None := Some (msk_real (msk_scp scopes msk_true), (None, mp))]}.
+    {[fid MPHdr.mp2 # (msk_real (msk_scp scopes msk_true), (None, cfunU (sfunU mp2)));
+      entry         # (msk_real (msk_scp scopes msk_true), (None, mp))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

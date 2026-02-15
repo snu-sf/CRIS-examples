@@ -19,13 +19,13 @@ Module MPIA. Section MPIA.
 
   Lemma mp2_spawnable : ⊢ SystemA.fspec_spawnable sp_user MPHdr.mp2 MPA.mp2_precondition.
   Proof.
-    iExists MPA.mp2_spec; iSplit; [iPureIntro; eapply lookup_weaken; eauto; by simpl_map|].
+    iExists MPA.mp2_spec; iSplit; [iPureIntro; eapply lookup_weaken; eauto; by simpl_sp|].
     iIntros "%P %Q [%x [-> ->]]"; iExists _, _; iSplit; [iPureIntro; exists x; split; ss|].
     unfold_pre_post. destruct x.
     iIntros (varg arg) "[$ [% [-> [% [$ [% [% $]]]]]]] /= !>"; iSplitL; eauto.
   Qed.
 
-  Lemma simF_mp : ISim.sim_fun open MA MI IstFull None.
+  Lemma simF_mp : ISim.sim_fun open MA MI IstFull entry.
   Proof using SchInSpS HMP.
     iStartSim.
     steps_l. iDestruct "ASM" as "[-> TV]". rewrite /MPA.mp /MPI.mp; steps_l; steps_r.
@@ -57,8 +57,7 @@ Module MPIA. Section MPIA.
 
     (* write *)
     inline_r.
-    unshelve force_r (FSpec_mk _ _ (or_introl _)); last steps_r.
-    3:{ eexists (1%positive, 0, loc, Val.Vnum 0, Ordering.na, _). split; ss. }
+    force_r (meta0 (1%positive, 0, loc, Val.Vnum 0, Ordering.na, _))%cris.
     rewrite shift_0. forces_r.
     iFrame "TV".
     iDestruct "↦" as "[↦flag ↦data]"; iSplitL "↦flag".
@@ -76,8 +75,7 @@ Module MPIA. Section MPIA.
 
     (* write *)
     steps_r. inline_r.
-    unshelve force_r (FSpec_mk _ _ (or_introl _)); last forces_r.
-    3:{ eexists (1%positive, 0, loc >> 1, Val.Vnum 0, Ordering.na, _). split; ss. }
+    force_r (meta0 (1%positive, 0, loc >> 1, Val.Vnum 0, Ordering.na, _))%cris. forces_r.
     iPoseProof (own_loc_na_own_loc with "↦data") as "$".
     iFrame "TV".
     iSplit; eauto.
@@ -149,8 +147,7 @@ Module MPIA. Section MPIA.
       iEval (rewrite syn_AtomicPtsTo_red AtomicPtsTo_eq /AtomicPtsTo_def) in "↦flag".
       iDestruct "↦flag" as "[% ↦flag]".
       iEval (solve_base_sl_red) in "H"; iPoseProof "H" as "->".
-      unshelve force_r (FSpec_mk _ _ (or_intror _)); last steps_r.
-      3:{ eexists (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, _, z1). split; ss. }
+      force_r (meta1 (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, _, z1))%cris.
       forces_r.
       iFrame "TV SN ↦flag". iSplit; auto.
       steps_r.
@@ -195,8 +192,7 @@ Module MPIA. Section MPIA.
       rewrite syn_AtomicPtsTo_red.
       iEval (rewrite AtomicPtsTo_eq /AtomicPtsTo_def /view_at) in "↦flag".
       iDestruct "↦flag" as "[% ↦flag]".
-      unshelve force_r (FSpec_mk _ _ (or_intror _)); last steps_r.
-      3:{ eexists (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, V3, z1). split; ss. }
+      force_r (meta1 (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, V3, z1))%cris.
       (* iPoseProof (AtomicSWriter_AtomicSeen with "SW") as "#SN". *)
       forces_r. iFrame "TV SN ↦flag". iSplit; eauto.
       steps_r.
@@ -238,8 +234,8 @@ Module MPIA. Section MPIA.
         steps_r.
 
         (* non-atomic load here *)
-        inline_r. unshelve force_r (FSpec_mk _ _ (or_introl _)); last steps_r.
-        3:{ eexists (_, _, _, _, _, _, _). split; ss. }
+        inline_r.
+        force_r (meta0 (_, _, _, _, _, _, _))%cris.
         iEval (rewrite syn_own_loc_na_red) in "INV".
         assert (Hawk : Ordering.le Ordering.acqrel Ordering.acqrel) by refl. forces_r.
         rewrite Hvle2 Hawk Hvle.
@@ -301,7 +297,7 @@ Module MPIA. Section MPIA.
   Unshelve. all: try exact 1%Qp; try exact ⊤.
   (*SLOW*)Qed.
 
-  Lemma simF_mp2 : ISim.sim_fun open MA MI IstFull (Some MPHdr.mp2).
+  Lemma simF_mp2 : ISim.sim_fun open MA MI IstFull (fid MPHdr.mp2).
   Proof using SchInSpS HMP.
     iStartSim.
     steps_l. destruct _q as [tid stid].
@@ -328,8 +324,8 @@ Module MPIA. Section MPIA.
     steps_r.
 
     (* write to data *)
-    inline_r. unshelve force_r.
-    { econs; left; eexists (_, _, _, _, _, _). split; ss. }
+    inline_r.
+    force_r (meta0 (_, _, _, _, _, _))%cris.
     forces_r.
     iPoseProof (own_loc_na_own_loc with "↦data") as "↦data".
     iFrame "TV ↦data". iSplit; eauto.
@@ -353,11 +349,7 @@ Module MPIA. Section MPIA.
     inline_r. steps_r.
     iEval (rewrite AtomicPtsTo_eq /AtomicPtsTo_def /view_at) in "↦flag".
     iDestruct "↦flag" as "[% ↦flag]".
-    unshelve force_r.
-    { econs; right;
-        eexists (tid, stid, loc, Val.Vnum 1, Ordering.acqrel, V2, γx, _, _, _, _, _, _, _).
-      split; ss.
-    }
+    force_r (meta1 (tid, stid, loc, Val.Vnum 1, Ordering.acqrel, V2, γx, _, _, _, _, _, _, _))%cris.
     forces_r.
     iFrame "↦flag". iSplitL "⊒ TV"; eauto.
     { iSplit; eauto. iSplit; eauto. iFrame. tview_sync Hle.

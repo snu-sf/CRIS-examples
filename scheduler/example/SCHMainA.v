@@ -25,10 +25,10 @@ Module SCHMainA. Section SCHMainA.
             (λ ret, True)%I))).
 
   Definition sp E : specmap :=
-    {[speckey_entry := fspec_to_rel (main_spec E)]}.
+    {[entry @ (main_spec E)]}.
 
   Definition fnsems (E : coPset) : fnsemmap :=
-    {[None := Some (msk_scp [] msk_true, (fsp_some (main_spec E), main))]}.
+    {[entry # (msk_scp [] msk_true, (fsp_some (main_spec E), main))]}.
 
   Program Definition smod E: SMod.t :=
     {|

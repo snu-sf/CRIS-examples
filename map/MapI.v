@@ -63,15 +63,15 @@ Module MapI. Section MapI.
       ccallU MapHdr.set [Vint k; Vint v].
 
   Definition fnsems : fnsemmap :=
-    {[Some MapHdr.init := Some (msk_scp scopes msk_true, (None, cfunU init));
-      Some MapHdr.get := Some (msk_scp scopes msk_true, (None, cfunU get));
-      Some MapHdr.set := Some (msk_scp scopes msk_true, (None, cfunU set));
-      Some MapHdr.set_by_user := Some (msk_scp scopes msk_true, (None, cfunU set_by_user))]}.
+    {[fid MapHdr.init # (msk_scp scopes msk_true, (None, cfunU init));
+      fid MapHdr.get  # (msk_scp scopes msk_true, (None, cfunU get));
+      fid MapHdr.set  # (msk_scp scopes msk_true, (None, cfunU set));
+      fid MapHdr.set_by_user # (msk_scp scopes msk_true, (None, cfunU set_by_user))]}.
   
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := {[v_hptr := Some Vnullptr↑]};
+    SMod.initial_st := {[v_hptr # Vnullptr↑]};
   |}.
   Solve All Obligations with mod_tac.
 

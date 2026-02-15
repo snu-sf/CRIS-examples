@@ -22,7 +22,7 @@ Module NDSNodeIA. Section NDSNodeIA.
   Local Definition MA := (NDSNodeA.t sp ★ HybMem.t).
   Local Definition MI := (NDSNodeI.t ★ HybMem.t).
 
-  Lemma simF_main : ISim.sim_fun open MA MI IstFull (Some NDSNodeHdr.f_main).
+  Lemma simF_main : ISim.sim_fun open MA MI IstFull (fid NDSNodeHdr.f_main).
   Proof using Hschnds Hnds Hnode.
     iStartSim.
     
@@ -48,7 +48,7 @@ Module NDSNodeIA. Section NDSNodeIA.
     forces_l. iSplitL "tidF".
     { iExists _. iSplit; eauto. do 3 iExists _. iSplit; eauto. iSplitR "tidF"; eauto.
       rewrite /NDSA.fn_spawnable. iExists _; iSplit; eauto.
-      { iPureIntro. erewrite lookup_weaken; try eapply Hnode; eauto. rewrite /NDSNodeA.sp; simpl_map; refl. }
+      { iPureIntro. erewrite lookup_weaken; try eapply Hnode; eauto. }
       rewrite /NDSA.fspec_spawnable. iIntros (??) "[%x [%Hpre %Hpost]]"; ss.
       destruct x as [[mtid' stid'] ssch'].
       set (m := (mtid', stid', ssch', (blk, 0%Z)) : meta (f_spec ⊤)).
@@ -97,7 +97,7 @@ Module NDSNodeIA. Section NDSNodeIA.
     step. iFrame; eauto.
   (*SLOW*)Qed.
 
-  Lemma simF_f : ISim.sim_fun open MA MI IstFull (Some NDSNodeHdr.f).
+  Lemma simF_f : ISim.sim_fun open MA MI IstFull (fid NDSNodeHdr.f).
   Proof using Hschnds Hnds Hnode.
     iStartSim.
 

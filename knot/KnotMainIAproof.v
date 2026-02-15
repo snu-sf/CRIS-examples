@@ -31,7 +31,7 @@ Module KnotMainIA. Section KnotMainIA.
   Local Notation KnotMainIMod := (KnotMainI ★ KnotAMod).
   Local Notation IstFull := (IstProd (IstSB KnotMainA.(Mod.scopes) IstTrue) IstEq).
 
-  Lemma simF_fib : ISim.sim_fun open KnotMainAMod KnotMainIMod IstFull (Some KnotMainHdr.fib).
+  Lemma simF_fib : ISim.sim_fun open KnotMainAMod KnotMainIMod IstFull (fid KnotMainHdr.fib).
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     iStartSim.
 
@@ -104,7 +104,7 @@ Module KnotMainIA. Section KnotMainIA.
     Unshelve. all: exact (0↑).
   (*SLOW*)Qed.
 
-  Lemma simF_main : ISim.sim_fun open KnotMainAMod KnotMainIMod IstFull None.
+  Lemma simF_main : ISim.sim_fun open KnotMainAMod KnotMainIMod IstFull entry.
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     iStartSim.
 

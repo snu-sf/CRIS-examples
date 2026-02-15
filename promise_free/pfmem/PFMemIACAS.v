@@ -14,7 +14,7 @@ Section CAS.
   Local Definition MA := (PFMemA.t sp).
   Local Definition MI := (PFMemI.t syn size).
 
-  Lemma simF_cas : ISim.sim_fun open MA MI Ist (Some PFMemHdr.cas).
+  Lemma simF_cas : ISim.sim_fun open MA MI Ist (fid PFMemHdr.cas).
   Proof.
     (* prologue *)
     iStartSim.

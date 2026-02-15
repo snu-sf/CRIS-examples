@@ -26,7 +26,7 @@ Section StackIM.
 
   Local Notation IstFull := (HelpingTactics.IstFull StackM.jobID StackM.retID mn).
 
-  Lemma pop_simF : ISim.sim_fun open StackM StackI IstFull (Some StackHdr.pop).
+  Lemma pop_simF : ISim.sim_fun open StackM StackI IstFull (fid StackHdr.pop).
   Proof using.
     iStartSim.
     rewrite /StackM.pop /atomic_body.
@@ -185,7 +185,7 @@ Section StackIM.
       iMod ("close" with "[offer↦ ◯offer]") as "_".
       { iExists 1; iFrame; case_decide; ss. }
       rewrite /HelpingOn.help. force_l reqid. steps_l.
-      assert (Hsp : SchA.sp ∅ (↑N) !! speckey_fn SchHdr.yield = fsp_some (SchA.yield_spec (↑N))).
+      assert (Hsp : (SchA.sp ∅ (↑N)).1 !! fid SchHdr.yield = fsp_some (SchA.yield_spec (↑N))).
       { rewrite /SchA.sp; simpl_map; ss. }
       rewrite !Hsp.
       force_l (stid, mtid, tt). forces_l. iFrame. iSplit; eauto. steps_l.

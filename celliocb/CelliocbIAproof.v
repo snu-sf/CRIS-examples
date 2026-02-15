@@ -8,13 +8,13 @@ Module CelliocbIA. Section CelliocbIA.
   Context `{!crisG Γ Σ α β τ _S _I, _CELLIOCB: !celliocbGS}.
 
   Definition Ist : ist_type Σ :=
-    (λ st_s st_t, (∃ v, ⌜st_t = {[CelliocbI.v_cv := Some v↑]}⌝ ∗ auth v))%I.
+    (λ st_s st_t, (∃ v, ⌜st_t = {[CelliocbI.v_cv # v↑]}⌝ ∗ auth v))%I.
 
   Local Definition CelliocbIMod := (CelliocbI.t).
   Local Definition CelliocbAMod := (CelliocbA.t).
 
   Lemma simF_set :
-    ISim.sim_fun open CelliocbAMod CelliocbIMod Ist (Some CelliocbHdr.set).
+    ISim.sim_fun open CelliocbAMod CelliocbIMod Ist (fid CelliocbHdr.set).
   Proof using.
     iStartSim.
   
@@ -42,7 +42,7 @@ Module CelliocbIA. Section CelliocbIA.
     iExists v_new. iFrame; hss.
   (*SLOW*)Qed.
   
-  Lemma simF_get : ISim.sim_fun open CelliocbAMod CelliocbIMod Ist (Some CelliocbHdr.get).
+  Lemma simF_get : ISim.sim_fun open CelliocbAMod CelliocbIMod Ist (fid CelliocbHdr.get).
   Proof using.
     iStartSim.
     unfold get, CelliocbI.get.

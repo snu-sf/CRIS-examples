@@ -70,9 +70,9 @@ Section SCHMainAux.
   Proof.
     eapply Cancel.cancellation.
     { do 5 (eapply SMod.cancellable_add; r; [ctac|]). ctac. }
-    { assert (Ht : SMod.conc_sp_from smod_src !! speckey_entry =
-        fsp_some (SCHMainA.main_spec ⊤)); last (rewrite Ht; clear Ht).
-      { rewrite lookup_insert_ne // lookup_kmap_Some; exists None; split; ss. }
+    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry =
+                     fsp_some (SCHMainA.main_spec ⊤)) by mod_tac.
+      rewrite Ht; clear Ht.
       exists (precond (SCHMainA.main_spec ⊤) tt), (postcond (SCHMainA.main_spec ⊤) tt); splits.
       { ss. exists (). esplits; refl. }
       { iIntros "(T & Y & W & A & B & C & D)". iFrame. iModIntro. eauto. }
@@ -83,40 +83,29 @@ Section SCHMainAux.
   Section SP.
 
     Ltac single :=
-      repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-      rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
-    Ltac entry :=
-      repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-      rewrite lookup_insert_ne // lookup_kmap_Some; eexists None; split; ss.
+      repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
 
     Lemma spsch_in_sp : sp_sch ⊆ sp.
     Proof.
-      do 4 (eapply map_union_least; [|single]). entry.
+      split; et.
+      do 4 (eapply map_union_least; [|single]). single.
     (*SLOW*)Qed.
 
     Lemma sch_in_sp : (SchA.sp sp_sch ⊤) ⊆ sp.
-    Proof. single. Qed.
+    Proof. split; et. single. Qed.
 
     Lemma rrs_in_spsch : (RRSAS.sp sp_rrs ⊤ snd SchA.PYIP) ⊆ sp_sch.
     Proof.
+      split; et.
       rewrite /sp_sch /SCHMainA.sp /sp_nds /NDSNodeA.sp /RRSAS.sp /NDSA.sp.
-      repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-        rewrite !lookup_union;
-        repeat (rewrite lookup_insert_ne; [|by (intros F; inv F)]);
-        rewrite lookup_insert;
-        repeat (rewrite lookup_insert_ne; [|intros F; inv F]);
-        rewrite !lookup_empty; ss.
+      repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
     Qed.
 
     Lemma nds_in_spsch : (NDSA.sp sp_nds ⊤ _ snd SchA.PYIP) ⊆ sp_sch.
     Proof.
+      split; et.
       rewrite /sp_sch /SCHMainA.sp /sp_nds /NDSNodeA.sp /RRSAS.sp /NDSA.sp.
-      repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-        rewrite !lookup_union;
-        repeat (rewrite lookup_insert_ne; [|by (intros F; inv F)]);
-        rewrite lookup_insert;
-        repeat (rewrite lookup_insert_ne; [|intros F; inv F]);
-        rewrite !lookup_empty; ss.
+      repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
     Qed.
 
     Lemma rrsnode_in_sprrs : (RRSNodeAS.sp ⊤) ⊆ sp_rrs.
@@ -126,13 +115,13 @@ Section SCHMainAux.
     Proof. by reflexivity. Qed.
 
     Lemma sprrs_in_sp : sp_rrs ⊆ sp.
-    Proof. single. Qed.
+    Proof. split; et. single. Qed.
 
     Lemma spnds_in_sp : sp_nds ⊆ sp.
-    Proof. single. Qed.
+    Proof. split; et. single. Qed.
 
-    Lemma yield_in_sp : sp !! (speckey_fn SchHeader.SchHdr.yield) = fsp_some (SchA.yield_spec ⊤).
-    Proof. rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss. Qed.
+    Lemma yield_in_sp : sp.1 !! (fid SchHeader.SchHdr.yield) = fsp_some (SchA.yield_spec ⊤).
+    Proof. split; et. Qed.
 
     Lemma yield_spec_cond :
       ⊢ fspec_imply (SchA.yield_spec ⊤)
@@ -175,7 +164,7 @@ Section SCHMainAux.
     { ctxr_rotate. do 7 ctxr_drop. eapply SchIA.ctxr.
       { eapply sch_in_sp. }
       { eapply spsch_in_sp. }
-      { unfold sp, SMod.conc_sp_from; rewrite dom_insert; eapply elem_of_union_l; set_solver. }
+      { et. }
     }
 
     etrans; cycle 1.
@@ -184,7 +173,7 @@ Section SCHMainAux.
       { etrans; [eapply rrs_in_spsch| eapply spsch_in_sp]. }
       { eapply sprrs_in_sp. }
       { eapply yield_spec_cond. }
-      { unfold sp, SMod.conc_sp_from; rewrite dom_insert; eapply elem_of_union_l; set_solver. }
+      { et. }
     }
 
     etrans; cycle 1.
@@ -193,7 +182,7 @@ Section SCHMainAux.
       { etrans; [eapply nds_in_spsch| eapply spsch_in_sp]. }
       { eapply spnds_in_sp. }
       { eapply yield_spec_cond. }
-      { unfold sp, SMod.conc_sp_from; rewrite dom_insert; eapply elem_of_union_l; set_solver. }
+      { et. }
     }
 
     etrans; cycle 1.

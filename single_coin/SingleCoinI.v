@@ -26,13 +26,13 @@ Module SingleCoinI. Section SingleCoinI.
       end.
 
   Definition fnsems : fnsemmap :=
-    {[Some SingleCoinHdr.new := Some (msk_real (msk_scp scopes msk_true), (None, cfunU new));
-      Some SingleCoinHdr.read := Some (msk_real (msk_scp scopes msk_true), (None, cfunU read))]}.
+    {[fid SingleCoinHdr.new  # (msk_real (msk_scp scopes msk_true), (None, cfunU new));
+      fid SingleCoinHdr.read # (msk_real (msk_scp scopes msk_true), (None, cfunU read))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := {[v_coins := Some (@nil (option bool))↑]};
+    SMod.initial_st := {[v_coins # (@nil (option bool))↑]};
   |}.
   Solve All Obligations with mod_tac.
 

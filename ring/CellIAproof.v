@@ -11,14 +11,14 @@ Module CellIA. Section CellIA.
   Definition Ist : ist_type Σ :=
     (λ st_src st_tgt,
        ∃ vany v,
-        ⌜st_tgt = {[CellI.v_cv idx := Some vany]}⌝
+        ⌜st_tgt = {[CellI.v_cv idx # vany]}⌝
         ∗ ((cell idx v ∗ auth idx v) ∨ (⌜vany = v↑⌝ ∗ pending idx ∗ auth idx v)))%I.
 
   (* Definitions of two Cell modules *)
   Local Definition CellAMod := (CellA.t idx sp_s).
   Local Definition CellIMod := (CellI.t idx).
 
-  Lemma simF_get : ISim.sim_fun open CellAMod CellIMod Ist (Some (CellHdr.get idx)).
+  Lemma simF_get : ISim.sim_fun open CellAMod CellIMod Ist (fid (CellHdr.get idx)).
   Proof using.
     iStartSim.
 
@@ -40,7 +40,7 @@ Module CellIA. Section CellIA.
     iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
   (*SLOW*)Qed.
 
-  Lemma simF_set : ISim.sim_fun open CellAMod CellIMod Ist (Some (CellHdr.set idx)).
+  Lemma simF_set : ISim.sim_fun open CellAMod CellIMod Ist (fid (CellHdr.set idx)).
   Proof using.
     iStartSim.
 

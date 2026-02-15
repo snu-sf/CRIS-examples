@@ -20,10 +20,10 @@ Section CannonAux.
   Proof.
     eapply Cancel.cancellation.
     { apply SMod.cancellable_add; r; rewrite /=; mod_tac ss. }
-    { assert (Ht : SMod.conc_sp_from smod_src !! speckey_entry =
-        fsp_some (MainA.main_spec)); last (rewrite Ht; clear Ht).
-      { rewrite lookup_insert_ne // lookup_kmap_Some; exists None; split; ss. }
-       eexists _, _; splits.
+    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry = fsp_some (MainA.main_spec)).
+      { mod_tac. }
+      rewrite Ht; clear Ht.
+      eexists _, _; splits.
       { ss; exists (tt); split; refl. }
       { iIntros "[? [? [? $]]]"; ss. }
       { unfold_pre_post. iIntros "% % %"; by des. }
@@ -41,9 +41,9 @@ Section CannonAux.
 
     etrans; cycle 1.
     { ctxr_rotate. ctxr_drop. eapply CannonMainIA.ctxr.
-      instantiate (1:=sp).
-      repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-        rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      instantiate (1:=sp). split; et.
+      repeat try eapply insert_subseteq_l; last apply map_empty_subseteq.
+      mod_tac.
     }
 
     eapply ctxr_cond_strengthen. by iIntros "$".

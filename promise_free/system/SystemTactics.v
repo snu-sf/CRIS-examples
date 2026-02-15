@@ -10,8 +10,8 @@ Section wsim.
       (E : coPset)
       (msk_src msk_tgt : emask)
       sp_src sp_tgt :
-    sp_src !! speckey_fn SystemHdr.yield = fsp_some (SystemA.yield_spec E) →
-    sp_tgt !! speckey_fn SystemHdr.yield = None →
+    sp_src.1 !! fid SystemHdr.yield = fsp_some (SystemA.yield_spec E) →
+    sp_tgt.1 !! fid SystemHdr.yield = None →
     (∀ X, msk_tgt _ (subevent _ (Choose X))) →
     (msk_tgt _ (subevent _ (Call SystemHdr.yield ()↑))) →
     Ist st_src st_tgt ∗

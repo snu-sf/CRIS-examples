@@ -38,7 +38,7 @@ Module ClientIA. Section ClientIA.
     solve_base_sl_red; iSplit; done.
   Qed.
 
-  Lemma incr_simF : ISim.sim_fun open MA MI IstFull (Some IncrHdr.incr).
+  Lemma incr_simF : ISim.sim_fun open MA MI IstFull (fid IncrHdr.incr).
   Proof using Hsch Hclient.
     iStartSim.
 
@@ -78,7 +78,7 @@ Module ClientIA. Section ClientIA.
     steps_l. step. iFrame. done.
 (*SLOW*)Qed.
 
-  Lemma main_simF : ISim.sim_fun open MA MI IstFull None.
+  Lemma main_simF : ISim.sim_fun open MA MI IstFull entry.
   Proof using Hsch Hclient.
     iStartSim.
 

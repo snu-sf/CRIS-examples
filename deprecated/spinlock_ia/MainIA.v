@@ -30,7 +30,7 @@ Module MainIA. Section MainIA.
   Definition init_cond := MainAS.init_cond E q.
 
   Lemma incr_simF :
-    ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockMainHdr.incr).
+    ISim.sim_fun open MA MI init_cond IstFull (fid SpinLockMainHdr.incr).
   Proof using LockInE SchInSp_s MainInSp.
     init_simF.
     (* process src precondition *)
@@ -91,7 +91,7 @@ Module MainIA. Section MainIA.
   (*SLOW*)Qed.
 
   Lemma main_simF :
-    ISim.sim_fun open MA MI init_cond IstFull None.
+    ISim.sim_fun open MA MI init_cond IstFull entry.
   Proof using LockInE SchInSp_s MainInSp.
     init_simF.
     rewrite /Sch.spawn /Sch.join.

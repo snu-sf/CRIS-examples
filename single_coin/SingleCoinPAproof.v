@@ -28,7 +28,7 @@ Module SingleCoinPA. Section SingleCoinPA.
   Local Definition Ist : ist_type Σ :=
     (λ st_s st_t,
       ∃ (l_s : list bool) (l_t : list (option bool)),
-        ⌜st_t = {[v_coins := Some l_t↑]} ∧ length l_s = length l_t⌝
+        ⌜st_t = {[v_coins # l_t↑]} ∧ length l_s = length l_t⌝
         ∗ ProphecyRA.free_id (λ i, i.1 = "SingleCoin" ∧ ∃ n, i.2↓↓ = Some n ∧ n >= length l_t)%type
         ∗ coin_auth l_s
         ∗ [∗ list] i ↦ ob ∈ l_t,
@@ -38,7 +38,7 @@ Module SingleCoinPA. Section SingleCoinPA.
             ∧ (Prophecy.consistent coin_proph ol b)⌝
         )%I.
 
-  Lemma simF_new : ISim.sim_fun open MA MI Ist (Some SingleCoinHdr.new).
+  Lemma simF_new : ISim.sim_fun open MA MI Ist (fid SingleCoinHdr.new).
   Proof.
     iStartSim.
     iDestruct "IST" as (l_s l_t) "[[-> %EQ] [F [AUTH PL]]]".
@@ -87,7 +87,7 @@ Module SingleCoinPA. Section SingleCoinPA.
     step. iFrame. eauto.
   Qed.
 
-  Lemma simF_read : ISim.sim_fun open MA MI Ist (Some SingleCoinHdr.read).
+  Lemma simF_read : ISim.sim_fun open MA MI Ist (fid SingleCoinHdr.read).
   Proof.
     iStartSim.
     steps_l. destruct _q as [idx b]. iDestruct "ASM" as "[-> [-> C]]".

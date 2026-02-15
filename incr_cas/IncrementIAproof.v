@@ -11,7 +11,7 @@ Module IncrementIA. Section IncrementIA.
   Local Definition MA := (IncrementA.t ★ (MemA.t sp)).
   Local Definition MI := (IncrementI.t ★ (MemA.t sp)).
 
-  Lemma increment_simF : ISim.sim_fun open MA MI IstFull (Some IncrementHdr.increment).
+  Lemma increment_simF : ISim.sim_fun open MA MI IstFull (fid IncrementHdr.increment).
   Proof.
     iStartSim.
     steps_r. steps_l.

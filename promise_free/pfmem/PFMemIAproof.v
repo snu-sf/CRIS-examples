@@ -73,7 +73,7 @@ Module PFMemIA. Section PFMemIA.
     λ st_s st_t,
       (∃ gl ths Vcut,
         let m := Global.memory gl in
-        ⌜st_t = {[PFMemI.v_config := Some (Configuration.mk ths gl)↑]}
+        ⌜st_t = {[PFMemI.v_config # (Configuration.mk ths gl)↑]}
         ∧ view_na Vcut m
         ∧ Memory.closed_view Vcut m
         ∧ Configuration.wf (Configuration.mk ths gl)

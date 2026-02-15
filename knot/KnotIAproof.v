@@ -41,7 +41,7 @@ Module KnotIA. Section KnotIA.
   Local Notation KnotIMod := ((KnotI.t genv) ★ MemA ★ APCA).
   Local Notation IstFull := (IstProd (IstSB KnotA.(Mod.scopes) Ist) IstEq).
 
-  Lemma simF_rec : ISim.sim_fun open KnotAMod KnotIMod IstFull (Some KnotHdr.rec).
+  Lemma simF_rec : ISim.sim_fun open KnotAMod KnotIMod IstFull (fid KnotHdr.rec).
   Proof using GEnvWF GEnvIncl RecInSp APCInSp FunInPure PureInSp.
     iStartSim.
 
@@ -114,7 +114,7 @@ Module KnotIA. Section KnotIA.
     Unshelve. all: try exact (tt↑).
   (*SLOW*)Qed.
 
-  Lemma simF_knot : ISim.sim_fun open KnotAMod KnotIMod IstFull (Some KnotHdr.knot).
+  Lemma simF_knot : ISim.sim_fun open KnotAMod KnotIMod IstFull (fid KnotHdr.knot).
   Proof using GEnvWF GEnvIncl RecInSp APCInSp FunInPure PureInSp.
     iStartSim.
 

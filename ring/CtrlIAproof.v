@@ -96,15 +96,15 @@ Module CtrlIA. Section CtrlIA.
   Definition Ist : ist_type Σ :=
     (λ st_src st_tgt,
      ∃ (q q' : list Z) (hd tl : nat),
-       ⌜st_src = {[RingA.v_que := Some q↑]} ∧
-       st_tgt = {[CtrlI.v_hd := Some hd↑; CtrlI.v_tl := Some tl↑]} /\
+       ⌜st_src = {[RingA.v_que # q↑]} ∧
+       st_tgt = {[CtrlI.v_hd # hd↑; CtrlI.v_tl # tl↑]} /\
        hd = (tl + List.length q)%nat /\ List.length (q ++ q') = max_size⌝ ∗
        ([∗ list] i↦x ∈ q, CellA.cell ((tl+i) mod max_size) x) ∗
        ([∗ list] i↦x ∈ q', (CellA.pending ((hd+i) mod max_size) ∨ CellA.cell ((hd+i) mod max_size) x)))%I.
 
   Notation IstFull := (IstProd (IstSB (RingA.t max_size sps).(Mod.scopes) Ist) IstEq).
 
-  Lemma simF_init : ISim.sim_fun open RingAMod RingIMod IstFull (Some RingHdr.init).
+  Lemma simF_init : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.init).
   Proof using.
     iStartSim.
 
@@ -137,7 +137,7 @@ Module CtrlIA. Section CtrlIA.
       rewrite Nat.Div0.mod_mod; eauto.
   (*SLOW*)Qed.
 
-  Lemma simF_get_size : ISim.sim_fun open RingAMod RingIMod IstFull (Some RingHdr.get_size).
+  Lemma simF_get_size : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.get_size).
   Proof using.
     iStartSim.
 
@@ -157,7 +157,7 @@ Module CtrlIA. Section CtrlIA.
     repeat iExists _. iFrame. eauto.
   (*SLOW*)Qed.
 
-  Lemma simF_enqueue : ISim.sim_fun open RingAMod RingIMod IstFull (Some RingHdr.enqueue).
+  Lemma simF_enqueue : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.enqueue).
   Proof using.
     unfold RingAMod, RingIMod, CellGS.
     iStartSim.
@@ -215,7 +215,7 @@ Module CtrlIA. Section CtrlIA.
       rewrite <-!Nat.add_assoc. eauto.
   (*SLOW*)Qed.
 
-  Lemma simF_dequeue : ISim.sim_fun open RingAMod RingIMod IstFull (Some RingHdr.dequeue).
+  Lemma simF_dequeue : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.dequeue).
   Proof using.
     unfold RingAMod, RingIMod, CellGS.
     iStartSim.

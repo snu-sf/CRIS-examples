@@ -25,10 +25,8 @@ Section MutAll.
   Proof.
     eapply Cancel.cancellation.
     { repeat apply SMod.cancellable_add; r; mod_tac ss. }
-    { assert (Ht : SMod.conc_sp_from smod_src !! speckey_entry =
-        fsp_none); last (rewrite Ht; clear Ht).
-      { rewrite lookup_insert_ne // lookup_kmap_None. i; ss.
-        rewrite /SMod.lift_fn in H. des_ifs. }
+    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry = fsp_none) by mod_tac.
+      rewrite Ht; clear Ht.
       eexists _, _; splits.
       { ss; exists (tt); split; refl. }
       { iIntros "[? [? ?]]"; ss. }
@@ -38,29 +36,28 @@ Section MutAll.
 
   Lemma apc_in_sp : APCA.sp ⊆ sp.
   Proof.
-    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-      rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+    split; et.
+    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq. mod_tac.
   Qed.
 
   Lemma mutf_in_pure : MutFA.SpF ⊆ sp_pure.
   Proof.
-    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq.
-    rewrite /sp_pure lookup_union. simpl_map. rewrite lookup_insert_ne //.
+    split; et.
+    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq. mod_tac.
   Qed.
 
   Lemma mutg_in_pure : MutGA.SpG ⊆ sp_pure.
   Proof.
-    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq.
-    rewrite /sp_pure lookup_union. simpl_map. rewrite lookup_insert_ne //.
+    split; et.
+    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq. mod_tac.
   Qed.
 
   Lemma pure_in_sp : sp_pure ⊆ sp.
   Proof.
-    rewrite /sp_pure. eapply (map_union_least MutFA.SpF MutGA.SpG); try refl.
-    - repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-        rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
-    - repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-        rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+    split; et.
+    rewrite /sp_pure. eapply (map_union_least MutFA.SpF.1 MutGA.SpG.1); try refl.
+    - repeat try eapply insert_subseteq_l; last apply map_empty_subseteq. mod_tac.
+    - repeat try eapply insert_subseteq_l; last apply map_empty_subseteq. mod_tac.
   Qed.
   
   (* Refinement between spec/impl of whole program (linked module) *)

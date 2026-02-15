@@ -14,10 +14,10 @@ Module MutMainA. Section MutMainA.
     λ _, (if with_pure then pure else Ret ()↑);;; Ret (Vint 55)↑.
 
   (* Definition Sp: specmap := *)
-  (*   {[speckey_entry := fspec_to_rel fspec_trivial]}. *)
+  (*   {[entry @ fspec_trivial]}. *)
 
   Definition fnsems : fnsemmap :=
-    {[None := Some (msk_scp scopes msk_true, (None, main_body))]}.
+    {[entry # (msk_scp scopes msk_true, (None, main_body))]}.
 
   Program Definition smod: SMod.t :=
   {|

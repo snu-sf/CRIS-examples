@@ -29,8 +29,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     ⊢ RRSAS.fn_spawnable_rr sp_user ⊤ RRSNodeHdr.f n (f_precond (b, 0%Z)) Invs.
   Proof using Hnode.
     iIntros. rewrite /RRSAS.fn_spawnable_rr. iExists _. iSplit; eauto.
-    { iPureIntro. erewrite lookup_weaken; try eapply Hnode; eauto.
-      rewrite /RRSNodeAS.sp. simpl_map. refl. }
+    { iPureIntro. erewrite lookup_weaken; try eapply Hnode; eauto. }
     rewrite /RRSAS.fspec_spawnable_rr. iIntros (??) "[%x [%Hpre %Hpost]]"; ss.
     destruct x as [[mtid stid] ssch].
     rewrite /precond /fspec_winv /fspec_virtual /= /precond /= in Hpre.
@@ -61,7 +60,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     iFrame; eauto.
   Qed.
 
-  Lemma simF_main : ISim.sim_fun open MA MI IstFull (Some RRSNodeHdr.f_main).
+  Lemma simF_main : ISim.sim_fun open MA MI IstFull (fid RRSNodeHdr.f_main).
   Proof using Hschrrs Hrrs Hnode.
     iStartSim.
 
@@ -88,8 +87,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     rewrite <-H0. steps_r.
 
     rrs_yield_ir "IST" "tidF". rrs_yield_l. steps_l.
-    erewrite lookup_weaken; try eapply Hrrs; eauto; cycle 1.
-    { rewrite /RRSAS.sp. simpl_map. refl. }
+    erewrite lookup_weaken; try eapply Hrrs; eauto.
 
     (** invariant *)
     iPoseProof (full_merge with "F") as "[H H0]".
@@ -113,8 +111,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     steps_r.
 
     rrs_yield_ir "IST" "tidF". rrs_yield_l. steps_l.
-    erewrite lookup_weaken; try eapply Hrrs; eauto; cycle 1.
-    { rewrite /RRSAS.sp. simpl_map. refl. }
+    erewrite lookup_weaken; try eapply Hrrs; eauto.
 
     (** 2nd spawn **)
     steps_l; steps_r. set (Invs := _ : gmap nat InvO).
@@ -138,8 +135,7 @@ Module RRSNodeIA. Section RRSNodeIA.
 
     (** Round-Robin yield *)
     unfold RRS.yield. unseal "RRS". steps_r. steps_l.
-    erewrite lookup_weaken; try eapply Hrrs; eauto; cycle 1.
-    { rewrite /RRSAS.sp. simpl_map. refl. }
+    erewrite lookup_weaken; try eapply Hrrs; eauto.
 
     set (Invs := _ : gmap nat InvO).
     force_l (0, stid, ssch, Invs). subst Invs. forces_l. iSplitL "RRI tidF H".
@@ -163,7 +159,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     subst a b. inv H.
   Qed.
 
-  Lemma simF_f : ISim.sim_fun open MA MI IstFull (Some RRSNodeHdr.f).
+  Lemma simF_f : ISim.sim_fun open MA MI IstFull (fid RRSNodeHdr.f).
   Proof using Hschrrs Hrrs Hnode.
     iStartSim.
 
@@ -238,8 +234,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     rrs_yield_ir "IST" "tidF". rrs_yield_l. steps_l; steps_r.
 
     unfold RRS.yield. unseal "RRS". steps_l.
-    erewrite lookup_weaken; try eapply Hrrs; eauto; cycle 1.
-    { rewrite /RRSAS.sp. simpl_map. refl. }
+    erewrite lookup_weaken; try eapply Hrrs; eauto.
     force_l (mtid + 1, stid, ssch, Invs').
     forces_l. iSplitL "tidF RRI HALF".
     { replace (mtid + 1)%Z with (Z.of_nat (S mtid)) by nia.

@@ -21,7 +21,7 @@ Module RepeatI. Section RepeatI.
         ccallU RepeatHdr.repeat [Vptr (fb, 0%Z); Vint (n - 1); v].
 
   Definition fnsems (genv: GEnv.t) : fnsemmap :=
-    {[Some RepeatHdr.repeat := Some (msk_scp scopes msk_true, (None, cfunU (repeat (CEnv.load_genv genv: CEnv.t))))]}.
+    {[fid RepeatHdr.repeat # (msk_scp scopes msk_true, (None, cfunU (repeat (CEnv.load_genv genv: CEnv.t))))]}.
 
   Program Definition smod (genv: GEnv.t) : SMod.t := {|
     SMod.scopes := scopes;

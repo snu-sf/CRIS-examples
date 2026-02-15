@@ -23,7 +23,7 @@ Module IncrementI. Section IncrementI.
         ) ().
 
   Definition fnsems : fnsemmap :=
-    {[Some IncrementHdr.increment := Some (msk_scp scopes msk_true, (None, cfunU increment))]}.
+    {[fid IncrementHdr.increment # (msk_scp scopes msk_true, (None, cfunU increment))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

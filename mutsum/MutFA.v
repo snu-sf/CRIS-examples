@@ -16,10 +16,10 @@ Module MutFA. Section MutFA.
          (λ vret, (⌜vret = (Vint (Z.of_nat (sum n)))↑⌝)%I))).
          
   Definition SpF: specmap :=
-    {[speckey_fn MutHdr.mutf := fspec_to_rel f_spec]}.
+    {[fid MutHdr.mutf @ f_spec]}.
 
   Definition fnsems : fnsemmap :=
-    {[Some MutHdr.mutf := Some (msk_scp scopes msk_true, (fsp_some f_spec, pure_body))]}.
+    {[fid MutHdr.mutf # (msk_scp scopes msk_true, (fsp_some f_spec, pure_body))]}.
 
   Program Definition smod: SMod.t :=
   {|

@@ -18,18 +18,18 @@ Section SystemIA.
     λ st_src st_tgt,
       (∃ (tid : Ident.t) (tids : gmap Ident.t (TView.t * nat)),
         let tids' : gmap Ident.t nat := snd <$> tids in
-        ⌜st_tgt = {[SystemI.v_tid := Some tid↑; SystemI.v_tids := Some tids'↑]} ∧
-         st_src = {[SystemI.v_tid := Some tid↑; SystemI.v_tids := Some tids'↑]}⌝ ∗
+        ⌜st_tgt = {[SystemI.v_tid # tid↑; SystemI.v_tids # tids'↑]} ∧
+         st_src = {[SystemI.v_tid # tid↑; SystemI.v_tids # tids'↑]}⌝ ∗
         tview_sys_auth tids ∗
         ([∗ map] i ↦ stid ∈ (snd <$> delete tid tids),
           (YIELD stid)))%I.
 
   Local Definition IstFull := (IstProd (IstSB (Mod.scopes (SystemA.t sp_user ⊤ sp)) Ist) IstEq).
 
-  Lemma simF_read : ISim.sim_fun open SystemA_s SystemI_s IstFull (Some SystemHdr.read).
+  Lemma simF_read : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.read).
   Proof using.
     iStartSim.
-    steps_l. destruct _q as [? ? [[X [-> ->]]|[X [-> ->]]]]; steps_l; unfold_pre_post.
+    steps_l. destruct _q as [X|[X|[]]].
     { ss; destruct X as [[[[[[tid stid] loc] ord] val] q] V]; ss.
       iDestruct "ASM" as "[-> [-> [PT TV]]]".
       iDestruct "TV" as "[TV STV]".
@@ -44,10 +44,9 @@ Section SystemIA.
       subst.
 
       steps_r. rewrite /SystemI.get_tid. steps_r.
-      inline_r. 
-      unshelve force_r (FSpec_mk _ _ (or_introl _)).
-      3:{ eexists (tid_cur, loc, ord, val, q, V); split; ss. }
-      forces_r. iFrame. iDestruct "TA" as "[TA TVS]".
+      inline_r.
+      force_r (meta0 (tid_cur, loc, ord, val, q, V))%cris. forces_r. iFrame.
+      iDestruct "TA" as "[TA TVS]".
       rewrite big_sepM_delete //=. iDestruct "TVS" as "[$ TVS]"; eauto.
       iSplit; eauto.
       steps_r. iDestruct "GRT" as "[-> [%v [%V' [[-> %] [↦ tv]]]]]".
@@ -84,9 +83,7 @@ Section SystemIA.
       subst.
       rewrite /SystemI.get_tid. steps_r. steps_r.
       inline_r.
-      unshelve force_r (FSpec_mk _ _ (or_intror _)).
-      3:{ eexists (tid_cur, loc, ord, _, _, _, _, _, _, _, _); split; ss. }
-      forces_r. iFrame.
+      force_r (meta1 (tid_cur, loc, ord, _, _, _, _, _, _, _, _))%cris. forces_r. iFrame.
       iDestruct "TA" as "[TA TVS]".
       rewrite big_sepM_delete //. iDestruct "TVS" as "[$ TVS]"; eauto.
       iSplit; eauto.

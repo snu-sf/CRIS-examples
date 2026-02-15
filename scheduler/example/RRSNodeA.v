@@ -146,8 +146,8 @@ Module RRSNodeAS. Section RRSNodeAS.
         (λ '(mtid, stid, ssch, loc) vret ret, ∃ svret sret, ⌜vret = svret↑ ∧ ret = sret↑⌝ ∗ f_postcond svret sret)%I.
 
     Definition sp : specmap :=
-      {[speckey_fn RRSNodeHdr.f_main := fspec_to_rel f_main_spec;
-        speckey_fn RRSNodeHdr.f      := fspec_to_rel f_spec]}.
+      {[fid RRSNodeHdr.f_main @ f_main_spec;
+        fid RRSNodeHdr.f      @ f_spec]}.
   End SPEC.
 End RRSNodeAS. End RRSNodeAS.
 
@@ -174,8 +174,8 @@ Module RRSNodeA. Section RRSNodeA.
       Ret (tt↑↑).
   
   Definition fnsems (E : coPset) : fnsemmap :=
-    {[Some RRSNodeHdr.f_main := Some (msk_scp scopes msk_true, (fsp_some (RRSNodeAS.f_main_spec E), cfunN f_main));
-      Some RRSNodeHdr.f      := Some (msk_scp scopes msk_true, (fsp_some (RRSNodeAS.f_spec E), cfunN f))]}.
+    {[fid RRSNodeHdr.f_main # (msk_scp scopes msk_true, (fsp_some (RRSNodeAS.f_main_spec E), cfunN f_main));
+      fid RRSNodeHdr.f      # (msk_scp scopes msk_true, (fsp_some (RRSNodeAS.f_spec E), cfunN f))]}.
 
   Program Definition smod E : SMod.t := {|
     SMod.scopes := scopes;

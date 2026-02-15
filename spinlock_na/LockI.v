@@ -38,9 +38,9 @@ Module SpinLockI. Section SpinLockI.
       𝒴;;; Ret Vundef.
 
   Definition fnsems : fnsemmap :=
-    {[Some SpinLockHdr.newlock := Some (msk_real (msk_scp scopes msk_true), (None, cfunU newlock));
-      Some SpinLockHdr.acquire := Some (msk_real (msk_scp scopes msk_true), (None, cfunU acquire));
-      Some SpinLockHdr.release := Some (msk_real (msk_scp scopes msk_true), (None, cfunU release))]}.
+    {[fid SpinLockHdr.newlock # (msk_real (msk_scp scopes msk_true), (None, cfunU newlock));
+      fid SpinLockHdr.acquire # (msk_real (msk_scp scopes msk_true), (None, cfunU acquire));
+      fid SpinLockHdr.release # (msk_real (msk_scp scopes msk_true), (None, cfunU release))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

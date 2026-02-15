@@ -24,7 +24,7 @@ Module MutMainIA. Section MutMainIA.
   (*************)
 
   Lemma simF_main:
-    ISim.sim_fun open MutMainAMod MutMainIMod IstFull None.
+    ISim.sim_fun open MutMainAMod MutMainIMod IstFull entry.
   Proof using APCInSp FInPure PureInSp.
     iStartSim.
 

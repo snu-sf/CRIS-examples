@@ -86,8 +86,8 @@ Module SingleCoinA. Section SingleCoinA.
   Definition scopes : list string := [].
 
   Definition fnsems : fnsemmap :=
-    {[Some SingleCoinHdr.new := Some (msk_scp scopes msk_true, (fsp_some new_spec, fbody_trivial));
-      Some SingleCoinHdr.read := Some (msk_scp scopes msk_true, (fsp_some read_spec, fbody_trivial))]}.
+    {[fid SingleCoinHdr.new  # (msk_scp scopes msk_true, (fsp_some new_spec, fbody_trivial));
+      fid SingleCoinHdr.read # (msk_scp scopes msk_true, (fsp_some read_spec, fbody_trivial))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

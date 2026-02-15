@@ -20,12 +20,12 @@ Module CannonI. Section CannonI.
       Ret r.
 
   Definition fnsems : fnsemmap :=
-    {[Some CannonHdr.fire := Some (msk_scp scopes msk_true, (None, cfunU fire))]}.
+    {[fid CannonHdr.fire # (msk_scp scopes msk_true, (None, cfunU fire))]}.
   
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := {[v_lv := Some 1%Z↑]};
+    SMod.initial_st := {[v_lv # 1%Z↑]};
   |}.
   Solve All Obligations with mod_tac.
 

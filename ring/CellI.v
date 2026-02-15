@@ -25,13 +25,13 @@ Module CellI. Section CellI.
       Ret ().
 
   Definition fnsems : fnsemmap :=
-    {[Some (CellHdr.get idx) := Some (msk_real (msk_scp scopes msk_true), (None, cfunU get));
-      Some (CellHdr.set idx) := Some (msk_real (msk_scp scopes msk_true), (None, cfunU set))]}.
+    {[fid (CellHdr.get idx) # (msk_real (msk_scp scopes msk_true), (None, cfunU get));
+      fid (CellHdr.set idx) # (msk_real (msk_scp scopes msk_true), (None, cfunU set))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := {[v_cv := Some tt↑]};
+    SMod.initial_st := {[v_cv # tt↑]};
   |}.
   Solve All Obligations with mod_tac.
 

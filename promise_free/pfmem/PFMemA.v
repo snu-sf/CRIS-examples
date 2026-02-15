@@ -58,8 +58,8 @@ Module PFMemA. Section PFMemA.
           ∗ @{Vb} AtomicPtsToX loc γ t ζ mode
           ∗ tview tid 𝓥')))%I.
 
-  Definition read_spec : fspec_rel :=
-    λ P Q, fspec_to_rel read_spec_0 P Q ∨ fspec_to_rel read_spec_1 P Q.
+  Definition read_spec : fspec :=
+    [read_spec_0; read_spec_1]%cris.
 
   (* non-atomic write *)
   Definition write_spec_0 : fspec :=
@@ -108,8 +108,8 @@ Module PFMemA. Section PFMemA.
           ∗ @{Vb ⊔ TView.cur 𝓥'} AtomicPtsToX loc γ (if mode is SingleWriter then t else tx') ζn mode
           ∗ tview tid 𝓥')))%I.
 
-  Definition write_spec : fspec_rel :=
-    λ P Q, fspec_to_rel write_spec_0 P Q ∨ fspec_to_rel write_spec_1 P Q.
+  Definition write_spec : fspec :=
+    [write_spec_0; write_spec_1]%cris.
 
   (* TODO : Move to appropriate space *)
   Definition comparable (v1 v2 : Val.t) : Prop :=
@@ -204,23 +204,23 @@ Module PFMemA. Section PFMemA.
           tview tid 𝓥')))%I.
 
   Definition sp : specmap :=  
-    {[speckey_fn PFMemHdr.alloc := fspec_to_rel alloc_spec;
-      speckey_fn PFMemHdr.free := fspec_to_rel free_spec;
-      speckey_fn PFMemHdr.read := read_spec;
-      speckey_fn PFMemHdr.write := write_spec;
-      speckey_fn PFMemHdr.cas := fspec_to_rel cas_spec;
-      speckey_fn PFMemHdr.fence := fspec_to_rel fence_spec;
-      speckey_fn PFMemHdr.spawn := fspec_to_rel spawn_spec
+    {[fid PFMemHdr.alloc @ alloc_spec;
+      fid PFMemHdr.free  @ free_spec;
+      fid PFMemHdr.read  @ read_spec;
+      fid PFMemHdr.write @ write_spec;
+      fid PFMemHdr.cas   @ cas_spec;
+      fid PFMemHdr.fence @ fence_spec;
+      fid PFMemHdr.spawn @ spawn_spec
     ]}.
 
   Definition fnsems : fnsemmap :=
-    {[Some PFMemHdr.alloc := Some (msk_scp scopes msk_true, (fsp_some alloc_spec, fbody_trivial));
-      Some PFMemHdr.free := Some (msk_scp scopes msk_true, (fsp_some free_spec, fbody_trivial));
-      Some PFMemHdr.read := Some (msk_scp scopes msk_true, (fsp_some read_spec, fbody_trivial));
-      Some PFMemHdr.write := Some (msk_scp scopes msk_true, (fsp_some write_spec, fbody_trivial));
-      Some PFMemHdr.cas := Some (msk_scp scopes msk_true, (fsp_some cas_spec, fbody_trivial));
-      Some PFMemHdr.fence := Some (msk_scp scopes msk_true, (fsp_some fence_spec, fbody_trivial));
-      Some PFMemHdr.spawn := Some (msk_scp scopes msk_true, (fsp_some spawn_spec, fbody_trivial))]}.
+    {[fid PFMemHdr.alloc # (msk_scp scopes msk_true, (fsp_some alloc_spec, fbody_trivial));
+      fid PFMemHdr.free  # (msk_scp scopes msk_true, (fsp_some free_spec, fbody_trivial));
+      fid PFMemHdr.read  # (msk_scp scopes msk_true, (fsp_some read_spec, fbody_trivial));
+      fid PFMemHdr.write # (msk_scp scopes msk_true, (fsp_some write_spec, fbody_trivial));
+      fid PFMemHdr.cas   # (msk_scp scopes msk_true, (fsp_some cas_spec, fbody_trivial));
+      fid PFMemHdr.fence # (msk_scp scopes msk_true, (fsp_some fence_spec, fbody_trivial));
+      fid PFMemHdr.spawn # (msk_scp scopes msk_true, (fsp_some spawn_spec, fbody_trivial))]}.
 
   (* Module definition *)
   Program Definition smod : SMod.t := {|

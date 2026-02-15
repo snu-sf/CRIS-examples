@@ -18,18 +18,18 @@ Section SystemIA.
     λ st_src st_tgt,
       (∃ (tid : Ident.t) (tids : gmap Ident.t (TView.t * nat)),
         let tids' : gmap Ident.t nat := snd <$> tids in
-        ⌜st_tgt = {[SystemI.v_tid := Some tid↑; SystemI.v_tids := Some tids'↑]} ∧
-         st_src = {[SystemI.v_tid := Some tid↑; SystemI.v_tids := Some tids'↑]}⌝ ∗
+        ⌜st_tgt = {[SystemI.v_tid # tid↑; SystemI.v_tids # tids'↑]} ∧
+         st_src = {[SystemI.v_tid # tid↑; SystemI.v_tids # tids'↑]}⌝ ∗
         tview_sys_auth tids ∗
         ([∗ map] i ↦ stid ∈ (snd <$> delete tid tids),
           (YIELD stid)))%I.
 
   Local Definition IstFull := (IstProd (IstSB (Mod.scopes (SystemA.t sp_user ⊤ sp)) Ist) IstEq).
 
-  Lemma simF_write : ISim.sim_fun open SystemA_s SystemI_s IstFull (Some SystemHdr.write).
+  Lemma simF_write : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.write).
   Proof using.
     iStartSim.
-    steps_l. destruct _q as [? ? [[X [-> ->]]|[X [-> ->]]]]; steps_l; unfold_pre_post.
+    steps_l. destruct _q as [X|[X|[]]].
     { ss; destruct X as [[[[[tid stid] loc] val] ord] V]; ss.
       iDestruct "ASM" as "[-> [-> [PT Tid]]]".
       iDestruct "Tid" as "[Tid STV]".
@@ -47,8 +47,7 @@ Section SystemIA.
 
       steps_r. rewrite /SystemI.get_tid. steps_r.
       inline_r. rewrite /PFMemA.write_spec.
-      unshelve force_r (FSpec_mk _ _ (or_introl _)).
-      3:{ eexists (_, loc, val, ord, V); split; ss. }
+      force_r (meta0 (_, loc, val, ord, V))%cris.
       forces_r. iFrame.
       iDestruct "TA" as "[TA TVS]".
       rewrite big_sepM_delete //=; iDestruct "TVS" as "[$ TVS]"; eauto.
@@ -89,8 +88,8 @@ Section SystemIA.
       subst.
 
       steps_r. rewrite /SystemI.get_tid. steps_r.
-      inline_r. unshelve force_r (FSpec_mk _ _ (or_intror _)).
-      3:{ exists (tid_cur, loc, val, ord, V, γ, ζ', Vb, tx, ζ, mode, q, tx'). split; ss. }
+      inline_r.
+      force_r (meta1 (tid_cur, loc, val, ord, V, γ, ζ', Vb, tx, ζ, mode, q, tx'))%cris.
       iDestruct "TA" as "[TA TVS]".
       forces_r. iFrame.
       rewrite big_sepM_delete //=. iDestruct "TVS" as "[$ TVS]"; eauto.

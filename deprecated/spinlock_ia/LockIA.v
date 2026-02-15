@@ -20,7 +20,7 @@ Module LockIA. Section LockIA.
   Local Notation MI := (SpinLockI ★ MemA).
 
   Lemma newlock_simF :
-    ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.newlock).
+    ISim.sim_fun open MA MI init_cond IstFull (fid SpinLockHdr.newlock).
   Proof using SchG.
     init_simF.
     steps_l; unfold_lat_img_l.
@@ -68,7 +68,7 @@ Module LockIA. Section LockIA.
     Unshelve. all: exact 0.
   (*SLOW*)Qed.
 
-  Lemma acquire_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.acquire).
+  Lemma acquire_simF : ISim.sim_fun open MA MI init_cond IstFull (fid SpinLockHdr.acquire).
   Proof using SchG.
     init_simF.
     steps_l; unfold_lat_img_l.
@@ -122,7 +122,7 @@ Module LockIA. Section LockIA.
   Unshelve. all: try exact 1%Qp; try exact (Vint 0); eauto.
   (*SLOW*)Qed.
 
-  Lemma release_simF : ISim.sim_fun open MA MI init_cond IstFull (Some SpinLockHdr.release).
+  Lemma release_simF : ISim.sim_fun open MA MI init_cond IstFull (fid SpinLockHdr.release).
   Proof using SchG.
     init_simF.
     steps_l; unfold_lat_img_l.

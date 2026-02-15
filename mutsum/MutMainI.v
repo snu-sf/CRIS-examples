@@ -18,7 +18,7 @@ Module MutMainI. Section MutMainI.
   .
 
   Definition fnsems : fnsemmap :=
-    {[None := Some (msk_scp scopes msk_true, (None, mainF))]}.
+    {[entry # (msk_scp scopes msk_true, (None, mainF))]}.
   
   Program Definition smod: SMod.t :=
   {|

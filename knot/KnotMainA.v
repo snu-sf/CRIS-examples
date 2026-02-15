@@ -38,8 +38,8 @@ Module KnotMainA. Section KnotMainA.
       ((λ varg, ⌜varg = tt↑⌝ ∗ knot_frag None),
        (λ vret, emp)))%I.
 
-  Definition main_fun_sp : specmap :=  {[speckey_fn KnotMainHdr.fib := fspec_to_rel fib_spec]}.
-  Definition main_sp : specmap := {[speckey_fn "fib" := fspec_to_rel fib_spec]}.
+  Definition main_fun_sp : specmap :=  {[fid KnotMainHdr.fib @ fib_spec]}.
+  Definition main_sp : specmap := {[fid "fib" @ fib_spec]}.
 
   Definition scopes := ["KnotMain"].
 
@@ -49,8 +49,8 @@ Module KnotMainA. Section KnotMainA.
     λ _, (if with_pure then pure else Ret ()↑);;; Ret (Vint (Z.of_nat (Fib 10))).
 
   Definition fnsems : fnsemmap :=
-    {[Some KnotMainHdr.fib := Some (msk_scp scopes msk_true, (fsp_some fib_spec, pure_body));
-      None := Some (msk_scp scopes msk_true, (fsp_some main_spec, cfunU main_body))]}.
+    {[fid KnotMainHdr.fib # (msk_scp scopes msk_true, (fsp_some fib_spec, pure_body));
+      entry # (msk_scp scopes msk_true, (fsp_some main_spec, cfunU main_body))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

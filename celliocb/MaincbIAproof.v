@@ -7,13 +7,13 @@ Module MaincbIA. Section MaincbIA.
   Context `{!crisG Γ Σ α β τ _S _I, _CELLIOCB: !celliocbGS}.
 
   Context (sp : specmap).
-  Context (sp_foo: sp !! speckey_fn CtxcbHdr.foo = None).
+  Context (sp_foo: sp.1 !! fid CtxcbHdr.foo = None).
   
   Local Notation CelliocbAMod := (CelliocbA.t).
   Local Notation MaincbA := (MaincbA.t sp).
   Local Notation IstFull := (IstProd (IstSB MaincbA.(Mod.scopes) IstTrue) IstEq).
 
-  Lemma simF_main : ISim.sim_fun open MaincbA (MaincbI.t ★ CelliocbAMod) IstFull MaincbHdr.main.
+  Lemma simF_main : ISim.sim_fun open MaincbA (MaincbI.t ★ CelliocbAMod) IstFull entry.
   Proof using sp_foo.
     iStartSim.
     unfold MaincbA.main, MaincbI.main.

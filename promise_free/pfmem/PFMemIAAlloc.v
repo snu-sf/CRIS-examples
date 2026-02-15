@@ -128,7 +128,7 @@ Section alloc.
     }
   (*SLOW*)Qed.
 
-  Lemma simF_alloc : ISim.sim_fun open MA MI Ist (Some PFMemHdr.alloc).
+  Lemma simF_alloc : ISim.sim_fun open MA MI Ist (fid PFMemHdr.alloc).
   Proof using.
     iStartSim.
     steps_l. destruct _q as [[tid sz] V].

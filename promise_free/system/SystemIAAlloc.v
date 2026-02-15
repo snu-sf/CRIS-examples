@@ -18,15 +18,15 @@ Section SystemIA.
     λ st_src st_tgt,
       (∃ (tid : Ident.t) (tids : gmap Ident.t (TView.t * nat)),
         let tids' : gmap Ident.t nat := snd <$> tids in
-        ⌜st_tgt = {[SystemI.v_tid := Some tid↑; SystemI.v_tids := Some tids'↑]} ∧
-         st_src = {[SystemI.v_tid := Some tid↑; SystemI.v_tids := Some tids'↑]}⌝ ∗
+        ⌜st_tgt = {[SystemI.v_tid # tid↑; SystemI.v_tids # tids'↑]} ∧
+         st_src = {[SystemI.v_tid # tid↑; SystemI.v_tids # tids'↑]}⌝ ∗
         tview_sys_auth tids ∗
         ([∗ map] i ↦ stid ∈ (snd <$> delete tid tids),
           (YIELD stid)))%I.
 
   Local Definition IstFull := (IstProd (IstSB (Mod.scopes (SystemA.t sp_user ⊤ sp)) Ist) IstEq).
 
-  Lemma simF_alloc : ISim.sim_fun open SystemA_s SystemI_s IstFull (Some SystemHdr.alloc).
+  Lemma simF_alloc : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.alloc).
   Proof using.
     iStartSim.
     steps_l. destruct _q as [[[tid ?] ?] ?]; iDestruct "ASM" as "[-> [-> TVS]]".

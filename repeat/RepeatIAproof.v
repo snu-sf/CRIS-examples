@@ -16,8 +16,8 @@ Module RepeatIA. Section RepeatIA.
   Context (APCInSp : APCA.sp ⊆ sp).
   Context (SpPureInSp : sp_pure ⊆ sp).
   Context (SpPureFunInSpPure : sp_pure_fun ⊆ sp_pure).
-  Context (repeatInSpPure : sp_pure !! (speckey_fn RepeatHdr.repeat)
-            = Some (fspec_to_rel (RepeatAS.repeat_spec sp_pure_fun genv))).
+  Context (repeatInSpPure : sp_pure.1 !! (fid RepeatHdr.repeat)
+            = fsp_some (RepeatAS.repeat_spec sp_pure_fun genv)).
 
   (* Modules *)
   Local Definition APCA := (APCA.t sp_pure sp).
@@ -31,7 +31,7 @@ Module RepeatIA. Section RepeatIA.
     (λ _ _, True)%I.
   Local Definition IstFull := (IstProd (IstSB RepeatA.(Mod.scopes) Ist) IstEq).
 
-  Lemma simF_repeat : ISim.sim_fun open RepeatAMod RepeatIMod IstFull (Some RepeatHdr.repeat).
+  Lemma simF_repeat : ISim.sim_fun open RepeatAMod RepeatIMod IstFull (fid RepeatHdr.repeat).
   Proof using APCInSp SpPureInSp SpPureFunInSpPure repeatInSpPure.
     (* Simulation Start *)
     iStartSim.
@@ -42,7 +42,7 @@ Module RepeatIA. Section RepeatIA.
     steps_l.
 
     (* SRC: find apc in sp *)
-    assert (SPAPC: sp !! speckey_fn APCHdr.apc = fsp_some apc_spec).
+    assert (SPAPC: sp.1 !! fid APCHdr.apc = fsp_some apc_spec).
     { erewrite lookup_weaken; [refl| |eapply APCInSp]. rewrite /APCA.sp; simpl_map; refl. }
     rewrite SPAPC /=.
 
@@ -130,7 +130,7 @@ Section ctxr.
         (APCInSp : APCA.sp ⊆ sp)
         (SpPureInSp : sp_pure ⊆ sp)
         (SpPureFunInSpPure : sp_pure_fun ⊆ sp_pure)
-        (repeatInSpPure: sp_pure !! (speckey_fn RepeatHdr.repeat) = Some (fspec_to_rel (RepeatAS.repeat_spec sp_pure_fun ge))) :
+        (repeatInSpPure: sp_pure.1 !! (fid RepeatHdr.repeat) = Some (fspec_to_rel (RepeatAS.repeat_spec sp_pure_fun ge))) :
     ctx_refines
       ((RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I)
       ((RepeatI.t ge)                    ★ (APCA.t sp_pure sp), emp%I).

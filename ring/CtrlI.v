@@ -52,15 +52,15 @@ Module CtrlI. Section CtrlI.
   .
 
   Definition fnsems : fnsemmap :=
-    {[Some RingHdr.init := Some (msk_real (msk_scp scopes msk_true), (None, cfunU init));
-      Some RingHdr.get_size := Some (msk_real (msk_scp scopes msk_true), (None, cfunU get_size));
-      Some RingHdr.enqueue := Some (msk_real (msk_scp scopes msk_true), (None, cfunU enqueue));
-      Some RingHdr.dequeue := Some (msk_real (msk_scp scopes msk_true), (None, cfunU dequeue))]}.
+    {[fid RingHdr.init     # (msk_real (msk_scp scopes msk_true), (None, cfunU init));
+      fid RingHdr.get_size # (msk_real (msk_scp scopes msk_true), (None, cfunU get_size));
+      fid RingHdr.enqueue  # (msk_real (msk_scp scopes msk_true), (None, cfunU enqueue));
+      fid RingHdr.dequeue  # (msk_real (msk_scp scopes msk_true), (None, cfunU dequeue))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := {[v_hd := Some 0↑; v_tl := Some 0↑]};
+    SMod.initial_st := {[v_hd # 0↑; v_tl # 0↑]};
   |}.
   Solve All Obligations with mod_tac.
 

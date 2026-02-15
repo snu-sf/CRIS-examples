@@ -40,9 +40,8 @@ Module SpinLockMainI. Section SpinLockMainI.
       𝒴;;; Ret Vundef.
 
   Definition fnsems : fnsemmap :=
-    {[None := Some (msk_real (msk_scp scopes msk_true), (None, main));
-      Some SpinLockMainHdr.incr :=
-        Some (msk_real (msk_scp scopes msk_true), (None, cfunU (sfunU incr)))]}.
+    {[entry # (msk_real (msk_scp scopes msk_true), (None, main));
+      fid SpinLockMainHdr.incr # (msk_real (msk_scp scopes msk_true), (None, cfunU (sfunU incr)))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

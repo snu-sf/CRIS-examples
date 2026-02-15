@@ -77,18 +77,18 @@ Module RRSI. Section RRSI.
     λ _, cgetU v_tid.
 
   Definition fnsems : fnsemmap :=
-    {[Some RRSHdr.init := Some (msk_real (msk_scp scp msk_true), (None, cfunU init));
-      Some RRSHdr._spawn := Some (msk_real (msk_scp scp msk_true), (None, cfunU inner_spawn));
-      Some RRSHdr.spawn := Some (msk_real (msk_scp scp msk_true), (None, cfunU spawn));
-      Some RRSHdr.yield := Some (msk_real (msk_scp scp msk_true), (None, cfunU yield));
-      Some RRSHdr.yield_global := Some (msk_real (msk_scp scp msk_true), (None, cfunU yield_global));
-      Some RRSHdr.get_tid := Some (msk_real (msk_scp scp msk_true), (None, cfunU get_tid))]}.
+    {[fid RRSHdr.init # (msk_real (msk_scp scp msk_true), (None, cfunU init));
+      fid RRSHdr._spawn # (msk_real (msk_scp scp msk_true), (None, cfunU inner_spawn));
+      fid RRSHdr.spawn # (msk_real (msk_scp scp msk_true), (None, cfunU spawn));
+      fid RRSHdr.yield # (msk_real (msk_scp scp msk_true), (None, cfunU yield));
+      fid RRSHdr.yield_global # (msk_real (msk_scp scp msk_true), (None, cfunU yield_global));
+      fid RRSHdr.get_tid # (msk_real (msk_scp scp msk_true), (None, cfunU get_tid))]}.
 
   Program Definition smod: SMod.t :=
   {|
     SMod.scopes := scp;
     SMod.fnsems := fnsems;
-    SMod.initial_st := {[v_ths := Some ([] : thpool)↑; v_tid := Some 0↑; v_sch := Some 0↑]};
+    SMod.initial_st := {[v_ths # ([] : thpool)↑; v_tid # 0↑; v_sch # 0↑]};
   |}.
   Solve All Obligations with mod_tac.
   

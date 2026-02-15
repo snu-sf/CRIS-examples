@@ -12,15 +12,15 @@ Module MapMA. Section MapMA.
   Definition Ist : ist_type Σ :=
     (λ st_src st_tgt,
       ∃ f sz,
-        ⌜st_src = {[MapA.v_map := Some f↑]} ∧
-        st_tgt = {[MapM.v_size := Some sz↑; MapM.v_map := Some f↑]}⌝ ∗
+        ⌜st_src = {[MapA.v_map # f↑]} ∧
+        st_tgt = {[MapM.v_size # sz↑; MapM.v_map # f↑]}⌝ ∗
         (⌜f = (λ _ : Z, 0%Z) ∧ sz = 0%Z⌝ ∗ MapM.pending ∗ initial_map ∨
           pending ∗ auth_allocated f ∗ auth_unallocated sz))%I.
 
   Local Definition MapA := (MapA.t sp_s).
   Local Definition MapM := (MapM.t sp_t).
 
-  Lemma simF_init : ISim.sim_fun open MapA MapM Ist (Some MapHdr.init).
+  Lemma simF_init : ISim.sim_fun open MapA MapM Ist (fid MapHdr.init).
   Proof using MapInSpS MapInSpT.
     iStartSim.
 
@@ -48,7 +48,7 @@ Module MapMA. Section MapMA.
     iExists _, _. iSplitR; eauto. iRight. iFrame.
   (*SLOW*)Qed.
 
-  Lemma simF_get : ISim.sim_fun open MapA MapM Ist (Some MapHdr.get).
+  Lemma simF_get : ISim.sim_fun open MapA MapM Ist (fid MapHdr.get).
   Proof using MapInSpS MapInSpT.
     iStartSim.
 
@@ -80,7 +80,7 @@ Module MapMA. Section MapMA.
     iExists _, _. iSplit; eauto. iRight. iFrame.
   (*SLOW*)Qed.
 
-  Lemma simF_set : ISim.sim_fun open MapA MapM Ist (Some MapHdr.set).
+  Lemma simF_set : ISim.sim_fun open MapA MapM Ist (fid MapHdr.set).
   Proof using MapInSpS MapInSpT.
     iStartSim.
 
@@ -112,7 +112,7 @@ Module MapMA. Section MapMA.
     iExists _, _. iSplit; eauto. iRight. iFrame.
   (*SLOW*)Qed.
 
-  Lemma simF_set_by_user : ISim.sim_fun open MapA MapM Ist (Some MapHdr.set_by_user).
+  Lemma simF_set_by_user : ISim.sim_fun open MapA MapM Ist (fid MapHdr.set_by_user).
   Proof using MapInSpS MapInSpT.
     iStartSim.
 

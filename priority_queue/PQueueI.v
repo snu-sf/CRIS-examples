@@ -51,9 +51,9 @@ Module PQueueI. Section PQueueI.
     ) (n, ofs + 1)%Z.
 
   Definition fnsems : fnsemmap :=
-    {[Some PQueueHdr.new :=        Some (msk_real (msk_scp scopes msk_true), (None, cfunU new));
-      Some PQueueHdr.add        := Some (msk_real (msk_scp scopes msk_true), (None, cfunU add));
-      Some PQueueHdr.remove_min := Some (msk_real (msk_scp scopes msk_true), (None, cfunU remove_min))]}.
+    {[fid PQueueHdr.new        # (msk_real (msk_scp scopes msk_true), (None, cfunU new));
+      fid PQueueHdr.add        # (msk_real (msk_scp scopes msk_true), (None, cfunU add));
+      fid PQueueHdr.remove_min # (msk_real (msk_scp scopes msk_true), (None, cfunU remove_min))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

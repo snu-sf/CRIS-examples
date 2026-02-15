@@ -97,14 +97,14 @@ Module CellA. Section CellA.
       (λ ret, ⌜ret = tt↑⌝ ∗ cell v)))%I.
 
   Definition sp : specmap :=
-    {[speckey_fn (CellHdr.get idx) := fspec_to_rel get_spec;
-      speckey_fn (CellHdr.set idx) := fspec_to_rel set_spec]}.
+    {[fid (CellHdr.get idx) @ get_spec;
+      fid (CellHdr.set idx) @ set_spec]}.
 
   Definition scopes : list string := [CellHdr.mn idx].
 
   Definition fnsems : fnsemmap :=
-    {[Some (CellHdr.get idx) := Some (msk_scp scopes msk_true, (fsp_some get_spec, fbody_trivial));
-      Some (CellHdr.set idx) := Some (msk_scp scopes msk_true, (fsp_some set_spec, fbody_trivial))]}.
+    {[fid (CellHdr.get idx) # (msk_scp scopes msk_true, (fsp_some get_spec, fbody_trivial));
+      fid (CellHdr.set idx) # (msk_scp scopes msk_true, (fsp_some set_spec, fbody_trivial))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

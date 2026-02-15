@@ -55,7 +55,7 @@ Module AddIA. Section AddIA.
     apply (_add_succ_repeat_fun (Z.to_nat n) m).
   Qed.
 
-  Lemma simF_succ : ISim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (Some AddHdr.succ).
+  Lemma simF_succ : ISim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (fid AddHdr.succ).
   Proof using _crisG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
     (* Simulation Start *)
     init_simF.
@@ -85,7 +85,7 @@ Module AddIA. Section AddIA.
     Unshelve. et. exact (0↑).
   (*SLOW*)Qed.
 
-  Lemma simF_add : ISim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (Some AddHdr.add).
+  Lemma simF_add : ISim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (fid AddHdr.add).
   Proof using _crisG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
     (* succ is in somewhere at CEnv *)
     pose proof (@CEnv.incl_incl_env AddGEnv.t genv) as INCLENV.

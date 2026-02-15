@@ -26,7 +26,7 @@ Section StackIM.
 
   Local Notation IstFull := (HelpingTactics.IstFull StackM.jobID StackM.retID mn).
 
-  Lemma new_stack_simF : ISim.sim_fun open StackM StackI IstFull (Some StackHdr.new_stack).
+  Lemma new_stack_simF : ISim.sim_fun open StackM StackI IstFull (fid StackHdr.new_stack).
   Proof using.
     iStartSim.
     steps_l. destruct _q as [[stid mtid] n]. iDestruct "ASM" as "[TID [-> [%val ->]]]".

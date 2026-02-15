@@ -699,10 +699,10 @@ Module RRSAS. Section RRSAS.
     .
 
     Definition fn_spawnable_rr fn (my_tid: nat) (pre : SAny.t → SAny.t → iProp Σ) Invs : iProp Σ :=
-      (∃ fsp, ⌜sp_user !! (speckey_fn fn) = Some fsp⌝ ∧ fspec_spawnable_rr fsp my_tid pre Invs)%I.
+      (∃ fsp, ⌜sp_user.1 !! (fid fn) = Some fsp⌝ ∧ fspec_spawnable_rr fsp my_tid pre Invs)%I.
     
     Definition fn_spawnable_rr_init fn (my_tid: nat) (pre : SAny.t → SAny.t → iProp Σ) Inv : iProp Σ :=
-      (∃ fsp, ⌜sp_user !! (speckey_fn fn) = Some fsp⌝ ∧
+      (∃ fsp, ⌜sp_user.1 !! (fid fn) = Some fsp⌝ ∧
        fspec_spawnable_rr_init fsp my_tid pre Inv).
 
     Definition init_spec : fspec :=
@@ -779,12 +779,12 @@ Module RRSAS. Section RRSAS.
         (λ vret, (⌜vret = mtid↑⌝ ∗ Tid mtid stid ssch))))%I.
 
     Definition sp : specmap :=
-      {[speckey_fn RRSHdr.init := fspec_to_rel init_spec;
-        speckey_fn RRSHdr._spawn := fspec_to_rel inner_spawn_spec;
-        speckey_fn RRSHdr.spawn := fspec_to_rel spawn_spec;
-        speckey_fn RRSHdr.yield := fspec_to_rel yield_spec;
-        speckey_fn RRSHdr.yield_global := fspec_to_rel yield_global_spec;
-        speckey_fn RRSHdr.get_tid := fspec_to_rel get_tid_spec]}.
+      {[fid RRSHdr.init @ init_spec;
+        fid RRSHdr._spawn @ inner_spawn_spec;
+        fid RRSHdr.spawn @ spawn_spec;
+        fid RRSHdr.yield @ yield_spec;
+        fid RRSHdr.yield_global @ yield_global_spec;
+        fid RRSHdr.get_tid @ get_tid_spec]}.
 
   End SPEC.
 End RRSAS. End RRSAS.
@@ -866,12 +866,12 @@ Module RRSA. Section RRSA.
     λ _, cgetN v_tid.
   
   Definition fnsems (E: coPset) (sp_user: specmap) (T: Type) (get_stid : T → nat) (PYIP: T → iProp Σ): fnsemmap :=
-    {[Some RRSHdr.init := Some (msk_scp scp msk_true, (fsp_some (RRSAS.init_spec sp_user E get_stid PYIP), cfunN init));
-      Some RRSHdr._spawn := Some (msk_scp scp msk_true, (fsp_some (RRSAS.inner_spawn_spec sp_user E), cfunN inner_spawn));
-      Some RRSHdr.spawn := Some (msk_scp scp msk_true, (fsp_some (RRSAS.spawn_spec sp_user E), cfunN spawn));
-      Some RRSHdr.yield := Some (msk_scp scp msk_true, (fsp_some (RRSAS.yield_spec E), cfunN yield));
-      Some RRSHdr.yield_global := Some (msk_scp scp msk_true, (fsp_some (RRSAS.yield_global_spec E), cfunN yield_global));
-      Some RRSHdr.get_tid := Some (msk_scp scp msk_true, (fsp_some (RRSAS.get_tid_spec), cfunN get_tid))]}.
+    {[fid RRSHdr.init # (msk_scp scp msk_true, (fsp_some (RRSAS.init_spec sp_user E get_stid PYIP), cfunN init));
+      fid RRSHdr._spawn # (msk_scp scp msk_true, (fsp_some (RRSAS.inner_spawn_spec sp_user E), cfunN inner_spawn));
+      fid RRSHdr.spawn # (msk_scp scp msk_true, (fsp_some (RRSAS.spawn_spec sp_user E), cfunN spawn));
+      fid RRSHdr.yield # (msk_scp scp msk_true, (fsp_some (RRSAS.yield_spec E), cfunN yield));
+      fid RRSHdr.yield_global # (msk_scp scp msk_true, (fsp_some (RRSAS.yield_global_spec E), cfunN yield_global));
+      fid RRSHdr.get_tid # (msk_scp scp msk_true, (fsp_some (RRSAS.get_tid_spec), cfunN get_tid))]}.
 
   Program Definition smod sp_user (E: coPset) (T: Type) (get_stid: T → nat) (PYIP : T → iProp Σ): SMod.t := {|
     SMod.scopes := scp;

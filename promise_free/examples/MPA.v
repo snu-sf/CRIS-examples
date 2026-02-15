@@ -70,7 +70,7 @@ Module MPA. Section MPA.
         (λ (_ : unit), ((λ _, tview_sys 1%positive 0 (TView.init [])), (λ _, True))))%I.
 
   Definition sp : specmap :=
-    {[speckey_fn MPHdr.mp2 := fspec_to_rel mp2_spec]}.
+    {[fid MPHdr.mp2 @ mp2_spec]}.
 
   (* module definition *)
   Definition scopes : list string := [].
@@ -89,8 +89,8 @@ Module MPA. Section MPA.
       Ret (Val.Vnum 42)↑.
 
   Definition fnsems : fnsemmap :=
-    {[Some MPHdr.mp2 := Some (msk_scp scopes msk_true, (fsp_some mp2_spec, (cfunN (sfunN mp2))));
-      None := Some (msk_scp scopes msk_true, (fsp_some main_spec, mp))]}.
+    {[fid MPHdr.mp2 # (msk_scp scopes msk_true, (fsp_some mp2_spec, (cfunN (sfunN mp2))));
+      entry         # (msk_scp scopes msk_true, (fsp_some main_spec, mp))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

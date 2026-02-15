@@ -10,7 +10,7 @@ Module FaaIA. Section FaaIA.
   Local Definition MA := (FaaA.t ★ MemA.t sp).
   Local Definition MI := (FaaI.t ★ MemA.t sp).
 
-  Lemma faa2_simF : ISim.sim_fun open MA MI IstFull (Some FaaHdr.faa2).
+  Lemma faa2_simF : ISim.sim_fun open MA MI IstFull (fid FaaHdr.faa2).
   Proof using.
     iStartSim.
 

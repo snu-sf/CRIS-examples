@@ -140,10 +140,10 @@ Module MapA. Section MapA.
           λ vret, ⌜vret = Vundef↑⌝ ∗ ∃ v, points_to k v))%I.
 
   Definition sp : specmap :=
-    {[speckey_fn MapHdr.init := fspec_to_rel init_spec;
-      speckey_fn MapHdr.get := fspec_to_rel get_spec;
-      speckey_fn MapHdr.set := fspec_to_rel set_spec;
-      speckey_fn MapHdr.set_by_user := fspec_to_rel set_by_user_spec]}.
+    {[fid MapHdr.init @ init_spec;
+      fid MapHdr.get @ get_spec;
+      fid MapHdr.set @ set_spec;
+      fid MapHdr.set_by_user @ set_by_user_spec]}.
 
   (*** module A Map
   private map := (fun k => 0)
@@ -184,15 +184,15 @@ Module MapA. Section MapA.
       ccallN MapHdr.set [Vint k; Vint v].
 
   Definition fnsems : fnsemmap :=
-    {[Some MapHdr.init := Some (msk_scp scopes msk_true, (fsp_some init_spec, fbody_trivial));
-      Some MapHdr.get := Some (msk_scp scopes msk_true, (fsp_some get_spec, cfunN get));
-      Some MapHdr.set := Some (msk_scp scopes msk_true, (fsp_some set_spec, cfunN set));
-      Some MapHdr.set_by_user := Some (msk_scp scopes msk_true, (fsp_some set_by_user_spec, cfunN set_by_user))]}.
+    {[fid MapHdr.init # (msk_scp scopes msk_true, (fsp_some init_spec, fbody_trivial));
+      fid MapHdr.get  # (msk_scp scopes msk_true, (fsp_some get_spec, cfunN get));
+      fid MapHdr.set  # (msk_scp scopes msk_true, (fsp_some set_spec, cfunN set));
+      fid MapHdr.set_by_user # (msk_scp scopes msk_true, (fsp_some set_by_user_spec, cfunN set_by_user))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := {[v_map := Some (λ _ : Z, 0%Z)↑]};
+    SMod.initial_st := {[v_map # (λ _ : Z, 0%Z)↑]};
   |}.
   Solve All Obligations with mod_tac.
 

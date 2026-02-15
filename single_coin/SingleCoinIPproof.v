@@ -12,11 +12,11 @@ Module SingleCoinIP. Section SingleCoinIP.
 
   Local Definition Ist : ist_type Σ :=
     (λ st_s st_t,
-      ∃ (l : list (option bool)), ⌜st_s = {[v_coins := Some l↑]} ∧ st_t = st_s⌝)%I.
+      ∃ (l : list (option bool)), ⌜st_s = {[v_coins # l↑]} ∧ st_t = st_s⌝)%I.
 
   Local Definition IstFull := IstProd (IstSB (Mod.scopes (SingleCoinP.t mn)) Ist) IstEq.
 
-  Lemma simF_new : ISim.sim_fun open MA MI IstFull (Some SingleCoinHdr.new).
+  Lemma simF_new : ISim.sim_fun open MA MI IstFull (fid SingleCoinHdr.new).
   Proof.
     iStartSim.
     iDestruct "IST" as "%"; des; subst.
@@ -26,7 +26,7 @@ Module SingleCoinIP. Section SingleCoinIP.
     do 2 (iSplit; eauto; ss).
   Qed.
 
-  Lemma simF_read : ISim.sim_fun open MA MI IstFull (Some SingleCoinHdr.read).
+  Lemma simF_read : ISim.sim_fun open MA MI IstFull (fid SingleCoinHdr.read).
   Proof.
     iStartSim.
     iDestruct "IST" as "%"; des; subst.

@@ -119,10 +119,10 @@ End PFMem. Section PFMemTac.
     (∀ nths st_s st_t ret,
       Ist nths st_s st_t -∗ tid_user my_tid -∗
       (postcond (PFMemA.alloc_spec) (Tid.of_succ_nat my_tid, sz, 𝓥) ret↑ ret↑) -∗
-      wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps true nths
+      wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps true nths
         (st_s, i_s)
         (st_t, k_t ret))
-    ⊢ wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps pt nths
+    ⊢ wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps pt nths
       (st_s, i_s)
       (st_t, (HModTr.sandbox msk_t sc_t (PModTr.trans (alloc sz))) >>= k_t).
   Proof using LE.
@@ -158,10 +158,10 @@ End PFMem. Section PFMemTac.
     (∀ nths st_s st_t ret,
       Ist nths st_s st_t -∗ tid_user my_tid -∗
       (postcond (PFMemA.free_spec) (Tid.of_succ_nat my_tid, loc, n, 𝓥) ret↑ ret↑) -∗
-      wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps true nths
+      wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps true nths
         (st_s, i_s)
         (st_t, k_t ret))
-    ⊢ wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps pt nths
+    ⊢ wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps pt nths
       (st_s, i_s)
       (st_t, (HModTr.sandbox msk_t sc_t (PModTr.trans (free loc))) >>= k_t).
   Proof using LE.
@@ -197,10 +197,10 @@ End PFMem. Section PFMemTac.
     (∀ nths st_s st_t ret,
       Ist nths st_s st_t -∗ tid_user my_tid -∗
       (postcond (PFMemA.read_spec_0) (Tid.of_succ_nat my_tid, loc, ord, v, q, 𝓥) ret↑ ret↑) -∗
-      wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps true nths
+      wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps true nths
         (st_s, i_s)
         (st_t, k_t ret))
-    ⊢ wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps pt nths
+    ⊢ wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps pt nths
       (st_s, i_s)
       (st_t, (HModTr.sandbox msk_t sc_t (PModTr.trans (read (loc, ord)))) >>= k_t).
   Proof using LE.
@@ -237,10 +237,10 @@ End PFMem. Section PFMemTac.
     (∀ nths st_s st_t ret,
       Ist nths st_s st_t -∗ tid_user my_tid -∗
       (postcond (PFMemA.read_spec_1) (Tid.of_succ_nat my_tid, loc, ord, ζ, ζ', t0, γ, q, mode, 𝓥, Vb) ret↑ ret↑) -∗
-      wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps true nths
+      wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps true nths
         (st_s, i_s)
         (st_t, k_t ret))
-    ⊢ wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps pt nths
+    ⊢ wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps pt nths
       (st_s, i_s)
       (st_t, (HModTr.sandbox msk_t sc_t (PModTr.trans (read (loc, ord)))) >>= k_t).
   Proof using LE.
@@ -278,10 +278,10 @@ End PFMem. Section PFMemTac.
     (∀ nths st_s st_t ret,
       Ist nths st_s st_t -∗ tid_user my_tid -∗
       (postcond (PFMemA.write_spec_1) (Tid.of_succ_nat my_tid, loc, val, ord, 𝓥, γ, ζ', Vb, tx, ζ, mode, q, tx') ret↑ ret↑) -∗
-      wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps true nths
+      wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps true nths
         (st_s, i_s)
         (st_t, k_t ret))
-    ⊢ wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps pt nths
+    ⊢ wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps pt nths
       (st_s, i_s)
       (st_t, (HModTr.sandbox msk_t sc_t (PModTr.trans (write (loc, val, ord)))) >>= k_t).
   Proof using LE.
@@ -318,10 +318,10 @@ End PFMem. Section PFMemTac.
     (∀ nths st_s st_t ret,
       Ist nths st_s st_t -∗ tid_user my_tid -∗
       (postcond (PFMemA.cas_spec) (Tid.of_succ_nat my_tid, loc, old, new, ordr, ordw, 𝓥, γ, ζ', Vb, tx, ζ, mode, Pr) ret↑ ret↑) -∗
-      wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps true nths
+      wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps true nths
         (st_s, i_s)
         (st_t, k_t ret))
-    ⊢ wsim fl_s fl_t Ist (Some true) υ ν ⊤ r g R_s R_t RR ps pt nths
+    ⊢ wsim fl_s fl_t Ist (fid true) υ ν ⊤ r g R_s R_t RR ps pt nths
       (st_s, i_s)
       (st_t, (HModTr.sandbox msk_t sc_t (PModTr.trans (cas (loc, old, new, ordr, ordw)))) >>= k_t).
   Proof using LE.

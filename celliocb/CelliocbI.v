@@ -30,13 +30,13 @@ Module CelliocbI. Section CelliocbI.
 
 
   Definition fnsems : fnsemmap :=
-    {[Some CelliocbHdr.set := Some ((msk_scp scopes msk_true), (None, cfunU set));
-      Some CelliocbHdr.get := Some ((msk_scp scopes msk_true), (None, get))]}.
+    {[fid CelliocbHdr.set # ((msk_scp scopes msk_true), (None, cfunU set));
+      fid CelliocbHdr.get # ((msk_scp scopes msk_true), (None, get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := {[v_cv := Some (0%Z)↑]};
+    SMod.initial_st := {[v_cv # (0%Z)↑]};
   |}.
   Solve All Obligations with mod_tac.
 

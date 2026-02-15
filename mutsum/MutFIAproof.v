@@ -24,7 +24,7 @@ Module MutFIA. Section MutFIA.
   (*************)
 
   Lemma simF_mutf:
-    ISim.sim_fun open MutFAMod MutFIMod IstFull (Some MutHdr.mutf).
+    ISim.sim_fun open MutFAMod MutFIMod IstFull (fid MutHdr.mutf).
   Proof using _crisG APCInSp GInPure PureInSp.
     iStartSim.
 

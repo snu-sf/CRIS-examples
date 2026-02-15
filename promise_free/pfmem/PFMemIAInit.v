@@ -14,7 +14,7 @@ Section init.
   Definition MA := (PFMemA.t sp).
   Definition MI := (PFMemI.t syn size).
 
-  Lemma simF_init : ISim.sim_fun open MA MI (init_cond syn size) Ist (Some PFMemHdr.init).
+  Lemma simF_init : ISim.sim_fun open MA MI (init_cond syn size) Ist (fid PFMemHdr.init).
   Proof.
     init_simF. steps_l. iDestruct "ASM" as "[[-> TV] ->]". hss_r. steps_r.
     rename q2 into 𝓥, q3 into tid, q4 into tid_spawner.

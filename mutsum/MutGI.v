@@ -26,7 +26,7 @@ Module MutGI. Section MutGI.
   .
 
   Definition fnsems : fnsemmap :=
-    {[Some MutHdr.mutg := Some (msk_scp scopes msk_true, (None, cfunU gF))]}.
+    {[fid MutHdr.mutg # (msk_scp scopes msk_true, (None, cfunU gF))]}.
   
   Program Definition smod: SMod.t :=
   {|

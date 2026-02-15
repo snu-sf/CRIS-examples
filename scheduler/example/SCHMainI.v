@@ -19,7 +19,7 @@ Module SCHMainI. Section SCHMainI.
       Ret tt↑.
 
   Definition fnsems : fnsemmap :=
-    {[None := Some (msk_real (msk_scp [] msk_true), (None, main))]}.
+    {[entry # (msk_real (msk_scp [] msk_true), (None, main))]}.
   
   Program Definition smod: SMod.t :=
     {|

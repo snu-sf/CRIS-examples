@@ -55,12 +55,12 @@ Module MapIM. Section MapIM.
 
   Definition Ist : ist_type Σ :=
     (λ st_src st_tgt,
-      ⌜st_src = {[MapM.v_size := Some 0%Z↑; MapM.v_map := Some (λ _ : Z, 0%Z)↑]}
-        ∧ st_tgt = {[MapI.v_hptr := Some Vnullptr↑]}⌝
+      ⌜st_src = {[MapM.v_size # 0%Z↑; MapM.v_map # (λ _ : Z, 0%Z)↑]}
+        ∧ st_tgt = {[MapI.v_hptr # Vnullptr↑]}⌝
       ∨ pending
         ∗ ∃ bofs (f : Z → Z) (sz : Z),
-          ⌜st_src = {[MapM.v_size := Some sz↑; MapM.v_map := Some f↑]}
-            ∧ st_tgt = {[MapI.v_hptr := Some (Vptr bofs)↑]}⌝
+          ⌜st_src = {[MapM.v_size # sz↑; MapM.v_map # f↑]}
+            ∧ st_tgt = {[MapI.v_hptr # (Vptr bofs)↑]}⌝
           ∗ bofs |-> (fun_to_list f (Z.to_nat sz)))%I.
 
   (* sps of src/mem modules *)
@@ -73,7 +73,7 @@ Module MapIM. Section MapIM.
   Local Notation MapIMod := (MapI.t ★ MemA).
   Local Notation IstFull := (IstProd (IstSB MapM.(Mod.scopes) Ist) IstEq).
 
-  Lemma simF_init : ISim.sim_fun open MapMMod MapIMod IstFull (Some MapHdr.init).
+  Lemma simF_init : ISim.sim_fun open MapMMod MapIMod IstFull (fid MapHdr.init).
   Proof using MapInSp.
     iStartSim.
 
@@ -150,7 +150,7 @@ Module MapIM. Section MapIM.
     rewrite replicate_S_end; f_equal. rewrite -app_assoc //=.
   (*SLOW*)Qed.
 
-  Lemma simF_get : ISim.sim_fun open MapMMod MapIMod IstFull (Some MapHdr.get).
+  Lemma simF_get : ISim.sim_fun open MapMMod MapIMod IstFull (fid MapHdr.get).
   Proof using MapInSp.
     iStartSim.
 
@@ -185,7 +185,7 @@ Module MapIM. Section MapIM.
     iPoseProof ("M" with "IP") as "M". iFrame.
   (*SLOW*)Qed.
 
-  Lemma simF_set : ISim.sim_fun open MapMMod MapIMod IstFull (Some MapHdr.set).
+  Lemma simF_set : ISim.sim_fun open MapMMod MapIMod IstFull (fid MapHdr.set).
   Proof using MapInSp.
     iStartSim.
 
@@ -223,7 +223,7 @@ Module MapIM. Section MapIM.
     rewrite -> fun_to_list_update, Z2Nat.id; try nia. iFrame.
   (*SLOW*)Qed.
 
-  Lemma simF_set_by_user : ISim.sim_fun open MapMMod MapIMod IstFull (Some MapHdr.set_by_user).
+  Lemma simF_set_by_user : ISim.sim_fun open MapMMod MapIMod IstFull (fid MapHdr.set_by_user).
   Proof using MapInSp.
     iStartSim.
 

@@ -35,8 +35,8 @@ Module NDSNodeA. Section NDSNodeA.
               (λ vret ret, ⌜vret = (tt↑↑) ∧ ret = (tt↑↑)↑⌝)%I))).
 
     Definition sp : specmap :=
-      {[speckey_fn NDSNodeHdr.f_main := fspec_to_rel f_main_spec;
-        speckey_fn NDSNodeHdr.f      := fspec_to_rel f_spec]}.
+      {[fid NDSNodeHdr.f_main @ f_main_spec;
+        fid NDSNodeHdr.f      @ f_spec]}.
   End SPEC.
 
   Definition f_main : SAny.t -> itree crisE SAny.t :=
@@ -55,8 +55,8 @@ Module NDSNodeA. Section NDSNodeA.
       Ret (tt↑↑).
 
   Definition fnsems (E : coPset) : fnsemmap :=
-    {[Some NDSNodeHdr.f_main := Some (msk_scp scopes msk_true, (fsp_some (f_main_spec E), cfunN f_main));
-      Some NDSNodeHdr.f      := Some (msk_scp scopes msk_true, (fsp_some (f_spec E), cfunN f))]}.
+    {[fid NDSNodeHdr.f_main # (msk_scp scopes msk_true, (fsp_some (f_main_spec E), cfunN f_main));
+      fid NDSNodeHdr.f      # (msk_scp scopes msk_true, (fsp_some (f_spec E), cfunN f))]}.
 
   Program Definition smod E : SMod.t := {|
     SMod.scopes := scopes;

@@ -24,8 +24,8 @@ Module KnotI. Section KnotI.
       ccallU fn [Vptr (rb, 0%Z); Vint n].
 
   Definition fnsems (genv : GEnv.t) : fnsemmap :=
-    {[Some KnotHdr.rec := Some (msk_scp scopes msk_true, (None, cfunU (recF genv)));
-      Some KnotHdr.knot := Some (msk_scp scopes msk_true, (None, cfunU (knotF genv)))]}.
+    {[fid KnotHdr.rec # (msk_scp scopes msk_true, (None, cfunU (recF genv)));
+      fid KnotHdr.knot # (msk_scp scopes msk_true, (None, cfunU (knotF genv)))]}.
   
   Program Definition smod genv : SMod.t := {|
     SMod.scopes := scopes;

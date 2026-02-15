@@ -134,9 +134,9 @@ Module PQueueA. Section PQueueA.
         Ret ret↑).
 
   Definition fnsems : fnsemmap :=
-    {[Some PQueueHdr.new := Some (msk_scp scopes msk_true, (fsp_some new_spec, new));
-      Some PQueueHdr.add := Some (msk_scp scopes msk_true, (None, add));
-      Some PQueueHdr.remove_min := Some (msk_scp scopes msk_true, (None, remove_min))]}.
+    {[fid PQueueHdr.new # (msk_scp scopes msk_true, (fsp_some new_spec, new));
+      fid PQueueHdr.add # (msk_scp scopes msk_true, (None, add));
+      fid PQueueHdr.remove_min # (msk_scp scopes msk_true, (None, remove_min))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
@@ -163,7 +163,7 @@ Module PQueueIA. Section PQueueIA.
   Local Definition PQueueI := PQueueI.t      ★ (StackA ★ SchI.t ★ MemA.t sp).
   Local Definition IstFull := IstProd (IstSB (Mod.scopes (PQueueA.t N sp)) IstTrue) IstEq.
 
-  Lemma new_simF : ISim.sim_fun open PQueueA PQueueI IstFull (Some PQueueHdr.new).
+  Lemma new_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.new).
   Proof.
     iStartSim.
     steps_l. destruct _q as [[stid mtid] [n range]].
@@ -294,7 +294,7 @@ Module PQueueIA. Section PQueueIA.
     sch_yield_l. forces_l. iFrame. iSplit; eauto. step. iSplit; done.
   (*SLOW*)Qed.
 
-  Lemma add_simF : ISim.sim_fun open PQueueA PQueueI IstFull (Some PQueueHdr.add).
+  Lemma add_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.add).
   Proof.
     iStartSim. rewrite /PQueueA.add /atomic_body.
     steps_l. destruct _q as [[stid mtid] [[[γq range] priority] v]].
@@ -342,7 +342,7 @@ Module PQueueIA. Section PQueueIA.
     step. iFrame. done.
   (*SLOW*)Qed.
 
-  Lemma remove_min_simF : ISim.sim_fun open PQueueA PQueueI IstFull (Some PQueueHdr.remove_min).
+  Lemma remove_min_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.remove_min).
   Proof.
     iStartSim. rewrite /PQueueA.remove_min /atomic_body.
     steps_l. destruct _q as [[stid mtid] [γq range]].

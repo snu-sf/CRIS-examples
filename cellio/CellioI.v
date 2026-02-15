@@ -19,13 +19,13 @@ Module CellioI. Section CellioI.
       Ret (i : Z)↑.
 
   Definition fnsems : fnsemmap :=
-    {[Some CellioHdr.set := Some (msk_real (msk_scp scopes msk_true), (fsp_none, set));
-      Some CellioHdr.get := Some (msk_real (msk_scp scopes msk_true), (fsp_none, get))]}.
+    {[fid CellioHdr.set # (msk_real (msk_scp scopes msk_true), (fsp_none, set));
+      fid CellioHdr.get # (msk_real (msk_scp scopes msk_true), (fsp_none, get))]}.
 
   Program Definition smod: SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := {[v_cv := Some ((0%Z)↑)]};
+    SMod.initial_st := {[v_cv # (0%Z)↑]};
   |}.
   Solve All Obligations with mod_tac.
 

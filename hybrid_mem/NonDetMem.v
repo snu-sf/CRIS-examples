@@ -70,18 +70,18 @@ Module NonDetMem. Section NonDetMem.
   .
 
   Definition fnsems : fnsemmap :=
-    {[Some MemHdr.alloc := Some (msk_real (msk_scp scopes msk_true), (None, cfunU alloc));
-      Some MemHdr.free  := Some (msk_real (msk_scp scopes msk_true), (None, cfunU free));
-      Some MemHdr.load  := Some (msk_real (msk_scp scopes msk_true), (None, cfunU load));
-      Some MemHdr.store := Some (msk_real (msk_scp scopes msk_true), (None, cfunU store));
-      Some MemHdr.cmp   := Some (msk_real (msk_scp scopes msk_true), (None, cfunU cmp));
-      Some MemHdr.cas   := Some (msk_real (msk_scp scopes msk_true), (None, cfunU cas))]}.
+    {[fid MemHdr.alloc # (msk_real (msk_scp scopes msk_true), (None, cfunU alloc));
+      fid MemHdr.free  # (msk_real (msk_scp scopes msk_true), (None, cfunU free));
+      fid MemHdr.load  # (msk_real (msk_scp scopes msk_true), (None, cfunU load));
+      fid MemHdr.store # (msk_real (msk_scp scopes msk_true), (None, cfunU store));
+      fid MemHdr.cmp   # (msk_real (msk_scp scopes msk_true), (None, cfunU cmp));
+      fid MemHdr.cas   # (msk_real (msk_scp scopes msk_true), (None, cfunU cas))]}.
 
   Program Definition smod : SMod.t :=
     {|
       SMod.scopes := scopes;
       SMod.fnsems := fnsems ;
-      SMod.initial_st := {[v_mem := Some (Mem.empty)↑]};
+      SMod.initial_st := {[v_mem # (Mem.empty)↑]};
     |}
   .
   Solve All Obligations with mod_tac.

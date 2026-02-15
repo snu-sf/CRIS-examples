@@ -35,9 +35,8 @@ Section KnotAux.
   Proof.
     eapply Cancel.cancellation.
     { repeat apply SMod.cancellable_add; r; mod_tac ss. }
-    { assert (Ht : SMod.conc_sp_from smod_src !! speckey_entry =
-        fsp_some (KnotMainA.main_spec)); last (rewrite Ht; clear Ht).
-      { rewrite lookup_insert_ne // lookup_kmap_Some; exists None; split; ss. }
+    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry =
+                     fsp_some (KnotMainA.main_spec)) by mod_tac.
       eexists _, _; splits.
       { ss; exists (tt); split; refl. }
       { iIntros "[? [? [? $]]]"; ss. }
@@ -62,12 +61,11 @@ Section KnotAux.
       eapply KnotIA.ctxr with (sp:=sp) (sp_pure:=sp_pure) (sp_rec:=sp_rec) (sp_fun:=sp_fun); eauto.
       { eapply genv_wf. }
       { unfold genv. eapply incl_appl; refl. }
-      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      { split; et.
+        repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
       }
-      { apply map_union_subseteq_l. }
-      { apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq;
-          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      { split; et. apply map_union_subseteq_l. }
+      { split; et. apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq; mod_tac.
       }
     }
     (* abstraction of KnotMain *)
@@ -75,33 +73,35 @@ Section KnotAux.
     { ctxr_norm. eapply KnotMainIA.ctxr; eauto.
       { eapply genv_wf. }
       { unfold genv. eapply incl_appr; refl. }
-      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      { split; et.
+        repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
       }
-      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      { split; et.
+        repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
       }
-      { apply map_union_subseteq_r.
+      { split; et.
+        apply map_union_subseteq_r.
         rewrite /KnotMainA.main_fun_sp /KnotA.knot_rec_sp.
         apply map_disjoint_insert_l_2; simpl_map; auto with map_disjoint.
       }
-      { apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq;
-          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      { split; et.
+        apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq; mod_tac.
       }
     }
     (* abstraction of APCA to APCC *)
     etrans; cycle 1.
     { do 2 ctxr_rotate. ctxr_drop.
       eapply APCAC.ctxr.
-      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      { split; et.
+        repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
       }
-      { apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq;
-          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      { split; et.
+        apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq; mod_tac.
       }
       { rewrite /sp_pure /KnotMainA.main_fun_sp /KnotA.knot_rec_sp.
-        intros ? ? [?%lookup_singleton_Some|?%lookup_singleton_Some]%lookup_union_Some; des; clarify.
-        { rewrite /find_body; simpl_map; esplits; eauto. }
+        intros ? ? [?H|?H]%lookup_union_Some;
+          try rewrite lookup_singleton_Some in H; des; clarify.
+        { rewrite /find_body; simpl_map. esplits; eauto. }
         { rewrite /find_body; simpl_map; esplits; eauto. }
         clear H0. apply map_disjoint_insert_l_2; simpl_map; auto with map_disjoint.
       }
@@ -112,18 +112,19 @@ Section KnotAux.
       eapply KnotMainIA.ctxr_close with (sp:=sp) (sp_pure:=sp_pure) (sp_fun:=sp_fun); eauto.
       { eapply genv_wf. }
       { unfold genv. eapply incl_appr; refl. }
-      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      { split; et.
+        repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
       }
-      { repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      { split; et.
+        repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
       }
-      { apply map_union_subseteq_r.
+      { split; et.
+        apply map_union_subseteq_r.
         rewrite /KnotMainA.main_fun_sp /KnotA.knot_rec_sp.
         apply map_disjoint_insert_l_2; simpl_map; auto with map_disjoint.
       }
-      { apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq;
-          rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+      { split; et.
+        apply map_union_least; repeat try eapply insert_subseteq_l; try apply map_empty_subseteq; mod_tac.
       }
     }
     (* elimination of mem *)

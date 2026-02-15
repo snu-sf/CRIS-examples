@@ -28,7 +28,7 @@ Module MainA. Section MainA.
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=
-    {[None := Some (msk_scp scopes msk_true, (fsp_some MainAS.main_spec, main))]}.
+    {[entry # (msk_scp scopes msk_true, (fsp_some MainAS.main_spec, main))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

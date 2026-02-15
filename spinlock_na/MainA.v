@@ -63,7 +63,7 @@ Module MainA. Section MainA.
 
   Definition main_spec (N : namespace) : fspec := fspec_sch (↑N) fspec_trivial.
 
-  Definition sp E : specmap := {[speckey_fn SpinLockMainHdr.incr := fspec_to_rel (incr_spec E)]}.
+  Definition sp E : specmap := {[fid SpinLockMainHdr.incr @ (incr_spec E)]}.
 
   (* Module definition *)
   (* Define three components for a module:
@@ -87,8 +87,8 @@ Module MainA. Section MainA.
     λ _, 𝒴;;; Ret Vundef.
 
   Definition fnsems (N : namespace) : fnsemmap :=
-    {[None := Some (msk_scp scopes msk_true, (fsp_some (main_spec N), main));
-      Some SpinLockMainHdr.incr := Some (msk_scp scopes msk_true, (fsp_some (incr_spec (↑N)), cfunN (sfunN incr)))]}.
+    {[entry # (msk_scp scopes msk_true, (fsp_some (main_spec N), main));
+      fid SpinLockMainHdr.incr # (msk_scp scopes msk_true, (fsp_some (incr_spec (↑N)), cfunN (sfunN incr)))]}.
 
   Program Definition smod N : SMod.t := {|
     SMod.scopes := scopes;

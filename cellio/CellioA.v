@@ -64,8 +64,8 @@ Module CellioA. Section CellioA.
   Definition scopes := [CellioHdr.mn].
 
   Definition fnsems : fnsemmap :=
-    {[Some CellioHdr.set := Some (msk_scp scopes msk_true, (fsp_some fspec_trivial, set));
-      Some CellioHdr.get := Some (msk_scp scopes msk_true, (fsp_some fspec_trivial, get))]}.
+    {[fid CellioHdr.set # (msk_scp scopes msk_true, (fsp_some fspec_trivial, set));
+      fid CellioHdr.get # (msk_scp scopes msk_true, (fsp_some fspec_trivial, get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

@@ -89,9 +89,9 @@ Module StackI. Section StackI.
   Definition pop : list val → itree crisE val := λ args, ITree.iter (λ _, (_pop args)) ().
 
   Definition fnsems : fnsemmap :=
-    {[Some StackHdr.new_stack := Some (msk_real (msk_scp scopes msk_true), (None, cfunU new_stack));
-      Some StackHdr.push      := Some (msk_real (msk_scp scopes msk_true), (None, cfunU push));
-      Some StackHdr.pop       := Some (msk_real (msk_scp scopes msk_true), (None, cfunU pop))]}.
+    {[fid StackHdr.new_stack # (msk_real (msk_scp scopes msk_true), (None, cfunU new_stack));
+      fid StackHdr.push      # (msk_real (msk_scp scopes msk_true), (None, cfunU push));
+      fid StackHdr.pop       # (msk_real (msk_scp scopes msk_true), (None, cfunU pop))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;

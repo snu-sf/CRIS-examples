@@ -83,7 +83,7 @@ Module KnotA. Section KnotA.
                         ∗ knot_frag (Some f))%I),
           (λ vret, (⌜vret = (Vint (Z.of_nat (f n)))↑⌝ ∗ knot_frag (Some f))%I))).
 
-  Definition knot_rec_sp : specmap := {[speckey_fn KnotHdr.rec := fspec_to_rel rec_spec]}.
+  Definition knot_rec_sp : specmap := {[fid KnotHdr.rec @ rec_spec]}.
 
   Definition knot_spec : fspec :=
     fspec_simple (X:=nat → nat)
@@ -94,14 +94,14 @@ Module KnotA. Section KnotA.
           knot_frag (Some f))%I)))).
 
   Definition knot_sp : specmap :=
-    {[speckey_fn KnotHdr.rec := fspec_to_rel rec_spec;
-      speckey_fn KnotHdr.knot := fspec_to_rel knot_spec]}.
+    {[fid KnotHdr.rec @ rec_spec;
+      fid KnotHdr.knot @ knot_spec]}.
 
   Definition scopes := ["Knot"].
 
   Definition fnsems : fnsemmap :=
-    {[Some KnotHdr.rec := Some (msk_scp scopes msk_true, (fsp_some rec_spec, pure_body));
-      Some KnotHdr.knot := Some (msk_scp scopes msk_true, (fsp_some (knot_spec), fbody_trivial))]}.
+    {[fid KnotHdr.rec  # (msk_scp scopes msk_true, (fsp_some rec_spec, pure_body));
+      fid KnotHdr.knot # (msk_scp scopes msk_true, (fsp_some (knot_spec), fbody_trivial))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

@@ -6,10 +6,10 @@ Module RingA. Section RingA.
   Context `{!crisG Γ Σ α β τ _S _I, _CELL: !cellGS}.
 
   (* Definition sp : specmap :=
-    {[speckey_fn RingHdr.init := fspec_to_rel fspec_trivial;
-      speckey_fn RingHdr.get_size := fspec_to_rel fspec_trivial;
-      speckey_fn RingHdr.enqueue := fspec_to_rel fspec_trivial;
-      speckey_fn RingHdr.dequeue := fspec_to_rel fspec_trivial]}. *)
+    {[fid RingHdr.init     @ fspec_trivial;
+      fid RingHdr.get_size @ fspec_trivial;
+      fid RingHdr.enqueue  @ fspec_trivial;
+      fid RingHdr.dequeue  @ fspec_trivial]}. *)
 
   (* A maximum size of the ring buffer *)
   Variable max_size : nat.
@@ -43,15 +43,15 @@ Module RingA. Section RingA.
       end.
 
   Definition fnsems : fnsemmap :=
-    {[Some RingHdr.init := Some (msk_real (msk_scp scopes msk_true), (None, cfunU init));
-      Some RingHdr.get_size := Some (msk_real (msk_scp scopes msk_true), (None, cfunU get_size));
-      Some RingHdr.enqueue := Some (msk_real (msk_scp scopes msk_true), (None, cfunU enqueue));
-      Some RingHdr.dequeue := Some (msk_real (msk_scp scopes msk_true), (None, cfunU dequeue))]}.
+    {[fid RingHdr.init     # (msk_real (msk_scp scopes msk_true), (None, cfunU init));
+      fid RingHdr.get_size # (msk_real (msk_scp scopes msk_true), (None, cfunU get_size));
+      fid RingHdr.enqueue  # (msk_real (msk_scp scopes msk_true), (None, cfunU enqueue));
+      fid RingHdr.dequeue  # (msk_real (msk_scp scopes msk_true), (None, cfunU dequeue))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := {[v_que := Some ([]:list Z)↑]};
+    SMod.initial_st := {[v_que # ([]:list Z)↑]};
   |}
   .
   Solve All Obligations with mod_tac.

@@ -27,9 +27,9 @@ Module MaincbI. Section MaincbI.
       Ret tt↑.
 
   Definition fnsems : fnsemmap :=
-    {[Some MaincbHdr.input_stdin  := Some ((msk_scp scopes msk_true), (None, input_stdin));
-      Some MaincbHdr.input_db     := Some ((msk_scp scopes msk_true), (None, input_db));
-      MaincbHdr.main         := Some ((msk_scp scopes msk_true), (None, main))]}.
+    {[fid MaincbHdr.input_stdin  # ((msk_scp scopes msk_true), (None, input_stdin));
+      fid MaincbHdr.input_db     # ((msk_scp scopes msk_true), (None, input_db));
+      entry  # ((msk_scp scopes msk_true), (None, main))]}.
 
   Program Definition smod: SMod.t := {|
     SMod.scopes := scopes;

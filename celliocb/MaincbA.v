@@ -23,7 +23,7 @@ Module MaincbA. Section MaincbA.
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=
-    {[MaincbHdr.main := Some ((msk_scp scopes msk_true), (fsp_some main_spec, main))]}.
+    {[entry # ((msk_scp scopes msk_true), (fsp_some main_spec, main))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

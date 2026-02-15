@@ -32,8 +32,8 @@ Module RRSNodeI. Section RRSNodeI.
   .
   
   Definition fnsems : fnsemmap :=
-    {[Some RRSNodeHdr.f_main := Some (msk_real (msk_scp scopes msk_true), (None, cfunU f_main));
-      Some RRSNodeHdr.f      := Some (msk_real (msk_scp scopes msk_true), (None, cfunU f))]}.
+    {[fid RRSNodeHdr.f_main # (msk_real (msk_scp scopes msk_true), (None, cfunU f_main));
+      fid RRSNodeHdr.f      # (msk_real (msk_scp scopes msk_true), (None, cfunU f))]}.
 
   Program Definition smod: SMod.t :=
   {|

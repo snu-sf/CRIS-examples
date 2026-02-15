@@ -20,7 +20,7 @@ Module LockIA. Section LockIA.
   Local Notation MA := (SpinLockA ★ MemA).
   Local Notation MI := (SpinLockI ★ MemA).
 
-  Lemma newlock_simF : ISim.sim_fun open MA MI IstFull (Some SpinLockHdr.newlock).
+  Lemma newlock_simF : ISim.sim_fun open MA MI IstFull (fid SpinLockHdr.newlock).
   Proof using SchInSp Hsub.
     iStartSim.
 
@@ -57,7 +57,7 @@ Module LockIA. Section LockIA.
     step. iFrame. eauto.
   (*SLOW*)Qed.
 
-  Lemma acquire_simF : ISim.sim_fun open MA MI IstFull (Some SpinLockHdr.acquire).
+  Lemma acquire_simF : ISim.sim_fun open MA MI IstFull (fid SpinLockHdr.acquire).
   Proof using SchInSp Hsub.
     iStartSim.
 
@@ -115,7 +115,7 @@ Module LockIA. Section LockIA.
   Unshelve. all: try exact 1%Qp. all: try exact Vundef.
   (*SLOW*)Qed.
 
-  Lemma release_simF : ISim.sim_fun open MA MI IstFull (Some SpinLockHdr.release).
+  Lemma release_simF : ISim.sim_fun open MA MI IstFull (fid SpinLockHdr.release).
   Proof using SchInSp Hsub.
     iStartSim.
     (* process src precondition *)

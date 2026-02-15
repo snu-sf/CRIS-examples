@@ -25,7 +25,7 @@ Module MainA. Section MainA.
   Definition main_spec : fspec := fspec_simple (λ _ : unit, ((λ _, Ball), (λ _, True%I))).
 
   Definition fnsems : fnsemmap :=
-    {[None := Some (msk_scp scopes msk_true, (fsp_some main_spec, cfunU main))]}.
+    {[entry # (msk_scp scopes msk_true, (fsp_some main_spec, cfunU main))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

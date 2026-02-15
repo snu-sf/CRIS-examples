@@ -14,13 +14,12 @@ Section write.
   Definition MA := (PFMemA.t sp).
   Definition MI := (PFMemI.t syn size).
 
-  Lemma simF_write : ISim.sim_fun open MA MI Ist (Some PFMemHdr.write).
+  Lemma simF_write : ISim.sim_fun open MA MI Ist (fid PFMemHdr.write).
   Proof.
     iStartSim.
-    step_l. destruct _q as [? ? [[X [-> ->]]|[X [-> ->]]]].
-    steps_l; rename _q into arg'.
+    step_l. destruct _q as [p|[p|[]]].
     { (* non-atomic write *)
-      destruct X as [[[[tid loc] val] ord] 𝓥].
+      destruct p as [[[[tid loc] val] ord] 𝓥]. steps_l.
       iDestruct "ASM" as "[-> [-> [PT TV]]]". hss.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
       steps_r. hss. steps_r.
@@ -203,7 +202,7 @@ Section write.
       Unshelve. exact.
     }
     (* Atomic write *)
-    { destruct X as [[[[[[[[[[[[tid loc] val] ord] 𝓥] γ] ζ'] Vb] tx] ζ] mode] q] tx']. steps_l.
+    { destruct p as [[[[[[[[[[[[tid loc] val] ord] 𝓥] γ] ζ'] Vb] tx] ζ] mode] q] tx']. steps_l.
       iDestruct "ASM" as "[-> [[-> %ORDRLX] [SEEN [PT [TV WRITE]]]]]". hss.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
       steps_r. hss. steps_r.

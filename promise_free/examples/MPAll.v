@@ -21,14 +21,14 @@ Section MPAux.
 
   Local Definition SchInSp : (SystemA.sp sp_user_s ⊤) ⊆ sp.
   Proof.
-    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-      rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+    split; et.
+    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
   Qed.
 
   Local Definition UserInSp : sp_user_s ⊆ sp.
   Proof.
-    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq;
-      rewrite lookup_insert_ne // lookup_kmap_Some; eexists (Some _); split; ss.
+    split; et.
+    repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
   Qed.
 
   Local Definition MainInSp : (MPA.sp) ⊆ sp_user_s. Proof. refl. Qed.
@@ -46,10 +46,10 @@ Section MPAux.
     { apply SMod.cancellable_add; last apply SMod.cancellable_add; r;
         rewrite /= /MPA.fnsems /SystemA.fnsems /PFMemA.fnsems; mod_tac ss.
     }
-    { assert (Ht : SMod.conc_sp_from smod_src !! speckey_entry =
-       fsp_some (MPA.main_spec)); last (rewrite Ht; clear Ht).
-      { rewrite lookup_insert_ne // lookup_kmap_Some; exists None; split; ss. }
-       eexists _, _; splits.
+    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry =
+                     fsp_some (MPA.main_spec)) by mod_tac.
+      rewrite Ht; clear Ht.
+      eexists _, _; splits.
       { ss; exists tt; split; refl. }
       { iIntros "[$ [$ [$ $]]]"; ss. }
       { unfold_pre_post. iIntros "% % [_ [% _]] //". }
@@ -72,7 +72,7 @@ Section MPAux.
       eapply SystemIA.ctxr.
       - apply UserInSp.
       - apply SchInSp.
-      - rewrite dom_insert elem_of_union; left; apply elem_of_singleton; ss.
+      - et.
     }
     (* abstraction of MP *)
     etrans; cycle 1.

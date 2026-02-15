@@ -11,7 +11,7 @@ Module NDSIA. Section sim.
   Context (parent_yield: string).
   Context (parent_yield_fsp: fspec).
   Context (T: Type) (get_stid: T → nat) (PYIP: T → iProp Σ).
-  Context (SchInSp : sp !! (speckey_fn parent_yield) = fsp_some parent_yield_fsp).
+  Context (SchInSp : sp.1 !! (fid parent_yield) = fsp_some parent_yield_fsp).
   Context (NDSInSp :(NDSA.sp sp_nds_user ⊤ T get_stid PYIP) ⊆ sp).
   (* Context (SpSchInSp : sp_sch_user ⊆ sp). *)
   (* Context (NdsInSchSp : sp_nds_user ⊆ sp_sch_user). *)
@@ -24,7 +24,7 @@ Module NDSIA. Section sim.
                         TID (get_stid x) ∗ YIELD (get_stid x) ∗ PYIP x ∗ ⌜varg = arg ∧ varg = tt↑⌝)
                       (λ x vret ret, 
                         TID (get_stid x) ∗ YIELD (get_stid x) ∗ PYIP x ∗ ⌜vret = ret ∧ vret = tt↑⌝))%I)).
-  Context (ConcInSp : speckey_concE ∈ dom sp).
+  Context (ConcInSp : sp.2).
 
   Local Notation ths_type :=
     (list (nat * option (SAny.t * SAny.t) * (SAny.t -d> SAny.t -d> leibnizO {n : level & GTerm.t n}))).
@@ -55,17 +55,16 @@ Module NDSIA. Section sim.
     λ st_src st_tgt,
       (∃ ths tid_cur stid_cur ssch,
         ⌜st_src =
-          {[NDSI.v_ths :=
-              Some ((λ '(n, rv, _), (n, fst <$> rv : option SAny.t))
-                      <$> ths : list (nat * option SAny.t))↑;
-            NDSI.v_tid := Some tid_cur↑; 
-            NDSI.v_sch:= Some ssch↑]} ∧
+          {[NDSI.v_ths # ((λ '(n, rv, _), (n, fst <$> rv : option SAny.t))
+                         <$> ths : list (nat * option SAny.t))↑;
+            NDSI.v_tid # tid_cur↑; 
+            NDSI.v_sch# ssch↑]} ∧
          st_tgt =
-           {[NDSI.v_ths :=
-               Some ((λ '(n, rv, _), (n, snd <$> rv : option SAny.t))
+           {[NDSI.v_ths #
+                   ((λ '(n, rv, _), (n, snd <$> rv : option SAny.t))
                        <$> ths : list (nat * option SAny.t))↑;
-             NDSI.v_tid := Some tid_cur↑;
-             NDSI.v_sch := Some ssch↑]}⌝ ∗
+             NDSI.v_tid # tid_cur↑;
+             NDSI.v_sch # ssch↑]}⌝ ∗
         JoinAuth (list_to_map (imap (λ i RR, (i, to_agree RR)) ths.*2)) ∗
         TidAuth (list_to_map (imap pair ths.*1.*1)) ∗
         ([∗ list] i ↦ e ∈ ths,
@@ -84,14 +83,14 @@ Module NDSIA. Section sim.
   Local Definition NDSAMod := NDSA.t parent_yield sp sp_nds_user T get_stid PYIP.
   Local Definition NDSIMod := NDSI.t parent_yield.
 
-  Lemma simF_init : ISim.sim_fun open NDSAMod NDSIMod Ist (Some NDSHdr.init).
+  Lemma simF_init : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.init).
   Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
     iStartSim.
 
     step_l. destruct _q as [[x pre] post].
     steps_l. iDestruct "ASM" as "(% & % & % & % & (% & % & Spawn) & T & Y & (P & C) & PRE & YI)"; des; subst; hss.
     steps_l. steps_r.
-    do 2 (case_decide as H'; ss; clear H').
+    rewrite ConcInSp.
 
     forces_l. iSplitL "T"; eauto. steps_l. steps_r. step. steps_l. steps_r.
     iDestruct "ASM" as "[% T]"; subst.
@@ -109,7 +108,7 @@ Module NDSIA. Section sim.
 
     iDestruct "IST_init" as "(% & P' & Pub)"; des; subst; hss.
     steps_l. steps_r. simpl_sp.
-    case_decide as H'; ss; clear H'.
+    rewrite ConcInSp.
     
     force_l (false, pre, post). steps_l. force_l ((fn, tt↑↑)↑).
     steps_l. iApply wsim_spawn. iIntros (stid_new).
@@ -140,7 +139,7 @@ Module NDSIA. Section sim.
     { iIntros "Y T W". iFrame. iExists _. iSplit; eauto. rewrite /Public. unseal NDS. iFrame; eauto. }
 
     steps_l. rewrite /SModTr.HoareYield.
-    do 2 (case_decide as H'; ss; clear H').
+    rewrite ConcInSp.
     force_l; iFrame. steps_l.
     iApply wsim_unfold; iIntros "WI".
     forces_l. iFrame. steps_l. steps_r.
@@ -204,7 +203,7 @@ Module NDSIA. Section sim.
 
     steps_l. steps_r.
     rewrite !list_lookup_fmap !H /=. steps_l. steps_r.
-    do 2 (case_decide as H'; ss; clear H').    
+    rewrite ConcInSp.
     steps_r. forces_l.
 
     iPoseProof (big_sepL_delete _ ths.*1.*1 tid_cur with "Ys") as "[Y' Ys]"; eauto.
@@ -222,7 +221,7 @@ Module NDSIA. Section sim.
     by_coind CIH; eauto. iFrame.
   (*SLOW*)Qed.
 
-  Lemma simF_inner_spawn : ISim.sim_fun open NDSAMod NDSIMod Ist (Some NDSHdr._spawn).
+  Lemma simF_inner_spawn : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr._spawn).
   Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
     iStartSim.
 
@@ -277,7 +276,7 @@ Module NDSIA. Section sim.
 
       iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)".
       erewrite lookup_weaken; cycle 1.
-      { eapply Hspawn. } { etrans; eauto. }
+      { eapply Hspawn. } { eapply NdsInSchSp. }
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (mtid, stid, ssch); split; done. }
 
@@ -447,7 +446,7 @@ Module NDSIA. Section sim.
 
       iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)".
       erewrite lookup_weaken; cycle 1.
-      { eapply Hspawn. } { etrans; eauto. }
+      { eapply Hspawn. } { apply NdsInSchSp. }
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (0, stid, ssch); split; done. }
 
@@ -571,7 +570,7 @@ Module NDSIA. Section sim.
     }
   (*SLOW*)Qed.
 
-  Lemma simF_spawn : ISim.sim_fun open NDSAMod NDSIMod Ist (Some NDSHdr.spawn).
+  Lemma simF_spawn : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.spawn).
   Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
     iStartSim.
 
@@ -606,7 +605,7 @@ Module NDSIA. Section sim.
     (* System spawn precondition *)
     erewrite lookup_weaken; try eapply NDSInSp; cycle 1.
     { rewrite /NDSA.sp. simpl_map. refl. }
-    case_decide as H'; ss; clear H'.
+    rewrite ConcInSp.
     force_l (true, user_pre, user_post). steps_l. force_l ((fn, farg)↑). steps_l.
     steps_r. iApply wsim_spawn.
     iIntros (tid_new). steps_l.
@@ -670,7 +669,7 @@ Module NDSIA. Section sim.
     Unshelve. exact (tid_new, None).
   (*SLOW*)Qed.
 
-  Lemma simF_yield : ISim.sim_fun open NDSAMod NDSIMod Ist (Some NDSHdr.yield).
+  Lemma simF_yield : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.yield).
   Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
     iStartSim.
 
@@ -702,7 +701,7 @@ Module NDSIA. Section sim.
     steps_l. steps_r.
 
     (* GetTid reasoning *)
-    do 2 (case_decide as H'; ss; clear H').
+    rewrite ConcInSp.
     forces_l; iFrame "TID". steps_l.
     steps_r. step.
     steps_l. iDestruct "ASM" as "[-> TID]". steps_l. steps_r.
@@ -719,7 +718,7 @@ Module NDSIA. Section sim.
     steps_l. steps_r.
 
     (* HoareYield *)
-    do 2 (case_decide as H'; ss; clear H').
+    rewrite ConcInSp.
     rewrite ?list_lookup_fmap /= in Htidn.
     iAssert (YIELD stidn ∗
         [∗ list] i ↦ e ∈ ths.*1.*1, if decide (i = tidn) then emp else YIELD e)%I
@@ -803,7 +802,7 @@ Module NDSIA. Section sim.
     esplits; eauto.
   (*SLOW*)Qed.
 
-  Lemma simF_yield_global : ISim.sim_fun open NDSAMod NDSIMod Ist (Some NDSHdr.yield_global).
+  Lemma simF_yield_global : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.yield_global).
   Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
     iStartSim.
 
@@ -836,7 +835,7 @@ Module NDSIA. Section sim.
     steps_l. steps_r.
 
     (* HoareYield *)
-    do 2 (case_decide as H'; ss; clear H').
+    rewrite ConcInSp.
     iApply wsim_unfold; iIntros "WI".
     forces_l. iFrame "WI TID Ysch".
 
@@ -905,7 +904,7 @@ Module NDSIA. Section sim.
     esplits; eauto.
   (*SLOW*)Qed.
 
-  Lemma simF_join : ISim.sim_fun open NDSAMod NDSIMod Ist (Some NDSHdr.join).
+  Lemma simF_join : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.join).
   Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
     iStartSim.
 
@@ -981,7 +980,7 @@ Module NDSIA. Section sim.
     }
   (*SLOW*)Qed.
 
-  Lemma simF_get_tid : ISim.sim_fun open NDSAMod NDSIMod Ist (Some NDSHdr.get_tid).
+  Lemma simF_get_tid : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.get_tid).
   Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
     iStartSim.
 
@@ -1046,7 +1045,7 @@ Section ctxr.
   Context (T: Type) (get_stid: T → nat) (PYIP: T → iProp Σ).
 
   Lemma ctxr sp (* sp_sch_user *) sp_nds_user
-    (SchInSp : sp !! (speckey_fn parent_yield) = fsp_some parent_yield_fsp)
+    (SchInSp : sp.1 !! (fid parent_yield) = fsp_some parent_yield_fsp)
     (NDSInSp :(NDSA.sp sp_nds_user ⊤ T get_stid PYIP) ⊆ sp)
     (* (SpSchInSp : sp_sch_user ⊆ sp) *)
     (* (NdsInSchSp : sp_nds_user ⊆ sp_sch_user) *)
@@ -1059,7 +1058,7 @@ Section ctxr.
                         TID (get_stid x) ∗ YIELD (get_stid x) ∗ PYIP x ∗ ⌜varg = arg ∧ varg = tt↑⌝)
                       (λ x vret ret, 
                         TID (get_stid x) ∗ YIELD (get_stid x) ∗ PYIP x ∗ ⌜vret = ret ∧ vret = tt↑⌝))%I))
-    (ConcInSp : speckey_concE ∈ dom sp) :
+    (ConcInSp : sp.2) :
     ctx_refines
       (NDSA.t parent_yield sp sp_nds_user T get_stid PYIP, NDSA.init_cond)
       (NDSI.t parent_yield,                                emp%I).
