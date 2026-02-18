@@ -92,7 +92,7 @@ Section ClientAux.
     (* elimination of mem *)
     etrans; cycle 1.
     { do 2 ctxr_rotate. do 2 ctxr_drop. eapply elim_module. }
-    rewrite -mod_add_empty_r.
+    rewrite right_id.
 
     rewrite /SchIAproof.SchIA.SchAMod.
     rewrite /SchA.t /ClientA.t /MemA.t.

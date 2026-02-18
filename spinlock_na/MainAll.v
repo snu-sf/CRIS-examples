@@ -106,12 +106,12 @@ Section MainAux.
     (* elimination of Mem *)
     etrans; cycle 1.
     { do 3 ctxr_drop. eapply elim_module. }
-    rewrite -mod_add_empty_r.
+    rewrite right_id.
 
     (* elimination of SpinLock *)
     etrans; cycle 1.
     { do 2 ctxr_drop. eapply elim_module. }
-    rewrite -mod_add_empty_r.
+    rewrite right_id.
 
     etrans; cycle 1.
     { ctxr_rotate. refl. }

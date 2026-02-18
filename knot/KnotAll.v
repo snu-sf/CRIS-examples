@@ -130,7 +130,7 @@ Section KnotAux.
     (* elimination of mem *)
     etrans; cycle 1.
     { do 2 ctxr_rotate. do 3 ctxr_drop. eapply elim_module. }
-    rewrite -mod_add_empty_r.
+    rewrite right_id.
 
     etrans; cycle 1.
     { ctxr_swap. ctxr_rotate. ctxr_refl. }

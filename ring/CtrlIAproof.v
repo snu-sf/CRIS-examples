@@ -5,8 +5,8 @@ Require Import CellHeader CellA RingHeader RingA CtrlI.
 Lemma mod_addL_app `{Σ : GRA} l l' : Mod.addL (l ++ l') = (Mod.addL l) ★ (Mod.addL l').
 Proof using.
   induction l; s.
-  - rewrite -mod_add_empty_l. eauto.
-  - rewrite mod_add_assoc. rewrite IHl. eauto.
+  - rewrite left_id. eauto.
+  - rewrite -assoc. rewrite IHl. eauto.
 Qed.
 
 (* Simulation Proof *)

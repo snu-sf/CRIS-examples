@@ -29,9 +29,9 @@ Module StackIM. Section StackIM.
   (* Construct ISim.t for summing up each simulation proofs *)
   Lemma sim : ISim.t open StackM StackI init_cond IstFull.
   Proof.
-    rewrite -mod_add_assoc -(mod_add_assoc SchI).
+    rewrite assoc (assoc _ SchI).
     eapply ISim_reflL.
-    { rewrite !mod_add_assoc.
+    { rewrite -!assoc.
       intros fn; rewrite Mod.dom_fnsems_add; set_unfold; i; des; subst.
       { apply new_stack_simF. }
       { apply push_simF. }
@@ -64,7 +64,7 @@ Module StackIA. Section StackIA.
     { instantiate (1:=(_ ∗ emp)%I); iIntros "H"; iSplitL; last done; iExact "H". }
     eapply helping_main with (mM:=λ mn, StackM.t mn N ((SchA.sp ∅ (↑N)))).
     { intros mn.
-      rewrite ?CFilter.filter_app ?mod_add_assoc.
+      rewrite ?CFilter.filter_app -?assoc.
       ctxr_swap. ctxr_rotate. ctxr_swap. do 3 ctxr_rotate. ctxr_swap.
       etrans; cycle 1.
       { eapply main_adequacy, StackIM.sim with (mn:=mn) (N:=N). }
@@ -76,7 +76,7 @@ Module StackIA. Section StackIA.
     etrans; cycle 1.
     { do 2 ctxr_rotate. ctxr_swap. ctxr_refl. }
 
-    rewrite -mod_add_assoc.
+    rewrite assoc.
     eapply main_adequacy with (Ist := IstProd (IstSB (Mod.scopes (StackA.t N sp) ++ [mn]) IstTrue) IstEq).
     init_sim.
     { iStartSim.

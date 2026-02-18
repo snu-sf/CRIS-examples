@@ -211,7 +211,7 @@ Section SCHMainAux.
     etrans; cycle 1.
     { do 6 ctxr_drop. ctxr_rotate. ctxr_drop. eapply elim_module. }
 
-    rewrite -!mod_add_empty_r.
+    rewrite !mod_add_empty_r.
 
     etrans; cycle 1.
     { do 2 ctxr_drop. do 2 ctxr_rotate. ctxr_drop. ctxr_rotate. ctxr_refl. }
