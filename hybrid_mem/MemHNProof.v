@@ -19,18 +19,12 @@ Module MemHN. Section MemHN.
   Proof using.
     iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l. steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r.
     iDestruct "IST" as (? ? ? ?) "%". des; hss. des_ifs; cycle 1.
-    { rewrite /triggerUB. steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     force_r false. steps_r. hss.
 
     steps_r. steps_l. hss.
@@ -44,21 +38,15 @@ Module MemHN. Section MemHN.
   Proof using.
     iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r.
     iDestruct "IST" as (? ? ? ?) "%". des.
 
     steps_l. hss. force_r false. steps_r. hss. steps_r.
     steps_l. hss. steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l. steps_r. step. iSplit; [eauto|].
     iPureIntro. repeat (esplits; eauto).
   (*SLOW*)Qed.
@@ -67,22 +55,16 @@ Module MemHN. Section MemHN.
   Proof using.
     iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r.
     iDestruct "IST" as (? ? ? ?) "%". des.
 
     steps_l. hss. steps_l. hss. steps_l. 
     force_r false. steps_r. hss. steps_r.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r.
     step. iSplit; [eauto|].
     iPureIntro. repeat (esplits; eauto).
@@ -92,13 +74,9 @@ Module MemHN. Section MemHN.
   Proof using.
     iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r.
     iDestruct "IST" as (? ? ? ?) "%". des; hss.
 
@@ -106,9 +84,7 @@ Module MemHN. Section MemHN.
     steps_l. hss. steps_l.
     force_r false. steps_r. hss. steps_r.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r.
     step. iSplit; [eauto|].
     iPureIntro. repeat (esplits; eauto).
@@ -118,13 +94,9 @@ Module MemHN. Section MemHN.
   Proof using.
     iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r.
     iDestruct "IST" as (? ? ? ?) "%". des; hss.
 
@@ -132,9 +104,7 @@ Module MemHN. Section MemHN.
     steps_l. hss. steps_l.
     force_r false. steps_r. hss. steps_r.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r.
     step. iSplit; [eauto|].
     iPureIntro. repeat (esplits; eauto).
@@ -144,13 +114,9 @@ Module MemHN. Section MemHN.
   Proof using.
         iStartSim.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
     steps_l; steps_r.
 
     destruct v. destruct v0.
@@ -158,16 +124,12 @@ Module MemHN. Section MemHN.
     force_r false. steps_r.
     call "IST". iIntros (???) "IST". steps_l. steps_r.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
 
     steps_l; steps_r.
     call "IST". iIntros (???) "IST". steps_l. steps_r.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
 
     steps_l. steps_r.
     des_ifs; cycle 1.
@@ -175,9 +137,7 @@ Module MemHN. Section MemHN.
     steps_l. steps_r. 
     call "IST". iIntros (???) "IST". steps_l. steps_r.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. rewrite /sumbool_to_bool. des_ifs; cycle 1.
-      { exfalso. eapply n. exists False. refl. }
-      steps_l. des_ifs. }
+    { steps_l. ss. }
 
     steps_l. steps_r.
     step. iSplit; eauto.

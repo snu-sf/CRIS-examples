@@ -48,7 +48,7 @@ Section wsim.
     s; destruct_quant CIH.
     rewrite {2 3}yield_unfold.
     iIntros "[IST SIM]".
-    steps_l. destruct (msk_s _); step_l; ss.
+    steps_l. des_if; step_l; ss.
     steps_r. rewrite Hchoose. steps_r. destruct _q; cycle 1.
     { force_l (Some false). steps_l. steps_r.
       iPoseProof ("SIM" $! _ _ with "IST") as "SIM".
@@ -98,7 +98,7 @@ Section wsim.
 
     rewrite {2 3}yield_unfold.
     iIntros "[IST [TID SIM]]".
-    steps_l. destruct (msk_s _); step_l; ss.
+    steps_l. des_if; step_l; ss.
     steps_r. rewrite Hmsk. steps_r. destruct _q; cycle 1.
     { force_l (Some false). steps_l. steps_r.
       iPoseProof ("SIM" $! _ _ with "IST TID") as "SIM".
@@ -111,14 +111,14 @@ Section wsim.
     { force_l (Some false). steps_l. steps_r. by_coind CIH. iFrame. }
 
     force_l (Some true). steps_r. steps_l. rewrite Hsps Hspt.
-    steps_l. destruct msk_s; step_l; ss. force_l (mtid, stid, ssch); ss.
-    steps_l. destruct msk_s; step_l; ss. force_l (()↑); s.
+    steps_l. des_if; step_l; ss. force_l (mtid, stid, ssch); ss.
+    steps_l. des_if; step_l; ss. force_l (()↑); s.
 
-    steps_l. destruct msk_s; step_l; ss. force_l; iFrame; iSplit; eauto.
-    steps_l. destruct msk_s; step_l; ss. steps_r. rewrite Hcall; steps_r.
+    steps_l. des_if; step_l; ss. force_l; iFrame; iSplit; eauto.
+    steps_l. des_if; step_l; ss. steps_r. rewrite Hcall; steps_r.
     call "IST". clear st_s st_t; iIntros (? st_s st_t) "IST".
     steps_r.
-    steps_l. destruct msk_s; step_l; ss. steps_l. destruct msk_s; steps_l; ss.
+    steps_l. des_if; step_l; ss. steps_l. des_if; steps_l; ss.
     by_coind CIH. iFrame. iDestruct "ASM" as "(? & ? & $)".
   (*SLOW*)Qed.
 
@@ -152,7 +152,7 @@ Section wsim.
 
     rewrite {2 3}yield_unfold.
     iIntros "[IST SIM]".
-    steps_l. destruct (msk_s _); step_l; ss.
+    steps_l. des_if; step_l; ss.
     steps_r. rewrite Hc. steps_r. destruct _q; cycle 1.
     { force_l (Some false). steps_l. steps_r.
       iPoseProof ("SIM" $! _ _ with "IST") as "SIM".
@@ -167,15 +167,15 @@ Section wsim.
     force_l (Some true). steps_r. steps_l. rewrite Hsps Hspt.
     steps_r. rewrite Hc. steps_r. destruct _q as [[mtid stid] ssch]. rewrite Hc.
     steps_r. rewrite Hg. steps_r. iDestruct "GRT" as "(% & _ & TID)"; hss. rewrite Hcall. steps_r.
-    steps_l. destruct msk_s; step_l; ss. force_l (mtid, stid, ssch); ss.
-    steps_l. destruct msk_s; step_l; ss. force_l (()↑); s.
+    steps_l. des_if; step_l; ss. force_l (mtid, stid, ssch); ss.
+    steps_l. des_if; step_l; ss. force_l (()↑); s.
 
-    steps_l. destruct msk_s; step_l; ss.
+    steps_l. des_if; step_l; ss.
     force_l. iFrame; iSplit; eauto.
-    steps_l. destruct msk_s; step_l; ss.
+    steps_l. des_if; step_l; ss.
     call "IST". clear st_s st_t; iIntros (? st_s st_t) "IST".
     steps_r.
-    steps_l. destruct msk_s; step_l; ss. steps_l. destruct msk_s; steps_l; ss.
+    steps_l. des_if; step_l; ss. steps_l. des_if; steps_l; ss.
     rewrite Ht. force_r _q. steps_r. rewrite Ha. force_r. iFrame. steps_r.
     by_coind CIH. iFrame.
   (*SLOW*)Qed.

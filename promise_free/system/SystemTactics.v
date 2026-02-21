@@ -38,7 +38,7 @@ Section wsim.
     steps_r. rewrite Hmsk. steps_r. destruct _q as [[|]|]; cycle 2.
     { steps_r.
       unfold_iterC_l.
-      steps_l. destruct (msk_src _); step_l; ss.
+      steps_l. des_ifs; step_l; ss.
       force_l (Some false). steps_l.
       iApply wsim_mono_knowledge; cycle 2.
       { iApply ("KTR" with "IST TV"). }
@@ -46,21 +46,21 @@ Section wsim.
       { ii; iIntros "G"; iPoseProof (Hgg' with "G") as "$"; done. }
     }
     { steps_r. rewrite Hspt. steps_r. rewrite Hcall. steps_r.
-      unfold_iterC_l. steps_l. destruct (msk_src _); step_l; ss.
+      unfold_iterC_l. steps_l. des_ifs; step_l; ss.
       force_l (Some true). steps_l. rewrite Hsps /=.
-      step_l. destruct (msk_src _); step_l; ss. force_l (tid, stid, V).
-      step_l. destruct (msk_src _); step_l; ss. force_l.
-      step_l. destruct (msk_src _); step_l; ss. force_l.
+      step_l. des_if; step_l; ss. force_l (tid, stid, V).
+      step_l. des_if; step_l; ss. force_l.
+      step_l. des_if; step_l; ss. force_l.
       iFrame "TV". iSplit; eauto.
-      step_l. destruct (msk_src _); step_l; ss.
+      step_l. des_if; step_l; ss.
       call "IST".
       clear st_src st_tgt. iIntros (ret st_src st_tgt) "IST".
-      step_l. destruct (msk_src _); step_l; ss.
-      step_l. destruct (msk_src _); steps_l; ss. steps_r.
+      step_l. des_if; step_l; ss.
+      step_l. des_if; steps_l; ss. steps_r.
       by_coind CIH. iFrame. iDestruct "ASM" as "[? [? $]]".
     }
     unfold_iterC_l.
-    steps_l. destruct (msk_src _); step_l; ss. force_l (Some false). steps_l. steps_r.
+    steps_l. des_if; step_l; ss. force_l (Some false). steps_l. steps_r.
     by_coind CIH. iFrame.
   (*SLOW*)Qed.
 
@@ -79,6 +79,6 @@ Section wsim.
   Proof.
     iIntros "S"; rewrite /System.yield; unseal "System".
     unfold_iterC_l; steps_l.
-    destruct msk_src; steps_l; ss. force_l (None); steps_l; done.
+    des_if; steps_l; ss. force_l (None); steps_l; done.
   Qed.
 End wsim.
