@@ -6,7 +6,7 @@ Require Import StackHeader StackA StackI.
 Require Import HelpingTactics HelpingFacts.
 
 Section StackIM.
-  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _SCH: !schGS, !stackG StackM.jobID StackM.retID}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !stackG StackM.jobID StackM.retID}.
   Local Existing Instances stack_helpingG.
 
   (* Helping module being parameterized by mn *)
@@ -236,5 +236,4 @@ Section StackIM.
     case_decide; try by (iCombine "OfferTkn" "offer" gives %WF). ss.
   Unshelve. all: try exact 1%Qp.
   (*SLOW*)Qed.
-
 End StackIM.

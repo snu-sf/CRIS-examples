@@ -6,7 +6,7 @@ Require Import StackHeader StackA StackI StackIAPush StackIAPop StackIANewStack.
 Require Export HelpingTactics HelpingFacts.
 
 Module StackIM. Section StackIM.
-  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _SCH: !schGS, !stackG StackM.jobID StackM.retID}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !stackG StackM.jobID StackM.retID}.
   Local Existing Instances stack_helpingG.
 
   (* Helping module being parameterized by mn *)
