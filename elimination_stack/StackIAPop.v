@@ -28,7 +28,7 @@ Section StackIM.
 
   Lemma pop_simF : ISim.sim_fun open StackM StackI IstFull (fid StackHdr.pop).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /StackI.pop /StackM.pop.
     rewrite /StackM.pop /atomic_body.
     steps_l. destruct _q as [[stid mtid] [[n vs] γs]].
     iDestruct "ASM" as "[TID [_ [-> #[%stackb [%stackofs [-> Hinv]]]]]]". steps_r.

@@ -284,7 +284,7 @@ Module MemDH. Section MemDH.
 
   Lemma simF_alloc : ISim.sim_fun open HybMem DetMem IstFull (fid MemHdr.alloc).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /HybMem.alloc /DetMem.alloc.
     
     iDestruct "IST" as (? ? ? ?) "(% & [% [% [% [% [% [% [%SIM >B]]]]]]] & %)". des; subst; hss.
     destruct SIM as [SIM NEXT].
@@ -439,7 +439,7 @@ Module MemDH. Section MemDH.
 
   Lemma simF_free : ISim.sim_fun open HybMem DetMem IstFull (fid MemHdr.free).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /HybMem.free /DetMem.free.
 
     iDestruct "IST" as (? ? ? ?) "(% & [% [% [% [% [% [% [%SIM >B]]]]]]] & %)". des; subst; hss.
     destruct SIM as [SIM NEXT].
@@ -520,7 +520,7 @@ Module MemDH. Section MemDH.
 
   Lemma simF_load : ISim.sim_fun open HybMem DetMem IstFull (fid MemHdr.load).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /HybMem.load /DetMem.load.
 
     iDestruct "IST" as (? ? ? ?) "(% & [% [% [% [% [% [% [%SIM >B]]]]]]] & %)". des; subst; hss.
     destruct SIM as [SIM NEXT].
@@ -582,7 +582,7 @@ Module MemDH. Section MemDH.
 
   Lemma simF_store : ISim.sim_fun open HybMem DetMem IstFull (fid MemHdr.store).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /HybMem.store /DetMem.store.
 
     iDestruct "IST" as (? ? ? ?) "(% & [% [% [% [% [% [% [%SIM >B]]]]]]] & %)". des; subst; hss.
     destruct SIM as [SIM NEXT].
@@ -667,7 +667,7 @@ Module MemDH. Section MemDH.
 
   Lemma simF_cmp : ISim.sim_fun open HybMem DetMem IstFull (fid MemHdr.cmp).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /HybMem.cmp /DetMem.cmp.
 
     iDestruct "IST" as (? ? ? ?) "(% & [% [% [% [% [% [% [%SIM >B]]]]]]] & %)". des; subst; hss.
     destruct SIM as [SIM NEXT].
@@ -771,7 +771,7 @@ Module MemDH. Section MemDH.
 
   Lemma simF_cas : ISim.sim_fun open HybMem DetMem IstFull (fid MemHdr.cas).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /HybMem.cas /DetMem.cas.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
     { steps_l. des_ifs. }
     steps_l. steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -870,7 +870,7 @@ Module MemDH. Section MemDH.
     rewrite SIM in PT. inv PT.
   (*SLOW*)Qed.
 
-  Theorem sim : ISim.t open HybMem DetMem HybMem.init_cond IstFull.
+  Lemma sim : ISim.t open HybMem DetMem HybMem.init_cond IstFull.
   Proof using.
     init_sim.
     - rewrite /IstFull /HybMem /DetMem. unfold_mod. s. 
@@ -892,7 +892,7 @@ Module MemDH. Section MemDH.
     - apply simF_cas.
   (*SLOW*)Qed.
 
-  Theorem ctxr :
+  Lemma ctxr :
     ctx_refines
       (HybMem, HybMem.init_cond)
       (DetMem, emp%I).

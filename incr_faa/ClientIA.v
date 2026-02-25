@@ -40,7 +40,7 @@ Module ClientIA. Section ClientIA.
 
   Lemma incr_simF : ISim.sim_fun open MA MI IstFull (fid IncrHdr.incr).
   Proof using Hsch Hclient.
-    iStartSim.
+    iStartSim. rewrite /sfunU /sfunN /incr /ClientI.incr.
 
     steps_l. destruct _q as [[stid mtid] [[[blk ofs] v]]]; rename _q0 into varg.
     iDestruct "ASM" as "[TID [[-> ->] [C #INV]]]".
@@ -80,7 +80,7 @@ Module ClientIA. Section ClientIA.
 
   Lemma main_simF : ISim.sim_fun open MA MI IstFull entry.
   Proof using Hsch Hclient.
-    iStartSim.
+    iStartSim. rewrite /sfunU /sfunN /main /ClientI.main.
 
     steps_l. destruct _q as [[stid mtid] []]; s.
     iDestruct "ASM" as "[TID ->]".

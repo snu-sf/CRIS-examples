@@ -75,7 +75,7 @@ Module MapIM. Section MapIM.
 
   Lemma simF_init : ISim.sim_fun open MapMMod MapIMod IstFull (fid MapHdr.init).
   Proof using MapInSp.
-    iStartSim.
+    iStartSim. rewrite /MapI.init /init.
 
     (* preprocess given assumptions *)
     steps_l. rename _q into sz.
@@ -152,7 +152,7 @@ Module MapIM. Section MapIM.
 
   Lemma simF_get : ISim.sim_fun open MapMMod MapIMod IstFull (fid MapHdr.get).
   Proof using MapInSp.
-    iStartSim.
+    iStartSim. rewrite /MapI.get /get.
 
     (* SRC: handle the IST of Map and the precond of get *)
     steps_l. rename _q into idx. iDestruct "ASM" as "[-> ->]".
@@ -187,7 +187,7 @@ Module MapIM. Section MapIM.
 
   Lemma simF_set : ISim.sim_fun open MapMMod MapIMod IstFull (fid MapHdr.set).
   Proof using MapInSp.
-    iStartSim.
+    iStartSim. rewrite /MapI.set /set.
 
     steps_l. destruct _q as [idx v]. iDestruct "ASM" as "[-> ->]". steps_l.
 
@@ -225,7 +225,7 @@ Module MapIM. Section MapIM.
 
   Lemma simF_set_by_user : ISim.sim_fun open MapMMod MapIMod IstFull (fid MapHdr.set_by_user).
   Proof using MapInSp.
-    iStartSim.
+    iStartSim. rewrite /MapI.set_by_user /set_by_user.
 
     steps_l. rename _q into idx. iDestruct "ASM" as "[-> ->]". steps_l.
 

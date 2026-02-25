@@ -18,7 +18,7 @@ Module SingleCoinIP. Section SingleCoinIP.
 
   Lemma simF_new : ISim.sim_fun open MA MI IstFull (fid SingleCoinHdr.new).
   Proof.
-    iStartSim.
+    iStartSim. rewrite /SingleCoinI.new /SingleCoinP.new.
     iDestruct "IST" as "%"; des; subst.
     steps_l. steps_r. destruct Any.downcast; steps_l; last case_match; steps_l; ss.
     steps_r. inline_l. rewrite /ProphecyI.new. steps_l. step.
@@ -28,7 +28,7 @@ Module SingleCoinIP. Section SingleCoinIP.
 
   Lemma simF_read : ISim.sim_fun open MA MI IstFull (fid SingleCoinHdr.read).
   Proof.
-    iStartSim.
+    iStartSim. rewrite /SingleCoinI.read /SingleCoinP.read.
     iDestruct "IST" as "%"; des; subst.
     steps_l. steps_r. destruct (Any.downcast arg); steps_l; last case_match; steps_l; ss.
     steps_r. des_ifs.

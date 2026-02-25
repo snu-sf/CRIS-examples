@@ -13,7 +13,7 @@ Module IncrementIA. Section IncrementIA.
 
   Lemma increment_simF : ISim.sim_fun open MA MI IstFull (fid IncrementHdr.increment).
   Proof.
-    iStartSim.
+    iStartSim. rewrite /IncrementI.increment /IncrementA.increment.
     steps_r. steps_l.
     destruct (arg ↓) as [[|v [|v' l]]|]; step_l; ss.
     destruct v as [|[blk ofs]|]; step_l; ss. steps_r.

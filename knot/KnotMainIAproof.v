@@ -33,7 +33,7 @@ Module KnotMainIA. Section KnotMainIA.
 
   Lemma simF_fib : ISim.sim_fun open KnotMainAMod KnotMainIMod IstFull (fid KnotMainHdr.fib).
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
-    iStartSim.
+    iStartSim. rewrite /KnotMainI.fibF.
 
     steps_l. destruct _q as [n I]; s. iDestruct "ASM" as "[[[%fb [-> [% %Hspec]]] I] [%vo [-> %]]]".
     steps_r. inv Hspec. rewrite FBLOCK. steps_r.
@@ -106,7 +106,7 @@ Module KnotMainIA. Section KnotMainIA.
 
   Lemma simF_main : ISim.sim_fun open KnotMainAMod KnotMainIMod IstFull entry.
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
-    iStartSim.
+    iStartSim. rewrite /KnotMainI.mainF /main_body.
 
     (* SKINCL *)
     pose proof (@CEnv.incl_incl_env KnotMainGEnv.t genv) as INCLENV.
@@ -208,8 +208,7 @@ Module KnotMainIA. Section KnotMainIA.
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     eapply main_adequacy.
     init_sim.
-    (* { exfalso. revert H. hrepeat do 1 unfold_mod. i; inv H. } *)
-    { iStartSim.
+    { iStartSim. rewrite /pure_body.
       steps_l. case_match. iDestruct "ASM" as "[[% PRE] %]"; des; hss.
       rewrite /pure_body. steps_l. simpl_sp. forces_l.
       iSplitR; eauto. steps_l. force_r (n, u).
@@ -223,7 +222,7 @@ Module KnotMainIA. Section KnotMainIA.
       iSplitL "POST"; iFrame; eauto.
       step. iFrame; eauto.
     }
-    { iStartSim.
+    { iStartSim. rewrite /main_body.
       steps_l. hss. iDestruct "ASM" as "[% [% ?]]"; des; hss.
       steps_l. forces_r. iFrame. iSplit; eauto. steps_r.
       rewrite /pure. steps_r. simpl_sp. steps_r. inline_r. forces_r. iSplit; eauto. steps_r.

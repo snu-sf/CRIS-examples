@@ -43,7 +43,7 @@ Module KnotIA. Section KnotIA.
 
   Lemma simF_rec : ISim.sim_fun open KnotAMod KnotIMod IstFull (fid KnotHdr.rec).
   Proof using GEnvWF GEnvIncl RecInSp APCInSp FunInPure PureInSp.
-    iStartSim.
+    iStartSim. rewrite /KnotI.recF.
 
     (* SKINCL - SkEnv id2blk *)
     pose proof (@CEnv.incl_incl_env KnotGEnv.t genv) as INCLENV.
@@ -116,7 +116,7 @@ Module KnotIA. Section KnotIA.
 
   Lemma simF_knot : ISim.sim_fun open KnotAMod KnotIMod IstFull (fid KnotHdr.knot).
   Proof using GEnvWF GEnvIncl RecInSp APCInSp FunInPure PureInSp.
-    iStartSim.
+    iStartSim. rewrite /KnotI.knotF.
 
     (* SKINCL *)
     pose proof (@CEnv.incl_incl_env KnotGEnv.t genv) as INCLENV.

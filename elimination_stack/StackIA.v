@@ -79,14 +79,14 @@ Module StackIA. Section StackIA.
     rewrite assoc.
     eapply main_adequacy with (Ist := IstProd (IstSB (Mod.scopes (StackA.t N sp) ++ [mn]) IstTrue) IstEq).
     init_sim.
-    { iStartSim.
+    { iStartSim. rewrite /StackM.new_stack /StackA.new_stack.
       steps_l. force_r _q. destruct _q as [[? ?] ?]; iDestruct "ASM" as "[? [-> [% ->]]]".
       forces_r. iFrame; iSplit; eauto.
       steps_l; steps_r.
       sch_yield_ii "IST". sch_yield_l.
       steps_r; forces_l. iFrame; step. iFrame. done.
     }
-    { iStartSim.
+    { iStartSim. rewrite /StackM.push /StackA.push.
       rewrite /StackA.push /StackM.push /atomic_body.
       steps_l. steps_r. forces_r. iFrame "ASM". repeat case_match; clarify.
       steps_r.

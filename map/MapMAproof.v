@@ -22,7 +22,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_init : ISim.sim_fun open MapA MapM Ist (fid MapHdr.init).
   Proof using MapInSpS MapInSpT.
-    iStartSim.
+    iStartSim. rewrite /MapM.init.
 
     steps_l. rename _q into sz. iDestruct "ASM" as "[-> [[-> %range] P]]".
 
@@ -50,7 +50,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_get : ISim.sim_fun open MapA MapM Ist (fid MapHdr.get).
   Proof using MapInSpS MapInSpT.
-    iStartSim.
+    iStartSim. rewrite /MapM.get /get.
 
     steps_l. destruct _q as [idx v]. iDestruct "ASM" as "(-> & (-> & MAP))".
 
@@ -82,7 +82,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_set : ISim.sim_fun open MapA MapM Ist (fid MapHdr.set).
   Proof using MapInSpS MapInSpT.
-    iStartSim.
+    iStartSim. rewrite /MapM.set /set.
 
     (* SRC: handle the IST of Map and the precond of set *)
     do 2 step_l.
@@ -114,7 +114,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_set_by_user : ISim.sim_fun open MapA MapM Ist (fid MapHdr.set_by_user).
   Proof using MapInSpS MapInSpT.
-    iStartSim.
+    iStartSim. rewrite /MapM.set_by_user /set_by_user.
 
     (* SRC: handle the IST of Map and the precond of set_by_user *)
     do 2 step_l. destruct _q as [k w]. steps_l.

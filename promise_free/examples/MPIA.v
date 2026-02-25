@@ -27,7 +27,7 @@ Module MPIA. Section MPIA.
 
   Lemma simF_mp : ISim.sim_fun open MA MI IstFull entry.
   Proof using SchInSpS HMP.
-    iStartSim.
+    iStartSim. rewrite /MPI.mp /MPA.mp.
     steps_l. iDestruct "ASM" as "[-> TV]". rewrite /MPA.mp /MPI.mp; steps_l; steps_r.
 
     iApply wsim_system_yield_ir; ss.
@@ -299,7 +299,7 @@ Module MPIA. Section MPIA.
 
   Lemma simF_mp2 : ISim.sim_fun open MA MI IstFull (fid MPHdr.mp2).
   Proof using SchInSpS HMP.
-    iStartSim.
+    iStartSim. rewrite /sfunU /sfunN /MPI.mp2.
     steps_l. destruct _q as [tid stid].
     iDestruct "ASM" as "[%va [-> [%sa [%V [-> [PRE TV]]]]]]". hss_l.
     iDestruct "PRE" as "[%loc [%γ [%γx [%V0 [%fd [%td [% [% [[-> ->] [#I [↦data ⊒]]]]]]]]]]]".

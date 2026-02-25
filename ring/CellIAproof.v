@@ -20,7 +20,7 @@ Module CellIA. Section CellIA.
 
   Lemma simF_get : ISim.sim_fun open CellAMod CellIMod Ist (fid (CellHdr.get idx)).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /CellI.get.
 
     (* SRC: precondition *)
     steps_l. iDestruct "ASM" as "(% & % & C)". subst. hss_r.
@@ -42,7 +42,7 @@ Module CellIA. Section CellIA.
 
   Lemma simF_set : ISim.sim_fun open CellAMod CellIMod Ist (fid (CellHdr.set idx)).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /CellI.set.
 
     (* SRC: precondition *)
     steps_l. destruct _q as [v v'].

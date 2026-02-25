@@ -16,7 +16,7 @@ Module CelliocbIA. Section CelliocbIA.
   Lemma simF_set :
     ISim.sim_fun open CelliocbAMod CelliocbIMod Ist (fid CelliocbHdr.set).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /CelliocbI.set /set.
   
     (* Take (x:Z) & cell(x) *)
     steps_l. destruct Any.downcast; steps_l; des_ifs.

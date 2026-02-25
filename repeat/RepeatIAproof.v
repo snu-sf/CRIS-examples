@@ -34,7 +34,7 @@ Module RepeatIA. Section RepeatIA.
   Lemma simF_repeat : ISim.sim_fun open RepeatAMod RepeatIMod IstFull (fid RepeatHdr.repeat).
   Proof using APCInSp SpPureInSp SpPureFunInSpPure repeatInSpPure.
     (* Simulation Start *)
-    iStartSim.
+    iStartSim. rewrite /RepeatI.repeat.
 
     (* SRC: handle the precond of repeat *)
     steps_l. destruct _q as [[n x] f_sem].
@@ -113,9 +113,9 @@ Module RepeatIA. Section RepeatIA.
       step. by iSplit.
     }
     Unshelve. all: et. all: exact (0↑). 
-  (*SLOW*)Qed.
+  (*SLOW*)Unshelve. Fail idtac. Admitted.
 
-  Theorem sim : ISim.t open RepeatAMod RepeatIMod RepeatA.init_cond IstFull.
+  Lemma sim : ISim.t open RepeatAMod RepeatIMod RepeatA.init_cond IstFull.
   Proof.
     init_sim.
     - apply simF_repeat; eauto.

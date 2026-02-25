@@ -30,7 +30,7 @@ Module SystemIA. Section SystemIA.
 
   Lemma simF__spawn : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr._spawn).
   Proof using Hincl Hsysincl.
-    iStartSim.
+    iStartSim. rewrite /SystemI._spawn.
     steps_l. destruct _q as [].
     iDestruct "ASM" as
       "[%stid [%tid [%𝓥 [%pre [%fvarg [%farg [%fn [[-> ->] [W [[%fsp [% Spawn]] [TV PRE]]]]]]]]]]]".
@@ -76,7 +76,7 @@ Module SystemIA. Section SystemIA.
 
   Lemma simF_spawn : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.spawn).
   Proof using Hincl Hsysincl ConcInGlobal.
-    iStartSim.
+    iStartSim. rewrite /SystemI.spawn.
 
     steps_l. destruct _q as [[[tid stid] Post] V]. s.
     iDestruct "ASM" as "[%varg [-> [%fvarg [%farg [%fn [[-> ->] [Hspawn [TV PRE]]]]]]]]".
@@ -149,7 +149,7 @@ Module SystemIA. Section SystemIA.
 
   Lemma simF_yield : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.yield).
   Proof using Hincl Hsysincl ConcInGlobal.
-    iStartSim.
+    iStartSim. rewrite /SystemI.yield /yield.
 
     steps_l. destruct _q as [[tid stid] V]. iDestruct "ASM" as "[-> [-> TV]]".
     iDestruct "IST" as (????) "[[-> ->] [[% IST] ->]]".
@@ -211,7 +211,7 @@ Module SystemIA. Section SystemIA.
 
   Lemma simF_get_tid : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.get_tid).
   Proof using Hincl Hsysincl ConcInGlobal.
-    iStartSim.
+    iStartSim. rewrite /SystemI.get_tid /get_tid.
 
     steps_l. destruct _q as [[tid stid] V]. iDestruct "ASM" as "[-> [-> TV]]".
     iDestruct "IST" as (????) "[[-> ->] [[% IST] ->]]".

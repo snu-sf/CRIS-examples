@@ -28,7 +28,7 @@ Section StackIM.
 
   Lemma push_simF : ISim.sim_fun open StackM StackI IstFull (fid StackHdr.push).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /StackI.push /StackM.push.
     rewrite /StackM.push; steps_l. steps_r.
 
     rewrite /atomic_body. steps_l. destruct _q as [[stid mtid] [[[n vs] v] γs]].

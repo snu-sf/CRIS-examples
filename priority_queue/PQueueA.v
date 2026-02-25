@@ -165,7 +165,7 @@ Module PQueueIA. Section PQueueIA.
 
   Lemma new_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.new).
   Proof.
-    iStartSim.
+    iStartSim. rewrite /PQueueI.new /PQueueA.new.
     steps_l. destruct _q as [[stid mtid] [n range]].
     iDestruct "ASM" as "[TID [-> [-> %Hn]]]".
 
@@ -296,7 +296,7 @@ Module PQueueIA. Section PQueueIA.
 
   Lemma add_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.add).
   Proof.
-    iStartSim. rewrite /PQueueA.add /atomic_body.
+    iStartSim. rewrite /PQueueA.add /atomic_body /PQueueI.add.
     steps_l. destruct _q as [[stid mtid] [[[γq range] priority] v]].
     iDestruct "ASM" as "[TID [_ [%n [%q [[-> %] #[%queueb [%queueofs [-> is_queue]]]]]]]]".
 
@@ -344,7 +344,7 @@ Module PQueueIA. Section PQueueIA.
 
   Lemma remove_min_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.remove_min).
   Proof.
-    iStartSim. rewrite /PQueueA.remove_min /atomic_body.
+    iStartSim. rewrite /PQueueA.remove_min /atomic_body /PQueueI.remove_min.
     steps_l. destruct _q as [[stid mtid] [γq range]].
     iDestruct "ASM" as "[TID [_ [%n [%q [-> #[%queueb [%queueofs [-> Q]]]]]]]]".
 

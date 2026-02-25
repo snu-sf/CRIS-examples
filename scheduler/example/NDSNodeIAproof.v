@@ -24,7 +24,7 @@ Module NDSNodeIA. Section NDSNodeIA.
 
   Lemma simF_main : ISim.sim_fun open MA MI IstFull (fid NDSNodeHdr.f_main).
   Proof using Hschnds Hnds Hnode.
-    iStartSim.
+    iStartSim. rewrite /NDSNodeI.f_main /f_main.
     
     steps_l. destruct _q as [[[mtid stid] ssch] []].
     iDestruct "ASM" as "(tidF & % & %)"; des; subst; hss.
@@ -99,7 +99,7 @@ Module NDSNodeIA. Section NDSNodeIA.
 
   Lemma simF_f : ISim.sim_fun open MA MI IstFull (fid NDSNodeHdr.f).
   Proof using Hschnds Hnds Hnode.
-    iStartSim.
+    iStartSim. rewrite /NDSNodeI.f /f.
 
     steps_l. destruct _q as [[[mtid stid] ssch] [blk ofs]].
     iDestruct "ASM" as "[TID (% & % & % & #I)]"; des; subst; hss.

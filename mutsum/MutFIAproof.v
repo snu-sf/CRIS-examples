@@ -26,7 +26,7 @@ Module MutFIA. Section MutFIA.
   Lemma simF_mutf:
     ISim.sim_fun open MutFAMod MutFIMod IstFull (fid MutHdr.mutf).
   Proof using _crisG APCInSp GInPure PureInSp.
-    iStartSim.
+    iStartSim. rewrite /MutFI.fF.
 
     (* SRC: precondition *)
     steps_l. iDestruct "ASM" as "((%Y & %B) & %Q)". subst; hss.
@@ -88,7 +88,7 @@ Module MutFIA. Section MutFIA.
     { exact (0↑). }
   (*SLOW*)Qed.
 
-  Theorem sim:
+  Lemma sim:
     ISim.t open MutFAMod MutFIMod MutFA.init_cond IstFull.
   Proof.
     init_sim.
@@ -100,7 +100,7 @@ End MutFIA.
 Section ctxr.
   Context `{!crisG Γ Σ α β τ _S _I}.
 
-  Theorem ctxr (Sp SpPure : specmap)
+  Lemma ctxr (Sp SpPure : specmap)
     (APCInSp : APCA.sp ⊆ Sp)
     (GInPure : MutGA.SpG ⊆ SpPure)
     (PureInSp : SpPure ⊆ Sp) :

@@ -106,7 +106,7 @@ Module CtrlIA. Section CtrlIA.
 
   Lemma simF_init : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.init).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /CtrlI.init /RingA.init.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -139,7 +139,7 @@ Module CtrlIA. Section CtrlIA.
 
   Lemma simF_get_size : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.get_size).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /CtrlI.get_size /RingA.get_size.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -160,7 +160,7 @@ Module CtrlIA. Section CtrlIA.
   Lemma simF_enqueue : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.enqueue).
   Proof using.
     unfold RingAMod, RingIMod, CellGS.
-    iStartSim.
+    iStartSim. rewrite /CtrlI.enqueue /RingA.enqueue.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -218,7 +218,7 @@ Module CtrlIA. Section CtrlIA.
   Lemma simF_dequeue : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.dequeue).
   Proof using.
     unfold RingAMod, RingIMod, CellGS.
-    iStartSim.
+    iStartSim. rewrite /CtrlI.dequeue /RingA.dequeue.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
@@ -269,7 +269,7 @@ Module CtrlIA. Section CtrlIA.
       exists 1. nia.
   (*SLOW*)Qed.
 
-  Theorem sim : ISim.t open RingAMod RingIMod (RingA.init_cond max_size) IstFull.
+  Lemma sim : ISim.t open RingAMod RingIMod (RingA.init_cond max_size) IstFull.
   Proof using.
     init_sim.
     - eapply simF_init; eauto.

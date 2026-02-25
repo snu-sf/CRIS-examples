@@ -62,7 +62,7 @@ Module RRSNodeIA. Section RRSNodeIA.
 
   Lemma simF_main : ISim.sim_fun open MA MI IstFull (fid RRSNodeHdr.f_main).
   Proof using Hschrrs Hrrs Hnode.
-    iStartSim.
+    iStartSim. rewrite /RRSNodeI.f_main /RRSNodeA.f_main.
 
     steps_l. destruct _q as [stid ssch].
     iDestruct "ASM" as "(% & (-> & tidF & RRI & F))"; hss.
@@ -161,7 +161,7 @@ Module RRSNodeIA. Section RRSNodeIA.
 
   Lemma simF_f : ISim.sim_fun open MA MI IstFull (fid RRSNodeHdr.f).
   Proof using Hschrrs Hrrs Hnode.
-    iStartSim.
+    iStartSim. rewrite /RRSNodeI.f /RRSNodeA.f.
 
     steps_l. depdes _q. rename x into mtid'. destruct p as [[[[mtid stid] ssch] [blk ofs]] Invs].
     iDestruct "ASM" as "(WI & % & % & tidF & RRIP & RRI & [% | HALF] & % & % & % & [% #inv])"; des; hss.

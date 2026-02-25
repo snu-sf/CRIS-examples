@@ -40,7 +40,7 @@ Module SingleCoinPA. Section SingleCoinPA.
 
   Lemma simF_new : ISim.sim_fun open MA MI Ist (fid SingleCoinHdr.new).
   Proof.
-    iStartSim.
+    iStartSim. rewrite /new .
     iDestruct "IST" as (l_s l_t) "[[-> %EQ] [F [AUTH PL]]]".
     steps_l. iDestruct "ASM" as "[-> ->]". hss.
 
@@ -89,7 +89,7 @@ Module SingleCoinPA. Section SingleCoinPA.
 
   Lemma simF_read : ISim.sim_fun open MA MI Ist (fid SingleCoinHdr.read).
   Proof.
-    iStartSim.
+    iStartSim. rewrite /read.
     steps_l. destruct _q as [idx b]. iDestruct "ASM" as "[-> [-> C]]".
     iDestruct "IST" as (l_s l_t) "[[-> %EQ] [F [AU PL]]]".
     iPoseProof (coin_both_valid with "AU C") as "%NTH".

@@ -69,7 +69,7 @@ Module RRSIA. Section RRSIA.
 
   Lemma simF_init : ISim.sim_fun open RRSAMod RRSIMod Ist (fid RRSHdr.init).
   Proof using (* FunInSchSp *) FunInRrsSp SchInSp RRSInSp YieldSpec ConcInSp.
-    iStartSim.
+    iStartSim. rewrite /RRSA.init /RRSI.init.
 
     step_l. destruct _q as [[x pre] Inv].
     steps_l. iDestruct "ASM" as "(% & % & % & % & (% & % & Spawn) & Tsch & Ysch & [RRI [P C]] & PRE & PYIP)"; des; subst.
@@ -204,7 +204,7 @@ Module RRSIA. Section RRSIA.
 
   Lemma simF_inner_spawn : ISim.sim_fun open RRSAMod RRSIMod Ist (fid RRSHdr._spawn).
   Proof using (* FunInSchSp *) FunInRrsSp SchInSp RRSInSp YieldSpec ConcInSp.
-    iStartSim.
+    iStartSim. rewrite /RRSA.inner_spawn /RRSI.inner_spawn.
 
     step_l. destruct _q as [[b mtid] pre].
 
@@ -379,7 +379,7 @@ Module RRSIA. Section RRSIA.
 
   Lemma simF_spawn : ISim.sim_fun open RRSAMod RRSIMod Ist (fid RRSHdr.spawn).
   Proof using (* FunInSchSp *) FunInRrsSp SchInSp RRSInSp YieldSpec ConcInSp.
-    iStartSim.
+    iStartSim. rewrite /RRSA.spawn /RRSI.spawn.
 
     step_l. destruct _q as [[[[[mtid stid] ssch] pre] Invs] Inv].
     steps_l. iDestruct "ASM" as "(% & % & (% & % & % & % & Spawn & PRE) & (TidF & Y & T & S & C & PubF) & RRI)"; des; subst; hss.
@@ -474,7 +474,7 @@ Module RRSIA. Section RRSIA.
 
   Lemma simF_yield : ISim.sim_fun open RRSAMod RRSIMod Ist (fid RRSHdr.yield).
   Proof using (* FunInSchSp *) FunInRrsSp SchInSp RRSInSp YieldSpec ConcInSp.
-    iStartSim.
+    iStartSim. rewrite /RRSA.yield /RRSI.yield.
 
     step_l. destruct _q as [[[mtid stid] ssch] Inv].
 
@@ -598,7 +598,7 @@ Module RRSIA. Section RRSIA.
 
   Lemma simF_yield_global : ISim.sim_fun open RRSAMod RRSIMod Ist (fid RRSHdr.yield_global).
   Proof using (* FunInSchSp *) FunInRrsSp SchInSp RRSInSp YieldSpec ConcInSp.
-    iStartSim.
+    iStartSim. rewrite /RRSA.yield_global /RRSI.yield_global.
 
     step_l. destruct _q as [[mtid stid] ssch].
 
@@ -695,7 +695,7 @@ Module RRSIA. Section RRSIA.
 
   Lemma simF_get_tid : ISim.sim_fun open RRSAMod RRSIMod Ist (fid RRSHdr.get_tid).
   Proof using (* FunInSchSp *) FunInRrsSp SchInSp RRSInSp YieldSpec ConcInSp.
-    iStartSim.
+    iStartSim. rewrite /RRSA.get_tid /RRSI.get_tid.
 
     step_l. destruct _q as [[mtid stid] ssch].
 

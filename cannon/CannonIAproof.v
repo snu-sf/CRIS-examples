@@ -16,7 +16,7 @@ Module CannonIA. Section CannonIA.
 
   Lemma simF_fire : ISim.sim_fun open CannonAMod CannonIMod Ist (fid CannonHdr.fire).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /CannonI.fire /fire.
 
     (* SRC: precondition *)
     steps_l. iDestruct "ASM" as "(-> & -> & B)". hss.

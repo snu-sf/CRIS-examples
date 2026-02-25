@@ -130,7 +130,7 @@ Section alloc.
 
   Lemma simF_alloc : ISim.sim_fun open MA MI Ist (fid PFMemHdr.alloc).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /PFMemI.alloc.
     steps_l. destruct _q as [[tid sz] V].
     iDestruct "ASM" as "[-> [-> TV]]".
     iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".

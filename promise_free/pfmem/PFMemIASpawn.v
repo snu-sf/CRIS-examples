@@ -16,7 +16,7 @@ Section spawn.
 
   Lemma simF_spawn : ISim.sim_fun open MA MI Ist (fid PFMemHdr.spawn).
   Proof.
-    iStartSim. steps_l. destruct _q as [tid V]. rename _q0 into varg.
+    iStartSim. rewrite /PFMemI.spawn. steps_l. destruct _q as [tid V]. rename _q0 into varg.
     iDestruct "ASM" as "[-> [-> TV]]".
     iDestruct "IST" as "[% [% [% [[-> [% [% [%WF [% [%PFG %PFL]]]]]] [HA [TA HFA]]]]]]".
     steps_r. destruct _q as [tid_new Hnin].

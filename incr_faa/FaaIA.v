@@ -12,7 +12,7 @@ Module FaaIA. Section FaaIA.
 
   Lemma faa2_simF : ISim.sim_fun open MA MI IstFull (fid FaaHdr.faa2).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /FaaI.faa2 /FaaA.faa2.
 
     steps_l.
     destruct (arg ↓) as [[|v [|v' l]]|]; steps_l; ss.

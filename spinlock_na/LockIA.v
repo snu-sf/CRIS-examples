@@ -22,7 +22,7 @@ Module LockIA. Section LockIA.
 
   Lemma newlock_simF : ISim.sim_fun open MA MI IstFull (fid SpinLockHdr.newlock).
   Proof using SchInSp Hsub.
-    iStartSim.
+    iStartSim. rewrite /SpinLockI.newlock /newlock.
 
     (* preprocess initial conditions *)
     steps_l. destruct _q as [[stid mtid] [n P]]. rename _q0 into varg.
@@ -59,7 +59,7 @@ Module LockIA. Section LockIA.
 
   Lemma acquire_simF : ISim.sim_fun open MA MI IstFull (fid SpinLockHdr.acquire).
   Proof using SchInSp Hsub.
-    iStartSim.
+    iStartSim. rewrite /SpinLockI.acquire /acquire.
 
     (* process src precondition *)
     steps_l. destruct _q as [[stid mtid] [[γ vlk] [n P]]]. rename _q0 into varg. s.
@@ -117,7 +117,7 @@ Module LockIA. Section LockIA.
 
   Lemma release_simF : ISim.sim_fun open MA MI IstFull (fid SpinLockHdr.release).
   Proof using SchInSp Hsub.
-    iStartSim.
+    iStartSim. rewrite /SpinLockI.release /release.
     (* process src precondition *)
     steps_l. destruct _q as [[stid mtid] [[γ vlk] [n P]]]. rename _q0 into varg.
     iDestruct "ASM" as "[TID (% & % & #LOCK & TKN & Q)]".

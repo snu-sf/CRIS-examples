@@ -1,8 +1,6 @@
 From CRIS Require Import CRIS ImpPrelude.
 Require Import MemHdr MemLib HybridMem NonDetMem.
 
-
-
 Module MemHN. Section MemHN.
   Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS}.
 
@@ -17,7 +15,7 @@ Module MemHN. Section MemHN.
 
   Lemma simF_alloc : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.alloc).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /HybMem.alloc /NonDetMem.alloc.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
     { steps_l. ss. }
     steps_l. steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -36,7 +34,7 @@ Module MemHN. Section MemHN.
 
   Lemma simF_free : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.free).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /HybMem.free /NonDetMem.free.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
     { steps_l. ss. }
     steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -53,7 +51,7 @@ Module MemHN. Section MemHN.
 
   Lemma simF_load : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.load).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /HybMem.load /NonDetMem.load.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
     { steps_l. ss. }
     steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -72,7 +70,7 @@ Module MemHN. Section MemHN.
 
   Lemma simF_store : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.store).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /HybMem.store /NonDetMem.store.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
     { steps_l. ss. }
     steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -92,7 +90,7 @@ Module MemHN. Section MemHN.
 
   Lemma simF_cmp : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.cmp).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /HybMem.cmp /NonDetMem.cmp.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
     { steps_l. ss. }
     steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -112,7 +110,7 @@ Module MemHN. Section MemHN.
 
   Lemma simF_cas : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.cas).
   Proof using.
-        iStartSim.
+    iStartSim. rewrite /HybMem.cas /NonDetMem.cas.
     steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
     { steps_l. ss. }
     steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -143,7 +141,7 @@ Module MemHN. Section MemHN.
     step. iSplit; eauto.
   (*SLOW*)Qed.
 
-  Theorem sim : ISim.t open NonDetMem HybMem emp%I IstFull.
+  Lemma sim : ISim.t open NonDetMem HybMem emp%I IstFull.
   Proof using.
     init_sim.
     - rewrite /IstFull /HybMem /NonDetMem. unfold_mod. s. 
@@ -158,7 +156,7 @@ Module MemHN. Section MemHN.
     - apply simF_cas.
   (*SLOW*)Qed.
 
-  Theorem ctxr :
+  Lemma ctxr :
     ctx_refines
       (NonDetMem, emp%I)
       (HybMem, emp%I).

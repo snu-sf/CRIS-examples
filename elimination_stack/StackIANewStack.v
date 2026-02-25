@@ -28,7 +28,7 @@ Section StackIM.
 
   Lemma new_stack_simF : ISim.sim_fun open StackM StackI IstFull (fid StackHdr.new_stack).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /StackI.new_stack /StackM.new_stack.
     steps_l. destruct _q as [[stid mtid] n]. iDestruct "ASM" as "[TID [-> [%val ->]]]".
     steps_l. steps_r.
     sch_yield_ir "IST" "TID". { case_bool_decide; set_solver. }

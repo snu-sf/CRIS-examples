@@ -28,7 +28,7 @@ Section SystemIA.
 
   Lemma simF_alloc : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.alloc).
   Proof using.
-    iStartSim.
+    iStartSim. rewrite /SystemI.alloc.
     steps_l. destruct _q as [[[tid ?] ?] ?]; iDestruct "ASM" as "[-> [-> TVS]]".
     iDestruct "IST" as (????) "[[-> ->] [[% IST] ->]]".
     iDestruct "IST" as "[%tid_cur [%tids [[-> ->] [TA YS]]]]".
