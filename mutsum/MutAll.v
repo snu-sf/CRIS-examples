@@ -20,7 +20,7 @@ Section MutAll.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
-    refines (mod_top, emp ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ emp ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, emp ∗ emp ∗ Cancel.init_res)%I
             (mod_src, emp%I).
   Proof.
     eapply Cancel.cancellation.
@@ -129,7 +129,7 @@ Section MutAll.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines (mod_top, emp ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ emp ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, emp ∗ emp ∗ Cancel.init_res)%I
             (mod_tgt, emp%I).
   Proof.
     etrans.

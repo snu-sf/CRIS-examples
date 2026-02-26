@@ -15,7 +15,7 @@ Section CannonAux.
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
   Lemma cancel_src :
-    refines (mod_top, Ready ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ Ball ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, Ready ∗ Ball ∗ Cancel.init_res)%I
             (mod_src, Ready)%I.
   Proof.
     eapply Cancel.cancellation.
@@ -25,7 +25,7 @@ Section CannonAux.
       rewrite Ht; clear Ht.
       eexists _, _; splits.
       { ss; exists (tt); split; refl. }
-      { iIntros "[? [? [? $]]]"; ss. }
+      { iIntros "[$ [? [? ?]]]"; ss. }
       { unfold_pre_post. iIntros "% % %"; by des. }
     }
   Qed.
@@ -50,7 +50,7 @@ Section CannonAux.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines (mod_top, Ready ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ Ball ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, Ready ∗ Ball ∗ Cancel.init_res)%I
             (mod_tgt, emp%I).
   Proof.
     etrans.

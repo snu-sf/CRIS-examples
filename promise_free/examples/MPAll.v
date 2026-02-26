@@ -38,8 +38,7 @@ Section MPAux.
   Lemma cancel_src :
     refines
       (mod_top,
-        init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗
-        tview_sys_gen 1 1 0 (TView.init []) ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+        init_cond ∗ tview_sys_gen 1 1 0 (TView.init []) ∗ Cancel.init_res)%I
       (mod_src, init_cond).
   Proof.
     eapply Cancel.cancellation.
@@ -86,8 +85,7 @@ Section MPAux.
 
   Lemma top_tgt :
     refines
-      (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗
-        tview_sys_gen 1 1 0 (TView.init []) ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+      (mod_top, init_cond ∗ tview_sys_gen 1 1 0 (TView.init []) ∗ Cancel.init_res)%I
       (mod_tgt, emp%I).
   Proof.
     etrans.

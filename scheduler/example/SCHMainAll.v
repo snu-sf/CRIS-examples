@@ -65,7 +65,7 @@ Section SCHMainAux.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
-    refines (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ SCHMainA.init_cond ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, init_cond ∗ SCHMainA.init_cond ∗ Cancel.init_res)%I
             (mod_src, init_cond).
   Proof.
     eapply Cancel.cancellation.
@@ -75,7 +75,7 @@ Section SCHMainAux.
       rewrite Ht; clear Ht.
       exists (precond (SCHMainA.main_spec ⊤) tt), (postcond (SCHMainA.main_spec ⊤) tt); splits.
       { ss. exists (). esplits; refl. }
-      { iIntros "(T & Y & W & A & B & C & D)". iFrame. iModIntro. eauto. }
+      { iIntros "[[$ [$ [$ $]]] [$ [$ $]]]". eauto. }
       { i. iIntros "(W & % & _)". eauto. }
     }
   (*SLOW*)Qed.
@@ -225,7 +225,7 @@ Section SCHMainAux.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ SCHMainA.init_cond ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, init_cond ∗ SCHMainA.init_cond ∗ Cancel.init_res)%I
             (mod_tgt, emp%I).
   Proof.
     etrans.

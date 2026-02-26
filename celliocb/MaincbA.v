@@ -32,7 +32,5 @@ Module MaincbA. Section MaincbA.
   |}.
   Solve All Obligations with mod_tac.
 
-  Definition init_cond : iProp Σ := cell 0.
-
   Definition t sp := SMod.to_mod sp smod.
 End MaincbA. End MaincbA.

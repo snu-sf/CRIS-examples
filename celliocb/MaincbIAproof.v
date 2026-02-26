@@ -67,7 +67,7 @@ Module MaincbIA. Section MaincbIA.
     step. steps_l. steps_r. forces_l. iSplit; et. step. iFrame; et. 
   (*SLOW*)Qed.
 
-  Lemma sim : ISim.t open MaincbA (MaincbI.t ★ CelliocbAMod) MaincbA.init_cond IstFull.
+  Lemma sim : ISim.t open MaincbA (MaincbI.t ★ CelliocbAMod) emp IstFull.
   Proof using sp_foo.
     init_sim.
     { iIntros "_". unfold IstFull, IstProd. repeat (iExists ∅). ss. } 

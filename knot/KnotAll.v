@@ -30,7 +30,7 @@ Section KnotAux.
   Local Definition init_cond : iProp Σ := KnotA.init_cond genv ∗ MemA.init_cond csl genv.
 
   Lemma cancel_src :
-    refines (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ KnotA.knot_frag None ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, init_cond ∗ KnotA.knot_frag None ∗ Cancel.init_res)%I
             (mod_src, init_cond).
   Proof.
     eapply Cancel.cancellation.
@@ -39,7 +39,7 @@ Section KnotAux.
                      fsp_some (KnotMainA.main_spec)) by mod_tac.
       eexists _, _; splits.
       { ss; exists (tt); split; refl. }
-      { iIntros "[? [? [? $]]]"; ss. }
+      { iIntros "[$ [? [? ?]]]"; ss. }
       { unfold_pre_post. iIntros "% % [% %] //". }
     }
   Qed.
@@ -142,7 +142,7 @@ Section KnotAux.
 
   Lemma top_tgt :
     refines
-      (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ KnotA.knot_frag None ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+      (mod_top, init_cond ∗ KnotA.knot_frag None ∗ Cancel.init_res)%I
       (mod_tgt, emp%I).
   Proof.
     etrans.

@@ -2,14 +2,11 @@ Require Import CRIS Cancel.
 Require Import ImpPrelude.
 From CRIS.cellio Require Import CellioHeader CellioA CellioI MainA MainI CellioIAproof MainIAproof CtxHeader.
 
-Definition smod_wo_spec `{!crisG Γ Σ α β τ Hsub Hinv} (m: SMod.t) : Prop :=
-  ∀ fno msk fspo fbd, (SMod.fnsems m) !! fno = Some (Some (msk, (fspo, fbd))) -> fspo = None.
-
 Section CellioAux.
   Context `{!crisG Γ Σ α β τ Hsub Hinv, _CELL: !cellioGS}.
 
   Variable CtxA : SMod.t.
-  Hypothesis ctx_real: smod_wo_spec CtxA.
+  Hypothesis ctx_real: SMod.is_real CtxA.
   Hypothesis ctx_mod_wf: Mod.wf (SMod.to_mod ∅ CtxA).
   Hypothesis ctx_cancellable : SMod.cancellable CtxA.
   Hypothesis ctx_has_input: fid CtxHdr.input ∈ dom (SMod.fnsems CtxA).
@@ -67,7 +64,7 @@ Section CellioAux.
   
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src:
-    refines (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ CellioA.cell 0 ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, init_cond ∗ CellioA.cell 0 ∗ Cancel.init_res)%I
             (mod_src, init_cond).
   Proof.
     eapply Cancel.cancellation; et.
@@ -84,7 +81,7 @@ Section CellioAux.
       }
       eexists _, _; splits.
       { ss; exists tt; split; refl. }
-      { iIntros "(_ & _ & [_ $])"; eauto. }
+      { iIntros "($ & _ & [_ _])"; eauto. }
       { unfold_pre_post. iIntros (??) "[$ _]". }
     }
   (*SLOW*)Qed.
@@ -116,13 +113,12 @@ Section CellioAux.
       ctxr_rotate. ctxr_drop. refl.
     }
     
-    rewrite /MainIAproof.MainIA.MainA /MainA.t.
     eapply ctxr_cond_strengthen.
     iIntros "$".
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ CellioA.cell 0 ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, init_cond ∗ CellioA.cell 0 ∗ Cancel.init_res)%I
             (mod_tgt, emp%I).
   Proof.
     etrans.
@@ -178,7 +174,7 @@ Module CellioAll.
   Lemma behavioral_refinement :
     ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : cellioGS),
     ∀ (CtxA : SMod.t)
-      (ctx_real: smod_wo_spec CtxA)
+      (ctx_real: SMod.is_real CtxA)
       (ctx_mod_wf: Mod.wf (SMod.to_mod ∅ CtxA))
       (ctx_cancellable : SMod.cancellable CtxA)
       (ctx_has_input: fid CtxHdr.input ∈ dom (SMod.fnsems CtxA))

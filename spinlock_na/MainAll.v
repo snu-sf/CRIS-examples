@@ -49,7 +49,7 @@ Section MainAux.
 
   (* Refinement between smod_cancel and smod_src *)
   Lemma cancel_src :
-    refines (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ TidFrag 0 0 ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res)%I
             (mod_src, init_cond).
   Proof.
     eapply Cancel.cancellation.
@@ -123,7 +123,7 @@ Section MainAux.
 
   (* source Mod ⊆ source SMod ⊆ cancelled Mod *)
   Lemma cancel_tgt :
-    refines (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ TidFrag 0 0 ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res)%I
             (mod_tgt, emp%I).
   Proof.
     etrans.

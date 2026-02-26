@@ -35,7 +35,7 @@ Section ClientAux.
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
     refines
-      (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ TidFrag 0 0 ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+      (mod_top, init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res)%I
       (mod_src, init_cond).
   Proof.
     eapply Cancel.cancellation.
@@ -102,7 +102,7 @@ Section ClientAux.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines (mod_top, init_cond ∗ TID 0 ∗ YIELD 0 ∗ winv (⊤, ⊤) ∗ TidFrag 0 0 ∗ TIDAUTH 0 ∗ YIELDAUTH 1)%I
+    refines (mod_top, init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res)%I
             (mod_tgt, emp%I).
   Proof.
     etrans.

@@ -81,3 +81,13 @@ Module CelliocbA. Section CelliocbA.
   (* We can use sp_none because Cellio will be removed before cancellation *)
   Definition t := SMod.to_mod ∅ smod.
 End CelliocbA. End CelliocbA.
+
+Lemma cellio_alloc `{!crisG Γ Σ α β τ Hsub Hinv, !celliocbGpreS} :
+  ⊢ o=> ∃ (_ : celliocbGS), CelliocbA.init_cond ∗ CelliocbA.cell 0.
+Proof.
+  iMod (own_alloc (●E 0%Z ⋅ ◯E 0%Z)) as "[%γt T]".
+  { apply auth_both_valid_discrete; esplits; ss. }
+  pose (Build_celliocbGS _ _ _ _ _ _ _ _ _ γt) as Hcell.
+  rewrite own_op; iExists Hcell. iDestruct "T" as "[T0 T1]"; iFrame.
+  done.
+Qed.
