@@ -102,7 +102,7 @@ Module RRSAS. Section RRSAS.
   Proof.
     iIntros "[A F]"; iCombine "A" "F" gives %WF%gmap_view_both_dfrac_valid_discrete_total.
     destruct WF as [? [_ [_ [Hlookup [_ Hin]]]]]; rewrite lookup_fmap in Hlookup.
-    destruct (m !! mtid) as [stid2|] eqn:L; ss; inv Hlookup.
+    destruct (m !! mtid) as [stid2|] eqn:L; try rewrite L in Hlookup; ss; inv Hlookup.
     eapply to_agree_included in Hin. inv Hin; eauto.
   Qed.
 
