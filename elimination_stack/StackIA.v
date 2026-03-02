@@ -21,32 +21,23 @@ Module StackIM. Section StackIM.
   Local Notation SchI := (CFilter.filter (Helping.exports mn) SchI.t).
   Local Notation HelpingOn := (HelpingOn.t mn StackM.jobCode (SchA.sp ∅ (↑N))).
   Local Notation HelpingDummy := (HelpingDummy.t mn).
-  Local Notation StackM := (SchI ★ MemA ★ StackM.t mn N ((SchA.sp ∅ (↑N))) ★ HelpingOn).
-  Local Notation StackI := (SchI ★ MemA ★ CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy).
+  Local Notation StackM := ((StackM.t mn N (SchA.sp ∅ (↑N)) ★ HelpingOn) ★ MemA ★ SchI).
+  Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
 
   Local Notation IstFull := (HelpingTactics.IstFull StackM.jobID StackM.retID mn).
 
   (* Construct ISim.t for summing up each simulation proofs *)
   Lemma sim : ISim.t open StackM StackI init_cond IstFull.
   Proof.
-    rewrite assoc (assoc _ SchI).
-    eapply ISim_reflL.
-    { rewrite -!assoc.
-      intros fn; rewrite Mod.dom_fnsems_add; set_unfold; i; des; subst.
-      { apply new_stack_simF. }
-      { apply push_simF. }
-      { apply pop_simF. }
-      { iStartSim; steps_r. steps_r; ss. }
-      { iStartSim; steps_r. steps_r; ss. }
-    }
-    { multiset_solver. }
-    { multiset_solver. }
-    { rewrite !Mod.dom_fnsems_add; set_solver. }
-    { mod_tac. }
-    { iIntros "I"; repeat iExists _; iFrame; iPureIntro; splits; eauto; ss.
-      { rewrite dom_union_with; set_solver. }
-      { rewrite left_id_L //. }
-    }
+    init_sim.
+    - apply new_stack_simF.
+    - apply push_simF.
+    - apply pop_simF.
+    - iStartSim; steps_r. steps_r; ss.
+    - iStartSim; steps_r. steps_r; ss.
+    - iIntros "I"; repeat iExists _; iFrame; iPureIntro; splits; eauto; ss.
+      + rewrite dom_union_with; set_solver.
+      + rewrite left_id_L //.
   Qed.
 End StackIM. End StackIM.
 
@@ -62,21 +53,18 @@ Module StackIA. Section StackIA.
     intros Hsp.
     etrans; first eapply ctxr_cond_strengthen.
     { instantiate (1:=(_ ∗ emp)%I); iIntros "H"; iSplitL; last done; iExact "H". }
-    eapply helping_main with (mM:=λ mn, StackM.t mn N ((SchA.sp ∅ (↑N)))).
-    { intros mn.
-      rewrite ?CFilter.filter_app -?assoc.
-      ctxr_swap. ctxr_rotate. ctxr_swap. do 3 ctxr_rotate. ctxr_swap.
-      etrans; cycle 1.
-      { eapply main_adequacy, StackIM.sim with (mn:=mn) (N:=N). }
-      etrans; cycle 1.
-      { do 2 ctxr_rotate. ctxr_drop. ctxr_rotate. ctxr_swap. do 2 ctxr_drop. refl. }
-      rewrite left_id. refl.
+    eapply helping_main; i; rewrite !CFilter.filter_app.
+    { rewrite (comm _ _ (HelpingOn.t _ _ _)) assoc.
+      etrans; [eapply main_adequacy, StackIM.sim|].
+      rewrite -!assoc. ctxr_drop.
+      do 2 ctxr_rotate. refl.
     }
-    intros mn.
-    etrans; cycle 1.
-    { do 2 ctxr_rotate. ctxr_swap. ctxr_refl. }
+    instantiate (1:= N); s.
 
-    rewrite assoc.
+    etrans; cycle 1.
+    { do 3 ctxr_rotate. ctxr_swap. ctxr_refl. }
+    rewrite (assoc _ (StackM.t _ _ _)).
+
     eapply main_adequacy with (Ist := IstProd (IstSB (Mod.scopes (StackA.t N sp) ++ [mn]) IstTrue) IstEq).
     init_sim.
     { iStartSim. rewrite /StackM.new_stack /StackA.new_stack.
@@ -121,7 +109,6 @@ Module StackIA. Section StackIA.
       sch_yield_l; force_l; iFrame.
       step. iFrame. done.
     }
-    { rewrite !Mod.dom_fnsems_add; set_solver. }
     { iIntros "_"; repeat iExists _; repeat iSplit; eauto. }
   Qed.
 End StackIA. End StackIA.

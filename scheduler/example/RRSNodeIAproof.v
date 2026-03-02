@@ -144,7 +144,7 @@ Module RRSNodeIA. Section RRSNodeIA.
       rewrite lookup_insert. iSplit; eauto.
       solve_base_sl_red. rewrite /half_val. unseal "Node". iFrame. }
 
-    steps_l; steps_r. call" IST". iIntros (???) "IST".
+    steps_l; steps_r. call "IST". iIntros (???) "IST".
     steps_l. steps_r. iDestruct "ASM" as "(% & (% & tidF & % & % & RRI & % & INV))"; hss.
 
     forces_l. iSplitL "tidF"; eauto.

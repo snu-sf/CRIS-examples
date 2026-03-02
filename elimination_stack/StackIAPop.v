@@ -21,8 +21,8 @@ Section StackIM.
   Local Notation SchI := (CFilter.filter (Helping.exports mn) SchI.t).
   Local Notation HelpingOn := (HelpingOn.t mn StackM.jobCode (SchA.sp ∅ (↑N))).
   Local Notation HelpingDummy := (HelpingDummy.t mn).
-  Local Notation StackM := (SchI ★ MemA ★ StackM.t mn N ((SchA.sp ∅ (↑N))) ★ HelpingOn).
-  Local Notation StackI := (SchI ★ MemA ★ CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy).
+  Local Notation StackM := ((StackM.t mn N (SchA.sp ∅ (↑N)) ★ HelpingOn) ★ MemA ★ SchI).
+  Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
 
   Local Notation IstFull := (HelpingTactics.IstFull StackM.jobID StackM.retID mn).
 
@@ -47,7 +47,7 @@ Section StackIM.
     (* Stack load *)
     iInv "Hinv" as "[[%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist Hoffer]]]]]]|[% ●]]" "close";
       cycle 1.
-    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [? [% [% [IST ●2]]]]]]]]]".
+    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [[% [% [IST ●2]]] ?]]]]]]".
       iCombine "●" "●2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
     }
 
@@ -84,7 +84,7 @@ Section StackIM.
 
     iInv "Hinv" as "[[%stack_rep' [%offer_rep' [%l' [Hs [H↦ [Hlist Hoffer]]]]]]|[% ●]]" "close";
       cycle 1.
-    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [? [% [% [IST ●2]]]]]]]]]".
+    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [[% [% [IST ●2]]] ?]]]]]]".
       iCombine "●" "●2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
     }
     iPoseProof (list_inv_comparable with "Hlist") as "[Hlist [Hval2 _]]".
@@ -143,7 +143,7 @@ Section StackIM.
     clear dependent stack_rep' offer_rep offer_rep' l  l'.
     iInv "Hinv" as "[[%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist Hoffer]]]]]]|[% ●]]" "close";
       cycle 1.
-    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [? [% [% [IST ●2]]]]]]]]]".
+    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [[% [% [IST ●2]]] ?]]]]]]".
       iCombine "●" "●2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
     }
     iDestruct "Hoffer" as "[↦offer Hoffer]".
@@ -179,7 +179,7 @@ Section StackIM.
       sch_yield_l. force_l true. steps_l.
       rewrite {3}/SchA.sp; simpl_map.
       inline_l. steps_l.
-      iDestruct "IST" as "[% [% [% [% [[-> ->] [IST [% [% [[-> ->] ●Help]]]]]]]]]".
+      iDestruct "IST" as "[% [% [% [% [[-> ->] [[% [% [[-> ->] ●Help]]] IST]]]]]]".
       iPoseProof (helping_auth_token with "●Help offer") as "%Hreq".
       iMod (helping_auth_commit with "●Help offer") as "[●offer #◯offer]".
       iMod ("close" with "[offer↦ ◯offer]") as "_".

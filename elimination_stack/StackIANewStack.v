@@ -21,8 +21,8 @@ Section StackIM.
   Local Notation SchI := (CFilter.filter (Helping.exports mn) SchI.t).
   Local Notation HelpingOn := (HelpingOn.t mn StackM.jobCode (SchA.sp ∅ (↑N))).
   Local Notation HelpingDummy := (HelpingDummy.t mn).
-  Local Notation StackM := (SchI ★ MemA ★ StackM.t mn N ((SchA.sp ∅ (↑N))) ★ HelpingOn).
-  Local Notation StackI := (SchI ★ MemA ★ CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy).
+  Local Notation StackM := ((StackM.t mn N (SchA.sp ∅ (↑N)) ★ HelpingOn) ★ MemA ★ SchI).
+  Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
 
   Local Notation IstFull := (HelpingTactics.IstFull StackM.jobID StackM.retID mn).
 

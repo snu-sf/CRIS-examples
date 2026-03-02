@@ -21,8 +21,8 @@ Section StackIM.
   Local Notation SchI := (CFilter.filter (Helping.exports mn) SchI.t).
   Local Notation HelpingOn := (HelpingOn.t mn StackM.jobCode (SchA.sp ∅ (↑N))).
   Local Notation HelpingDummy := (HelpingDummy.t mn).
-  Local Notation StackM := (SchI ★ MemA ★ StackM.t mn N ((SchA.sp ∅ (↑N))) ★ HelpingOn).
-  Local Notation StackI := (SchI ★ MemA ★ CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy).
+  Local Notation StackM := ((StackM.t mn N (SchA.sp ∅ (↑N)) ★ HelpingOn) ★ MemA ★ SchI).
+  Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
 
   Local Notation IstFull := (HelpingTactics.IstFull StackM.jobID StackM.retID mn).
 
@@ -54,7 +54,7 @@ Section StackIM.
     (* load *)
     iInv "Hinv" as "[[%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist Hoffer]]]]]]|[% ●]]" "close";
       cycle 1.
-    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [? [% [% [IST ●2]]]]]]]]]".
+    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [[% [% [IST ●2]]] ?]]]]]]".
       by iCombine "●" "●2" gives %[WF _]%gmap_view_auth_dfrac_op_valid.
     }
 
@@ -80,7 +80,7 @@ Section StackIM.
     (* try push *)
     iInv "Hinv" as "[[%stack_rep1 [%offer_rep1 [%l1 [Hs [H↦ [Hlist Hoffer]]]]]]|[% ●]]" "close";
       cycle 1.
-    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [? [% [% [IST ●2]]]]]]]]]".
+    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [[% [% [IST ●2]]] ?]]]]]]".
       by iCombine "●" "●2" gives %[WF _]%gmap_view_auth_dfrac_op_valid.
     }
     iPoseProof (list_inv_comparable with "Hlist") as "[Hlist [Hval2 _]]".
@@ -162,7 +162,7 @@ Section StackIM.
     clear dependent l l1 stack_rep stack_rep1 offer_rep offer_rep1.
     iInv "Hinv" as "[[%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist [Hoffer↦ _]]]]]]]|[% ●]]" "close";
       cycle 1.
-    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [? [% [% [IST ●2]]]]]]]]]".
+    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [[% [% [IST ●2]]] ?]]]]]]".
       by iCombine "●" "●2" gives %[WF _]%gmap_view_auth_dfrac_op_valid.
     }
 
@@ -181,7 +181,7 @@ Section StackIM.
     clear dependent l stack_rep offer_rep.
     iInv "Hinv" as "[[%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist [Hoffer↦ _]]]]]]]|[% ●]]" "close";
       cycle 1.
-    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [? [% [% [IST ●2]]]]]]]]]".
+    { iExFalso. iDestruct "IST" as "[% [% [% [% [% [[% [% [IST ●2]]] ?]]]]]]".
       by iCombine "●" "●2" gives %[WF _]%gmap_view_auth_dfrac_op_valid.
     }
     store_r "Hoffer↦".
