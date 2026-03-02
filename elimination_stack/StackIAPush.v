@@ -40,12 +40,8 @@ Section StackIM.
     clear st_src st_tgt; iIntros (st_src st_tgt req_id) "IST Tkn".
 
     (* Coinduction starts here *)
-    iApply wsim_reset. iStopProof.
-    revert st_src. combine_quant st_tgt.
-    eapply wsim_coind.
-    iIntros (g' _ CIH [st_tgt st_src]) "[#Hinv [TID [IST Help]]] /=".
-    destruct_quant CIH.
-
+    iApply wsim_reset.
+    cCoind CIH g' __ with st_src st_tgt. iIntros "[#Hinv [TID [IST Help]]] /=".
     unfold_iter_r. rewrite {1}/StackI._push. steps_r.
 
     sch_yield_ir "IST" "TID". { case_bool_decide; set_solver. }

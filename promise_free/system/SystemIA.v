@@ -52,13 +52,8 @@ Module SystemIA. Section SystemIA.
     (* steps_l. steps_r. *)
     iMod ("Post" with "ASM") as "[W [% [_ TV]]] /=".
 
-    rewrite /System.terminate; unseal "System".
-    iApply wsim_reset. iStopProof.
-    revert st_src. combine_quant st_tgt.
-    eapply wsim_coind; intros g' _ CIH [st_src st_tgt]; ss.
-    destruct_quant CIH.
-
-    iIntros "[IST [W TV]]".
+    rewrite /System.terminate; unseal "System". iApply wsim_reset.
+    cCoind CIH g' __ with st_src st_tgt. iIntros "[IST [W TV]]".
     iPoseProof (winv_split_empty with "W") as "[W We]".
 
     unfold_iterC_l. steps_l. simpl_sp.

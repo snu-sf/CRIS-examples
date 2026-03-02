@@ -136,11 +136,8 @@ Module RRSIA. Section RRSIA.
     steps_l. iApply wsim_bind. iSplitL; cycle 1.
     { instantiate (1:= λ _ _, False%I). iIntros (????) "X"; ss. }
 
-    clear H1. iApply wsim_reset. iStopProof.
-    revert st_t'. combine_quant st_s'. combine_quant x.
-    eapply wsim_coind. i. destruct_quant CIH.
-    destruct a as [x [st_s' st_t']]. s.
-
+    clear H1. iApply wsim_reset.
+    cCoind CIH g Hg with st_s' st_t' x.
     iIntros "(PYIP & RRIP & PubF & S & IST & Tsch & Ysch & WI)"; subst.
     unfold_iterC_l. unfold_iterC_r.
 
@@ -282,13 +279,8 @@ Module RRSIA. Section RRSIA.
       
       (* Coinduction on yield loop *)
       iClear "IST ASM Post".
-      rewrite !/RRS.spin. unseal "RRS".
-      iApply wsim_reset.
-      iStopProof.
-      revert st_t'. combine_quant st_s'.
-      eapply wsim_coind. i.
-      destruct a as [st_src1 st_tgt1]. s.
-      destruct_quant CIH. iIntros "_".
+      rewrite !/RRS.spin. unseal "RRS". iApply wsim_reset.
+      cCoind CIH g __ with st_s' st_t'. iIntros "_".
       unfold_iterC_l. unfold_iterC_r.
       steps_l; steps_r.
       by_coind CIH; eauto.
@@ -362,13 +354,8 @@ Module RRSIA. Section RRSIA.
       
       (* Coinduction on yield loop *)
       iClear "IST ASM Post".
-      rewrite !/RRS.spin. unseal "RRS".
-      iApply wsim_reset.
-      iStopProof.
-      revert st_t'. combine_quant st_s'.
-      eapply wsim_coind. i.
-      destruct a as [st_src1 st_tgt1]. s.
-      destruct_quant CIH. iIntros "_".
+      rewrite !/RRS.spin. unseal "RRS". iApply wsim_reset.
+      cCoind CIH g __ with st_s' st_t'. iIntros "_".
       unfold_iterC_l. unfold_iterC_r.
       steps_l; steps_r.
       by_coind CIH; eauto.

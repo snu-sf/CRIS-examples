@@ -26,15 +26,11 @@ Section wsim.
       (st_src, SB.sandbox msk_src (SModTr.trans sp_src 𝒴) >>= itr_src)
       (st_tgt, SB.sandbox msk_tgt (SModTr.trans sp_tgt 𝒴) >>= itr_tgt).
   Proof.
-    intros Hsps Hspt Hmsk Hcall.
+    intros Hsps Hspt Hmsk Hcall. iIntros "?".
     rewrite /System.yield; unseal "System".
-    revert p_src. combine_quant p_tgt.
-    combine_quant st_src. combine_quant st_tgt.
-    eapply wsim_coind.
-    iIntros (g' Hgg' CIH [st_tgt [st_src [p_src p_tgt]]]) "[IST [TV KTR]] /=".
-    destruct_quant CIH.
-
+    cCoind CIH g' Hgg' with p_src p_tgt st_src st_tgt. iIntros "[IST [TV KTR]] /=".
     unfold_iterC_r.
+
     steps_r. rewrite Hmsk. steps_r. destruct _q as [[|]|]; cycle 2.
     { steps_r.
       unfold_iterC_l.

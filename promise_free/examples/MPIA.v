@@ -119,15 +119,9 @@ Module MPIA. Section MPIA.
 
     clear dependent st_src st_tgt. iIntros (ret st_src st_tgt) "IST".
     steps_l. iDestruct "ASM" as "[% [-> [TV [-> ->]]]]".
-    steps_r. steps_l.
-    iApply wsim_reset.
-    iStopProof.
+    steps_r. steps_l. iApply wsim_reset. clear Hle3 H.
 
-    revert st_src. combine_quant st_tgt. clear Hle3 H. combine_quant V3.
-    eapply wsim_coind.
-    (* destruct_quant. *)
-    iIntros (g' _ CIH [V3 [st_t st_s]]) "[#[I SN] [FA [P [IST TV]]]]"; s.
-
+    cCoind CIH g' __ with st_src st_tgt V3. iIntros "[#[I SN] [FA [P [IST TV]]]]"; s.
     unfold_iterC_l. steps_l.
     unfold_iterC_r.
 
@@ -135,7 +129,7 @@ Module MPIA. Section MPIA.
     steps_r.
     iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
     iFrame "TV IST".
-    clear dependent st_s st_t.
+    clear dependent st_src st_tgt.
     iIntros (??) "IST TV".
 
     steps_r. inline_r.
@@ -181,7 +175,7 @@ Module MPIA. Section MPIA.
       iApply wsim_progress.
       iApply wsim_base.
       iIntros "W".
-      iApply ((CIH (V4, (st_tgt, st_src))) with "[-]"); iFrame. iFrame "I".
+      iApply ((CIH st_src st_tgt V4) with "[-]"); iFrame. iFrame "I".
       ss. iModIntro. iEval (rewrite H3) in "SN". done.
       Unshelve. all: try exact ⊤; try exact 1%Qp.
     }
@@ -290,7 +284,7 @@ Module MPIA. Section MPIA.
         iApply wsim_base.
         iIntros "W".
 
-        iApply ((CIH (_, (st_tgt, st_src))) with "[-]"); iFrame. iFrame "I".
+        iApply ((CIH st_src st_tgt _) with "[-]"); iFrame. iFrame "I".
         iEval (rewrite Hvle) in "SN"; s; iModIntro; done.
       }
     }

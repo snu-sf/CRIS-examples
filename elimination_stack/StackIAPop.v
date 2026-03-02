@@ -34,12 +34,8 @@ Section StackIM.
     iDestruct "ASM" as "[TID [_ [-> #[%stackb [%stackofs [-> Hinv]]]]]]". steps_r.
 
     (* Coinduction starts here *)
-    iApply wsim_reset. iStopProof.
-    revert st_src. combine_quant st_tgt.
-    eapply wsim_coind.
-    iIntros (g' _ CIH [st_tgt st_src]) "[#Hinv [IST TID]] /=".
-    destruct_quant CIH.
-
+    iApply wsim_reset.
+    cCoind CIH g' __ with st_src st_tgt. iIntros "[#Hinv [IST TID]] /=".
     unfold_iter_r. rewrite {1}/StackI._pop. steps_r.
     sch_yield_ir "IST" "TID". { case_bool_decide; set_solver. }
     sch_yield_ir "IST" "TID". { case_bool_decide; set_solver. }

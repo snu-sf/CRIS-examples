@@ -22,11 +22,7 @@ Module IncrementIA. Section IncrementIA.
     sch_yield_l. norm_l.
 
     iApply wsim_reset.
-    iStopProof. revert st_src. combine_quant st_tgt.
-    eapply wsim_coind.
-    iIntros (g' _ CIH [st_t st_s]) "IST /=".
-    destruct_quant CIH.
-
+    cCoind CIH g' __ with st_src st_tgt. iIntros "IST /=".
     unfold_iterC_r. steps_r.
     unfold_iterC_l. steps_l.
     sch_yield_rr "IST".

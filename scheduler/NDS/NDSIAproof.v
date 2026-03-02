@@ -154,11 +154,8 @@ Module NDSIA. Section sim.
     steps_l. iApply wsim_bind. iSplitL; cycle 1.
     { instantiate (1:= λ _ _, False%I). iIntros (????) "X"; ss. }
 
-    clear H1. iClear "Rs". iApply wsim_reset. iStopProof.
-    revert st_t'. combine_quant st_s'. combine_quant x.
-    eapply wsim_coind. i. destruct_quant CIH.
-    destruct a as [x [st_s' st_t']]. s.
-
+    clear H1. iClear "Rs". iApply wsim_reset.
+    cCoind CIH g Hg with x st_s' st_t'.
     iIntros "(PYIP & S & PubF & IST & T & Y & WI)"; subst.
     unfold_iterC_l. unfold_iterC_r.
 
@@ -383,11 +380,8 @@ Module NDSIA. Section sim.
       rewrite !/NDS.terminate /ccallU. unseal NDS.
       clearbody st_s2 st_t2.
       iApply wsim_reset.
-      iStopProof. revert st_s2.
-      combine_quant st_t2.
-      eapply wsim_coind.
-      iIntros (? _ CIH [st_s st_t]) "[TidF [TID [YIELD [S [C [PubA IST]]]]]] /=".
-      destruct_quant CIH.
+      cCoind CIH g __ with st_s2 st_t2.
+      iIntros "[TidF [TID [YIELD [S [C [PubA IST]]]]]] /=".
       unfold_iterC_l. unfold_iterC_r.
 
       iApply wsim_unfold; iIntros "W".
@@ -548,11 +542,8 @@ Module NDSIA. Section sim.
       rewrite !/NDS.terminate /ccallU. unseal NDS.
       clearbody st_s2 st_t2.
       iApply wsim_reset.
-      iStopProof. revert st_s2.
-      combine_quant st_t2.
-      eapply wsim_coind.
-      iIntros (? _ CIH [st_s st_t]) "[TidF [TID [YIELD [S [C [PubA IST]]]]]] /=".
-      destruct_quant CIH.
+      cCoind CIH g __ with st_s2 st_t2.
+      iIntros "[TidF [TID [YIELD [S [C [PubA IST]]]]]] /=".
       unfold_iterC_l. unfold_iterC_r.
 
       iApply wsim_unfold; iIntros "W".
@@ -911,15 +902,9 @@ Module NDSIA. Section sim.
     step_l. destruct _q as [[[[mtid stid] ssch] tid] postS].
     steps_l. iDestruct "ASM" as "(% & % & % & (TidF & T & Y & S & C & PubF) & JoinF)"; des; subst.
 
-    steps_l. steps_r.
-    iApply wsim_reset. iStopProof.
-    revert st_tgt.
-    combine_quant st_src.
-    eapply wsim_coind. intros g' _ CIH a.
-    destruct a as [st_src st_tgt]. s.
-    destruct_quant CIH.
+    steps_l. steps_r. iApply wsim_reset.
+    cCoind CIH g' __ with st_src st_tgt.
     iIntros "(IST & Tid & T & Y & S & C & PubF & JoinF)".
-
     unfold_iterC_l; unfold_iterC_r.
 
     iDestruct "IST" as "[% [% [% [% [[-> -> ] [JoinA [TidA [Rs
