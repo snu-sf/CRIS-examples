@@ -212,7 +212,7 @@ Module PQueueIA. Section PQueueIA.
       generalize var. clear var. iIntros (var).
       iInduction (var) as [|var] forall (st_src st_tgt).
       { unfold_iter_r. steps_r.
-        add_ret_l.
+        append_ret_l.
         sch_yield_ir "IST" "TID".
         sch_yield_l.
         iDestruct "↦queue" as "[%entries [% ↦queues]]". rewrite Z.sub_0_r.
@@ -246,7 +246,7 @@ Module PQueueIA. Section PQueueIA.
 
       iPoseProof "Hvar" as "%".
       unfold_iter_r. steps_r.
-      add_ret_l. sch_yield_ir "IST" "TID".
+      append_ret_l. sch_yield_ir "IST" "TID".
 
       (* stack allocation *)
       inline_r. force_r (stid, mtid, n). forces_r.

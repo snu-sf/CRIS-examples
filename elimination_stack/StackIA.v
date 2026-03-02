@@ -108,7 +108,7 @@ Module StackIA. Section StackIA.
       set (IstFull := IstProd _ _).
       steps_r. iApply wsim_bind; iSplitL.
       { instantiate (1:=λ x y, IstFull x.1 y.1).
-        add_ret_l. case_match.
+        append_ret_l. case_match.
         { steps_r. rewrite /SchA.sp; simpl_map. inline_r.
           rewrite /HelpingOff.HelpingOff.help. steps_r.
           sch_yield_ii "IST". steps_r. sch_yield_l. step. iFrame.
