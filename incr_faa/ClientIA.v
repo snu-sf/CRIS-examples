@@ -42,7 +42,7 @@ Module ClientIA. Section ClientIA.
   Proof using Hsch Hclient.
     iStartSim. rewrite /sfunU /sfunN /incr /ClientI.incr.
 
-    steps_l. destruct _q as [[stid mtid] [[[blk ofs] v]]]; rename _q0 into varg.
+    steps_l. destruct _q as [[stid mtid] [[[blk ofs] v]]].
     iDestruct "ASM" as "[TID [[-> ->] [C #INV]]]".
 
     steps_l. steps_r. rewrite /ClientI.incr /ClientA.incr /=; steps_r.

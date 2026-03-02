@@ -17,7 +17,7 @@ Section fence.
   Lemma simF_fence : ISim.sim_fun open MA MI Ist (fid PFMemHdr.fence).
   Proof.
     iStartSim.
-    steps_l. destruct _q as [[[tid ordr] ordw] V]. rename _q0 into varg.
+    steps_l. destruct _q as [[[tid ordr] ordw] V].
     iDestruct "ASM" as "[-> [[-> %] TV]]". hss_r. steps_r.
     iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
     steps_r. rewrite /PFMemI.check_ident.

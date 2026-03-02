@@ -26,7 +26,7 @@ Module MainIA. Section MainIA.
   Proof using SchInSp_s SchInSp_t MainInSp.
     iStartSim. rewrite /SpinLockMainI.incr /incr /sfunN /sfunU.
     (* process src precondition *)
-    steps_l. destruct _q as [[stid mtid] [[[blk_l ofs_l] [blk_v ofs_v]] γ_v]]. rename _q0 into varg.
+    steps_l. destruct _q as [[stid mtid] [[[blk_l ofs_l] [blk_v ofs_v]] γ_v]].
     iDestruct "ASM" as "[TID [-> [-> [%γ_l [#Lock Tkn]]]]]".
     steps_l; steps_r.
 

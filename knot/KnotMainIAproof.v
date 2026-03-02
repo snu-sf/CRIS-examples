@@ -35,7 +35,7 @@ Module KnotMainIA. Section KnotMainIA.
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     iStartSim. rewrite /KnotMainI.fibF.
 
-    steps_l. destruct _q as [n I]; s. iDestruct "ASM" as "[[[%fb [-> [% %Hspec]]] I] [%vo [-> %]]]".
+    steps_l. destruct _q as [n I]; s. iDestruct "ASM" as "[[[%fb [-> [% %Hspec]]] I] [%vo [-> %LEvo]]]".
     steps_r. inv Hspec. rewrite FBLOCK. steps_r.
     unfold assume. unshelve force_r; eauto. steps_r.
     des_ifs.
@@ -134,11 +134,12 @@ Module KnotMainIA. Section KnotMainIA.
       { simpl_sp; ss. }
       iIntros (P Q) "[% [-> ->]]"; iExists _, _; iSplit.
       { iPureIntro; exists (x, knot_frag (Some Fib)); split; ss. }
-      iIntros (? ?) "[[% $] %] !>"; iSplit; eauto; iPureIntro; des; esplits; eauto.
-      inv H3. econs; eauto.
+      iIntros (? ?) "[[% $] %] !>"; iSplit; eauto; iPureIntro; des; subst; esplits; eauto.
+      ltac2:(renames H into RGx, SPfb, LEvo).
+      inv SPfb. econs; eauto.
       inv SPEC. econs; eauto.
-      iIntros (? ?) "[%n [-> ->]]". iPoseProof (WEAK with "[]") as "[% [% [% I]]]".
-      { iPureIntro. exists (Fib, n); split; ss. }
+      iIntros (? ?) "[%m [-> ->]]". iPoseProof (WEAK with "[]") as "[% [% [%Hfsp I]]]".
+      { iPureIntro. exists (Fib, m); split; ss. }
       iExists _, _; iSplit; first eauto.
       unfold_pre_post. iIntros (? ?) "[[% F] [% %]]"; iPoseProof ("I" with "[F]") as "?".
       { iFrame. iSplit; eauto. }

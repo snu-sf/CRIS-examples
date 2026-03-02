@@ -20,7 +20,7 @@ Module MainIA. Section MainIA.
     iStartSim. unfold MainI.main, MainA.main.
 
     (* Take cell(0) *)
-    steps_l. iDestruct "ASM" as "[-> CELL]".
+    steps_l. iDestruct "ASM" as "[-> CELL]". hss.
 
     steps_r. inline_r. unfold CellioA.set.
     (* Give cell(0) *)
@@ -29,12 +29,12 @@ Module MainIA. Section MainIA.
 
     (* Call Input() simultaneously *)
     steps_r. rewrite sp_input.
-    call "IST". iIntros (r0 st_src0 st_tgt0) "IST".
-    steps_l. steps_r. destruct Any.downcast; [|steps_l; ss]. hss.
+    call "IST". iIntros (ret st_src' st_tgt') "IST".
+    steps_l. steps_r. destruct Any.downcast as [v|]; [|steps_l; ss]. hss.
 
     (* Take cell(i) *)
-    steps_r. iDestruct "GRT'" as "%". subst. hss.
-    
+    steps_r. iDestruct "GRT'" as "<-". hss. iRename "GRT" into "CELL".
+
     (* Call Foo.foo() simultaneously *)
     steps_r. steps_l. rewrite sp_foo.
     call "IST". iIntros (r1 st_src1 st_tgt1) "IST".
@@ -42,10 +42,10 @@ Module MainIA. Section MainIA.
     steps_r. inline_r. unfold CellioA.get.
     (* Give cell(i) *)
     step_r. forces_r. iSplitL ""; eauto.
-    forces_r. iSplitL "GRT"; eauto.
+    forces_r. iSplitL "CELL"; eauto.
 
     (* Take cell(i) *)
-    steps_r. iDestruct "GRT'" as "%". subst. hss.
+    steps_r. iDestruct "GRT'" as "<-". hss. iRename "GRT" into "CELL".
 
     (* Call Print(i) simultaneously *)
     steps_r. step.

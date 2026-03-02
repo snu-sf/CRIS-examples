@@ -50,7 +50,6 @@ Module CellioA. Section CellioA.
     λ _,
       x <- trigger (Take Z);;
       trigger (Assume (CellioA.cell x));;;
-      (* i <- trigger (@IO _ Z "Input" tt);; *)
       'i: Z <- ccallU CtxHdr.input tt;;
       trigger (Guarantee (CellioA.cell i));;;
       Ret tt↑.

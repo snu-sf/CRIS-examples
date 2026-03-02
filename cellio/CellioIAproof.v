@@ -21,21 +21,22 @@ Module CellioIA. Section CellioIA.
     iStartSim. unfold CellioI.set, CellioA.set.
 
     (* Take (x:Z) & cell(x) *)
-    steps_l. iDestruct "ASM" as "->".
+    steps_l. iDestruct "ASM" as "->". hss.
+    ltac2:(renames _q into v). iRename "ASM'" into "CELL".
 
     (* Call Input() simultaneously *)
     steps_r.
     call "IST". iIntros (ret st_src' st_tgt') "IST".
-    steps_r. steps_l. destruct Any.downcast; [|steps_l; ss]. hss.
+    steps_r. steps_l. destruct Any.downcast as [v_new|]; [|steps_l; ss]. hss.
     steps_r. steps_l.
 
     (* Give cell(i) *)
-    iDestruct "IST" as (v) "(% & AUTH)". subst.
+    iDestruct "IST" as (v') "(% & AUTH)". subst.
 
-    iPoseProof (cell_auth_get with "ASM' AUTH") as "%"; subst.
-    iMod (cell_auth_set with "ASM' AUTH") as "(C & A)".
+    iPoseProof (cell_auth_get with "CELL AUTH") as "<-".
+    iMod (cell_auth_set with "CELL AUTH") as "(CELL & AUTH)".
 
-    forces_l. iSplitL "C"; eauto.
+    forces_l. iSplitL "CELL"; eauto.
 
     steps_l. forces_l.
     iSplit; eauto.
@@ -52,14 +53,15 @@ Module CellioIA. Section CellioIA.
 
     (* Take (x:Z) & cell(x) *)
     steps_l. iDestruct "ASM" as "->".
-    iDestruct "IST" as (v) "(% & AUTH)". subst.
+    ltac2:(renames _q into v). iRename "ASM'" into "CELL". hss.
+    iDestruct "IST" as (v') "(-> & AUTH)".
 
-    iPoseProof (cell_auth_get with "ASM' AUTH") as "%"; subst.
+    iPoseProof (cell_auth_get with "CELL AUTH") as "<-".
 
     steps_r. hss. steps_r.
 
     (* Give cell(x) *)
-    forces_l. iSplitL "ASM'"; eauto.
+    forces_l. iSplitL "CELL"; eauto.
     
     steps_l. forces_l. iSplit; eauto.
 

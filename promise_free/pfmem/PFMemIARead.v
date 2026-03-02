@@ -19,7 +19,7 @@ Section read.
     iStartSim.
     step_l. destruct _q as [f|[f|[]]].
     { (* non-atomic read *)
-      steps_l. rename _q into varg.
+      steps_l.
       destruct f as [[[[[tid loc] ord] val] q] 𝓥]. unfold_pre_post.
       iDestruct "ASM" as "[-> [-> [PT TV]]]". hss_r. steps_r.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
@@ -140,7 +140,7 @@ Section read.
       step. iSplit; eauto.
     }
     { destruct f as [[[[[[[[[[tid loc] ord] ζ] ζ'] t] γ] q] mode] 𝓥] Vb].
-      steps_l. rename _q into varg.
+      steps_l.
       iDestruct "ASM" as "[-> [[-> %ORDRLX] [SEEN [PT TV]]]]". hss_r.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
       steps_r. hss. steps_r.

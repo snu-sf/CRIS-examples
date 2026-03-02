@@ -25,7 +25,7 @@ Module LockIA. Section LockIA.
     iStartSim. rewrite /SpinLockI.newlock /newlock.
 
     (* preprocess initial conditions *)
-    steps_l. destruct _q as [[stid mtid] [n P]]. rename _q0 into varg.
+    steps_l. destruct _q as [[stid mtid] [n P]].
     iDestruct "ASM" as "[TID [-> P]]"; s. destruct Any.downcast; s; [|step_l; ss].
     steps_r. step_l.
 
@@ -62,7 +62,7 @@ Module LockIA. Section LockIA.
     iStartSim. rewrite /SpinLockI.acquire /acquire.
 
     (* process src precondition *)
-    steps_l. destruct _q as [[stid mtid] [[γ vlk] [n P]]]. rename _q0 into varg. s.
+    steps_l. destruct _q as [[stid mtid] [[γ vlk] [n P]]].
     iDestruct "ASM" as "[TID [-> [-> #LOCK]]]".
     iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs]; subst.
     steps_r. steps_l.
@@ -119,7 +119,7 @@ Module LockIA. Section LockIA.
   Proof using SchInSp Hsub.
     iStartSim. rewrite /SpinLockI.release /release.
     (* process src precondition *)
-    steps_l. destruct _q as [[stid mtid] [[γ vlk] [n P]]]. rename _q0 into varg.
+    steps_l. destruct _q as [[stid mtid] [[γ vlk] [n P]]].
     iDestruct "ASM" as "[TID (% & % & #LOCK & TKN & Q)]".
     iDestruct "LOCK" as (?) "[% LOCK]". destruct bofs as [blk ofs]. subst.
     steps_l; steps_r.
