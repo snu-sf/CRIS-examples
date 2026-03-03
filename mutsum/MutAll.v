@@ -30,7 +30,7 @@ Section MutAll.
       eexists _, _; splits.
       { ss; exists (tt); split; refl. }
       { iIntros "[? [? ?]]"; ss. }
-      { unfold_pre_post. iIntros "% % $ //". }
+      { unfoldPrePost. iIntros "% % $ //". }
     }
   Qed.
 
@@ -112,7 +112,7 @@ Section MutAll.
       }
     }
 
-    (* elimination of pure call *)
+    (* elimination of pure cCall *)
     etrans; cycle 1.
     { do 2 ctxr_rotate. do 2 ctxr_drop.
       eapply MutMainIA.ctxr_close with (Sp:=sp) (SpPure:=sp_pure).

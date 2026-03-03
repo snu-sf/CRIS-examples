@@ -106,17 +106,17 @@ Module CtrlIA. Section CtrlIA.
 
   Lemma simF_init : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.init).
   Proof using.
-    iStartSim. rewrite /CtrlI.init /RingA.init.
+    cStartFunSim. rewrite /CtrlI.init /RingA.init.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
-    steps_l. destruct Any.downcast; last (steps_l; case_match; steps_l; ss).
-    steps_l; steps_r.
+    cStepsS. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
+    cStepsS; cStepsT.
     iDestruct "IST" as (? ? ? ?) "(% & (% & IST) & %)". des; subst.
-    iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst. hss.
+    iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst. cSimpl.
 
-    (* TGT, SRC: take steps *)
-    steps_r. steps_l. step. iSplitL "". { eauto. }
+    (* TGT, SRC: take cSteps *)
+    cStepsT. cStepsS. cStep. iSplitL "". { eauto. }
 
     (* Prove the IST *)
     iExists _, _, st_tgtR, st_tgtR.
@@ -139,17 +139,17 @@ Module CtrlIA. Section CtrlIA.
 
   Lemma simF_get_size : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.get_size).
   Proof using.
-    iStartSim. rewrite /CtrlI.get_size /RingA.get_size.
+    cStartFunSim. rewrite /CtrlI.get_size /RingA.get_size.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
-    steps_l. destruct Any.downcast; last (steps_l; case_match; steps_l; ss).
-    steps_l; steps_r.
+    cStepsS. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
+    cStepsS; cStepsT.
     iDestruct "IST" as (? ? ? ?) "(% & (% & IST) & %)". des; subst.
-    iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst. hss.
+    iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst. cSimpl.
 
-    (* TGT, SRC: take steps *)
-    steps_r. steps_l. step. iSplitL "". { rewrite Nat.add_comm Nat.add_sub. eauto. }
+    (* TGT, SRC: take cSteps *)
+    cStepsT. cStepsS. cStep. iSplitL "". { rewrite Nat.add_comm Nat.add_sub. eauto. }
 
     (* Prove the IST *)
     iExists _, _, st_tgtR, st_tgtR.
@@ -160,23 +160,23 @@ Module CtrlIA. Section CtrlIA.
   Lemma simF_enqueue : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.enqueue).
   Proof using.
     unfold RingAMod, RingIMod, CellGS.
-    iStartSim. rewrite /CtrlI.enqueue /RingA.enqueue.
+    cStartFunSim. rewrite /CtrlI.enqueue /RingA.enqueue.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
-    steps_l. destruct Any.downcast; last (steps_l; case_match; steps_l; ss).
-    steps_l; steps_r.
+    cStepsS. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
+    cStepsS; cStepsT.
     iDestruct "IST" as (? ? ? ?) "(% & (% & IST) & %)". des; subst.
     iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst.
-    steps_l.
+    cStepsS.
     rename q into v. rename q' into l.
 
     (* TGT: check the length of the queue *)
-    steps_r. rewrite Nat.add_sub'; des_ifs; cycle 1.
-    { step. ss. }
+    cStepsT. rewrite Nat.add_sub'; des_ifs; cycle 1.
+    { cStep. ss. }
 
-    (* SRC: take steps *)
-    steps_l.
+    (* SRC: take cSteps *)
+    cStepsS.
 
     apply Nat.ltb_lt in Heq. rewrite length_app in H4.
     assert (UBND:= Nat.mod_upper_bound (tl + List.length v) max_size).
@@ -185,18 +185,18 @@ Module CtrlIA. Section CtrlIA.
     i; move_aux.
 
     (* TGT: inline CellHdr.set *)
-    steps_r. inline_r.
+    cStepsT. cInlineT.
     destruct l; [ss; nia|].
-    force_r (_,_). forces_r.
+    cForceT (_,_). cForcesT.
     iDestruct "FREE" as "(Q & FREE)".
     (* rewrite !Nat.add_0_l in NODUPFS NODUPFT WFS WFT. *)
     rewrite !Nat.add_0_r.
     iSplitL "Q".
     { iFrame. eauto. }
 
-    (* TGT: take steps using GRT from set_spec *)
-    steps_r. iDestruct "GRT" as "(% & % & CELL)". subst.
-    steps_r. step.
+    (* TGT: take cSteps using GRT from set_spec *)
+    cStepsT. iDestruct "GRT" as "(% & % & CELL)". subst.
+    cStepsT. cStep.
     iSplitL ""; eauto.
 
     (* Prove the IST *)
@@ -206,7 +206,7 @@ Module CtrlIA. Section CtrlIA.
     iSplitL "".
     { iPureIntro. esplits; eauto.
       - rewrite length_app. s. nia.
-      - rewrite !length_app. s. hss. nia.
+      - rewrite !length_app. s. cSimpl. nia.
     }
     iSplitL "LIVE CELL".
     + iApply big_sepL_app. iFrame. s. rewrite Nat.add_0_r. eauto.
@@ -218,37 +218,37 @@ Module CtrlIA. Section CtrlIA.
   Lemma simF_dequeue : ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.dequeue).
   Proof using.
     unfold RingAMod, RingIMod, CellGS.
-    iStartSim. rewrite /CtrlI.dequeue /RingA.dequeue.
+    cStartFunSim. rewrite /CtrlI.dequeue /RingA.dequeue.
 
     (* Simulation Starts Here *)
     (* SRC: precondition *)
-    steps_l. destruct Any.downcast; last (steps_l; case_match; steps_l; ss).
-    steps_l; steps_r.
+    cStepsS. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
+    cStepsS; cStepsT.
     iDestruct "IST" as (? ? ? ?) "(% & (% & IST) & %)". des; subst.
     iDestruct "IST" as (? ? ? ?) "(% & LIVE & FREE)". des; subst.
 
     (* TGT: check the length of the queue *)
-    steps_l. steps_r.
+    cStepsS. cStepsT.
     destruct q; ss.
-    { rewrite Nat.add_0_r Nat.sub_diag. s. step. ss. }
+    { rewrite Nat.add_0_r Nat.sub_diag. s. cStep. ss. }
     replace (tl + S(List.length q) - tl) with (S(List.length q)) by nia. s.
     rewrite !length_app in H4.
 
-    (* SRC: take steps *)
-    steps_l.
+    (* SRC: take cSteps *)
+    cStepsS.
     assert (UBND:= Nat.mod_upper_bound tl max_size).
     revert WFS WFT.
     rewrite (@cellgroup_split (tl mod max_size)); try nia.
     i; move_aux.
 
     (* TGT: inline CellHdr.get *)
-    steps_r. inline_r. forces_r. iDestruct "LIVE" as "(Q & LIVE)".
+    cStepsT. cInlineT. cForcesT. iDestruct "LIVE" as "(Q & LIVE)".
     rewrite !Nat.add_0_r.
     iSplitL "Q". { iFrame. eauto. }
 
-    (* TGT: take steps using GRT from get_spec *)
-    steps_r. iDestruct "GRT" as "(% & % & CELL)". subst. hss.
-    steps_r. hss. forces_l. step.
+    (* TGT: take cSteps using GRT from get_spec *)
+    cStepsT. iDestruct "GRT" as "(% & % & CELL)". subst. cSimpl.
+    cStepsT. cSimpl. cForcesS. cStep.
     iSplitL ""; eauto.
 
     (* Prove the IST *)
@@ -271,7 +271,7 @@ Module CtrlIA. Section CtrlIA.
 
   Lemma sim : ISim.t open RingAMod RingIMod (RingA.init_cond max_size) IstFull.
   Proof using.
-    init_sim.
+    cStartModSim.
     - eapply simF_init; eauto.
     - eapply simF_get_size; eauto.
     - eapply simF_enqueue; eauto.

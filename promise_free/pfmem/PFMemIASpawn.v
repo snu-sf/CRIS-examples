@@ -16,15 +16,15 @@ Section spawn.
 
   Lemma simF_spawn : ISim.sim_fun open MA MI Ist (fid PFMemHdr.spawn).
   Proof.
-    iStartSim. rewrite /PFMemI.spawn. steps_l. destruct _q as [tid V].
+    cStartFunSim. rewrite /PFMemI.spawn. cStepsS. destruct _q as [tid V].
     iDestruct "ASM" as "[-> [-> TV]]".
     iDestruct "IST" as "[% [% [% [[-> [% [% [%WF [% [%PFG %PFL]]]]]] [HA [TA HFA]]]]]]".
-    steps_r. destruct _q as [tid_new Hnin].
-    iPoseProof (tview_both_valid with "TA TV") as "[% [% [%FIND %]]]"; rewrite FIND. steps_r.
+    cStepsT. destruct _q as [tid_new Hnin].
+    iPoseProof (tview_both_valid with "TA TV") as "[% [% [%FIND %]]]"; rewrite FIND. cStepsT.
     subst V.
     iMod (tview_auth_alloc _ tid_new with "TA") as "[TA TVnew]"; eauto.
     { rewrite IdentMap.mem_find in Hnin; des_ifs; eauto. }
-    force_l (tid_new↑). steps_l. force_l (tid_new↑). steps_l.
+    cForceS (tid_new↑). cStepsS. cForceS (tid_new↑). cStepsS.
     remember {[_ := _]} as st_tgt'.
     iAssert (Ist st_src st_tgt')%I with "[- TV TVnew]" as "IST".
     { iExists _, _, _; iSplit; first iPureIntro.
@@ -40,8 +40,8 @@ Section spawn.
       }
       iFrame.
     }
-    force_l. iSplitR "IST".
+    cForceS. iSplitR "IST".
     { iFrame. eauto. }
-    steps_l. step. iSplitR; done.
+    cStepsS. cStep. iSplitR; done.
   (*SLOW*)Qed.
 End spawn.

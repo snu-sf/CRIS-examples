@@ -16,28 +16,28 @@ Module CannonIA. Section CannonIA.
 
   Lemma simF_fire : ISim.sim_fun open CannonAMod CannonIMod Ist (fid CannonHdr.fire).
   Proof using.
-    iStartSim. rewrite /CannonI.fire /fire.
+    cStartFunSim. rewrite /CannonI.fire /fire.
 
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "(-> & -> & B)". hss.
+    cStepsS. iDestruct "ASM" as "(-> & -> & B)". cSimpl.
     iDestruct "IST" as "[[% R] | F]"; des; subst; cycle 1. 
     (* already fired *)
     { iExFalso. iApply FiredBall; iFrame. }
 
-    steps_l. steps_r. hss. steps_r.
+    cStepsS. cStepsT. cSimpl. cStepsT.
     change (1 `div` 1)%Z with 1%Z.
 
     (* SRC, TGT: print 1 *)
-    step. steps_r.
+    cStep. cStepsT.
 
     (* prove postcondition & the IST - Ready * Ball = Shot *)
-    steps_l. forces_l. iSplitR; eauto. step.
+    cStepsS. cForcesS. iSplitR; eauto. cStep.
     iSplit; eauto. iRight. iApply ReadyBall; iFrame.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open CannonAMod CannonIMod CannonA.Ready Ist.
   Proof using.
-    init_sim.
+    cStartModSim.
     - iIntros "IC"; iLeft; iFrame; eauto.
     - eapply simF_fire.
   Qed.

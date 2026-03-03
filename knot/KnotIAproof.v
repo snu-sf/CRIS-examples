@@ -43,7 +43,7 @@ Module KnotIA. Section KnotIA.
 
   Lemma simF_rec : ISim.sim_fun open KnotAMod KnotIMod IstFull (fid KnotHdr.rec).
   Proof using GEnvWF GEnvIncl RecInSp APCInSp FunInPure PureInSp.
-    iStartSim. rewrite /KnotI.recF.
+    cStartFunSim. rewrite /KnotI.recF.
 
     (* SKINCL - SkEnv id2blk *)
     pose proof (@CEnv.incl_incl_env KnotGEnv.t genv) as INCLENV.
@@ -62,7 +62,7 @@ Module KnotIA. Section KnotIA.
 
     (* Simulation Start *)
     (* SRC: precondition *)
-    steps_l. destruct _q as [f o]. iDestruct "ASM" as "(((-> & %) & FG) & %Q)". steps_r.
+    cStepsS. destruct _q as [f o]. iDestruct "ASM" as "(((-> & %) & FG) & %Q)". cStepsT.
     iDestruct "IST" as (? ? ? ?) "(%ST & [% IST] & %E)"; des; subst.
     iDestruct "IST" as (? ?) "(%HIN & FL & VF)".
 
@@ -70,23 +70,23 @@ Module KnotIA. Section KnotIA.
     iPoseProof (knot_ra_merge with "FL FG") as "<-".
     
     (* TGT: get a block of _f *)
-    rewrite SKINCL_F. steps_r.
+    rewrite SKINCL_F. cStepsT.
 
     (* TGT: load the function at the block of _f by inlining "load" *)
-    iEval (rewrite /var_points_to SKINCL_F) in "VF". load_r "VF".
+    iEval (rewrite /var_points_to SKINCL_F) in "VF". mLoadT "VF".
     hexploit (HIN f); eauto; intros [fb [EQ [? FBLOCK]]]; rewrite EQ /=.
 
     (* TGT: get blocks of the function pointer and "rec" *)
-    steps_r. rewrite FBLOCK.
-    eapply GEnvWF in SKINCL_REC; rewrite SKINCL_REC. steps_r.
+    cStepsT. rewrite FBLOCK.
+    eapply GEnvWF in SKINCL_REC; rewrite SKINCL_REC. cStepsT.
 
     (* SRC: unfold APC *)
     rewrite /pure_body.
-    steps_l. simpl_sp. force_l. forces_l. iSplit; eauto. steps_l.
-    inline_l. steps_l. iDestruct "ASM" as "[-> <-]".
-    steps_l. unfold apc_body, APC. force_l 1. steps_l. 
+    cStepsS. simpl_sp. cForceS. cForcesS. iSplit; eauto. cStepsS.
+    cInlineS. cStepsS. iDestruct "ASM" as "[-> <-]".
+    cStepsS. unfold apc_body, APC. cForceS 1. cStepsS. 
 
-    (* call apc with fn *)
+    (* cCall apc with fn *)
     pose proof SPEC as SPEC1. inv SPEC1.
     iApply wsim_apc_src_call_tgt_weaker; [ | | |simpl_sp| | |iSplitL "FL FG VF"]; eauto.
     { instantiate (1 := 0). apply OrdArith.lt_from_nat. nia. }
@@ -105,18 +105,18 @@ Module KnotIA. Section KnotIA.
         + unfold var_points_to. rewrite SKINCL_F EQ. iFrame.
     }
     clear_st. iIntros (st_src st_tgt ret) "IST".
-    iDestruct "IST" as "[IST [-> FG]]". steps_r.
+    iDestruct "IST" as "[IST [-> FG]]". cStepsT.
 
     (* SRC: change to skip *)
-    iApply wsim_apc_src. steps_l. forces_l. iSplit; et. steps_l. forces_l. iSplitL "FG"; iFrame; et.
+    iApply wsim_apc_src. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iSplitL "FG"; iFrame; et.
 
-    step. by iFrame.
+    cStep. by iFrame.
     Unshelve. all: try exact (tt↑).
   (*SLOW*)Qed.
 
   Lemma simF_knot : ISim.sim_fun open KnotAMod KnotIMod IstFull (fid KnotHdr.knot).
   Proof using GEnvWF GEnvIncl RecInSp APCInSp FunInPure PureInSp.
-    iStartSim. rewrite /KnotI.knotF.
+    cStartFunSim. rewrite /KnotI.knotF.
 
     (* SKINCL *)
     pose proof (@CEnv.incl_incl_env KnotGEnv.t genv) as INCLENV.
@@ -131,33 +131,33 @@ Module KnotIA. Section KnotIA.
     specialize (GEnvWF KnotHdr.rec blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDR.
 
     (* SRC: precondition *)
-    steps_l. rename _q into new_spec.
-    iDestruct "ASM" as "(%Q & (%FB & [%old OLD]))". des; subst. steps_r.
+    cStepsS. rename _q into new_spec.
+    iDestruct "ASM" as "(%Q & (%FB & [%old OLD]))". des; subst. cStepsT.
     iDestruct "IST" as (? ? ? ?) "(%ST & [% IST] & %E)"; des; subst.
     iDestruct "IST" as (? ?) "(%HIN & FL & VF)".
 
     (* RA: unify the infomation of f_spec *)
     iPoseProof (knot_ra_merge with "FL OLD") as "->".
     (* iPoseProof (REFL with "FL") as "FL". *)
-    rewrite FIND0. steps_r.
+    rewrite FIND0. cStepsT.
     
     (* TGT: save a function by calling "store" *)
-    rewrite /var_points_to FIND0. store_r "VF".
+    rewrite /var_points_to FIND0. mStoreT "VF".
 
     (* RA: update spec *)
-    rewrite FINDR. steps_r.
+    rewrite FINDR. cStepsT.
     iMod (knot_update _ (Some new_spec) with "[FL OLD]") as "[FL FG]"; first iFrame.
     (* iCombine "FL OLD" as "SPEC". *)
     (* iPoseProof (auth_excl_both_update with "SPEC") as ">[FL FG]". *)
 
     (* finish reasoning *)
-    force_l. steps_l. force_l. force_l.
+    cForceS. cStepsS. cForceS. cForceS.
     iSplitL "FG".
     { iSplitR; et. iSplitR; eauto. iPureIntro. eexists. esplit; et. econs; et.
       econs; [simpl_sp; ss|].
       iIntros (??) "%"; iExists _, _; iSplit; [done|iIntros "%% $ !> %%$//"].
     }
-    step. iSplit; et.
+    cStep. iSplit; et.
 
     (* check IST *)
     inv FB0. des.
@@ -169,7 +169,7 @@ Module KnotIA. Section KnotIA.
 
   Lemma sim : ISim.t open KnotAMod KnotIMod (KnotA.init_cond genv) IstFull.
   Proof.
-    init_sim.
+    cStartModSim.
     { apply simF_rec. }
     { apply simF_knot. }
     { iIntros "[VF FL]". iExists _, _, _, _. iSplit; et. iSplit; eauto.

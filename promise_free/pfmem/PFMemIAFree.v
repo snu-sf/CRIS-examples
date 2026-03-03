@@ -334,26 +334,26 @@ Section free.
 
   Lemma simF_free : ISim.sim_fun open MA MI Ist (fid PFMemHdr.free).
   Proof.
-    iStartSim.
-    steps_l. destruct _q as [[[tid loc] sz] V]. iDestruct "ASM" as "[-> [-> [TV [OLV F]]]]".
+    cStartFunSim.
+    cStepsS. destruct _q as [[[tid loc] sz] V]. iDestruct "ASM" as "[-> [-> [TV [OLV F]]]]".
     iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
-    hss_r. steps_r.
+    cStepsT.
     rewrite /PFMemI.check_ident.
-    steps_r. des_ifs.
-    { steps_r. destruct _q as [[e config'] [TEV STEP]].
+    cStepsT. des_ifs.
+    { cStepsT. destruct _q as [[e config'] [TEV STEP]].
       (* inv STEP. inv STEP0; [inv LOCAL|]. *)
       dup STEP; inv STEP0. inv STEP1; [inv LOCAL|].
       rewrite TEV in STATE. ss. inv LOCAL.
       { (* free_step *)
-        des_ifs. steps_r.
-        force_l. steps_l. force_l. steps_l. force_l. iSplit; eauto.
-        steps_l.
+        des_ifs. cStepsT.
+        cForceS. cStepsS. cForceS. cStepsS. cForceS. iSplit; eauto.
+        cStepsS.
         iPoseProof (tview_auth_update with "TA TV") as ">[TA TV]"; eauto. ss. inv TEV.
         iPoseProof (hist_freeable_size_free with "[FA F]") as ">(% & F & FA)"; eauto; [inv WF; ss|iFrame|].
         iMod (hist_freeable_auth_free with "[F FA]") as "FA"; eauto; [inv WF; ss|iFrame|].
         iMod (hist_auth_free_vs with "[HA OLV]") as "HA"; eauto; [inv WF; ss|iFrame|].
         { subst. rewrite Nat2Z.id. done. }
-        step. iSplit; eauto. clear EVENT n.
+        cStep. iSplit; eauto. clear EVENT n.
         unfold Ist. iExists gl2, (IdentMap.add tid (existT lang st2, lc2) ths), Vcut.
         iFrame.
         iSplit; iPureIntro; ss.

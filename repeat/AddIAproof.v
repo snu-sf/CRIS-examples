@@ -58,30 +58,30 @@ Module AddIA. Section AddIA.
   Lemma simF_succ : ISim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (fid AddHdr.succ).
   Proof using _crisG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
     (* Simulation Start *)
-    init_simF.
+    cStartFunSim.
 
     (* SRC: handle the precond of succ *)
-    steps_l. rename _q into n.
-    iDestruct "ASM" as "%". hss. steps_l.
+    cStepsS. rename _q into n.
+    iDestruct "ASM" as "%". cSimpl. cStepsS.
 
     (* SRC: find apc in sp *)
     assert (SPAPC: sp APCHdr.apc = fsp_some apc_spec).
     { apply SpPureInSp, APCInSpPure. rewrite /Sp. unseal CRIS; ss. }
     rewrite SPAPC.
 
-    (* TGT: steps tgt *)
-    steps_r.
+    (* TGT: cSteps tgt *)
+    cStepsT.
 
     (* SRC: unfold APC *)
-    forces_l. iSplit; eauto.
-    inline_l. steps_l. iDestruct "ASM" as "%". hss.
-    steps_l. unfold APC. force_l. steps_l.
+    cForcesS. iSplit; eauto.
+    cInlineS. cStepsS. iDestruct "ASM" as "%". cSimpl.
+    cStepsS. unfold APC. cForceS. cStepsS.
 
     (* SRC: change to skip *)
-    apc_l. steps_l. forces_l. iSplit; et. steps_l. forces_l. iSplit; et.
+    apcS. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iSplit; et.
 
     (* prove the IST *)
-    step. by iSplit.
+    cStep. by iSplit.
     Unshelve. et. exact (0↑).
   (*SLOW*)Unshelve. Fail idtac. Admitted.
 
@@ -96,11 +96,11 @@ Module AddIA. Section AddIA.
     pose proof (GEnvWF AddHdr.succ blk) as GEnvWF. apply GEnvWF in FIND as FIND'.
 
     (* Simulation Start *)
-    init_simF.
+    cStartFunSim.
 
     (* SRC: handle the precond of add *)
-    steps_l. rename _q1 into n, _q2 into m.
-    iDestruct "ASM" as "%". hss. steps_l.
+    cStepsS. rename _q1 into n, _q2 into m.
+    iDestruct "ASM" as "%". cSimpl. cStepsS.
 
     (* SRC: find apc in sp *)
     assert (SPAPC: sp APCHdr.apc = fsp_some apc_spec).
@@ -108,15 +108,15 @@ Module AddIA. Section AddIA.
     rewrite SPAPC.
 
     (* TGT: handle input *)
-    steps_r. rewrite FIND. hss. steps_r.
+    cStepsT. rewrite FIND. cSimpl. cStepsT.
 
     (* SRC: unfold APC *)
-    forces_l. iSplit; eauto.
-    inline_l. steps_l. iDestruct "ASM" as "%". hss.
-    steps_l. unfold APC. force_l 1. steps_l.
+    cForcesS. iSplit; eauto.
+    cInlineS. cStepsS. iDestruct "ASM" as "%". cSimpl.
+    cStepsS. unfold APC. cForceS 1. cStepsS.
 
-    (* call apc with repeat *)
-    apc_call "IST"; et.
+    (* cCall apc with repeat *)
+    apcCall "IST"; et.
     { instantiate (1 := 0). apply OrdArith.lt_from_nat; lia. }
     { eapply Ord.lt_le_lt; et. apply OrdArith.lt_add_r. instantiate (1:= (Z.to_nat n)). apply OrdArith.lt_from_nat. lia. }
     { unfold precond. ss. iFrame. instantiate (1 := (Z.to_nat n, m, succ_fun)). iPureIntro. split.
@@ -124,20 +124,20 @@ Module AddIA. Section AddIA.
         (* succ has sufficient spec *)
         econs; et. unfold succ_spec, fspec_imply.
         ii. rr in ValidSP; des; subst. eexists _,_. split; [rr; et|].
-        instantiate (1:=x). split; r; ii; iIntros; iModIntro; hss.
+        instantiate (1:=x). split; r; ii; iIntros; iModIntro; cSimpl.
         iPureIntro. split; ss. exists vo. split; et. eapply Ord.le_trans; et. apply Ord.lt_le. apply Ord.omega_upperbound.
       - exists (Ord.omega + (Z.to_nat n))%ord. split; et. apply Ord.le_refl. }
     unfold postcond. ss.
     iDestruct "ISTPOST" as "[IST %]". subst.
 
-    (* TGT: steps tgt *)
-    steps_r. hss. steps_r.
+    (* TGT: cSteps tgt *)
+    cStepsT. cSimpl. cStepsT.
 
     (* SRC: change to skip *)
-    apc_l. steps_l. forces_l. iSplit; et. steps_l. forces_l. iSplit; et.
+    apcS. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iSplit; et.
 
     (* prove the IST *)
-    step. iSplit; et. 
+    cStep. iSplit; et. 
     iPureIntro. do 2 f_equal.
     apply add_succ_repeat_fun; et.
     Unshelve. et.
@@ -145,7 +145,7 @@ Module AddIA. Section AddIA.
 
   Theorem sim : ISim.t open AddAMod AddIMod AddA.init_cond IstFull.
   Proof.
-    init_sim.
+    cStartModSim.
     - split; eauto. iIntros "_". iModIntro.
       repeat (iSplit; eauto); iPureIntro; prove_scope.
     - apply simF_succ; et.

@@ -26,48 +26,48 @@ Module MutGIA. Section MutGIA.
   Lemma simF_mutg:
     ISim.sim_fun open MutGAMod MutGIMod IstFull (fid MutHdr.mutg).
   Proof using _crisG APCInSp FInPure PureInSp.
-    iStartSim. rewrite /MutGI.gF.
+    cStartFunSim. rewrite /MutGI.gF.
     
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "((%Y & %B) & %Q)". subst; hss.
+    cStepsS. iDestruct "ASM" as "((%Y & %B) & %Q)". subst; cSimpl.
 
-    (* TGT: take steps *)
-    steps_r. unfold assume. force_r. steps_r.
+    (* TGT: take cSteps *)
+    cStepsT. unfold assume. cForceT. cStepsT.
     
-    (* destruct cases of the number of recursive call *)
+    (* destruct cases of the number of recursive cCall *)
     destruct _q; s.
     { (* f(0) *)
-      rewrite /pure_body /cfunN. hss_l.
-      steps_r. steps_l.
+      rewrite /pure_body /cfunN.
+      cStepsT. cStepsS.
       erewrite lookup_weaken; [| |eapply APCInSp]; cycle 1.
       { rewrite /APCA.sp. simpl_map. refl. }
-      forces_l. iSplitR; et. steps_l.
+      cForcesS. iSplitR; et. cStepsS.
 
       (* SRC: inlining APC *)
-      inline_l. steps_l. iDestruct "ASM" as "[-> <-]"; hss. steps_l.
-      rewrite /APC. force_l _q. steps_l.
+      cInlineS. cStepsS. iDestruct "ASM" as "[-> <-]"; cSimpl. cStepsS.
+      rewrite /APC. cForceS _q. cStepsS.
       
       (* SRC: jump APC *)
-      apc_l. steps_l. forces_l. iSplitR; eauto. steps_l.
-      forces_l. iSplitR; eauto.
+      apcS. cStepsS. cForcesS. iSplitR; eauto. cStepsS.
+      cForcesS. iSplitR; eauto.
 
       (* SRC, TGT : prove the IST *)
-      step. iSplitR "IST"; iFrame; auto.
+      cStep. iSplitR "IST"; iFrame; auto.
     }
 
     (* f(S n) *)
     replace (S _q - 1)%Z with (Z.of_nat _q) by nia.
-    rewrite /pure_body /cfunN. hss_l.
-    steps_l. erewrite lookup_weaken; [| |eapply APCInSp]; cycle 1.
+    rewrite /pure_body /cfunN.
+    cStepsS. erewrite lookup_weaken; [| |eapply APCInSp]; cycle 1.
     { rewrite /APCA.sp. simpl_map; refl. }
-    steps_l. force_l vo. steps_l. forces_l. iSplitR; eauto.
+    cStepsS. cForceS vo. cStepsS. cForcesS. iSplitR; eauto.
 
-    (* SRC: inlining APC in order to call mutg *)
-    inline_l. steps_l. iDestruct "ASM" as "[-> <-]"; hss. steps_l.
-    rewrite /APC. force_l 1. steps_l.
+    (* SRC: inlining APC in order to cCall mutg *)
+    cInlineS. cStepsS. iDestruct "ASM" as "[-> <-]"; cSimpl. cStepsS.
+    rewrite /APC. cForceS 1. cStepsS.
 
-    (* SRC, TGT : call mutg using APC tactic *)
-    steps_r. apc_call "IST"; eauto.
+    (* SRC, TGT : cCall mutg using APC tactic *)
+    cStepsT. apcCall "IST"; eauto.
     { instantiate (1:=0). eapply OrdArith.lt_from_nat. nia. }
     { instantiate (1:=_q). eapply Ord.lt_le_lt; eauto. eapply OrdArith.lt_from_nat. nia. }
     { iFrame. iPureIntro. esplits; eauto; [nia|refl]. }
@@ -75,10 +75,10 @@ Module MutGIA. Section MutGIA.
     iDestruct "ISTPOST" as "[IST ->]".
 
     (* SRC: jump APC *)
-    apc_l. steps_r. hss. steps_r. steps_l.
-    forces_l; iSplitR; eauto. steps_l.
-    forces_l; iSplitR; eauto. steps_l.
-    step. iSplitR "IST"; iFrame; eauto.
+    apcS. cStepsT. cSimpl. cStepsT. cStepsS.
+    cForcesS; iSplitR; eauto. cStepsS.
+    cForcesS; iSplitR; eauto. cStepsS.
+    cStep. iSplitR "IST"; iFrame; eauto.
     { iPureIntro; do 2 f_equal; nia. }
 
     (* prove shelved goals *)
@@ -91,7 +91,7 @@ Module MutGIA. Section MutGIA.
   Lemma sim:
     ISim.t open MutGAMod MutGIMod MutGA.init_cond IstFull.
   Proof.
-    init_sim.
+    cStartModSim.
     - eapply simF_mutg.
     - iIntros "C". iFrame. do 4 iExists _. iPureIntro; esplits; eauto; set_solver.
   Qed.

@@ -18,35 +18,35 @@ Module SingleCoinIP. Section SingleCoinIP.
 
   Lemma simF_new : ISim.sim_fun open MA MI IstFull (fid SingleCoinHdr.new).
   Proof.
-    iStartSim. rewrite /SingleCoinI.new /SingleCoinP.new.
+    cStartFunSim. rewrite /SingleCoinI.new /SingleCoinP.new.
     iDestruct "IST" as "%"; des; subst.
-    steps_l. steps_r. destruct Any.downcast; steps_l; last case_match; steps_l; ss.
-    steps_r. inline_l. rewrite /ProphecyI.new. steps_l. step.
+    cStepsS. cStepsT. destruct Any.downcast; cStepsS; last case_match; cStepsS; ss.
+    cStepsT. cInlineS. rewrite /ProphecyI.new. cStepsS. cStep.
     iSplit; eauto. do 4 iExists _. iSplit; eauto.
     do 2 (iSplit; eauto; ss).
   Qed.
 
   Lemma simF_read : ISim.sim_fun open MA MI IstFull (fid SingleCoinHdr.read).
   Proof.
-    iStartSim. rewrite /SingleCoinI.read /SingleCoinP.read.
+    cStartFunSim. rewrite /SingleCoinI.read /SingleCoinP.read.
     iDestruct "IST" as "%"; des; subst.
-    steps_l. steps_r. destruct (Any.downcast arg); steps_l; last case_match; steps_l; ss.
-    steps_r. des_ifs.
-    { step; eauto. iSplit; eauto.
+    cStepsS. cStepsT. destruct (Any.downcast arg); cStepsS; last case_match; cStepsS; ss.
+    cStepsT. des_ifs.
+    { cStep; eauto. iSplit; eauto.
       do 4 iExists _. iSplit; eauto; cycle 1.
       do 2 (iSplit; eauto; ss).
     }
-    { steps_r. force_l. steps_l. rewrite /v_coins /SingleCoinP.v_coins.
-      inline_l. rewrite /ProphecyI.new. steps_l. step. iSplit; eauto.
+    { cStepsT. cForceS. cStepsS. rewrite /v_coins /SingleCoinP.v_coins.
+      cInlineS. rewrite /ProphecyI.new. cStepsS. cStep. iSplit; eauto.
       do 4 iExists _. iSplit; eauto.
       do 2 (iSplit; eauto; ss).
     }
-    { rewrite /triggerUB. steps_l. des_ifs; steps_l; ss. }
+    { rewrite /triggerUB. cStepsS. des_ifs; cStepsS; ss. }
   Qed.
 
   Lemma sim : ISim.t open MA MI emp%I IstFull.
   Proof.
-    init_sim.
+    cStartModSim.
     { eapply simF_new; eauto. }
     { eapply simF_read; eauto. }
     { iPureIntro; esplits; ss. }

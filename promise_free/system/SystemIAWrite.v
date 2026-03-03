@@ -28,8 +28,8 @@ Section SystemIA.
 
   Lemma simF_write : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.write).
   Proof using.
-    iStartSim.
-    steps_l. destruct _q as [X|[X|[]]].
+    cStartFunSim.
+    cStepsS. destruct _q as [X|[X|[]]].
     { ss; destruct X as [[[[[tid stid] loc] val] ord] V]; ss.
       iDestruct "ASM" as "[-> [-> [PT Tid]]]".
       iDestruct "Tid" as "[Tid STV]".
@@ -45,21 +45,21 @@ Section SystemIA.
       }
       subst.
 
-      steps_r. rewrite /SystemI.get_tid. steps_r.
-      inline_r. rewrite /PFMemA.write_spec.
-      force_r (meta0 (_, loc, val, ord, V))%cris.
-      forces_r. iFrame.
+      cStepsT. rewrite /SystemI.get_tid. cStepsT.
+      cInlineT. rewrite /PFMemA.write_spec.
+      cForceT (meta0 (_, loc, val, ord, V))%cris.
+      cForcesT. iFrame.
       iDestruct "TA" as "[TA TVS]".
       rewrite big_sepM_delete //=; iDestruct "TVS" as "[$ TVS]"; eauto.
       iSplit; eauto.
-      steps_r. iDestruct "GRT" as "[-> [%V' [[-> %] [↦ TV]]]]".
+      cStepsT. iDestruct "GRT" as "[-> [%V' [[-> %] [↦ TV]]]]".
       iCombine "TA" "Tid" as "TA".
       iMod (own_update with "TA") as "TA".
       { rewrite (gmap_view_replace _ tid_cur _ (to_agree _)) //. }
       iDestruct "TA" as "[TA TidS]".
     
-      forces_l. iFrame. iSplit; eauto.
-      step.
+      cForcesS. iFrame. iSplit; eauto.
+      cStep.
 
       (* IST *)
       iSplit; eauto.
@@ -87,21 +87,21 @@ Section SystemIA.
       }
       subst.
 
-      steps_r. rewrite /SystemI.get_tid. steps_r.
-      inline_r.
-      force_r (meta1 (tid_cur, loc, val, ord, V, γ, ζ', Vb, tx, ζ, mode, q, tx'))%cris.
+      cStepsT. rewrite /SystemI.get_tid. cStepsT.
+      cInlineT.
+      cForceT (meta1 (tid_cur, loc, val, ord, V, γ, ζ', Vb, tx, ζ, mode, q, tx'))%cris.
       iDestruct "TA" as "[TA TVS]".
-      forces_r. iFrame.
+      cForcesT. iFrame.
       rewrite big_sepM_delete //=. iDestruct "TVS" as "[$ TVS]"; eauto.
       iSplit; eauto.
-      steps_r. iDestruct "GRT" as "[-> [% [% [% [% [% [% [[-> %GRT] [? [? [? [? TV]]]]]]]]]]]]".
+      cStepsT. iDestruct "GRT" as "[-> [% [% [% [% [% [% [[-> %GRT] [? [? [? [? TV]]]]]]]]]]]]".
       iCombine "TA" "Tid" as "TA".
       iMod (own_update with "TA") as "TA".
       { rewrite (gmap_view_replace _ tid_cur _ (to_agree _)) //. }
       iDestruct "TA" as "[TA Tid]". 
     
-      forces_l. iFrame. iSplit; eauto.
-      step.
+      cForcesS. iFrame. iSplit; eauto.
+      cStep.
 
       (* IST *)
       iSplit; eauto.

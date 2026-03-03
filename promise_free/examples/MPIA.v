@@ -21,14 +21,14 @@ Module MPIA. Section MPIA.
   Proof.
     iExists MPA.mp2_spec; iSplit; [iPureIntro; eapply lookup_weaken; eauto; by simpl_sp|].
     iIntros "%P %Q [%x [-> ->]]"; iExists _, _; iSplit; [iPureIntro; exists x; split; ss|].
-    unfold_pre_post. destruct x.
+    unfoldPrePost. destruct x.
     iIntros (varg arg) "[$ [% [-> [% [$ [% [% $]]]]]]] /= !>"; iSplitL; eauto.
   Qed.
 
   Lemma simF_mp : ISim.sim_fun open MA MI IstFull entry.
   Proof using SchInSpS HMP.
-    iStartSim. rewrite /MPI.mp /MPA.mp.
-    steps_l. iDestruct "ASM" as "[-> TV]". rewrite /MPA.mp /MPI.mp; steps_l; steps_r.
+    cStartFunSim. rewrite /MPI.mp /MPA.mp.
+    cStepsS. iDestruct "ASM" as "[-> TV]". rewrite /MPA.mp /MPI.mp; cStepsS; cStepsT.
 
     iApply wsim_system_yield_ir; ss.
     { simpl_sp; auto. }
@@ -36,35 +36,35 @@ Module MPIA. Section MPIA.
     iIntros (??) "IST TV".
 
     (* alloc *)
-    steps_r. inline_r. force_r (1%positive, 0, 2, _). forces_r. iFrame. iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[-> [%loc [%V' [[-> %LE] [TV [FA ↦]]]]]]".
+    cStepsT. cInlineT. cForceT (1%positive, 0, 2, _). cForcesT. iFrame. iSplit; eauto.
+    cStepsT. iDestruct "GRT" as "[-> [%loc [%V' [[-> %LE] [TV [FA ↦]]]]]]".
     rewrite own_loc_na_vec_cons own_loc_na_vec_singleton.
-    steps_r.
+    cStepsT.
 
     (* yield *)
     iApply wsim_system_yield_ir; ss.
     { simpl_sp; auto. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
-    iIntros (??) "IST TV". steps_r.
+    iIntros (??) "IST TV". cStepsT.
 
     (* yield *)
     iApply wsim_system_yield_ir; ss.
     { simpl_sp; auto. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
-    iIntros (??) "IST TV". steps_r.
+    iIntros (??) "IST TV". cStepsT.
 
     (* write *)
-    inline_r.
-    force_r (meta0 (1%positive, 0, loc, Val.Vnum 0, Ordering.na, _))%cris.
-    rewrite shift_0. forces_r.
+    cInlineT.
+    cForceT (meta0 (1%positive, 0, loc, Val.Vnum 0, Ordering.na, _))%cris.
+    rewrite shift_0. cForcesT.
     iFrame "TV".
     iDestruct "↦" as "[↦flag ↦data]"; iSplitL "↦flag".
     { do 2 (iSplit; eauto). iApply own_loc_na_own_loc; done. }
-    steps_r. iDestruct "GRT" as "[-> [%V'' [[-> %HLE2] [↦flag TV]]]]". hss_r.
+    cStepsT. iDestruct "GRT" as "[-> [%V'' [[-> %HLE2] [↦flag TV]]]]".
     tview_sync HLE2.
-    steps_r.
+    cStepsT.
 
     (* yield *)
     iApply wsim_system_yield_ir; ss.
@@ -74,13 +74,13 @@ Module MPIA. Section MPIA.
     iIntros (??) "IST TV".
 
     (* write *)
-    steps_r. inline_r.
-    force_r (meta0 (1%positive, 0, loc >> 1, Val.Vnum 0, Ordering.na, _))%cris. forces_r.
+    cStepsT. cInlineT.
+    cForceT (meta0 (1%positive, 0, loc >> 1, Val.Vnum 0, Ordering.na, _))%cris. cForcesT.
     iPoseProof (own_loc_na_own_loc with "↦data") as "$".
     iFrame "TV".
     iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[-> [%V3 [[-> %Hle3] [↦data TV]]]]".
-    tview_sync Hle3. steps_r.
+    cStepsT. iDestruct "GRT" as "[-> [%V3 [[-> %Hle3] [↦data TV]]]]".
+    tview_sync Hle3. cStepsT.
 
     (* yield *)
     iApply wsim_system_yield_ir; ss.
@@ -103,10 +103,10 @@ Module MPIA. Section MPIA.
 
     (* source yield *)
     iApply wsim_system_yield_src.
-    force_l (Val.Vptr loc). steps_l. simpl_sp.
+    cForceS (Val.Vptr loc). cStepsS. simpl_sp.
 
     (* spawn *)
-    force_l (1%positive, 0, MPA.mp2_precondition, V3). forces_l.
+    cForceS (1%positive, 0, MPA.mp2_precondition, V3). cForcesS.
     iFrame "TV".
     iSplitL "↦data SW".
     { iExists _; iSplit; first done.
@@ -115,24 +115,23 @@ Module MPIA. Section MPIA.
       iSplitR; first iApply mp2_spawnable.
       iExists γ; iSplit; eauto. rewrite shift_0; eauto.
     }
-    steps_l. steps_r. call "IST".
+    cStepsS. cStepsT. cCall "IST".
 
     clear dependent st_src st_tgt. iIntros (ret st_src st_tgt) "IST".
-    steps_l. iDestruct "ASM" as "[% [-> [TV [-> ->]]]]".
-    steps_r. steps_l. iApply wsim_reset. clear Hle3 H.
+    cStepsS. iDestruct "ASM" as "[% [-> [TV [-> ->]]]]".
+    cStepsT. cStepsS. iApply wsim_reset. clear Hle3 H.
 
     cCoind CIH g' __ with st_src st_tgt V3. iIntros "[#[I SN] [FA [P [IST TV]]]]"; s.
-    unfold_iterC_l. steps_l.
-    unfold_iterC_r.
+    unfoldIterCS. cStepsS. unfoldIterCT.
 
     (* yield *)
-    steps_r.
+    cStepsT.
     iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
     iIntros (??) "IST TV".
 
-    steps_r. inline_r.
+    cStepsT. cInlineT.
     iInv "I" as "INV" "ACC".
     iEval (rewrite MPA.mp_inv'_eq /MPA.mp_inv'_def; solve_base_sl_red) in "INV".
     iDestruct "INV" as "[% [%x0 [% [% [% [% [% [% [↦flag H]]]]]]]]]".
@@ -141,12 +140,12 @@ Module MPIA. Section MPIA.
       iEval (rewrite syn_AtomicPtsTo_red AtomicPtsTo_eq /AtomicPtsTo_def) in "↦flag".
       iDestruct "↦flag" as "[% ↦flag]".
       iEval (solve_base_sl_red) in "H"; iPoseProof "H" as "->".
-      force_r (meta1 (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, _, z1))%cris.
-      forces_r.
+      cForceT (meta1 (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, _, z1))%cris.
+      cForcesT.
       iFrame "TV SN ↦flag". iSplit; auto.
-      steps_r.
+      cStepsT.
       iDestruct "GRT" as "[-> [% [% [% [% [% [% [%V4 [[-> %] [#SN2 [↦flag TV]]]]]]]]]]]".
-      steps_r.
+      cStepsT.
       iMod ("ACC" with "[↦flag]") as "_".
       { rewrite {2}MPA.mp_inv'_eq; solve_base_sl_red; iExists _, false. repeat iExists _.
         rewrite syn_AtomicPtsTo_red AtomicPtsTo_eq /AtomicPtsTo_def; iFrame.
@@ -158,20 +157,20 @@ Module MPIA. Section MPIA.
       clear dependent st_src st_tgt.
       iIntros (??) "IST TV".
 
-      steps_r. des.
+      cStepsT. des.
       hexploit (H1 (Cell.max_ts ζ'')); first done; rewrite Cell.singleton_get.
       des_if; intros INV; inv INV.
       destruct v'; ss.
       apply Z.eqb_eq in H; subst.
-      steps_r.
+      cStepsT.
 
       iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
       iFrame "TV IST".
       clear dependent st_src st_tgt.
       iIntros (??) "IST TV".
-      steps_r.
+      cStepsT.
 
-      iApply wsim_system_yield_src. force_l false. steps_l.
+      iApply wsim_system_yield_src. cForceS false. cStepsS.
       iApply wsim_progress.
       iApply wsim_base.
       iIntros "W".
@@ -186,10 +185,10 @@ Module MPIA. Section MPIA.
       rewrite syn_AtomicPtsTo_red.
       iEval (rewrite AtomicPtsTo_eq /AtomicPtsTo_def /view_at) in "↦flag".
       iDestruct "↦flag" as "[% ↦flag]".
-      force_r (meta1 (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, V3, z1))%cris.
+      cForceT (meta1 (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, V3, z1))%cris.
       (* iPoseProof (AtomicSWriter_AtomicSeen with "SW") as "#SN". *)
-      forces_r. iFrame "TV SN ↦flag". iSplit; eauto.
-      steps_r.
+      cForcesT. iFrame "TV SN ↦flag". iSplit; eauto.
+      cStepsT.
       iDestruct "GRT" as "[-> [% [% [% [% [% [% [% [[-> %Hres] [#SN2 [↦flag TV]]]]]]]]]]]".
       destruct Hres as [Hval [Hcell1 [Hcell2 [Hget [Hvle Hvle2]]]]].
       hexploit (Hcell2 (Cell.max_ts ζ'')); eauto.
@@ -198,7 +197,7 @@ Module MPIA. Section MPIA.
         subst. intros INV; inv INV.
         (* iClear "CIH". *)
         destruct v'; ss. apply Z.eqb_eq in Hval; subst.
-        steps_r.
+        cStepsT.
         iMod ("ACC" with "[↦flag P]") as "_".
         { rewrite MPA.mp_inv'_eq; solve_base_sl_red.
           iExists _, true; repeat iExists _.
@@ -211,51 +210,51 @@ Module MPIA. Section MPIA.
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
-        steps_r.
+        cStepsT.
 
         (* yield *)
         iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
-        steps_r.
+        cStepsT.
 
         (* yield *)
         iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
-        steps_r.
+        cStepsT.
 
         (* non-atomic load here *)
-        inline_r.
-        force_r (meta0 (_, _, _, _, _, _, _))%cris.
+        cInlineT.
+        cForceT (meta0 (_, _, _, _, _, _, _))%cris.
         iEval (rewrite syn_own_loc_na_red) in "INV".
-        assert (Hawk : Ordering.le Ordering.acqrel Ordering.acqrel) by refl. forces_r.
+        assert (Hawk : Ordering.le Ordering.acqrel Ordering.acqrel) by refl. cForcesT.
         rewrite Hvle2 Hawk Hvle.
         iFrame "TV INV". iSplit; eauto.
 
-        steps_r. iDestruct "GRT" as "[-> [% [% [[-> %Hval'] [↦data TV]]]]]".
+        cStepsT. iDestruct "GRT" as "[-> [% [% [[-> %Hval'] [↦data TV]]]]]".
 
-        steps_r.
+        cStepsT.
         iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
-        steps_r.
+        cStepsT.
 
         destruct v'; ss. eapply Z.eqb_eq in Hval'; subst.
-        steps_r.
+        cStepsT.
 
-        iApply wsim_system_yield_src. force_l true; steps_l.
-        forces_l. iSplit; eauto.
-        step.
+        iApply wsim_system_yield_src. cForceS true; cStepsS.
+        cForcesS. iSplit; eauto.
+        cStep.
         iSplit; eauto.
       }
       { (* read 0 *)
         rewrite Cell.singleton_get; des_if; intros INV; inv INV.
         destruct v'; ss. eapply Z.eqb_eq in Hval; subst.
-        steps_r.
+        cStepsT.
 
         (* close invariant *)
         iMod ("ACC" with "[↦flag INV]") as "_".
@@ -270,16 +269,16 @@ Module MPIA. Section MPIA.
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
-        steps_r.
+        cStepsT.
 
         (* yield *)
         iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
-        steps_r.
+        cStepsT.
 
-        iApply wsim_system_yield_src. force_l false. steps_l.
+        iApply wsim_system_yield_src. cForceS false. cStepsS.
         iApply wsim_progress.
         iApply wsim_base.
         iIntros "W".
@@ -293,45 +292,45 @@ Module MPIA. Section MPIA.
 
   Lemma simF_mp2 : ISim.sim_fun open MA MI IstFull (fid MPHdr.mp2).
   Proof using SchInSpS HMP.
-    iStartSim. rewrite /sfunU /sfunN /MPI.mp2.
-    steps_l. destruct _q as [tid stid].
-    iDestruct "ASM" as "[%va [-> [%sa [%V [-> [PRE TV]]]]]]". hss_l.
+    cStartFunSim. rewrite /sfunU /sfunN /MPI.mp2.
+    cStepsS. destruct _q as [tid stid].
+    iDestruct "ASM" as "[%va [-> [%sa [%V [-> [PRE TV]]]]]]".
     iDestruct "PRE" as "[%loc [%γ [%γx [%V0 [%fd [%td [% [% [[-> ->] [#I [↦data ⊒]]]]]]]]]]]".
-    steps_l.
+    cStepsS.
 
-    rewrite /MPA.mp2. steps_l.
-    steps_r.
-    rewrite /MPI.mp2. norm_r.
-
-    (* yield *)
-    iApply wsim_system_yield_ir; ss. { simpl_sp; ss. }
-    iFrame "TV IST".
-    clear dependent st_src st_tgt.
-    iIntros (??) "IST TV".
-    steps_r.
+    rewrite /MPA.mp2. cStepsS.
+    cStepsT.
+    rewrite /MPI.mp2.
 
     (* yield *)
     iApply wsim_system_yield_ir; ss. { simpl_sp; ss. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
     iIntros (??) "IST TV".
-    steps_r.
+    cStepsT.
+
+    (* yield *)
+    iApply wsim_system_yield_ir; ss. { simpl_sp; ss. }
+    iFrame "TV IST".
+    clear dependent st_src st_tgt.
+    iIntros (??) "IST TV".
+    cStepsT.
 
     (* write to data *)
-    inline_r.
-    force_r (meta0 (_, _, _, _, _, _))%cris.
-    forces_r.
+    cInlineT.
+    cForceT (meta0 (_, _, _, _, _, _))%cris.
+    cForcesT.
     iPoseProof (own_loc_na_own_loc with "↦data") as "↦data".
     iFrame "TV ↦data". iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[-> [%V2 [[-> %Hle] [↦data TV]]]]".
-    steps_r.
+    cStepsT. iDestruct "GRT" as "[-> [%V2 [[-> %Hle] [↦data TV]]]]".
+    cStepsT.
 
     (* yield *)
     iApply wsim_system_yield_ir; ss. { simpl_sp; ss. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
     iIntros (??) "IST TV".
-    steps_r.
+    cStepsT.
 
     (* open invariant *)
     iInv "I" as "INV" "ACC".
@@ -340,23 +339,23 @@ Module MPIA. Section MPIA.
     rewrite syn_AtomicPtsTo_red.
     rewrite shift_0; iPoseProof (AtomicPtsTo_SWriter_agree with "[$] [$]") as "->".
 
-    inline_r. steps_r.
+    cInlineT. cStepsT.
     iEval (rewrite AtomicPtsTo_eq /AtomicPtsTo_def /view_at) in "↦flag".
     iDestruct "↦flag" as "[% ↦flag]".
-    force_r (meta1 (tid, stid, loc, Val.Vnum 1, Ordering.acqrel, V2, γx, _, _, _, _, _, _, _))%cris.
-    forces_r.
+    cForceT (meta1 (tid, stid, loc, Val.Vnum 1, Ordering.acqrel, V2, γx, _, _, _, _, _, _, _))%cris.
+    cForcesT.
     iFrame "↦flag". iSplitL "⊒ TV"; eauto.
     { iSplit; eauto. iSplit; eauto. iFrame. tview_sync Hle.
       iPoseProof (AtomicSWriter_AtomicSeen with "⊒") as "#sn"; iSplit; eauto.
       rewrite AtomicSWriter_eq /AtomicSWriter_def /view_at /=; iDestruct "⊒" as "[? [? ?]]"; iFrame.
     }
     Unshelve. all: try exact 1%Qp.
-    steps_r.
+    cStepsT.
 
     iDestruct "GRT" as "[-> [% [% [% [% [% [% [[-> [%Htime %Hres]] [sn [at [sy [swX tv]]]]]]]]]]]]".
     destruct (Ordering.le _ _) eqn : Heqb in Hres; ss; subst; clear Heqb.
     rewrite Cell.max_ts_singleton in Htime.
-    des; subst. steps_r.
+    des; subst. cStepsT.
     iMod ("ACC" with "[↦data swX]") as "_".
     { rewrite MPA.mp_inv'_eq.
       iEval solve_base_sl_red; iExists _, true; repeat iExists _.
@@ -372,16 +371,16 @@ Module MPIA. Section MPIA.
 
     iApply wsim_system_yield_ir; ss. { simpl_sp; ss. }
     iFrame "tv IST". clear dependent st_src st_tgt; iIntros (st_src st_tgt) "IST TID".
-    steps_r.
+    cStepsT.
 
-    iApply (wsim_system_yield_src with "[-]"). steps_l. forces_l.
-    iFrame. iSplitR; [eauto|]. step. iFrame. done. 
+    iApply (wsim_system_yield_src with "[-]"). cStepsS. cForcesS.
+    iFrame. iSplitR; [eauto|]. cStep. iFrame. done. 
   Unshelve. all: try exact ⊤.
   Qed.
 
   Lemma sim : ISim.t open MA MI emp%I IstFull.
   Proof.
-    init_sim.
+    cStartModSim.
     { eapply simF_mp2. }
     { eapply simF_mp. }
     { iIntros "_"; repeat iExists _; repeat iSplit; eauto. }

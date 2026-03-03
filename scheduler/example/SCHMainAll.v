@@ -138,9 +138,9 @@ Section SCHMainAux.
       iSplit.
       { iPureIntro. exists (stid, mtid, tt). esplits; eauto. }
       iIntros (??) "PRE". iModIntro. iSplitL "PRE".
-      { subst P1. iDestruct "PRE" as "(W & T & Y & P & %)"; des; subst; hss. iFrame; eauto. }
+      { subst P1. iDestruct "PRE" as "(W & T & Y & P & %)"; des; subst; cSimpl. iFrame; eauto. }
       iIntros (??) "POST". iModIntro.
-      subst Q1. iDestruct "POST" as "(W & (tid & T & Y) & %)"; des; subst; hss. iFrame; eauto.
+      subst Q1. iDestruct "POST" as "(W & (tid & T & Y) & %)"; des; subst; cSimpl. iFrame; eauto.
     Qed.
   End SP.
 

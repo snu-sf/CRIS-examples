@@ -29,12 +29,12 @@ Module StackIM. Section StackIM.
   (* Construct ISim.t for summing up each simulation proofs *)
   Lemma sim : ISim.t open StackM StackI init_cond IstFull.
   Proof.
-    init_sim.
+    cStartModSim.
     - apply new_stack_simF.
     - apply push_simF.
     - apply pop_simF.
-    - iStartSim; steps_r. steps_r; ss.
-    - iStartSim; steps_r. steps_r; ss.
+    - cStartFunSim; cStepsT. cStepsT; ss.
+    - cStartFunSim; cStepsT. cStepsT; ss.
     - iIntros "I"; repeat iExists _; iFrame; iPureIntro; splits; eauto; ss.
       + rewrite dom_union_with; set_solver.
       + rewrite left_id_L //.
@@ -66,48 +66,48 @@ Module StackIA. Section StackIA.
     rewrite (assoc _ (StackM.t _ _ _)).
 
     eapply main_adequacy with (Ist := IstProd (IstSB (Mod.scopes (StackA.t N sp) ++ [mn]) IstTrue) IstEq).
-    init_sim.
-    { iStartSim. rewrite /StackM.new_stack /StackA.new_stack.
-      steps_l. force_r _q. destruct _q as [[? ?] ?]; iDestruct "ASM" as "[? [-> [% ->]]]".
-      forces_r. iFrame; iSplit; eauto.
-      steps_l; steps_r.
-      sch_yield_ii "IST". sch_yield_l.
-      steps_r; forces_l. iFrame; step. iFrame. done.
+    cStartModSim.
+    { cStartFunSim. rewrite /StackM.new_stack /StackA.new_stack.
+      cStepsS. cForceT _q. destruct _q as [[? ?] ?]; iDestruct "ASM" as "[? [-> [% ->]]]".
+      cForcesT. iFrame; iSplit; eauto.
+      cStepsS; cStepsT.
+      sYieldII "IST". sYieldS.
+      cStepsT; cForcesS. iFrame; cStep. iFrame. done.
     }
-    { iStartSim. rewrite /StackM.push /StackA.push.
+    { cStartFunSim. rewrite /StackM.push /StackA.push.
       rewrite /StackA.push /StackM.push /atomic_body.
-      steps_l. steps_r. forces_r. iFrame "ASM". repeat case_match; clarify.
-      steps_r.
-      sch_yield_ii "IST".
+      cStepsS. cStepsT. cForcesT. iFrame "ASM". repeat case_match; clarify.
+      cStepsT.
+      sYieldII "IST".
       rewrite /SchA.sp; simpl_map.
-      inline_r. rewrite /HelpingOff.HelpingOff.run. steps_r.
-      sch_yield_ii "IST". sch_yield_l.
-      steps_l. forces_r; iFrame. steps_r. forces_l. iFrame.
-      steps_l. sch_yield_ii "IST". steps_r. 
-      sch_yield_ii "IST". steps_r. 
-      sch_yield_l; force_l; iFrame.
-      step. iFrame. done.
+      cInlineT. rewrite /HelpingOff.HelpingOff.run. cStepsT.
+      sYieldII "IST". sYieldS.
+      cStepsS. cForcesT; iFrame. cStepsT. cForcesS. iFrame.
+      cStepsS. sYieldII "IST". cStepsT. 
+      sYieldII "IST". cStepsT. 
+      sYieldS; cForceS; iFrame.
+      cStep. iFrame. done.
     }
-    { iStartSim.
+    { cStartFunSim.
       rewrite /StackA.pop /StackM.pop /atomic_body.
-      steps_l. steps_r. forces_r. iFrame "ASM". repeat case_match; clarify.
-      steps_r. steps_l.
-      sch_yield_ii "IST".
+      cStepsS. cStepsT. cForcesT. iFrame "ASM". repeat case_match; clarify.
+      cStepsT. cStepsS.
+      sYieldII "IST".
       set (IstFull := IstProd _ _).
-      steps_r. iApply wsim_bind; iSplitL.
+      cStepsT. iApply wsim_bind; iSplitL.
       { instantiate (1:=λ x y, IstFull x.1 y.1).
-        append_ret_l. case_match.
-        { steps_r. rewrite /SchA.sp; simpl_map. inline_r.
-          rewrite /HelpingOff.HelpingOff.help. steps_r.
-          sch_yield_ii "IST". steps_r. sch_yield_l. step. iFrame.
+        appendRetS. case_match.
+        { cStepsT. rewrite /SchA.sp; simpl_map. cInlineT.
+          rewrite /HelpingOff.HelpingOff.help. cStepsT.
+          sYieldII "IST". cStepsT. sYieldS. cStep. iFrame.
         }
-        { steps_r. sch_yield_l. step. iFrame. }
+        { cStepsT. sYieldS. cStep. iFrame. }
       }
       clear_st. iIntros (st_src [] st_tgt ?) "IST /=".
-      steps_l. forces_r; iFrame. steps_r. forces_l. iFrame.
-      steps_l. sch_yield_ii "IST".
-      sch_yield_l; force_l; iFrame.
-      step. iFrame. done.
+      cStepsS. cForcesT; iFrame. cStepsT. cForcesS. iFrame.
+      cStepsS. sYieldII "IST".
+      sYieldS; cForceS; iFrame.
+      cStep. iFrame. done.
     }
     { iIntros "_"; repeat iExists _; repeat iSplit; eauto. }
   Qed.

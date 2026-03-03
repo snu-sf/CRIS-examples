@@ -28,8 +28,8 @@ Section SystemIA.
 
   Lemma simF_alloc : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.alloc).
   Proof using.
-    iStartSim. rewrite /SystemI.alloc.
-    steps_l. destruct _q as [[[tid ?] ?] ?]; iDestruct "ASM" as "[-> [-> TVS]]".
+    cStartFunSim. rewrite /SystemI.alloc.
+    cStepsS. destruct _q as [[[tid ?] ?] ?]; iDestruct "ASM" as "[-> [-> TVS]]".
     iDestruct "IST" as (????) "[[-> ->] [[% IST] ->]]".
     iDestruct "IST" as "[%tid_cur [%tids [[-> ->] [TA YS]]]]".
     iDestruct "TVS" as "[Tid STV]".
@@ -43,19 +43,19 @@ Section SystemIA.
     }
     subst.
 
-    steps_r. rewrite /SystemI.get_tid. steps_r.
-    inline_r. force_r (_, _, _). forces_r.
+    cStepsT. rewrite /SystemI.get_tid. cStepsT.
+    cInlineT. cForceT (_, _, _). cForcesT.
     iDestruct "TA" as "[TA TVS]".
     rewrite big_sepM_delete //. iDestruct "TVS" as "[$ TVS]"; eauto.
     iSplit; eauto.
-    steps_r. iDestruct "GRT" as "[-> [%loc [%V' [[-> %] [TV [FA MT]]]]]]".
+    cStepsT. iDestruct "GRT" as "[-> [%loc [%V' [[-> %] [TV [FA MT]]]]]]".
     iCombine "TA" "Tid" as "TA".
     iMod (own_update with "TA") as "TA".
     { rewrite (gmap_view_replace _ tid_cur _ (to_agree _)) //. }
     iDestruct "TA" as "[TA Tid]". 
-    steps_r.
-    forces_l. iFrame. iSplit; eauto.
-    step.
+    cStepsT.
+    cForcesS. iFrame. iSplit; eauto.
+    cStep.
 
     (* IST *)
     iSplit; eauto.

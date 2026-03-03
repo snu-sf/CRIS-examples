@@ -40,65 +40,65 @@ Module ClientIA. Section ClientIA.
 
   Lemma incr_simF : ISim.sim_fun open MA MI IstFull (fid IncrHdr.incr).
   Proof using Hsch Hclient.
-    iStartSim. rewrite /sfunU /sfunN /incr /ClientI.incr.
+    cStartFunSim. rewrite /sfunU /sfunN /incr /ClientI.incr.
 
-    steps_l. destruct _q as [[stid mtid] [[[blk ofs] v]]].
+    cStepsS. destruct _q as [[stid mtid] [[[blk ofs] v]]].
     iDestruct "ASM" as "[TID [[-> ->] [C #INV]]]".
 
-    steps_l. steps_r. rewrite /ClientI.incr /ClientA.incr /=; steps_r.
+    cStepsS. cStepsT. rewrite /ClientI.incr /ClientA.incr /=; cStepsT.
 
-    sch_yield_ir "IST" "TID".
+    sYieldIR "IST" "TID".
 
     (* tgt inline - faa *)
-    steps_r. inline_r. steps_r. sch_yield_ir "IST" "TID".
+    cStepsT. cInlineT. cStepsT. sYieldIR "IST" "TID".
 
     (* operational atomicity here *)
     iInv "INV" as "[%x [PT CA]]" "IA".
-    forces_r; iFrame "PT"; steps_r.
+    cForcesT; iFrame "PT"; cStepsT.
 
     iMod (counter_incr 1 with "[C CA]") as "[C CA]"; first iFrame.
     iMod ("IA" with "[GRT CA]") as "_".
     { iExists (x + 1)%Z; solve_base_sl_red; iFrame. }
-    sch_yield_ir "IST" "TID".
+    sYieldIR "IST" "TID".
 
     iInv "INV" as "[%y [PT CA]]" "IA".
 
     (* operational atomicity here *)
-    forces_r; iFrame "PT"; steps_r.
+    cForcesT; iFrame "PT"; cStepsT.
 
     iMod (counter_incr 1 with "[C CA]") as "[C CA]"; first iFrame.
     iMod ("IA" with "[GRT CA]") as "_".
     { iExists (y + 1)%Z; solve_base_sl_red; iFrame. }
-    sch_yield_ir "IST" "TID".
+    sYieldIR "IST" "TID".
 
-    steps_r. sch_yield_ir "IST" "TID".
-    sch_yield_l. steps_l. forces_l. iFrame "TID".
+    cStepsT. sYieldIR "IST" "TID".
+    sYieldS. cStepsS. cForcesS. iFrame "TID".
     iSplitL "C".
     { iFrame. replace (v + 1 + 1)%Z with (v + 2)%Z by lia. iFrame. eauto. }
-    steps_l. step. iFrame. done.
+    cStepsS. cStep. iFrame. done.
 (*SLOW*)Qed.
 
   Lemma main_simF : ISim.sim_fun open MA MI IstFull entry.
   Proof using Hsch Hclient.
-    iStartSim. rewrite /sfunU /sfunN /main /ClientI.main.
+    cStartFunSim. rewrite /sfunU /sfunN /main /ClientI.main.
 
-    steps_l. destruct _q as [[stid mtid] []]; s.
+    cStepsS. destruct _q as [[stid mtid] []]; s.
     iDestruct "ASM" as "[TID ->]".
     rewrite /main /ClientI.main.
 
     (* src/tgt yield *)
-    steps_r. steps_l.
-    sch_yield_ir "IST" "TID".
+    cStepsT. cStepsS.
+    sYieldIR "IST" "TID".
 
     (* tgt alloc *)
     iApply wsim_mem_alloc. { prove_inline_cond. } { ss. } { ss. }
-    iIntros (blk) "[map _]". steps_r.
-    sch_yield_ir "IST" "TID".
-    sch_yield_ir "IST" "TID".
+    iIntros (blk) "[map _]". cStepsT.
+    sYieldIR "IST" "TID".
+    sYieldIR "IST" "TID".
 
     (* tgt store *)
-    store_r "map". sch_yield_ir "IST" "TID".
-    sch_yield_l. force_l (Vptr (blk, 0%Z)). steps_l. sch_yield_l. steps_l.
+    mStoreT "map". sYieldIR "IST" "TID".
+    sYieldS. cForceS (Vptr (blk, 0%Z)). cStepsS. sYieldS. cStepsS.
 
     (* spawn *)
     iMod (own_alloc ((●F 0%Z ⋅ ◯F{1} 0%Z))) as "[%γc [A F]]".
@@ -112,66 +112,66 @@ Module ClientIA. Section ClientIA.
     iCombine "F1 I" as "F1". iCombine "F2 I" as "F2".
 
     (* src/tgt spawns *)
-    rewrite /Sch.spawn; steps_r; steps_l. simpl_sp.
-    force_l (_, _); forces_l; iSplitL "F1".
+    rewrite /Sch.spawn; cStepsT; cStepsS. simpl_sp.
+    cForceS (_, _); cForcesS; iSplitL "F1".
     { iExists _, _, _; iSplit; eauto.
       iSplitR; first iApply f_spawnable.
       iFrame; eauto.
     }
-    steps_l. call "IST". clear_st. iIntros (ret ??) "IST".
-    steps_l. iDestruct "ASM" as "[% [[-> ->] Handle]]". steps_l. steps_r.
-    sch_yield_ir "IST" "TID".
-    sch_yield_l.
+    cStepsS. cCall "IST". clear_st. iIntros (ret ??) "IST".
+    cStepsS. iDestruct "ASM" as "[% [[-> ->] Handle]]". cStepsS. cStepsT.
+    sYieldIR "IST" "TID".
+    sYieldS.
 
-    rewrite /Sch.spawn; steps_r; steps_l. simpl_sp.
-    force_l (_, _); forces_l; iSplitL "F2".
+    rewrite /Sch.spawn; cStepsT; cStepsS. simpl_sp.
+    cForceS (_, _); cForcesS; iSplitL "F2".
     { iExists _, _, _; iSplit; eauto.
       iSplitR; first iApply f_spawnable.
       iFrame; eauto.
     }
-    steps_l. call "IST". clear_st. iIntros (ret ??) "IST".
-    steps_l. iDestruct "ASM" as "[% [[-> ->] Handle2]]". steps_l. steps_r.
-    sch_yield_ir "IST" "TID".
-    sch_yield_l.
+    cStepsS. cCall "IST". clear_st. iIntros (ret ??) "IST".
+    cStepsS. iDestruct "ASM" as "[% [[-> ->] Handle2]]". cStepsS. cStepsT.
+    sYieldIR "IST" "TID".
+    sYieldS.
 
-    rewrite /Sch.join; steps_r; steps_l. simpl_sp.
-    force_l (_, _, _); forces_l. iFrame "TID Handle"; iSplit; [eauto|]. steps_l.
-    call "IST". clear_st. iIntros (ret ??) "IST".
-    steps_l. iDestruct "ASM" as "[TID [% [% [[-> ->] ASM]]]]".
+    rewrite /Sch.join; cStepsT; cStepsS. simpl_sp.
+    cForceS (_, _, _); cForcesS. iFrame "TID Handle"; iSplit; [eauto|]. cStepsS.
+    cCall "IST". clear_st. iIntros (ret ??) "IST".
+    cStepsS. iDestruct "ASM" as "[TID [% [% [[-> ->] ASM]]]]".
     solve_base_sl_red. iDestruct "ASM" as "[[-> ->] Q]".
-    steps_l. steps_r.
-    sch_yield_ir "IST" "TID".
-    sch_yield_l.
+    cStepsS. cStepsT.
+    sYieldIR "IST" "TID".
+    sYieldS.
 
-    rewrite /Sch.join; steps_r; steps_l. simpl_sp.
-    force_l (_, _, _); forces_l. iFrame "TID Handle2"; iSplit; [eauto|]. steps_l.
-    call "IST". clear_st. iIntros (ret ??) "IST".
-    steps_l. iDestruct "ASM" as "[TID [% [% [[-> ->] ASM]]]]".
+    rewrite /Sch.join; cStepsT; cStepsS. simpl_sp.
+    cForceS (_, _, _); cForcesS. iFrame "TID Handle2"; iSplit; [eauto|]. cStepsS.
+    cCall "IST". clear_st. iIntros (ret ??) "IST".
+    cStepsS. iDestruct "ASM" as "[TID [% [% [[-> ->] ASM]]]]".
     solve_base_sl_red. iDestruct "ASM" as "[[-> ->] Q2]".
-    steps_l. steps_r.
-    sch_yield_ir "IST" "TID".
+    cStepsS. cStepsT.
+    sYieldIR "IST" "TID".
 
     iInv "I" as "[%x [PT C]]" "INVA".
     iCombine "C Q Q2" as "C" gives %[_ WF%frac_auth_agree]. inv WF; ss.
     iDestruct "C" as "[CA CF]".
 
-    steps_r. load_r "PT". 
+    cStepsT. mLoadT "PT". 
 
     iMod ("INVA" with "[CA PT]") as "_"; first solve_base_sl_red; iFrame.
 
-    sch_yield_ir "IST" "TID". sch_yield_ir "IST" "TID". 
-    sch_yield_l; steps_l.
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID". 
+    sYieldS; cStepsS.
 
-    step.
-    steps_l. steps_r.
-    sch_yield_ir "IST" "TID".
-    sch_yield_l. steps_l. forces_l. iFrame "TID"; iSplit; eauto.
-    step. iFrame. done.
+    cStep.
+    cStepsS. cStepsT.
+    sYieldIR "IST" "TID".
+    sYieldS. cStepsS. cForcesS. iFrame "TID"; iSplit; eauto.
+    cStep. iFrame. done.
 (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MA MI emp%I IstFull.
   Proof using Hsch Hclient.
-    init_sim.
+    cStartModSim.
     { eapply incr_simF. }
     { eapply main_simF. }
     { iIntros "_"; iExists _, _, _, _; iSplit; eauto. }

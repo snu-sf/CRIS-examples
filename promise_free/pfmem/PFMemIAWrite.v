@@ -16,16 +16,16 @@ Section write.
 
   Lemma simF_write : ISim.sim_fun open MA MI Ist (fid PFMemHdr.write).
   Proof.
-    iStartSim.
-    step_l. destruct _q as [p|[p|[]]].
+    cStartFunSim.
+    cStepS. destruct _q as [p|[p|[]]].
     { (* non-atomic write *)
-      destruct p as [[[[tid loc] val] ord] 𝓥]. steps_l.
-      iDestruct "ASM" as "[-> [-> [PT TV]]]". hss.
+      destruct p as [[[[tid loc] val] ord] 𝓥]. cStepsS.
+      iDestruct "ASM" as "[-> [-> [PT TV]]]". cSimpl.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
-      steps_r. hss. steps_r.
+      cStepsT. cSimpl. cStepsT.
       rewrite /PFMemI.check_ident.
       des_ifs; last (iPoseProof (tview_both_valid with "TA TV") as "%F"; des; ss; clarify).
-      steps_r. destruct _q as [[e config'] [EVWRITE STEP]].
+      cStepsT. destruct _q as [[e config'] [EVWRITE STEP]].
       destruct e; inv EVWRITE; inv STEP; clear EVENT; rename STEP0 into STEP; s in STEP; cycle 1.
       { (* RACY WRITE *)
         inv STEP; inv LOCAL. inv LOCAL0. inv RACE.
@@ -66,7 +66,7 @@ Section write.
       }
       (* VALID WRITE *)
       inv STEP; inv LOCAL. des_ifs. clear n.
-      steps_r.
+      cStepsT.
       iPoseProof (tview_both_valid with "TA TV") as "%F"; des; subst.
       rewrite F in Heq; inv Heq.
       rewrite own_loc_eq /own_loc_def.
@@ -168,7 +168,7 @@ Section write.
         iFrame.
       }
 
-      force_l (Val.zero↑). steps_l. force_l (Val.zero↑). steps_l. force_l.
+      cForceS (Val.zero↑). cStepsS. cForceS (Val.zero↑). cStepsS. cForceS.
       iSplitR "IST".
       { iFrame. iSplit; eauto.
         iSplit; eauto.
@@ -198,17 +198,17 @@ Section write.
           apply View.bot_spec.
         }
       }
-      steps_l. step. iFrame. done.
+      cStepsS. cStep. iFrame. done.
       Unshelve. exact.
     }
     (* Atomic write *)
-    { destruct p as [[[[[[[[[[[[tid loc] val] ord] 𝓥] γ] ζ'] Vb] tx] ζ] mode] q] tx']. steps_l.
-      iDestruct "ASM" as "[-> [[-> %ORDRLX] [SEEN [PT [TV WRITE]]]]]". hss.
+    { destruct p as [[[[[[[[[[[[tid loc] val] ord] 𝓥] γ] ζ'] Vb] tx] ζ] mode] q] tx']. cStepsS.
+      iDestruct "ASM" as "[-> [[-> %ORDRLX] [SEEN [PT [TV WRITE]]]]]". cSimpl.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
-      steps_r. hss. steps_r.
+      cStepsT. cSimpl. cStepsT.
       rewrite /PFMemI.check_ident.
       des_ifs; last (iPoseProof (tview_both_valid with "TA TV") as "%F"; des; ss; clarify).
-      steps_r. destruct _q as [[e config'] [EVWRITE STEP]].
+      cStepsT. destruct _q as [[e config'] [EVWRITE STEP]].
       destruct e; inv EVWRITE; inv STEP; clear EVENT; rename STEP0 into STEP; s in STEP; cycle 1.
       { (* RACY WRITE *)
         inv STEP; inv LOCAL. inv LOCAL0. inv RACE.
@@ -255,7 +255,7 @@ Section write.
       }
       (* VALID WRITE *)
       inv STEP; inv LOCAL. des_ifs. clear n.
-      steps_r.
+      cStepsT.
       iPoseProof (AtomicPtsToX_AtomicSeen_latest with "PT SEEN") as "%LE".
       rewrite AtomicPtsToX_eq /AtomicPtsToX_def {2}/view_at.
       iDestruct "PT" as "[% [% [-> [[%SYNC %SYNC2] [HIST [AA AW]]]]]]". ss.
@@ -445,7 +445,7 @@ Section write.
         { iFrame. iModIntro; iFrame. iSplit; auto. }
         { iModIntro; iFrame. iSplit; auto. }
       }
-      force_l (Val.zero ↑). steps_l. force_l (Val.zero ↑). steps_l. force_l.
+      cForceS (Val.zero ↑). cStepsS. cForceS (Val.zero ↑). cStepsS. cForceS.
       iSplitR "IST".
       { iSplit; first done.
         unshelve (iExists from, to, _, (TView.TView.write_released (Local.tview lc1) loc to View.bot ord)).
@@ -510,7 +510,7 @@ Section write.
         }
         inv LOCAL0; ss.
       }
-      steps_l. step. iFrame. done.
+      cStepsS. cStep. iFrame. done.
     }
   (*SLOW*)Qed.
 End write.

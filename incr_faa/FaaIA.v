@@ -12,28 +12,28 @@ Module FaaIA. Section FaaIA.
 
   Lemma faa2_simF : ISim.sim_fun open MA MI IstFull (fid FaaHdr.faa2).
   Proof using.
-    iStartSim. rewrite /FaaI.faa2 /FaaA.faa2.
+    cStartFunSim. rewrite /FaaI.faa2 /FaaA.faa2.
 
-    steps_l.
-    destruct (arg ↓) as [[|v [|v' l]]|]; steps_l; ss.
-    destruct v as [|[blk ofs]|]; step_l; ss.
+    cStepsS.
+    destruct (arg ↓) as [[|v [|v' l]]|]; cStepsS; ss.
+    destruct v as [|[blk ofs]|]; cStepS; ss.
 
-    steps_r. sch_yield_rr "IST". steps_r.
-    rewrite /MemHdr.faa; steps_r.
+    cStepsT. sYieldRR "IST". cStepsT.
+    rewrite /MemHdr.faa; cStepsT.
 
-    sch_yield_l; steps_l. rename _q into v.
-    load_r "ASM". store_r "ASM". force_l; iFrame "ASM". steps_l.
-    sch_yield_rr "IST".
+    sYieldS; cStepsS. rename _q into v.
+    mLoadT "ASM". mStoreT "ASM". cForceS; iFrame "ASM". cStepsS.
+    sYieldRR "IST".
 
-    sch_yield_l; steps_l. clear v. rename _q into v.
-    load_r "ASM". store_r "ASM".
-    force_l; iFrame "ASM".
-    sch_yield_rr "IST". sch_yield_l. step. iFrame; done.
+    sYieldS; cStepsS. clear v. rename _q into v.
+    mLoadT "ASM". mStoreT "ASM".
+    cForceS; iFrame "ASM".
+    sYieldRR "IST". sYieldS. cStep. iFrame; done.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MA MI emp%I IstFull.
   Proof.
-    init_sim.
+    cStartModSim.
     { eapply faa2_simF. }
     { iIntros "_"; iExists _, _, _, _; iSplit; eauto. }
   Qed.

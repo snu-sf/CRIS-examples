@@ -13,48 +13,48 @@ Module IncrementIA. Section IncrementIA.
 
   Lemma increment_simF : ISim.sim_fun open MA MI IstFull (fid IncrementHdr.increment).
   Proof.
-    iStartSim. rewrite /IncrementI.increment /IncrementA.increment.
-    steps_r. steps_l.
-    destruct (arg ↓) as [[|v [|v' l]]|]; step_l; ss.
-    destruct v as [|[blk ofs]|]; step_l; ss. steps_r.
+    cStartFunSim. rewrite /IncrementI.increment /IncrementA.increment.
+    cStepsT. cStepsS.
+    destruct (arg ↓) as [[|v [|v' l]]|]; cStepS; ss.
+    destruct v as [|[blk ofs]|]; cStepS; ss. cStepsT.
 
-    sch_yield_rr "IST". sch_yield_rr "IST".
-    sch_yield_l. norm_l.
+    sYieldRR "IST". sYieldRR "IST".
+    sYieldS. cStepsS.
 
     iApply wsim_reset.
     cCoind CIH g' __ with st_src st_tgt. iIntros "IST /=".
-    unfold_iterC_r. steps_r.
-    unfold_iterC_l. steps_l.
-    sch_yield_rr "IST".
+    unfoldIterCT. cStepsT.
+    unfoldIterCS. cStepsS.
+    sYieldRR "IST".
 
-    sch_yield_l. steps_l. rename _q into v.
+    sYieldS. cStepsS. rename _q into v.
 
-    load_r "ASM". force_l false. steps_l. force_l; iFrame "ASM". steps_l. sch_yield_l. steps_l.
-    unfold_iterC_l. steps_l.
+    mLoadT "ASM". cForceS false. cStepsS. cForceS; iFrame "ASM". cStepsS. sYieldS. cStepsS.
+    unfoldIterCS. cStepsS.
 
-    sch_yield_rr "IST". sch_yield_rr "IST".
+    sYieldRR "IST". sYieldRR "IST".
 
-    sch_yield_l. steps_l. rename _q into v'.
+    sYieldS. cStepsS. rename _q into v'.
     iApply (wsim_mem_cas with "ASM"); [prove_inline_cond|ss|eauto| | | ].
     { rewrite /MemA.compare_val; des_ifs. }
     { instantiate (1:=emp%I); done. }
     { iIntros "_"; iExists 1%Qp, 1%Qp, Vundef, Vundef; ss. }
     iIntros "↦ _".
 
-    steps_r.
+    cStepsT.
     repeat case_bool_decide; subst; ss.
-    { force_l true. steps_l. force_l; iFrame "↦"; steps_l.
-      sch_yield_rr "IST". sch_yield_rr "IST".
+    { cForceS true. cStepsS. cForceS; iFrame "↦"; cStepsS.
+      sYieldRR "IST". sYieldRR "IST".
       case_decide; [|ss].
-      steps_r.
-      sch_yield_l. steps_l. step. iSplit; done.
+      cStepsT.
+      sYieldS. cStepsS. cStep. iSplit; done.
     }
-    { force_l false.
-      forces_l. iFrame "↦". steps_l.
-      sch_yield_rr "IST". sch_yield_rr "IST".
+    { cForceS false.
+      cForcesS. iFrame "↦". cStepsS.
+      sYieldRR "IST". sYieldRR "IST".
       case_decide; first clarify.
-      steps_r.
-      sch_yield_l. steps_l.
+      cStepsT.
+      sYieldS. cStepsS.
       iApply wsim_progress. iApply wsim_base.
       iIntros "?". iApply (CIH). iFrame.
     }

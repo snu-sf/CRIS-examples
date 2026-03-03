@@ -33,34 +33,34 @@ Module KnotMainIA. Section KnotMainIA.
 
   Lemma simF_fib : ISim.sim_fun open KnotMainAMod KnotMainIMod IstFull (fid KnotMainHdr.fib).
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
-    iStartSim. rewrite /KnotMainI.fibF.
+    cStartFunSim. rewrite /KnotMainI.fibF.
 
-    steps_l. destruct _q as [n I]; s. iDestruct "ASM" as "[[[%fb [-> [% %Hspec]]] I] [%vo [-> %LEvo]]]".
-    steps_r. inv Hspec. rewrite FBLOCK. steps_r.
-    unfold assume. unshelve force_r; eauto. steps_r.
+    cStepsS. destruct _q as [n I]; s. iDestruct "ASM" as "[[[%fb [-> [% %Hspec]]] I] [%vo [-> %LEvo]]]".
+    cStepsT. inv Hspec. rewrite FBLOCK. cStepsT.
+    unfold assume. unshelve cForceT; eauto. cStepsT.
     des_ifs.
     { (* base case *)
-      rewrite /APC.pure_body. steps_l. simpl_sp. forces_l. iSplitR; et. steps_l.
-      inline_l. steps_l.
-      iDestruct "ASM" as "[-> <-]". steps_l.
-      unfold APC. force_l 0. steps_l.
+      rewrite /APC.pure_body. cStepsS. simpl_sp. cForcesS. iSplitR; et. cStepsS.
+      cInlineS. cStepsS.
+      iDestruct "ASM" as "[-> <-]". cStepsS.
+      unfold APC. cForceS 0. cStepsS.
 
       (* SRC: change to skip *)
-      iApply wsim_apc_src. steps_l. forces_l. iSplitR; et. steps_l.
-      forces_l. iSplitL "I"; iFrame; et.
+      iApply wsim_apc_src. cStepsS. cForcesS. iSplitR; et. cStepsS.
+      cForcesS. iSplitL "I"; iFrame; et.
       assert (n = 1 \/ n = 0) by nia. assert (Hn : Z.of_nat (Fib n) = 1%Z).
       { des; subst; reflexivity. }
-      rewrite Hn. step. iSplit; et.
+      rewrite Hn. cStep. iSplit; et.
     }
-    { (* recursive call *)
-      steps_r. rewrite /pure_body. steps_l. simpl_sp. forces_l. iSplitR; et. steps_l.
-      inline_l. steps_l.
-      iDestruct "ASM" as "[-> <-]". steps_l. unfold APC.
-      force_l 2. steps_l.
+    { (* recursive cCall *)
+      cStepsT. rewrite /pure_body. cStepsS. simpl_sp. cForcesS. iSplitR; et. cStepsS.
+      cInlineS. cStepsS.
+      iDestruct "ASM" as "[-> <-]". cStepsS. unfold APC.
+      cForceS 2. cStepsS.
 
-      (* first call - rec(n - 1) *)
+      (* first cCall - rec(n - 1) *)
       dup SPEC. inv SPEC.
-      apc_call_weaker ""; et.
+      apcCallWeak ""; et.
       { instantiate (1 := 1). apply OrdArith.lt_from_nat. ss. }
       { instantiate (1 := (2 * (n - 1) + 1)%ord). eapply Ord.lt_le_lt; [|et].
         rewrite -!OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.lt_from_nat. nia. 
@@ -76,10 +76,10 @@ Module KnotMainIA. Section KnotMainIA.
         - iPureIntro. eexists; esplits; et. refl. 
       }
       clear_st. iIntros (st_src st_tgt ret) "[IST [-> I]]".
-      steps_r.
+      cStepsT.
 
-      (* second call - rec(n - 2) *)
-      apc_call_weaker ""; et.
+      (* second cCall - rec(n - 2) *)
+      apcCallWeak ""; et.
       { instantiate (1:=0). apply OrdArith.lt_from_nat. ss. }
       { instantiate (1 := (2 * (n - 1))%ord). eapply Ord.lt_le_lt; [|et].
         rewrite -!OrdArith.mult_from_nat. eapply OrdArith.lt_from_nat. nia.
@@ -93,11 +93,11 @@ Module KnotMainIA. Section KnotMainIA.
           eexists; esplits; et. rewrite -!OrdArith.mult_from_nat -OrdArith.add_from_nat.
           eapply OrdArith.le_from_nat. nia.
       }
-        clear_st. iIntros (st_src st_tgt ret) "[IST [-> I]]". steps_r.
+        clear_st. iIntros (st_src st_tgt ret) "[IST [-> I]]". cStepsT.
 
-        iApply wsim_apc_src. steps_l. forces_l. iSplit; et. steps_l. forces_l. iFrame. iSplit; et.
+        iApply wsim_apc_src. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iFrame. iSplit; et.
 
-        step. iSplit; et.
+        cStep. iSplit; et.
         iPureIntro. repeat f_equal. rewrite unfold_fib; nia.
       }
     }
@@ -106,7 +106,7 @@ Module KnotMainIA. Section KnotMainIA.
 
   Lemma simF_main : ISim.sim_fun open KnotMainAMod KnotMainIMod IstFull entry.
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
-    iStartSim. rewrite /KnotMainI.mainF /main_body.
+    cStartFunSim. rewrite /KnotMainI.mainF /main_body.
 
     (* SKINCL *)
     pose proof (@CEnv.incl_incl_env KnotMainGEnv.t genv) as INCLENV.
@@ -121,13 +121,13 @@ Module KnotMainIA. Section KnotMainIA.
     specialize (GEnvWF KnotMainHdr.fib blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDF.
 
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "[-> [-> FG]]". steps_l.
+    cStepsS. iDestruct "ASM" as "[-> [-> FG]]". cStepsS.
 
     (* TGT: find a block of the function "fib" using SKINCL *)
-    steps_r. rewrite FINDF. steps_r.
+    cStepsT. rewrite FINDF. cStepsT.
 
     (* TGT: inlining "fib" *)
-    inline_r. force_r Fib. forces_r. iSplitL "FG"; et.
+    cInlineT. cForceT Fib. cForcesT. iSplitL "FG"; et.
     { (* prove the precondition of "fib" *)
       iFrame. iSplit; et. iPureIntro. eexists. esplits; et. econs; esplits; et.
       econs.
@@ -141,47 +141,47 @@ Module KnotMainIA. Section KnotMainIA.
       iIntros (? ?) "[%m [-> ->]]". iPoseProof (WEAK with "[]") as "[% [% [%Hfsp I]]]".
       { iPureIntro. exists (Fib, m); split; ss. }
       iExists _, _; iSplit; first eauto.
-      unfold_pre_post. iIntros (? ?) "[[% F] [% %]]"; iPoseProof ("I" with "[F]") as "?".
+      unfoldPrePost. iIntros (? ?) "[[% F] [% %]]"; iPoseProof ("I" with "[F]") as "?".
       { iFrame. iSplit; eauto. }
       eauto.
     }
 
     (* TGT: take a postcondition of "fib" *)
-    steps_r. iDestruct "GRT" as "[-> [[% [-> %]] FG]]". steps_r. inv H.
+    cStepsT. iDestruct "GRT" as "[-> [[% [-> %]] FG]]". cStepsT. inv H.
 
     (* TGT: find a block of the function "rec" using the postcondition of "fib" *)
-    rewrite FBLOCK. steps_r.
+    rewrite FBLOCK. cStepsT.
     
     (* SRC: handle pure (APC) *)
-    unfold pure. steps_l.
-    force_l 30%ord. steps_l. simpl_sp. force_l.
-    forces_l. iSplitR; et. steps_l.
+    unfold pure. cStepsS.
+    cForceS 30%ord. cStepsS. simpl_sp. cForceS.
+    cForcesS. iSplitR; et. cStepsS.
 
     (* SRC: inlining APC *)
-    inline_l. steps_l. iDestruct "ASM" as "%"; des; subst. steps_l.
-    unfold APC. force_l 1. steps_l. 
+    cInlineS. cStepsS. iDestruct "ASM" as "%"; des; subst. cStepsS.
+    unfold APC. cForceS 1. cStepsS. 
     inv SPEC.
-    (* SRC, TGT: call "fib" using APC tactic *)
-    apc_call_weaker "FG"; et.
+    (* SRC, TGT: cCall "fib" using APC tactic *)
+    apcCallWeak "FG"; et.
     { instantiate (1:=0). eapply OrdArith.lt_from_nat; et. }
-    { instantiate (1:=29). hss. eapply OrdArith.lt_from_nat; nia. }
+    { instantiate (1:=29). cSimpl. eapply OrdArith.lt_from_nat; nia. }
     iSplitL "FG IST".
     { ss. instantiate (1:=(Fib, 10)). iFrame. iSplit; et.
       iPureIntro. eexists; esplits; ss.
       rewrite -OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.le_from_nat; nia.
     }
-    clear_st. iIntros (st_src st_tgt ret) "[IST [-> FG]]". steps_r.
+    clear_st. iIntros (st_src st_tgt ret) "[IST [-> FG]]". cStepsT.
 
     (* SRC: jump APC *)
-    iApply wsim_apc_src. steps_l. forces_l. iSplit; et. steps_l. force_l. steps_l.
-    force_l. iSplit; eauto. 
-    step. iSplitR; et.
+    iApply wsim_apc_src. cStepsS. cForcesS. iSplit; et. cStepsS. cForceS. cStepsS.
+    cForceS. iSplit; eauto. 
+    cStep. iSplitR; et.
     Unshelve. all: try exact (tt↑).
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open KnotMainAMod KnotMainIMod emp%I IstFull.
   Proof.
-    init_sim.
+    cStartModSim.
     (* - exfalso. revert H. unfold_mod; ss. *)
     { eapply simF_fib; et. }
     { eapply simF_main; et. }
@@ -208,27 +208,27 @@ Module KnotMainIA. Section KnotMainIA.
       (KnotMainA.t genv sp_rec true  sp ★ APCC.t sp, emp%I).
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     eapply main_adequacy.
-    init_sim.
-    { iStartSim. rewrite /pure_body.
-      steps_l. case_match. iDestruct "ASM" as "[[% PRE] %]"; des; hss.
-      rewrite /pure_body. steps_l. simpl_sp. forces_l.
-      iSplitR; eauto. steps_l. force_r (n, u).
-      forces_r. iSplitL "PRE".
+    cStartModSim.
+    { cStartFunSim. rewrite /pure_body.
+      cStepsS. case_match. iDestruct "ASM" as "[[% PRE] %]"; des; cSimpl.
+      rewrite /pure_body. cStepsS. simpl_sp. cForcesS.
+      iSplitR; eauto. cStepsS. cForceT (n, u).
+      cForcesT. iSplitL "PRE".
       { iFrame; iPureIntro; esplits; eauto. }
-      hss. steps_r. simpl_sp. steps_r. iDestruct "GRT" as "%"; des; hss.
-      call "IST"; eauto.
+      cSimpl. cStepsT. simpl_sp. cStepsT. iDestruct "GRT" as "%"; des; cSimpl.
+      cCall "IST"; eauto.
       iIntros (???) "IST".
-      steps_l. steps_r. forces_r. iSplitL "ASM"; eauto.
-      steps_r. iDestruct "GRT" as "[% POST]". forces_l.
+      cStepsS. cStepsT. cForcesT. iSplitL "ASM"; eauto.
+      cStepsT. iDestruct "GRT" as "[% POST]". cForcesS.
       iSplitL "POST"; iFrame; eauto.
-      step. iFrame; eauto.
+      cStep. iFrame; eauto.
     }
-    { iStartSim. rewrite /main_body.
-      steps_l. hss. iDestruct "ASM" as "[% [% ?]]"; des; hss.
-      steps_l. forces_r. iFrame. iSplit; eauto. steps_r.
-      rewrite /pure. steps_r. simpl_sp. steps_r. inline_r. forces_r. iSplit; eauto. steps_r.
-      iDestruct "GRT" as "(% & %)". hss. forces_r. iSplitR; et.
-      steps_r. forces_l. iSplit; eauto. step.
+    { cStartFunSim. rewrite /main_body.
+      cStepsS. cSimpl. iDestruct "ASM" as "[% [% ?]]"; des; cSimpl.
+      cStepsS. cForcesT. iFrame. iSplit; eauto. cStepsT.
+      rewrite /pure. cStepsT. simpl_sp. cStepsT. cInlineT. cForcesT. iSplit; eauto. cStepsT.
+      iDestruct "GRT" as "(% & %)". cSimpl. cForcesT. iSplitR; et.
+      cStepsT. cForcesS. iSplit; eauto. cStep.
       iSplit; eauto.
     }
     { instantiate (1:=const (const emp%I)). iIntros "_"; repeat iExists _; repeat iSplit; eauto. }

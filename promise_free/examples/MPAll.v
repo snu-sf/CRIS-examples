@@ -51,7 +51,7 @@ Section MPAux.
       eexists _, _; splits.
       { ss; exists tt; split; refl. }
       { iIntros "[$ [$ [$ $]]]"; ss. }
-      { unfold_pre_post. iIntros "% % [_ [% _]] //". }
+      { unfoldPrePost. iIntros "% % [_ [% _]] //". }
     }
   Qed.
 

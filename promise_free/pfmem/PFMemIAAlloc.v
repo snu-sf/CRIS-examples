@@ -130,18 +130,18 @@ Section alloc.
 
   Lemma simF_alloc : ISim.sim_fun open MA MI Ist (fid PFMemHdr.alloc).
   Proof using.
-    iStartSim. rewrite /PFMemI.alloc.
-    steps_l. destruct _q as [[tid sz] V].
+    cStartFunSim. rewrite /PFMemI.alloc.
+    cStepsS. destruct _q as [[tid sz] V].
     iDestruct "ASM" as "[-> [-> TV]]".
     iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
     rewrite /PFMemI.check_ident.
-    steps_r.
-    iPoseProof (tview_both_valid with "TA TV") as "%F"; des; clarify. rewrite F. steps_r.
+    cStepsT.
+    iPoseProof (tview_both_valid with "TA TV") as "%F"; des; clarify. rewrite F. cStepsT.
     destruct _q as [[loc config'] STEP].
     dup STEP; inv STEP0. inv STEP1; inv LOCAL.
     iMod (hist_auth_alloc_vs with "HA") as "[HA PTS]"; eauto.
     { inv WF; ss. }
-    steps_r. hss. remember (Configuration.mk (IdentMap.add _ _ _) _) as config'.
+    cStepsT. cSimpl. remember (Configuration.mk (IdentMap.add _ _ _) _) as config'.
     iPoseProof (tview_auth_update with "TA TV") as "> [TA TV]"; ss.
     iMod (hist_freeable_auth_alloc with "FA") as "[F FA]"; eauto. { inv WF; ss. }
     iAssert (Ist st_src _) with "[HA TA FA]" as "IST".
@@ -184,8 +184,8 @@ Section alloc.
       }
       subst config'; iFrame.
     }
-    force_l ((Val.Vptr loc)↑). steps_l. force_l ((Val.Vptr loc)↑). steps_l.
-    force_l. iSplitL "PTS TV F".
+    cForceS ((Val.Vptr loc)↑). cStepsS. cForceS ((Val.Vptr loc)↑). cStepsS.
+    cForceS. iSplitL "PTS TV F".
     { iSplit; eauto. iFrame "TV F".
       iSplit.
       { iPureIntro; split; first done. hexploit Local.alloc_step_future; eauto.
@@ -229,7 +229,7 @@ Section alloc.
       f_equal. apply Cell.ext; intros ts.
       rewrite Cell.init_get Cell.singleton_get; des_ifs.
     }
-    step_l. step.
+    cStepS. cStep.
     subst config'; iFrame. done.
   Unshelve. all: eauto.
   (*SLOW*)Qed.

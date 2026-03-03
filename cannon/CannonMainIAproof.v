@@ -17,31 +17,31 @@ Module CannonMainIA. Section CannonMainIA.
   
   Lemma simF_main : ISim.sim_fun open MainAMod MainIMod Ist entry.
   Proof using CannonInMain.
-    iStartSim.
+    cStartFunSim.
 
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "[-> B]". destruct Any.downcast; steps_l; ss. simpl_sp.
+    cStepsS. iDestruct "ASM" as "[-> B]". destruct Any.downcast; cStepsS; ss. simpl_sp.
 
     (* SRC: prove the precondition of "fire" *)
-    steps_r. force_l. instantiate (1:=()). force_l.
-    force_l. iFrame; iSplit; eauto. steps_l.
+    cStepsT. cForceS. instantiate (1:=()). cForceS.
+    cForceS. iFrame; iSplit; eauto. cStepsS.
 
-    (* SRC, TGT; call "fire" and take a postcondition *)
-    call "IST"; eauto. clear dependent st_src st_tgt. iIntros (ret st_src st_tgt) "IST".
-    steps_l. iDestruct "ASM" as "[% %]"; des; subst. hss.
-    steps_r. hss. steps_r.
+    (* SRC, TGT; cCall "fire" and take a postcondition *)
+    cCall "IST"; eauto. clear dependent st_src st_tgt. iIntros (ret st_src st_tgt) "IST".
+    cStepsS. iDestruct "ASM" as "[% %]"; des; subst. cSimpl.
+    cStepsT. cSimpl. cStepsT.
     
     (* SRC, TGT: print 1 *)
-    step. steps_l. steps_r.
+    cStep. cStepsS. cStepsT.
 
     (* SRC: prove the postcondition & IST *)
-    forces_l. iSplit; eauto.
-    step. iFrame; et.
+    cForcesS. iSplit; eauto.
+    cStep. iFrame; et.
   (*SLOW*)Qed.
 
   Theorem sim : ISim.t open MainAMod MainIMod emp%I Ist.
   Proof using CannonInMain.
-    init_sim.
+    cStartModSim.
     { iIntros "_"; done. }
     { eapply simF_main. }
   Qed.

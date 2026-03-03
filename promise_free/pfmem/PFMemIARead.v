@@ -16,17 +16,17 @@ Section read.
 
   Lemma simF_read : ISim.sim_fun open MA MI PFMemIA.Ist (fid PFMemHdr.read).
   Proof.
-    iStartSim.
-    step_l. destruct _q as [f|[f|[]]].
+    cStartFunSim.
+    cStepS. destruct _q as [f|[f|[]]].
     { (* non-atomic read *)
-      steps_l.
-      destruct f as [[[[[tid loc] ord] val] q] 𝓥]. unfold_pre_post.
-      iDestruct "ASM" as "[-> [-> [PT TV]]]". hss_r. steps_r.
+      cStepsS.
+      destruct f as [[[[[tid loc] ord] val] q] 𝓥]. unfoldPrePost.
+      iDestruct "ASM" as "[-> [-> [PT TV]]]". cStepsT.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
-      steps_r. hss. steps_r.
+      cStepsT. cSimpl. cStepsT.
       rewrite /PFMemI.check_ident.
       des_ifs; last (iPoseProof (tview_both_valid with "TA TV") as "%F"; des; ss; clarify).
-      steps_r. destruct _q as [[[e val'] config'] [EVREAD STEP]].
+      cStepsT. destruct _q as [[[e val'] config'] [EVREAD STEP]].
       destruct e; inv EVREAD; inv STEP; clear EVENT; rename STEP0 into STEP; s in STEP; cycle 1.
       { (* RACY READ *)
         inv STEP; inv LOCAL. inv LOCAL0. inv RACE.
@@ -67,7 +67,7 @@ Section read.
       }
       (* VALID READ *)
       inv STEP; inv LOCAL. des_ifs. clear n.
-      steps_r.
+      cStepsT.
       iPoseProof (tview_both_valid with "TA TV") as "%F"; des; subst.
       rewrite F in Heq; inv Heq.
 
@@ -120,7 +120,7 @@ Section read.
         }
       }
 
-      force_l (val'↑). steps_l. force_l (val'↑). steps_l. force_l.
+      cForceS (val'↑). cStepsS. cForceS (val'↑). cStepsS. cForceS.
       iSplitR "IST".
       { iFrame. iSplit; eauto. iExists val'.
         iSplit; eauto.
@@ -137,16 +137,16 @@ Section read.
         }
         { iPureIntro; etrans; eauto. etrans; eapply View.join_l. }
       }
-      step. iSplit; eauto.
+      cStep. iSplit; eauto.
     }
     { destruct f as [[[[[[[[[[tid loc] ord] ζ] ζ'] t] γ] q] mode] 𝓥] Vb].
-      steps_l.
-      iDestruct "ASM" as "[-> [[-> %ORDRLX] [SEEN [PT TV]]]]". hss_r.
+      cStepsS.
+      iDestruct "ASM" as "[-> [[-> %ORDRLX] [SEEN [PT TV]]]]".
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
-      steps_r. hss. steps_r.
+      cStepsT. cSimpl. cStepsT.
       rewrite /PFMemI.check_ident.
       des_ifs; last (iPoseProof (tview_both_valid with "TA TV") as "%F"; des; ss; clarify).
-      steps_r. destruct _q as [[[e v] config'] [EVREAD STEP]].
+      cStepsT. destruct _q as [[[e v] config'] [EVREAD STEP]].
       destruct e; inv EVREAD; inv STEP; clear EVENT; rename STEP0 into STEP; s in STEP; cycle 1.
       { (* RACY READ *)
         inv STEP; inv LOCAL. inv LOCAL0.
@@ -158,7 +158,7 @@ Section read.
       }
       (* VALID READ *)
       inv STEP; inv LOCAL. des_ifs. clear n.
-      steps_r. rewrite /alist_upd /_alist_upd /=.
+      cStepsT. rewrite /alist_upd /_alist_upd /=.
       (* 1. we don't need to update hist and points to *)
       (* 2. we do need to udpate seen *)
       (* 3. we do need to update 𝓥 *)
@@ -244,7 +244,7 @@ Section read.
         }
 
         inv LOCAL0; ss.
-        force_l (v↑). steps_l. force_l (v↑). steps_l. force_l.
+        cForceS (v↑). cStepsS. cForceS (v↑). cStepsS. cForceS.
         iSplitR "IST".
         { rewrite AtomicPtsToX_eq /AtomicPtsToX_def /view_at.
           iFrame. iSplit; eauto. iExists from, na, v, val', released.
@@ -262,7 +262,7 @@ Section read.
             rewrite ORDRLX. des_ifs; eapply View.join_r.
           }
         }
-        step. iSplit; eauto.
+        cStep. iSplit; eauto.
       }
       { (* When it reads value from global history, *)
         (* We need to update ζ'. *)
@@ -394,7 +394,7 @@ Section read.
           }
         }
 
-        force_l (v↑). steps_l. force_l (v↑). steps_l. force_l.
+        cForceS (v↑). cStepsS. cForceS (v↑). cStepsS. cForceS.
         iSplitR "IST".
         { rewrite AtomicPtsToX_eq /AtomicPtsToX_def /view_at.
           iFrame. iSplit; eauto. iExists from, na, v, val', released.
@@ -425,7 +425,7 @@ Section read.
             eapply View.join_r.
           }
         }
-        step. iSplit; eauto.
+        cStep. iSplit; eauto.
       }
     }
   (*SLOW*)Qed.

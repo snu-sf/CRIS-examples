@@ -36,9 +36,9 @@ Module SCHMainIA. Section SCHMainIA.
 
   Lemma simF_main : ISim.sim_fun open MA MI IstTrue entry.
   Proof using Hschglob (* Hschrrs Hschnds *) Hsch Hrrs Hnds Hrrsnode Hndsnode.
-    iStartSim.
+    cStartFunSim.
 
-    steps_l. iDestruct "ASM" as "(-> & RI & RV & NI & T)". rewrite /SCHMainI.main. steps_l.
+    cStepsS. iDestruct "ASM" as "(-> & RI & RV & NI & T)". rewrite /SCHMainI.main. cStepsS.
     erewrite lookup_weaken; try eapply Hsch; cycle 1.
     { rewrite /SchA.sp. simpl_map. refl. }
     destruct _q; ss.
@@ -46,8 +46,8 @@ Module SCHMainIA. Section SCHMainIA.
     rewrite /SchA.spawn_spec.
     set (pre := (λ svarg sarg, ⌜svarg = RRSNodeHdr.f_main↑↑ ∧ svarg = sarg⌝ ∗ RRSAS.InitRRS ∗ RRSNodeAS.full_val (Vint 0))%I).
     set (postS := (λ (svret sret : SAny.t), existT 0 (⌜False⌝)%SAT)%I).
-    force_l (pre, postS). subst pre postS.
-    steps_l. forces_l. iSplitL "RI RV".
+    cForceS (pre, postS). subst pre postS.
+    cStepsS. cForcesS. iSplitL "RI RV".
     { do 3 iExists _. iSplit; eauto. iFrame. rewrite /SchA.fn_spawnable. iSplit; eauto. iExists _. iSplit; eauto.
       { iPureIntro. erewrite lookup_weaken; try eapply Hrrs; et. }
       rewrite /SchA.fspec_spawnable. iIntros (??) "%".
@@ -61,7 +61,7 @@ Module SCHMainIA. Section SCHMainIA.
         eexists m; esplits; eauto. }
       iIntros (??) "PRE". iModIntro. iSplitL "PRE".
       { rewrite /RRSAS.init_spec /precond /= /fspec_virtual /precond /=. subst P1.
-        iDestruct "PRE" as "(W & T & % & % & % & % & RI & RN)"; des; subst; hss. iFrame "W".
+        iDestruct "PRE" as "(W & T & % & % & % & % & RI & RN)"; des; subst; cSimpl. iFrame "W".
         iExists _. iSplitR; eauto. iExists _. iSplitR; eauto. iFrame.
         iDestruct "T" as "(t & T & Y)". iFrame. iSplit; eauto.
         rewrite /RRSAS.fn_spawnable_rr_init. iExists _. iSplit; eauto.
@@ -76,28 +76,28 @@ Module SCHMainIA. Section SCHMainIA.
         { iPureIntro. exists m0. esplits; eauto. }
         iIntros (??) "PRE". iModIntro. iSplitL; eauto.
         { rewrite /precond /RRSNodeAS.f_main_spec /=. subst P1.
-          iDestruct "PRE" as "(W & % & % & T & RI & % & % & % & % & RN)"; des; subst; hss.
+          iDestruct "PRE" as "(W & % & % & T & RI & % & % & % & % & RN)"; des; subst; cSimpl.
           iFrame; eauto. }
         iIntros (??) "POST". iModIntro. subst Q1.
         rewrite /postcond /RRSNodeAS.f_main_spec /=.
-        iDestruct "POST" as "(W & % & % & T)"; des; subst; hss.
+        iDestruct "POST" as "(W & % & % & T)"; des; subst; cSimpl.
         iFrame; eauto.
       }
       iIntros (??) "POST". iModIntro. subst Q1. rewrite /postcond /RRSAS.init_spec /=.
       iDestruct "POST" as "(W & % & % & F)". ss.
     }
-    steps_l. steps_r. call "IST". iIntros (???) "IST".
-    steps_l.
-    iDestruct "ASM" as "(% & % & Join)"; des; subst; hss.
+    cStepsS. cStepsT. cCall "IST". iIntros (???) "IST".
+    cStepsS.
+    iDestruct "ASM" as "(% & % & Join)"; des; subst; cSimpl.
     erewrite lookup_weaken; try eapply Hsch; cycle 1.
     { rewrite /SchA.sp. simpl_map. refl. }
-    steps_r. steps_l.
+    cStepsT. cStepsS.
 
     rewrite /SchA.spawn_spec.
     set (pre := (λ svarg sarg, ⌜svarg = NDSNodeHdr.f_main↑↑ ∧ svarg = sarg⌝ ∗ NDSA.InitNDS)%I).
     set (postS := (λ svret sret, existT 0 (⌜svret = tt↑↑ ∧ svret = sret⌝)%SAT)%I).
-    force_l (pre, postS). subst pre postS.
-    steps_l. forces_l. iSplitL "NI Join".
+    cForceS (pre, postS). subst pre postS.
+    cStepsS. cForcesS. iSplitL "NI Join".
     { do 3 iExists _. iSplit; eauto. iFrame. rewrite /SchA.fn_spawnable. iSplit; eauto. iExists _. iSplit; eauto.
       { iPureIntro. erewrite lookup_weaken; try eapply Hnds; eauto. }
       rewrite /SchA.fspec_spawnable. iIntros (??) "%".
@@ -111,7 +111,7 @@ Module SCHMainIA. Section SCHMainIA.
         eexists m; esplits; eauto. }
       iIntros (??) "PRE". iModIntro. iSplitL "PRE".
       { rewrite /NDSA.init_spec /precond /= /fspec_virtual /precond /=. subst P1.
-        iDestruct "PRE" as "(W & T & % & % & % & % & NI)"; des; subst; hss. iFrame "W".
+        iDestruct "PRE" as "(W & T & % & % & % & % & NI)"; des; subst; cSimpl. iFrame "W".
         iExists _. iSplitR; eauto. iExists _. iSplitR; eauto. iFrame.
         iDestruct "T" as "(t & T & Y)". iFrame. iSplit; eauto.
         rewrite /NDSA.fn_spawnable. iExists _. iSplit; eauto.
@@ -126,11 +126,11 @@ Module SCHMainIA. Section SCHMainIA.
         { iPureIntro. exists m0. esplits; eauto. }
         iIntros (??) "PRE". iModIntro. iSplitL; eauto.
         { rewrite /precond /NDSNodeA.f_main_spec /=. subst P1.
-          iDestruct "PRE" as "(W & % & % & T & % & % & %)"; des; subst; hss.
+          iDestruct "PRE" as "(W & % & % & T & % & % & %)"; des; subst; cSimpl.
           iFrame; eauto. }
         iIntros (??) "POST". iModIntro. subst Q1.
         rewrite /postcond /NDSNodeA.f_main_spec /=.
-        iDestruct "POST" as "(W & T & %)"; des; subst; hss.
+        iDestruct "POST" as "(W & T & %)"; des; subst; cSimpl.
         iFrame; eauto. iExists _; iSplit; eauto. iExists _; iSplit; eauto.
         solve_base_sl_red.
       }
@@ -138,17 +138,17 @@ Module SCHMainIA. Section SCHMainIA.
       iDestruct "POST" as "(W & % & % & F)". ss.
     }
 
-    steps_l. call "IST". iIntros (???) "IST". steps_r. steps_l.
-    iDestruct "ASM" as "(% & % & JoinF')"; des; subst; hss.
+    cStepsS. cCall "IST". iIntros (???) "IST". cStepsT. cStepsS.
+    iDestruct "ASM" as "(% & % & JoinF')"; des; subst; cSimpl.
 
-    sch_yield_ir "IST" "T". sch_yield_l.
-    steps_l. forces_l. iSplitR; eauto.
-    step. iFrame; eauto.
+    sYieldIR "IST" "T". sYieldS.
+    cStepsS. cForcesS. iSplitR; eauto.
+    cStep. iFrame; eauto.
   Qed.
 
   Lemma sim : ISim.t open MA MI emp%I IstTrue.
   Proof using Hschglob (* Hschrrs Hschnds *) Hsch Hrrs Hnds Hrrsnode Hndsnode.
-    init_sim.
+    cStartModSim.
     - eauto.
     - eapply simF_main.
   Qed.

@@ -26,25 +26,25 @@ Module MutMainIA. Section MutMainIA.
   Lemma simF_main:
     ISim.sim_fun open MutMainAMod MutMainIMod IstFull entry.
   Proof using APCInSp FInPure PureInSp.
-    iStartSim.
+    cStartFunSim.
 
     (* SRC: precondition *)
-    steps_l. iDestruct "IST" as "%"; des; hss.
+    cStepsS. iDestruct "IST" as "%"; des; cSimpl.
 
     (* SRC: handle pure (APC) *)
     rewrite /MutMainI.mainF /MutMainA.main_body /pure.
-    force_l 11. steps_l.
+    cForceS 11. cStepsS.
     erewrite lookup_weaken; [| |eapply APCInSp]; cycle 1.
     { rewrite /APCA.sp; simpl_map; refl. }
-    forces_l. iSplitR; eauto.
-    steps_l.
+    cForcesS. iSplitR; eauto.
+    cStepsS.
     
     (* SRC: inlining APC *)
-    inline_l. steps_l. iDestruct "ASM" as "[-> <-]"; hss.
-    steps_l. rewrite /APC. force_l 1. steps_l.
+    cInlineS. cStepsS. iDestruct "ASM" as "[-> <-]"; cSimpl.
+    cStepsS. rewrite /APC. cForceS 1. cStepsS.
 
-    (* SRC, TGT: call mutg using APC tactic *)
-    steps_r. apc_call ""; eauto.
+    (* SRC, TGT: cCall mutg using APC tactic *)
+    cStepsT. apcCall ""; eauto.
     { instantiate (1:=0). eapply OrdArith.lt_from_nat. nia. }
     { instantiate (1:=10). eapply OrdArith.lt_from_nat. nia. }
     { instantiate (1:=10). iSplit; eauto. 
@@ -55,19 +55,19 @@ Module MutMainIA. Section MutMainIA.
     iDestruct "ISTPOST" as "[IST ->]".
     
     (* SRC: jump APC *)
-    apc_l. steps_l. steps_r. hss. steps_r.
-    forces_l. iSplitR; first done.
-    steps_l. forces_l.
+    apcS. cStepsS. cStepsT. cSimpl. cStepsT.
+    cForcesS. iSplitR; first done.
+    cStepsS. cForcesS.
 
     (* SRC, TGT: prove the IST *)
-    step. iSplitR "IST"; eauto.
+    cStep. iSplitR "IST"; eauto.
     Unshelve. all: ss.
   (*SLOW*)Qed.
 
   Theorem sim:
     ISim.t open MutMainAMod MutMainIMod MutMainA.init_cond IstFull.
   Proof.
-    init_sim.
+    cStartModSim.
     - apply simF_main; eauto.
     - iIntros "C". iFrame. do 4 iExists _; esplits; eauto.
   Qed.
@@ -85,18 +85,18 @@ Module MutMainIA. Section MutMainIA.
   Proof using APCInSp FInPure PureInSp.
     eapply main_adequacy
       with (Ist := IstProd (IstSB MutMainA.scopes IstEq) IstEq).
-    init_sim.
+    cStartModSim.
     (* { inv H. } *)
-    { init_simF.
-      steps_l. forces_r.
-      iDestruct "IST" as "%"; des; hss.
-      rewrite /MutMainA.main_body /pure /SModTr.trans_fnsem /SModTr.HoareFun. steps_r.
+    { cStartFunSim.
+      cStepsS. cForcesT.
+      iDestruct "IST" as "%"; des; cSimpl.
+      rewrite /MutMainA.main_body /pure /SModTr.trans_fnsem /SModTr.HoareFun. cStepsT.
       erewrite lookup_weaken; [| |eapply APCInSp]; cycle 1.
       { rewrite /APCA.sp; simpl_map; refl. }
-      steps_r. inline_r. forces_r.
+      cStepsT. cInlineT. cForcesT.
       iDestruct "GRT" as "(% & %)". subst. iSplitR; et.
-      hss. steps_r. forces_r. iSplitR; et.
-      steps_r. steps_l. step. rewrite /ist_with_eq /IstProd. iSplit; eauto.
+      cSimpl. cStepsT. cForcesT. iSplitR; et.
+      cStepsT. cStepsS. cStep. rewrite /ist_with_eq /IstProd. iSplit; eauto.
     }
     { rewrite /IstProd. iIntros "_". do 4 iExists _. eauto. }
   Unshelve. all: et.
