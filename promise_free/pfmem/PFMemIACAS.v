@@ -17,13 +17,13 @@ Section CAS.
   Lemma simF_cas : ISim.sim_fun open MA MI Ist (fid PFMemHdr.cas).
   Proof.
     (* prologue *)
-    iStartSim.
-    step_l.
+    cStartFunSim.
+    cStepS.
     destruct _q as [[[[[[[[[[[[[tid loc] old] new] ordr] ordw] 𝓥] γ] ζ'] Vb] tx] ζn] mode] Pr].
-    steps_l.
+    cStepsS.
     iDestruct "ASM" as "[-> [[-> [%RLXR [%RLXW %COMPARABLE]]] [TV [SN [PT [AW [PR #CMP]]]]]]]".
     iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA HFA]]]]]]".
-    hss. steps_r.
+    cSimpl. cStepsT.
 
     (* conditions *)
     iPoseProof (tview_both_valid with "TA TV") as "%IN".
@@ -46,7 +46,7 @@ Section CAS.
 
     (* ident check *)
     rewrite /PFMemI.check_ident FIND.
-    steps_r. destruct _q as [[[e valret] config'] [valr [EV STEP]]].
+    cStepsT. destruct _q as [[[e valret] config'] [valr [EV STEP]]].
     destruct e; inv EV; s; destruct (excluded_middle_informative _); ss; cycle 1.
     { (* racy cas *)
       inv STEP; ss. rename STEP0 into STEP.
@@ -127,11 +127,11 @@ Section CAS.
       }
     }
 
-    (* valid cas step *)
+    (* valid cas cStep *)
     clear n. iClear "CMP".
     inv STEP; ss. clear EVENT. inv STEP0; inv LOCAL; ss.
     { (* success case*)
-      steps_r.
+      cStepsT.
       assert (TRW : Time.lt tsr tsw).
       { inv LOCAL1. inv READABLE.
         inv LOCAL2. inv WRITE; ss. inv ADD; ss. inv ADD0; ss.
@@ -283,7 +283,7 @@ Section CAS.
           do 3 (etrans; last eapply View.join_l); refl.
         }
       }
-      force_l (Val.one ↑). steps_l. force_l (Val.one ↑). steps_l. force_l.
+      cForceS (Val.one ↑). cStepsS. cForceS (Val.one ↑). cStepsS. cForceS.
       iSplitR "HA HFA TA".
       { iSplit; first done. iFrame "PR TV".
         inv LOCAL1; ss.
@@ -452,7 +452,7 @@ Section CAS.
         }
         { etrans; eauto. by apply View.join_l. }
       }
-      steps_l. step.
+      cStepsS. cStep.
       iSplit; auto.
       iFrame "HA HFA TA".
       iPureIntro; ss.
@@ -490,7 +490,7 @@ Section CAS.
       }
     }
     { (* fail case *)
-      steps_r.
+      cStepsT.
       iAssert (∃ ζ_read,
         ⌜Cell.le ζ' ζ_read
         ∧ ∀ ts, Cell.get ts ζ_read =
@@ -553,7 +553,7 @@ Section CAS.
       }
       iPoseProof (at_auth_fork_at_reader with "AA") as "#AR'".
 
-      force_l (Val.zero ↑). steps_l. force_l (Val.zero ↑). steps_l. force_l. iSplitR "IST".
+      cForceS (Val.zero ↑). cStepsS. cForceS (Val.zero ↑). cStepsS. cForceS. iSplitR "IST".
       { iSplit; first done.
         iFrame "PR TV".
         inv LOCAL1; ss.
@@ -632,7 +632,7 @@ Section CAS.
         iFrame "HIST AA PTA". iSplit; first done.
         des. iSplit; done.
       }
-      step_l. step.
+      cStepS. cStep.
       iFrame. done.
     }
     Unshelve. all: auto.

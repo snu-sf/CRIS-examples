@@ -18,17 +18,17 @@ Module CellioIA. Section CellioIA.
 
   Lemma simF_set : ISim.sim_fun open CellioA CellioI Ist (fid CellioHdr.set).
   Proof using.
-    iStartSim. unfold CellioI.set, CellioA.set.
+    cStartFunSim. unfold CellioI.set, CellioA.set.
 
     (* Take (x:Z) & cell(x) *)
-    steps_l. iDestruct "ASM" as "->". hss.
+    cStepsS. iDestruct "ASM" as "->". cSimpl.
     ltac2:(renames _q into v). iRename "ASM'" into "CELL".
 
     (* Call Input() simultaneously *)
-    steps_r.
-    call "IST". iIntros (ret st_src' st_tgt') "IST".
-    steps_r. steps_l. destruct Any.downcast as [v_new|]; [|steps_l; ss]. hss.
-    steps_r. steps_l.
+    cStepsT.
+    cCall "IST". iIntros (ret st_src' st_tgt') "IST".
+    cStepsT. cStepsS. destruct Any.downcast as [v_new|]; [|cStepsS; ss]. cSimpl.
+    cStepsT. cStepsS.
 
     (* Give cell(i) *)
     iDestruct "IST" as (v') "(% & AUTH)". subst.
@@ -36,42 +36,42 @@ Module CellioIA. Section CellioIA.
     iPoseProof (cell_auth_get with "CELL AUTH") as "<-".
     iMod (cell_auth_set with "CELL AUTH") as "(CELL & AUTH)".
 
-    forces_l. iSplitL "CELL"; eauto.
+    cForcesS. iSplitL "CELL"; eauto.
 
-    steps_l. forces_l.
+    cStepsS. cForcesS.
     iSplit; eauto.
-    steps_r. steps_l.
+    cStepsT. cStepsS.
 
-    step.
+    cStep.
     iSplitL ""; eauto.
     iExists _. iFrame. eauto.
   (*SLOW*)Qed.
   
   Lemma simF_get : ISim.sim_fun open CellioA CellioI Ist (fid CellioHdr.get).
   Proof using.
-    iStartSim. unfold CellioI.get, CellioA.get.
+    cStartFunSim. unfold CellioI.get, CellioA.get.
 
     (* Take (x:Z) & cell(x) *)
-    steps_l. iDestruct "ASM" as "->".
-    ltac2:(renames _q into v). iRename "ASM'" into "CELL". hss.
+    cStepsS. iDestruct "ASM" as "->".
+    ltac2:(renames _q into v). iRename "ASM'" into "CELL". cSimpl.
     iDestruct "IST" as (v') "(-> & AUTH)".
 
     iPoseProof (cell_auth_get with "CELL AUTH") as "<-".
 
-    steps_r. hss. steps_r.
+    cStepsT. cSimpl. cStepsT.
 
     (* Give cell(x) *)
-    forces_l. iSplitL "CELL"; eauto.
+    cForcesS. iSplitL "CELL"; eauto.
     
-    steps_l. forces_l. iSplit; eauto.
+    cStepsS. cForcesS. iSplit; eauto.
 
-    step. iSplit; eauto.
+    cStep. iSplit; eauto.
     iExists _. iFrame. eauto.
   (*SLOW*)Qed.
   
   Lemma sim : ISim.t open CellioA CellioI CellioA.init_cond Ist.
   Proof using.
-    init_sim.
+    cStartModSim.
     - iIntros "H". iExists _. iFrame. et.
     - apply simF_set; eauto.
     - apply simF_get; eauto.

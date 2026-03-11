@@ -15,61 +15,61 @@ Module MaincbIA. Section MaincbIA.
 
   Lemma simF_main : ISim.sim_fun open MaincbA (MaincbI.t ★ CelliocbAMod) IstFull entry.
   Proof using sp_foo.
-    iStartSim.
+    cStartFunSim.
     unfold MaincbA.main, MaincbI.main.
     
     (* Take cell(0) *)
-    steps_l.
+    cStepsS.
     iDestruct "ASM" as "[-> ASM]".
 
     (* Give cell(0) *)
-    steps_r. inline_r. steps_r. forces_r. iFrame.
+    cStepsT. cInlineT. cStepsT. cForcesT. iFrame.
     
     (* Inline input_stdin() *)
-    steps_r. inline_r. steps_r. unfold MaincbI.input_stdin. 
+    cStepsT. cInlineT. cStepsT. unfold MaincbI.input_stdin. 
     
     (* trigger IO together *)
-    step. rename ret into i. 
-    steps_r. steps_l. rewrite sp_foo.
+    cStep. rename ret into i. 
+    cStepsT. cStepsS. rewrite sp_foo.
 
     (* Take cell(i) *)
-    inline_r. rewrite /get. steps_r. forces_r. iFrame. steps_r.
+    cInlineT. rewrite /get. cStepsT. cForcesT. iFrame. cStepsT.
 
-    (* call foo together *)
-    call "IST". iIntros "% % % IST".
+    (* cCall foo together *)
+    cCall "IST". iIntros "% % % IST".
 
     (* TGT : handle set(input_db) *)
-    steps_l. steps_r.
-    destruct Any.downcast; steps_l; des_ifs. steps_r.
+    cStepsS. cStepsT.
+    destruct Any.downcast; cStepsS; des_ifs. cStepsT.
     
     (* TGT : inline set *)
-    inline_r. steps_r. forces_r.
+    cInlineT. cStepsT. cForcesT.
 
     (* TGT : give cell i *)
-    iFrame. steps_r.
+    iFrame. cStepsT.
     
     (* TGT : inline input_db *)
-    inline_r. rewrite /MaincbI.input_db. steps_r.
+    cInlineT. rewrite /MaincbI.input_db. cStepsT.
 
     (* handle IO together *)
-    step. steps_r.
+    cStep. cStepsT.
 
     (* TGT : inline get *)
-    inline_r.
-    steps_r. unfold get. force_r ret0.
+    cInlineT.
+    cStepsT. unfold get. cForceT ret0.
     
     (* TGT : get cell ret *)
-    forces_r. iFrame.
+    cForcesT. iFrame.
 
-    steps_r. steps_l. 
+    cStepsT. cStepsS. 
     
     (* handle IO together *)
-    step. steps_l. steps_r. forces_l. iSplit; et. step. iFrame; et. 
+    cStep. cStepsS. cStepsT. cForcesS. iSplit; et. cStep. iFrame; et. 
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MaincbA (MaincbI.t ★ CelliocbAMod) emp IstFull.
   Proof using sp_foo.
-    init_sim.
+    cStartModSim.
     { iIntros "_". unfold IstFull, IstProd. repeat (iExists ∅). ss. } 
     { eapply simF_main; eauto. }
   Qed.

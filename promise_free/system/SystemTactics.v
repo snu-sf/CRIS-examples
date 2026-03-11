@@ -29,35 +29,35 @@ Section wsim.
     intros Hsps Hspt Hmsk Hcall. iIntros "?".
     rewrite /System.yield; unseal "System".
     cCoind CIH g' Hgg' with p_src p_tgt st_src st_tgt. iIntros "[IST [TV KTR]] /=".
-    unfold_iterC_r.
+    unfoldIterCT.
 
-    steps_r. rewrite Hmsk. steps_r. destruct _q as [[|]|]; cycle 2.
-    { steps_r.
-      unfold_iterC_l.
-      steps_l. des_ifs; step_l; ss.
-      force_l (Some false). steps_l.
+    cStepsT. rewrite Hmsk. cStepsT. destruct _q as [[|]|]; cycle 2.
+    { cStepsT.
+      unfoldIterCS.
+      cStepsS. des_ifs; cStepS; ss.
+      cForceS (Some false). cStepsS.
       iApply wsim_mono_knowledge; cycle 2.
       { iApply ("KTR" with "IST TV"). }
       { ii; iIntros "$ !> //". }
       { ii; iIntros "G"; iPoseProof (Hgg' with "G") as "$"; done. }
     }
-    { steps_r. rewrite Hspt. steps_r. rewrite Hcall. steps_r.
-      unfold_iterC_l. steps_l. des_ifs; step_l; ss.
-      force_l (Some true). steps_l. rewrite Hsps /=.
-      step_l. des_if; step_l; ss. force_l (tid, stid, V).
-      step_l. des_if; step_l; ss. force_l.
-      step_l. des_if; step_l; ss. force_l.
+    { cStepsT. rewrite Hspt. cStepsT. rewrite Hcall. cStepsT.
+      unfoldIterCS. cStepsS. des_ifs; cStepS; ss.
+      cForceS (Some true). cStepsS. rewrite Hsps /=.
+      cStepS. des_if; cStepS; ss. cForceS (tid, stid, V).
+      cStepS. des_if; cStepS; ss. cForceS.
+      cStepS. des_if; cStepS; ss. cForceS.
       iFrame "TV". iSplit; eauto.
-      step_l. des_if; step_l; ss.
-      call "IST".
+      cStepS. des_if; cStepS; ss.
+      cCall "IST".
       clear st_src st_tgt. iIntros (ret st_src st_tgt) "IST".
-      step_l. des_if; step_l; ss.
-      step_l. des_if; steps_l; ss. steps_r.
-      by_coind CIH. iFrame. iDestruct "ASM" as "[? [? $]]".
+      cStepS. des_if; cStepS; ss.
+      cStepS. des_if; cStepsS; ss. cStepsT.
+      cByCoind CIH. iFrame. iDestruct "ASM" as "[? [? $]]".
     }
-    unfold_iterC_l.
-    steps_l. des_if; step_l; ss. force_l (Some false). steps_l. steps_r.
-    by_coind CIH. iFrame.
+    unfoldIterCS.
+    cStepsS. des_if; cStepS; ss. cForceS (Some false). cStepsS. cStepsT.
+    cByCoind CIH. iFrame.
   (*SLOW*)Qed.
 
   Lemma wsim_system_yield_src
@@ -74,7 +74,7 @@ Section wsim.
       (st_tgt, itr_tgt).
   Proof.
     iIntros "S"; rewrite /System.yield; unseal "System".
-    unfold_iterC_l; steps_l.
-    des_if; steps_l; ss. force_l (None); steps_l; done.
+    unfoldIterCS; cStepsS.
+    des_if; cStepsS; ss. cForceS (None); cStepsS; done.
   Qed.
 End wsim.

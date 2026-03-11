@@ -26,7 +26,7 @@ Section CannonAux.
       eexists _, _; splits.
       { ss; exists (tt); split; refl. }
       { iIntros "[$ [? [? ?]]]"; ss. }
-      { unfold_pre_post. iIntros "% % %"; by des. }
+      { unfoldPrePost. iIntros "% % %"; by des. }
     }
   Qed.
 

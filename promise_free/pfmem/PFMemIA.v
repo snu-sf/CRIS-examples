@@ -14,7 +14,7 @@ Module PFMemIA. Section PFMemIA.
       (PFMemI.t PFMemA.syn [], emp%I).
   Proof using.
     eapply main_adequacy with (Ist := PFMemIA.Ist).
-    init_sim.
+    cStartModSim.
     { iIntros "[TVA [HA HFA]]"; ss.
       rewrite /PFMemIA.Ist.
       iExists (Global.init []), _, (View.init []); iSplit; cycle 1.

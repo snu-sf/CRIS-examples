@@ -28,26 +28,26 @@ Section StackIM.
 
   Lemma new_stack_simF : ISim.sim_fun open StackM StackI IstFull (fid StackHdr.new_stack).
   Proof using.
-    iStartSim. rewrite /StackI.new_stack /StackM.new_stack.
-    steps_l. destruct _q as [[stid mtid] n]. iDestruct "ASM" as "[TID [-> [%val ->]]]".
-    steps_l. steps_r.
-    sch_yield_ir "IST" "TID". { case_bool_decide; set_solver. }
+    cStartFunSim. rewrite /StackI.new_stack /StackM.new_stack.
+    cStepsS. destruct _q as [[stid mtid] n]. iDestruct "ASM" as "[TID [-> [%val ->]]]".
+    cStepsS. cStepsT.
+    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
 
     (* allocate new stack - can't use memtactics here..., generalize the lemma *)
     iApply wsim_mem_alloc; [try by simpl_map|ss|ss|].
-    iIntros (blk) "[↦stack [↦val _]]". steps_r.
-    sch_yield_ir "IST" "TID". { case_bool_decide; set_solver. }
-    sch_yield_ir "IST" "TID". { case_bool_decide; set_solver. }
+    iIntros (blk) "[↦stack [↦val _]]". cStepsT.
+    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
 
     (* initialize stack *)
-    store_r "↦stack".
-    sch_yield_ir "IST" "TID". { case_bool_decide; set_solver. }
+    mStoreT "↦stack".
+    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
 
-    store_r "↦val".
-    sch_yield_ir "IST" "TID". { case_bool_decide; set_solver. }
+    mStoreT "↦val".
+    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
 
     (* Guarantee the postcondition *)
-    sch_yield_l.
+    sYieldS.
     iMod (own_alloc (● Excl' [] ⋅ ◯ Excl' [])) as (γs) "[Hs● Hs◯]".
     { apply auth_both_valid_discrete. split; done. }
     iMod (inv_alloc (syn_stack_inv N γs blk 0%Z n) _ _ _ (stackN N) with "[-Hs◯ IST TID]")
@@ -55,9 +55,9 @@ Section StackIM.
     { solve_ndisj. }
     { solve_base_sl_red. iLeft. iExists (Vint 0), (Vint 0), []; iFrame; solve_base_sl_red; ss. }
 
-    force_l (Vptr (blk, 0%Z)). steps_l. forces_l.
+    cForceS (Vptr (blk, 0%Z)). cStepsS. cForcesS.
     iFrame "Hs◯ TID"; iSplit; eauto.
     { iSplit; eauto. iExists _; iSplit; eauto. iExists _, _; iSplit; eauto. }
-    steps_l. step. iSplit; eauto.
+    cStepsS. cStep. iSplit; eauto.
   (*SLOW*)Qed.
 End StackIM.

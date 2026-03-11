@@ -28,8 +28,8 @@ Section SystemIA.
 
   Lemma simF_read : ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.read).
   Proof using.
-    iStartSim.
-    steps_l. destruct _q as [X|[X|[]]].
+    cStartFunSim.
+    cStepsS. destruct _q as [X|[X|[]]].
     { ss; destruct X as [[[[[[tid stid] loc] ord] val] q] V]; ss.
       iDestruct "ASM" as "[-> [-> [PT TV]]]".
       iDestruct "TV" as "[TV STV]".
@@ -43,20 +43,20 @@ Section SystemIA.
       }
       subst.
 
-      steps_r. rewrite /SystemI.get_tid. steps_r.
-      inline_r.
-      force_r (meta0 (tid_cur, loc, ord, val, q, V))%cris. forces_r. iFrame.
+      cStepsT. rewrite /SystemI.get_tid. cStepsT.
+      cInlineT.
+      cForceT (meta0 (tid_cur, loc, ord, val, q, V))%cris. cForcesT. iFrame.
       iDestruct "TA" as "[TA TVS]".
       rewrite big_sepM_delete //=. iDestruct "TVS" as "[$ TVS]"; eauto.
       iSplit; eauto.
-      steps_r. iDestruct "GRT" as "[-> [%v [%V' [[-> %] [↦ tv]]]]]".
+      cStepsT. iDestruct "GRT" as "[-> [%v [%V' [[-> %] [↦ tv]]]]]".
       iCombine "TA" "TV" as "TA".
       iMod (own_update with "TA") as "TA".
       { rewrite (gmap_view_replace _ tid_cur _ (to_agree _)) //. }
       iDestruct "TA" as "[TA TidS]". 
-      steps_r.
-      forces_l. iFrame. iSplit; eauto.
-      step.
+      cStepsT.
+      cForcesS. iFrame. iSplit; eauto.
+      cStep.
       iSplit; eauto.
       iExists _, _, _, _; iSplit; eauto.
       iSplit; eauto.
@@ -70,10 +70,10 @@ Section SystemIA.
     }
     { ss.
       destruct X as [[[[[[[[[[[tid stid] loc] ord] ζ] ζ'] t0] γ] tx] mode] V] Vb].
-      ss; unfold_pre_post.
+      ss; unfoldPrePost.
       iDestruct "ASM" as "[-> [[-> %] [SN [PTS [Tid STid]]]]]".
       iDestruct "IST" as (????) "[[-> ->] [[% IST] ->]]".
-      iDestruct "IST" as "[%tid_cur [%tids [[-> ->] [TA YS]]]]". steps_r.
+      iDestruct "IST" as "[%tid_cur [%tids [[-> ->] [TA YS]]]]". cStepsT.
       iPoseProof (tview_sys_lookup with "TA Tid") as "%Hlookup"; first iFrame.
       destruct (decide (tid = tid_cur)); cycle 1.
       { iPoseProof (big_sepM_lookup_acc with "YS") as "[TV2 YS]".
@@ -81,21 +81,21 @@ Section SystemIA.
         iDestruct "STid" as "[_ Y2]"; iPoseProof (YieldToken_both with "Y2 TV2") as "%"; done.
       }
       subst.
-      rewrite /SystemI.get_tid. steps_r. steps_r.
-      inline_r.
-      force_r (meta1 (tid_cur, loc, ord, _, _, _, _, _, _, _, _))%cris. forces_r. iFrame.
+      rewrite /SystemI.get_tid. cStepsT. cStepsT.
+      cInlineT.
+      cForceT (meta1 (tid_cur, loc, ord, _, _, _, _, _, _, _, _))%cris. cForcesT. iFrame.
       iDestruct "TA" as "[TA TVS]".
       rewrite big_sepM_delete //. iDestruct "TVS" as "[$ TVS]"; eauto.
       iSplit; eauto.
-      steps_r. iDestruct "GRT" as "[-> [% [% [% [% [% [% [% [[-> %] [SN [PTS TV]]]]]]]]]]]".
+      cStepsT. iDestruct "GRT" as "[-> [% [% [% [% [% [% [% [[-> %] [SN [PTS TV]]]]]]]]]]]".
       iCombine "TA" "Tid" as "TA".
       iMod (own_update with "TA") as "TA".
       { rewrite (gmap_view_replace _ tid_cur _ (to_agree _)) //. }
       iDestruct "TA" as "[TA Tid]". 
-      steps_r.
-      forces_l. iFrame. iSplit; eauto. iSplit; eauto.
+      cStepsT.
+      cForcesS. iFrame. iSplit; eauto. iSplit; eauto.
       iPureIntro; des; esplits; eauto.
-      step.
+      cStep.
       iSplit; eauto.
       iExists _, _, _, _; iSplit; eauto.
       iSplit; eauto.

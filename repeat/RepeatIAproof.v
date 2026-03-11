@@ -34,12 +34,12 @@ Module RepeatIA. Section RepeatIA.
   Lemma simF_repeat : ISim.sim_fun open RepeatAMod RepeatIMod IstFull (fid RepeatHdr.repeat).
   Proof using APCInSp SpPureInSp SpPureFunInSpPure repeatInSpPure.
     (* Simulation Start *)
-    iStartSim. rewrite /RepeatI.repeat.
+    cStartFunSim. rewrite /RepeatI.repeat.
 
     (* SRC: handle the precond of repeat *)
-    steps_l. destruct _q as [[n x] f_sem].
-    iDestruct "ASM" as "%". hss. dup H3. inv H4. rewrite /pure_body /cfunN. hss_l.
-    steps_l.
+    cStepsS. destruct _q as [[n x] f_sem].
+    iDestruct "ASM" as "%". cSimpl. dup H3. inv H4. rewrite /pure_body /cfunN.
+    cStepsS.
 
     (* SRC: find apc in sp *)
     assert (SPAPC: sp.1 !! fid APCHdr.apc = fsp_some apc_spec).
@@ -47,41 +47,41 @@ Module RepeatIA. Section RepeatIA.
     rewrite SPAPC /=.
 
     (* TGT: handle input *)
-    steps_r. unfold assume. force_r. steps_r.
+    cStepsT. unfold assume. cForceT. cStepsT.
 
     (* case analysis: n *)
     destruct n as [|n'].
 
     (* CASE: n is 0 *)
     {
-      (* TGT: steps tgt *)
-      hss. steps_r.
+      (* TGT: cSteps tgt *)
+      cSimpl. cStepsT.
 
       (* SRC: unfold APC *)
-      forces_l. iSplit; eauto.
-      steps_l. inline_l. steps_l. iDestruct "ASM" as "%". hss.
-      steps_l. unfold APC. force_l. steps_l.
+      cForcesS. iSplit; eauto.
+      cStepsS. cInlineS. cStepsS. iDestruct "ASM" as "%". cSimpl.
+      cStepsS. unfold APC. cForceS. cStepsS.
 
       (* SRC: change to skip *)
-      apc_l. steps_l. forces_l. iSplit; et. steps_l. forces_l. iSplit; et.
+      apcS. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iSplit; et.
 
       (* prove the IST *)
-      step. by iSplit.
+      cStep. by iSplit.
     }
 
     (* CASE: n is S n' *)
     {
       (* TGT: load fn from function pointer *)
       destruct (Z_lt_le_dec (S n') 1) eqn:E; try lia.
-      rewrite H2. hss. steps_r.
+      rewrite H2. cSimpl. cStepsT.
 
       (* SRC: unfold APC *)
-      forces_l. iSplit; eauto. steps_l. 
-      inline_l. steps_l. iDestruct "ASM" as "%". hss.
-      steps_l. unfold APC. force_l 2. steps_l.
+      cForcesS. iSplit; eauto. cStepsS. 
+      cInlineS. cStepsS. iDestruct "ASM" as "%". cSimpl.
+      cStepsS. unfold APC. cForceS 2. cStepsS.
 
-      (* call apc with fn *)
-      apc_call_weaker "IST"; et.
+      (* cCall apc with fn *)
+      apcCallWeak "IST"; et.
       { instantiate (1:= 1%ord). apply OrdArith.lt_from_nat. lia. }
       { eapply Ord.lt_le_lt; et. apply OrdArith.lt_add_r. instantiate (1:=n'). apply OrdArith.lt_from_nat. lia. }
       iSplitL "IST".
@@ -89,11 +89,11 @@ Module RepeatIA. Section RepeatIA.
       iIntros (???) "ISTPOST".
       iDestruct "ISTPOST" as "[IST %]". unfold postcond. subst.
 
-      (* TGT: steps tgt *)
-      steps_r. hss. steps_r. assert (S n' - 1 = n')%Z as -> by lia.
+      (* TGT: cSteps tgt *)
+      cStepsT. cSimpl. cStepsT. assert (S n' - 1 = n')%Z as -> by lia.
 
-      (* call apc with repeat *)
-      apc_call "IST"; et.
+      (* cCall apc with repeat *)
+      apcCall "IST"; et.
       { instantiate (1 := 0%ord). apply OrdArith.lt_from_nat; lia. }
       { eapply Ord.lt_le_lt; et. apply OrdArith.lt_add_r. instantiate (1:= n'). apply OrdArith.lt_from_nat; lia. }
       { unfold precond. ss. iFrame. instantiate (1:= (n', (f_sem x), f_sem)). iPureIntro. split.
@@ -103,21 +103,21 @@ Module RepeatIA. Section RepeatIA.
       unfold postcond. ss.
       iDestruct "ISTPOST" as "[IST %]". subst.
 
-      (* TGT: steps tgt *)
-      steps_r. hss. steps_r.
+      (* TGT: cSteps tgt *)
+      cStepsT. cSimpl. cStepsT.
 
       (* SRC: change to skip *)
-      apc_l. steps_l. forces_l. iSplit; et. steps_l. forces_l. iSplit; et.
+      apcS. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iSplit; et.
 
       (* prove the IST *)
-      step. by iSplit.
+      cStep. by iSplit.
     }
     Unshelve. all: et. all: exact (0↑). 
   (*SLOW*)Unshelve. Fail idtac. Admitted.
 
   Lemma sim : ISim.t open RepeatAMod RepeatIMod RepeatA.init_cond IstFull.
   Proof.
-    init_sim.
+    cStartModSim.
     - apply simF_repeat; eauto.
     - iIntros "_". rewrite /IstProd. eauto.
   Qed.

@@ -82,7 +82,7 @@ Section CellioAux.
       eexists _, _; splits.
       { ss; exists tt; split; refl. }
       { iIntros "($ & _ & [_ _])"; eauto. }
-      { unfold_pre_post. iIntros (??) "[$ _]". }
+      { unfoldPrePost. iIntros (??) "[$ _]". }
     }
   (*SLOW*)Qed.
 

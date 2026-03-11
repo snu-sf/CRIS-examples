@@ -50,7 +50,7 @@ Module MainIA. Section MainIA.
       iModIntro. iSplit; et.
       iIntros "[W [% [% _]]]". hss.
     }
-    steps_r. ru_r. iIntros (?) "SIM". unfold_pre_post.
+    steps_r. ru_r. iIntros (?) "SIM". unfoldPrePost.
     iApply wsim_unfold; iIntros "W".
     iMod ("SIM" $! (_,_,existT _ _) with "[W]") as "[PR [W2 [_ [-> [TKN P]]]]]".
     { iFrame "I". iFrame. et. }

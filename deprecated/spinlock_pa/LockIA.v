@@ -57,7 +57,7 @@ Module LockIA. Section LockIA.
     { iIntros "_". steps_l. sch_yield_l. step. iSplit; done. }
     iIntros ([n P]) "[W [_ [_ P]]]"; s.
     iSplitR; [eauto|].
-    unfold_pre_post. iRevert "W".
+    unfoldPrePost. iRevert "W".
     iApply (winv_fupd (S n)).
     iMod (inv_alloc (LockAS.lock_inv (blk, 0%Z) P γ) _ _ _ N_SpinLockA
       with "[↦ P TKN]") as "#I"; ss.
@@ -111,7 +111,7 @@ Module LockIA. Section LockIA.
         hss. iMod ("ACC" with "[↦]") as "_".
         { rewrite sl_red; iFrame "↦". }
         iIntros "$ !>"; iSplit; et.
-        unfold_pre_post. iEval (rewrite sl_red). iFrame. et.
+        unfoldPrePost. iEval (rewrite sl_red). iFrame. et.
       }
       iIntros "PR".
       steps_l. force_r; iFrame. steps_r. hss. steps_r.

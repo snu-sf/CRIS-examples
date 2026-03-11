@@ -66,7 +66,7 @@ Module MainAS. Section MainAS.
   Proof.
     ii. rr in ValidSP; des; subst. s in x. eexists _,_; split; [rr; et|].
     instantiate (1:=(x, (bofs_l, bofs_v, γ_v))). split.
-    { intros varg arg. unfold_pre_post.
+    { intros varg arg. unfoldPrePost.
       iIntros "[W [%va [-> [TID [%sarg [-> [-> [-> P]]]]]]]]".
       iFrame. iModIntro. iSplit; eauto.
     }

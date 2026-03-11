@@ -20,45 +20,45 @@ Module CellIA. Section CellIA.
 
   Lemma simF_get : ISim.sim_fun open CellAMod CellIMod Ist (fid (CellHdr.get idx)).
   Proof using.
-    iStartSim. rewrite /CellI.get.
+    cStartFunSim. rewrite /CellI.get.
 
     (* SRC: precondition *)
-    steps_l. iDestruct "ASM" as "(% & % & C)". subst. hss_r.
+    cStepsS. iDestruct "ASM" as "(% & % & C)". subst.
     iDestruct "IST" as (vany v0) "(% & [(C' & A)|(% & P & A)])".
     { iExFalso. iApply (cell_unique with "C' C"). }
-    subst. hss. rename _q into v.
+    subst. cSimpl. rename _q into v.
 
     iPoseProof (cell_auth_get with "C A") as "%". subst.
 
     (* TGT: return the value of Cell with [idx] *)
-    steps_r. hss. steps_r.
+    cStepsT. cSimpl. cStepsT.
 
-    (* SRC: take steps *)
-    forces_l. iSplitL "C". { eauto. }
+    (* SRC: take cSteps *)
+    cForcesS. iSplitL "C". { eauto. }
 
-    step. iSplit; eauto.
+    cStep. iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
   (*SLOW*)Qed.
 
   Lemma simF_set : ISim.sim_fun open CellAMod CellIMod Ist (fid (CellHdr.set idx)).
   Proof using.
-    iStartSim. rewrite /CellI.set.
+    cStartFunSim. rewrite /CellI.set.
 
     (* SRC: precondition *)
-    steps_l. destruct _q as [v v'].
+    cStepsS. destruct _q as [v v'].
     iDestruct "ASM" as "(% & % & [P|C])"; subst.
     { (* A case with a resource [P: pending idx] *)
       iDestruct "IST" as (vany v0) "(% & [(C & A)|(% & P' & A)])"; cycle 1.
       { iExFalso. iApply (pending_unique with "P' P"). }
-      des; subst. hss.
+      des; subst. cSimpl.
 
       iMod (cell_auth_set with "C A") as "(C & A)".
 
-      (* TGT, SRC: take steps *)
-      steps_r.
-      forces_l. iSplitL "C". { eauto. } steps_l.
+      (* TGT, SRC: take cSteps *)
+      cStepsT.
+      cForcesS. iSplitL "C". { eauto. } cStepsS.
       (* Prove the IST *)
-      step.
+      cStep.
       iSplit; eauto.
       iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
     }
@@ -66,24 +66,24 @@ Module CellIA. Section CellIA.
     (* A case with a resource [C: cell idx v] *)
     iDestruct "IST" as (vany v0) "(% & [(C' & A)|(% & P & A)])".
     { iExFalso. iApply (cell_unique with "C' C"). }
-    subst. hss.
+    subst. cSimpl.
 
     iPoseProof (cell_auth_get with "C A") as "%". subst.
     iMod (cell_auth_set with "C A") as "(C & A)".
 
-    (* TGT, SRC: take steps *)
-    steps_r. hss.
-    forces_l. iSplitL "C". { eauto. } steps_l.
+    (* TGT, SRC: take cSteps *)
+    cStepsT. cSimpl.
+    cForcesS. iSplitL "C". { eauto. } cStepsS.
 
     (* Prove the IST *)
-    step.
+    cStep.
     iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame; eauto.
   (*SLOW*)Qed.
 
   Theorem sim : ISim.t open CellAMod CellIMod (CellA.init_cond idx) Ist.
   Proof.
-    init_sim.
+    cStartModSim.
     - iIntros "IC". iDestruct "IC" as (v) "(C & A)".
       repeat iExists _. iSplit; eauto. iLeft. iFrame.
     - eapply simF_get; eauto.

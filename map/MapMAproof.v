@@ -22,9 +22,9 @@ Module MapMA. Section MapMA.
 
   Lemma simF_init : ISim.sim_fun open MapA MapM Ist (fid MapHdr.init).
   Proof using MapInSpS MapInSpT.
-    iStartSim. rewrite /MapM.init.
+    cStartFunSim. rewrite /MapM.init.
 
-    steps_l. rename _q into sz. iDestruct "ASM" as "[-> [[-> %range] P]]".
+    cStepsS. rename _q into sz. iDestruct "ASM" as "[-> [[-> %range] P]]".
 
     (* SRC: handle the IST of Map and the precond of init *)
     iDestruct "IST" as (f ?) "(% & [(% & P0 & INIT) | (P' & B & U)])"; cycle 1.
@@ -32,130 +32,130 @@ Module MapMA. Section MapMA.
     des; subst.
     
     (* TGT: prove the precond of init *)
-    force_r sz. force_r ([Vint sz] ↑). force_r.
+    cForceT sz. cForceT ([Vint sz] ↑). cForceT.
     iSplitL "P0"; [iFrame; eauto|].
 
     (* TGT: handle the postcond of init *)
-    steps_r. iDestruct "GRT" as "(% & %)". subst.
+    cStepsT. iDestruct "GRT" as "(% & %)". subst.
     
     (* SRC: prove the postcond of init *)
     iMod (initialize with "INIT") as "(ALLOC & UNALLOC & INIT)".
-    force_l. steps_l. force_l. force_l.
+    cForceS. cStepsS. cForceS. cForceS.
     iSplitL "INIT"; [iFrame; eauto|].
     
     (* prove the IST of Map *)
-    step. iSplit; eauto.
+    cStep. iSplit; eauto.
     iExists _, _. iSplitR; eauto. iRight. iFrame.
   (*SLOW*)Qed.
 
   Lemma simF_get : ISim.sim_fun open MapA MapM Ist (fid MapHdr.get).
   Proof using MapInSpS MapInSpT.
-    iStartSim. rewrite /MapM.get /get.
+    cStartFunSim. rewrite /MapM.get /get.
 
-    steps_l. destruct _q as [idx v]. iDestruct "ASM" as "(-> & (-> & MAP))".
+    cStepsS. destruct _q as [idx v]. iDestruct "ASM" as "(-> & (-> & MAP))".
 
     (* SRC: handle the IST of Map and the precond of get *)
     iDestruct "IST" as (f sz) "(% & [(% & P0 & INIT)|(P' & B & U)])".
     { iExFalso. iApply (initial_map_points_to with "INIT MAP"). }
-    des; subst. steps_l.
+    des; subst. cStepsS.
 
     (* TGT: prove the precond of get *)
-    force_r idx. force_r. force_r.
+    cForceT idx. cForceT. cForceT.
     iSplit; first eauto.
 
     (* TGT : handle the body of get *)
     iPoseProof (auth_unallocated_points_to with "U MAP") as "%".
-    steps_r. rewrite /assume; unshelve force_r; eauto.
+    cStepsT. rewrite /assume; unshelve cForceT; eauto.
 
     (* TGT: handle the postcond of get *)
-    steps_r. iDestruct "GRT" as "(<- & _)".
+    cStepsT. iDestruct "GRT" as "(<- & _)".
 
     (* SRC: prove the postcond of get *)
-    force_l. force_l.
+    cForceS. cForceS.
     iPoseProof (auth_allocated_get with "B MAP") as "->".
     iSplitL "MAP". { iFrame. eauto. }
 
     (* prove the IST of Map *)
-    step. iSplit; eauto.
+    cStep. iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame.
   (*SLOW*)Qed.
 
   Lemma simF_set : ISim.sim_fun open MapA MapM Ist (fid MapHdr.set).
   Proof using MapInSpS MapInSpT.
-    iStartSim. rewrite /MapM.set /set.
+    cStartFunSim. rewrite /MapM.set /set.
 
     (* SRC: handle the IST of Map and the precond of set *)
-    do 2 step_l.
-    destruct _q as [[k w] v]. steps_l.
+    do 2 cStepS.
+    destruct _q as [[k w] v]. cStepsS.
     iDestruct "ASM" as "(-> & (-> & MAP))".
     iDestruct "IST" as (f sz) "(% & [(% & P0 & INIT)|(P' & B & U)])".
     { iExFalso. iApply (initial_map_points_to with "INIT MAP"). }
-    des; subst. steps_l.
+    des; subst. cStepsS.
 
     (* TGT: prove the precond of set *)
-    force_r (k, v). force_r. force_r. iSplitR; first eauto.
+    cForceT (k, v). cForceT. cForceT. iSplitR; first eauto.
 
     (* TGT : handle the body of set *)
-    steps_r. rewrite /assume.
+    cStepsT. rewrite /assume.
     iPoseProof (auth_unallocated_points_to with "U MAP") as "%".
-    unshelve force_r; eauto. steps_r.
+    unshelve cForceT; eauto. cStepsT.
 
     (* TGT: handle the postcond of set *)
     iDestruct "GRT" as "(<- & _)".
     
     (* SRC : prove the postcond of set *)
     iPoseProof (auth_allocated_set with "B MAP") as ">(B & MAP)".
-    force_l. force_l. iSplitL "MAP". { iFrame. eauto. }
+    cForceS. cForceS. iSplitL "MAP". { iFrame. eauto. }
 
     (* prove the IST of Map *)
-    step. iSplit; eauto.
+    cStep. iSplit; eauto.
     iExists _, _. iSplit; eauto. iRight. iFrame.
   (*SLOW*)Qed.
 
   Lemma simF_set_by_user : ISim.sim_fun open MapA MapM Ist (fid MapHdr.set_by_user).
   Proof using MapInSpS MapInSpT.
-    iStartSim. rewrite /MapM.set_by_user /set_by_user.
+    cStartFunSim. rewrite /MapM.set_by_user /set_by_user.
 
     (* SRC: handle the IST of Map and the precond of set_by_user *)
-    do 2 step_l. destruct _q as [k w]. steps_l.
-    iDestruct "ASM" as "(-> & (-> & MAP))". steps_l.
+    do 2 cStepS. destruct _q as [k w]. cStepsS.
+    iDestruct "ASM" as "(-> & (-> & MAP))". cStepsS.
 
     (* TGT: prove the precond of set_by_user *)
-    force_r. force_r. force_r. iSplitR. { eauto. }
+    cForceT. cForceT. cForceT. iSplitR. { eauto. }
 
     (* process an input *)
-    steps_r. step.
+    cStepsT. cStep.
 
     (* TGT: handle the precond of set *)
-    steps_r. simpl_sp. steps_r. destruct _q as [? ?]; iDestruct "GRT" as "%". des; hss.
+    cStepsT. simpl_sp. cStepsT. destruct _q as [? ?]; iDestruct "GRT" as "%". des; cSimpl.
     
     (* SRC: prove the precond of set *)
-    steps_l. simpl_sp. force_l (_,_,_). force_l. force_l.
+    cStepsS. simpl_sp. cForceS (_,_,_). cForceS. cForceS.
     iSplitL "MAP". { iFrame. eauto. }
 
-    (* make a call to set *)
-    call "IST".
+    (* make a cCall to set *)
+    cCall "IST".
 
     (* SRC: handle the postcond of set *)
     clear_st; iIntros (ret st_src st_tgt) "IST".
-    steps_l. iDestruct "ASM" as "(-> & (-> & MAP))". steps_l; steps_r.
+    cStepsS. iDestruct "ASM" as "(-> & (-> & MAP))". cStepsS; cStepsT.
 
     (* TGT: prove the postcond of set *)
-    force_r. force_r. iSplitR. { iFrame. eauto. }
+    cForceT. cForceT. iSplitR. { iFrame. eauto. }
 
     (* TGT: handle the postcond of set_by_user *)
-    steps_r. iDestruct "GRT" as "(<- & _)".
+    cStepsT. iDestruct "GRT" as "(<- & _)".
     
     (* SRC: prove the postcond of set_by_user *)
-    force_l. force_l. iSplitL "MAP". { iFrame. eauto. }
+    cForceS. cForceS. iSplitL "MAP". { iFrame. eauto. }
 
     (* prove the IST of Map *)
-    step. iFrame. eauto.
+    cStep. iFrame. eauto.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MapA MapM MapA.init_cond Ist.
   Proof using MapInSpS MapInSpT.
-    init_sim.
+    cStartModSim.
     { iIntros "(IST & P)"; s. iExists _, _. iSplit; eauto. iLeft. iFrame. eauto. }
     { apply simF_init; eauto. }
     { apply simF_get; eauto. }

@@ -24,28 +24,28 @@ Module NDSNodeIA. Section NDSNodeIA.
 
   Lemma simF_main : ISim.sim_fun open MA MI IstFull (fid NDSNodeHdr.f_main).
   Proof using Hschnds Hnds Hnode.
-    iStartSim. rewrite /NDSNodeI.f_main /f_main.
+    cStartFunSim. rewrite /NDSNodeI.f_main /f_main.
     
-    steps_l. destruct _q as [[[mtid stid] ssch] []].
-    iDestruct "ASM" as "(tidF & % & %)"; des; subst; hss.
-    steps_l. steps_r.
+    cStepsS. destruct _q as [[[mtid stid] ssch] []].
+    iDestruct "ASM" as "(tidF & % & %)"; des; subst; cSimpl.
+    cStepsS. cStepsT.
 
-    inline_r. hss. steps_r. force_r true. steps_r. forces_r. iSplitR; eauto.
-    steps_r. iDestruct "GRT" as "[PT _]".
+    cInlineT. cSimpl. cStepsT. cForceT true. cStepsT. cForcesT. iSplitR; eauto.
+    cStepsT. iDestruct "GRT" as "[PT _]".
     rename _q into blk. replace (0 + 0%nat)%Z with 0%Z by nia.
 
-    nds_yield_global_ir "IST" "tidF". steps_r. inline_r. steps_r. force_r true.
-    steps_r. forces_r. iSplitL "PT"; [eauto|].
-    steps_r. iDestruct "GRT" as "PT". nds_yield_global_ir "IST" "tidF". nds_yield_global_l.
+    ndsYieldGlobalIR "IST" "tidF". cStepsT. cInlineT. cStepsT. cForceT true.
+    cStepsT. cForcesT. iSplitL "PT"; [eauto|].
+    cStepsT. iDestruct "GRT" as "PT". ndsYieldGlobalIR "IST" "tidF". ndsYieldGlobalS.
 
-    steps_l. steps_r. simpl_sp.
-    force_l (mtid, stid, ssch,
+    cStepsS. cStepsT. simpl_sp.
+    cForceS (mtid, stid, ssch,
               (λ varg arg, ⌜varg = (tt↑↑) ∧ arg = ((Vptr (blk, 0%Z))↑↑)⌝ ∗ inv_x_points_to (blk, 0%Z))%I,
               (λ vret ret, existT 0 (⌜vret = tt↑↑ ∧ ret = tt↑↑⌝%SAT))).
-    steps_l.
+    cStepsS.
     iMod ((inv_alloc (∃ (v: τ{ ⇣nat }), sown mem_name (mem_points_to_singleton_r (blk, 0%Z) 1 (Vint v)))%SAT) with "[PT]") as "#I"; eauto.
     { solve_base_sl_red. iExists 0. iFrame. }
-    forces_l. iSplitL "tidF".
+    cForcesS. iSplitL "tidF".
     { iExists _. iSplit; eauto. do 3 iExists _. iSplit; eauto. iSplitR "tidF"; eauto.
       rewrite /NDSA.fn_spawnable. iExists _; iSplit; eauto.
       { iPureIntro. erewrite lookup_weaken; try eapply Hnode; eauto. }
@@ -57,81 +57,81 @@ Module NDSNodeIA. Section NDSNodeIA.
       { iPureIntro. exists m. esplits; eauto. }
       iIntros (??) "PRE". iModIntro. iSplitL "PRE"; eauto.
       { subst P1. rewrite /precond /fspec_winv /fspec_virtual /= /precond /=.
-        iDestruct "PRE" as "(W & % & % & T & % & % & % & INV)"; des; subst; hss.
+        iDestruct "PRE" as "(W & % & % & T & % & % & % & INV)"; des; subst; cSimpl.
         iFrame. iExists _; iSplit; eauto. }
       iIntros (??) "POST". iModIntro.
       subst Q1. rewrite /postcond /fspec_winv /fspec_virtual /= /postcond /=.
-      iDestruct "POST" as "(W & T & % & % & %)"; des; subst; hss.
+      iDestruct "POST" as "(W & T & % & % & %)"; des; subst; cSimpl.
       iFrame. iExists _; iSplit; eauto. iExists _; iSplit; eauto.
       solve_base_sl_red.
     }
 
-    steps_l. steps_l.
-    call "IST". iIntros (???) "IST".
-    steps_l. iDestruct "ASM" as "(% & % & % & % & TID & JoinF)"; des; subst; hss.
-    steps_r. nds_yield_global_ir "IST" "TID".
-    steps_r. nds_yield_global_l. steps_l.
-    nds_yield_ir "IST" "TID". nds_yield_l. steps_r.
+    cStepsS. cStepsS.
+    cCall "IST". iIntros (???) "IST".
+    cStepsS. iDestruct "ASM" as "(% & % & % & % & TID & JoinF)"; des; subst; cSimpl.
+    cStepsT. ndsYieldGlobalIR "IST" "TID".
+    cStepsT. ndsYieldGlobalS. cStepsS.
+    ndsYieldIR "IST" "TID". ndsYieldS. cStepsT.
 
-    inline_r. steps_r. force_r true. steps_r.
+    cInlineT. cStepsT. cForceT true. cStepsT.
     iInv "I" as "PT" "CLOSE". solve_base_sl_red. iDestruct "PT" as (?) "PT".
-    force_r (Vint z, 1%Qp). steps_r. forces_r. iSplitL "PT"; iFrame.
-    steps_r.
+    cForceT (Vint z, 1%Qp). cStepsT. cForcesT. iSplitL "PT"; iFrame.
+    cStepsT.
     iMod ("CLOSE" with "[GRT]") as "_".
     { iExists _. solve_base_sl_red. }
 
-    force_l z. nds_yield_global_ir "IST" "TID".
-    steps_r. nds_yield_global_ir "IST" "TID".
+    cForceS z. ndsYieldGlobalIR "IST" "TID".
+    cStepsT. ndsYieldGlobalIR "IST" "TID".
 
-    steps_r. inline_r. steps_r. force_r true. steps_r.
+    cStepsT. cInlineT. cStepsT. cForceT true. cStepsT.
     iInv "I" as "PT" "CLOSE". solve_base_sl_red. iDestruct "PT" as (?) "PT".
-    force_r. iSplitL "PT"; iFrame.
-    steps_r.
+    cForceT. iSplitL "PT"; iFrame.
+    cStepsT.
     iMod ("CLOSE" with "[GRT]") as "_".
     { iExists (z + 1). solve_base_sl_red.
       replace (Z.of_nat (z + 1)%nat) with (Z.of_nat z + 1)%Z by nia. iFrame. }
-    nds_yield_global_ir "IST" "TID".
-    nds_yield_global_l. step. steps_r. steps_l.
-    nds_yield_global_ir "IST" "TID". nds_yield_global_l. steps_l. steps_r.
-    nds_yield_ir "IST" "TID". nds_yield_l. steps_l. steps_r. forces_l. iSplitL "TID"; iFrame; eauto.
-    step. iFrame; eauto.
+    ndsYieldGlobalIR "IST" "TID".
+    ndsYieldGlobalS. cStep. cStepsT. cStepsS.
+    ndsYieldGlobalIR "IST" "TID". ndsYieldGlobalS. cStepsS. cStepsT.
+    ndsYieldIR "IST" "TID". ndsYieldS. cStepsS. cStepsT. cForcesS. iSplitL "TID"; iFrame; eauto.
+    cStep. iFrame; eauto.
   (*SLOW*)Qed.
 
   Lemma simF_f : ISim.sim_fun open MA MI IstFull (fid NDSNodeHdr.f).
   Proof using Hschnds Hnds Hnode.
-    iStartSim. rewrite /NDSNodeI.f /f.
+    cStartFunSim. rewrite /NDSNodeI.f /f.
 
-    steps_l. destruct _q as [[[mtid stid] ssch] [blk ofs]].
-    iDestruct "ASM" as "[TID (% & % & % & #I)]"; des; subst; hss.
+    cStepsS. destruct _q as [[[mtid stid] ssch] [blk ofs]].
+    iDestruct "ASM" as "[TID (% & % & % & #I)]"; des; subst; cSimpl.
 
-    steps_l. steps_r. nds_yield_global_ir "IST" "TID".
+    cStepsS. cStepsT. ndsYieldGlobalIR "IST" "TID".
 
-    steps_r. inline_r. steps_r. force_r true. steps_r.
+    cStepsT. cInlineT. cStepsT. cForceT true. cStepsT.
 
     iInv "I" as "PT" "CLOSE". solve_base_sl_red. iDestruct "PT" as (?) "PT".
-    force_r (Vint z, 1%Qp). steps_r. force_r. iSplitL "PT"; iFrame; eauto.
-    steps_r.
+    cForceT (Vint z, 1%Qp). cStepsT. cForceT. iSplitL "PT"; iFrame; eauto.
+    cStepsT.
     iMod ("CLOSE" with "[GRT]") as "_".
     { iExists z. solve_base_sl_red. }
-    nds_yield_global_ir "IST" "TID". steps_r. nds_yield_global_ir "IST" "TID". steps_r.
+    ndsYieldGlobalIR "IST" "TID". cStepsT. ndsYieldGlobalIR "IST" "TID". cStepsT.
 
-    inline_r. steps_r. force_r true. steps_r.
+    cInlineT. cStepsT. cForceT true. cStepsT.
     iInv "I" as "PT" "CLOSE". solve_base_sl_red. iDestruct "PT" as (?) "PT".
-    force_r. iSplitL "PT"; eauto.
-    steps_r.
+    cForceT. iSplitL "PT"; eauto.
+    cStepsT.
     iMod ("CLOSE" with "[GRT]") as "_".
     { iExists (z + 1). solve_base_sl_red. replace (Z.of_nat (z + 1)%nat) with (Z.of_nat z + 1)%Z by nia. iFrame. }
-    nds_yield_global_ir "IST" "TID". nds_yield_global_l.
-    force_l z. steps_l. nds_yield_global_l. step. steps_r. steps_l.
-    nds_yield_global_ir "IST" "TID". nds_yield_global_l.
-    steps_l; steps_r. nds_yield_ir "IST" "TID". nds_yield_l. steps_l.
-    forces_l. iSplitL "TID"; eauto.
-    step. iFrame; eauto.
+    ndsYieldGlobalIR "IST" "TID". ndsYieldGlobalS.
+    cForceS z. cStepsS. ndsYieldGlobalS. cStep. cStepsT. cStepsS.
+    ndsYieldGlobalIR "IST" "TID". ndsYieldGlobalS.
+    cStepsS; cStepsT. ndsYieldIR "IST" "TID". ndsYieldS. cStepsS.
+    cForcesS. iSplitL "TID"; eauto.
+    cStep. iFrame; eauto.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MA MI init_cond IstFull.
   Proof using Hschnds Hnds Hnode.
-    init_sim.
+    cStartModSim.
     - eapply simF_main.
     - eapply simF_f.
     - iIntros "I". iFrame. do 4 iExists _. iSplit; eauto.

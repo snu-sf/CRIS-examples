@@ -16,13 +16,13 @@ Section fence.
 
   Lemma simF_fence : ISim.sim_fun open MA MI Ist (fid PFMemHdr.fence).
   Proof.
-    iStartSim.
-    steps_l. destruct _q as [[[tid ordr] ordw] V].
-    iDestruct "ASM" as "[-> [[-> %] TV]]". hss_r. steps_r.
+    cStartFunSim.
+    cStepsS. destruct _q as [[[tid ordr] ordw] V].
+    iDestruct "ASM" as "[-> [[-> %] TV]]". cStepsT.
     iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
-    steps_r. rewrite /PFMemI.check_ident.
+    cStepsT. rewrite /PFMemI.check_ident.
     des_ifs; last (iPoseProof (tview_both_valid with "TA TV") as "%F"; des; ss; clarify).
-    steps_r. destruct _q as [config' STEP].
+    cStepsT. destruct _q as [config' STEP].
     inv STEP. s in STEP0. inv STEP0; [inv LOCAL|].
     s in STATE. inv LOCAL. inv LOCAL0.
     
@@ -35,7 +35,7 @@ Section fence.
     assert (gl2 = gl) by (subst gl2; destruct gl; ss).
     rewrite H0. clear H0. set (lc2:=_: Local.t).
 
-    steps_r. set (st_tgt:={[_ := _]}).
+    cStepsT. set (st_tgt:={[_ := _]}).
 
     iPoseProof (tview_both_valid with "TA TV") as "%IN". des. subst V.
 
@@ -61,7 +61,7 @@ Section fence.
       }
     }
 
-    force_l (Val.zero↑). steps_l. forces_l. iSplitL "TV".
+    cForceS (Val.zero↑). cStepsS. cForcesS. iSplitL "TV".
     { iFrame. iSplit; eauto. iPureIntro. esplits; eauto.
       { subst lc2; ss. rewrite IN in Heq. inv Heq.
         rewrite /TView.write_fence_sc /TView.read_fence_tview /=. destruct ordw; ss. }
@@ -71,6 +71,6 @@ Section fence.
         rewrite /TView.write_fence_sc /TView.read_fence_tview /=.
         destruct ordw; ss; rewrite View.join_bot_r; ss. }
     }
-    step. iSplit; eauto.
+    cStep. iSplit; eauto.
   (*SLOW*)Qed.
 End fence.

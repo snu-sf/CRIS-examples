@@ -40,7 +40,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     { iPureIntro. exists m. esplits; eauto. }
     iIntros (??) "PRE". iModIntro. iSplitL; eauto.
     { subst P1 m. rewrite /precond /f_spec /fspec_rrsch /per_tid_fspec /precond /per_tid_fspec_rrsch /fspec_winv /precond /=.
-      iDestruct "PRE" as "(W & % & % & RT & RP & (% & % & RI & % & INV) & % & % & PRE)"; des; subst; hss.
+      iDestruct "PRE" as "(W & % & % & RT & RP & (% & % & RI & % & INV) & % & % & PRE)"; des; subst; cSimpl.
       iPoseProof (RRSAS.rrinv_prev_subset with "[RP RI]") as "%SUB"; iFrame.
       destruct mtid; try nia.
       hexploit (INV (pred_rr (S mtid) (size Invs'))).
@@ -56,37 +56,37 @@ Module RRSNodeIA. Section RRSNodeIA.
     }
     iIntros (??) "POST". iModIntro. subst Q1.
     rewrite /postcond /f_spec /fspec_rrsch /per_tid_fspec /precond /per_tid_fspec_rrsch /fspec_winv /postcond /=.
-    iDestruct "POST" as "(W & % & T & % & % & % & POST)"; des; subst; hss.
+    iDestruct "POST" as "(W & % & T & % & % & % & POST)"; des; subst; cSimpl.
     iFrame; eauto.
   Qed.
 
   Lemma simF_main : ISim.sim_fun open MA MI IstFull (fid RRSNodeHdr.f_main).
   Proof using Hschrrs Hrrs Hnode.
-    iStartSim. rewrite /RRSNodeI.f_main /RRSNodeA.f_main.
+    cStartFunSim. rewrite /RRSNodeI.f_main /RRSNodeA.f_main.
 
-    steps_l. destruct _q as [stid ssch].
-    iDestruct "ASM" as "(% & (-> & tidF & RRI & F))"; hss.
+    cStepsS. destruct _q as [stid ssch].
+    iDestruct "ASM" as "(% & (-> & tidF & RRI & F))"; cSimpl.
 
     (** alloc **)
-    steps_r. inline_r. steps_r.
-    forces_r. iSplit; eauto; ss.
+    cStepsT. cInlineT. cStepsT.
+    cForcesT. iSplit; eauto; ss.
     { instantiate (1:=1). instantiate (1:=[Vint 1]↑). iPureIntro; esplits; eauto; ss. }
-    ss. steps_r. iDestruct "GRT" as "[% [% (-> & PT & _)]]".
+    ss. cStepsT. iDestruct "GRT" as "[% [% (-> & PT & _)]]".
     replace (0 + 0%nat)%Z with 0%Z by nia. rewrite <-H.
-    steps_r. steps_l.
+    cStepsT. cStepsS.
 
     assert (rrs_in_sp : (RRSAS.sp sp_user ⊤ get_stid PYIP) ⊆ sp).
     { etrans; eauto. }
 
-    rrs_yield_ir "IST" "tidF".
+    rrsYieldIR "IST" "tidF".
 
     (** store **)
-    steps_r. inline_r. steps_r. forces_r. iSplitL "PT"; eauto; ss.
+    cStepsT. cInlineT. cStepsT. cForcesT. iSplitL "PT"; eauto; ss.
     { instantiate (2 := (b, 0%Z, Vundef, Vint 0)); ss. iFrame; eauto. }
-    ss. steps_r. iDestruct "GRT" as "[% [PT ->]]".
-    rewrite <-H0. steps_r.
+    ss. cStepsT. iDestruct "GRT" as "[% [PT ->]]".
+    rewrite <-H0. cStepsT.
 
-    rrs_yield_ir "IST" "tidF". rrs_yield_l. steps_l.
+    rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS.
     erewrite lookup_weaken; try eapply Hrrs; eauto.
 
     (** invariant *)
@@ -95,8 +95,8 @@ Module RRSNodeIA. Section RRSNodeIA.
     { solve_base_sl_red. iExists (Vint 0). solve_base_sl_red; iFrame. rewrite /half_val. unseal "Node". iFrame. }
 
     (** 1st spawn **)
-    force_l (0, stid, ssch, RRSNodeAS.f_precond (b, 0%Z), {[0 := existT 0 (x_value_tid 0)]}, existT 0 (x_value_tid 1)).
-    steps_l. forces_l; ss. iSplitL "RRI tidF".
+    cForceS (0, stid, ssch, RRSNodeAS.f_precond (b, 0%Z), {[0 := existT 0 (x_value_tid 0)]}, existT 0 (x_value_tid 1)).
+    cStepsS. cForcesS; ss. iSplitL "RRI tidF".
     { iExists _. iFrame. iFrame "I". iSplit; eauto.
       do 3 iExists _. iSplit; eauto. iSplit; eauto.
       iApply f_spawnable; eauto.
@@ -105,19 +105,19 @@ Module RRSNodeIA. Section RRSNodeIA.
       { des; subst; ss. }
     }
 
-    steps_l; steps_r. call "IST". iIntros (???) "IST".
-    steps_l. rewrite map_size_insert map_size_empty lookup_empty.
-    iDestruct "ASM" as (?) "[% [tidF [RRI [% %]]]]"; des; subst; hss.
-    steps_r.
+    cStepsS; cStepsT. cCall "IST". iIntros (???) "IST".
+    cStepsS. rewrite map_size_insert map_size_empty lookup_empty.
+    iDestruct "ASM" as (?) "[% [tidF [RRI [% %]]]]"; des; subst; cSimpl.
+    cStepsT.
 
-    rrs_yield_ir "IST" "tidF". rrs_yield_l. steps_l.
+    rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS.
     erewrite lookup_weaken; try eapply Hrrs; eauto.
 
     (** 2nd spawn **)
-    steps_l; steps_r. set (Invs := _ : gmap nat InvO).
-    force_l (0, stid, ssch, RRSNodeAS.f_precond (b, 0%Z), Invs, existT 0 (x_value_tid 2)).
+    cStepsS; cStepsT. set (Invs := _ : gmap nat InvO).
+    cForceS (0, stid, ssch, RRSNodeAS.f_precond (b, 0%Z), Invs, existT 0 (x_value_tid 2)).
 
-    subst Invs. steps_l. forces_l; ss. iSplitL "RRI tidF".
+    subst Invs. cStepsS. cForcesS; ss. iSplitL "RRI tidF".
     { iExists _. iFrame. iFrame "I". iSplit; eauto.
       do 3 iExists _. iSplit; eauto. iSplit; eauto.
       iApply f_spawnable; eauto.
@@ -125,53 +125,53 @@ Module RRSNodeIA. Section RRSNodeIA.
       { i. vm_compute in H. do 3 (destruct m; ss); nia. }
     }
 
-    steps_l; steps_r. call "IST". iIntros (???) "IST".
-    steps_l. rewrite !map_size_insert map_size_empty lookup_empty.
+    cStepsS; cStepsT. cCall "IST". iIntros (???) "IST".
+    cStepsS. rewrite !map_size_insert map_size_empty lookup_empty.
     rewrite lookup_insert_ne // lookup_empty.
-    iDestruct "ASM" as (?) "[% [tidF [RRI [% %]]]]"; des; subst; hss.
-    steps_r; hss. steps_r.
+    iDestruct "ASM" as (?) "[% [tidF [RRI [% %]]]]"; des; subst; cSimpl.
+    cStepsT; cSimpl. cStepsT.
 
-    rrs_yield_ir "IST" "tidF". rrs_yield_l. steps_l.
+    rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS.
 
     (** Round-Robin yield *)
-    unfold RRS.yield. unseal "RRS". steps_r. steps_l.
+    unfold RRS.yield. unseal "RRS". cStepsT. cStepsS.
     erewrite lookup_weaken; try eapply Hrrs; eauto.
 
     set (Invs := _ : gmap nat InvO).
-    force_l (0, stid, ssch, Invs). subst Invs. forces_l. iSplitL "RRI tidF H".
+    cForceS (0, stid, ssch, Invs). subst Invs. cForcesS. iSplitL "RRI tidF H".
     { iFrame. repeat iSplit; eauto. iExists _.
       do 2 (rewrite lookup_insert_ne; eauto).
       rewrite lookup_insert. iSplit; eauto.
       solve_base_sl_red. rewrite /half_val. unseal "Node". iFrame. }
 
-    steps_l; steps_r. call "IST". iIntros (???) "IST".
-    steps_l. steps_r. iDestruct "ASM" as "(% & (% & tidF & % & % & RRI & % & INV))"; hss.
+    cStepsS; cStepsT. cCall "IST". iIntros (???) "IST".
+    cStepsS. cStepsT. iDestruct "ASM" as "(% & (% & tidF & % & % & RRI & % & INV))"; cSimpl.
 
-    forces_l. iSplitL "tidF"; eauto.
-    step; eauto. iFrame; eauto.
+    cForcesS. iSplitL "tidF"; eauto.
+    cStep; eauto. iFrame; eauto.
   (*SLOW*)Qed.
 
   Lemma unit_nat_neq (TEQ: @eq Type nat unit) : False.
   Proof using.
     set (a:=1). set (b:=2).
     assert (a = b).
-    { gen a. gen b. rewrite TEQ. i; hss. }
+    { gen a. gen b. rewrite TEQ. i; cSimpl. }
     subst a b. inv H.
   Qed.
 
   Lemma simF_f : ISim.sim_fun open MA MI IstFull (fid RRSNodeHdr.f).
   Proof using Hschrrs Hrrs Hnode.
-    iStartSim. rewrite /RRSNodeI.f /RRSNodeA.f.
+    cStartFunSim. rewrite /RRSNodeI.f /RRSNodeA.f.
 
-    steps_l. depdes _q. rename x into mtid'. destruct p as [[[[mtid stid] ssch] [blk ofs]] Invs].
-    iDestruct "ASM" as "(WI & % & % & tidF & RRIP & RRI & [% | HALF] & % & % & % & [% #inv])"; des; hss.
-    steps_l; steps_r; hss. steps_r. solve_base_sl_red. destruct mtid as [|mtid]; ss.
+    cStepsS. depdes _q. rename x into mtid'. destruct p as [[[[mtid stid] ssch] [blk ofs]] Invs].
+    iDestruct "ASM" as "(WI & % & % & tidF & RRIP & RRI & [% | HALF] & % & % & % & [% #inv])"; des; cSimpl.
+    cStepsS; cStepsT; cSimpl. cStepsT. solve_base_sl_red. destruct mtid as [|mtid]; ss.
 
     assert (rrs_in_sp : (RRSAS.sp sp_user ⊤ get_stid PYIP) ⊆ sp).
     { etrans; eauto. }
 
     iApply wsim_fold; iFrame.
-    rrs_yield_ir "IST" "tidF". steps_r.
+    rrsYieldIR "IST" "tidF". cStepsT.
 
     (** Open invariant **)
     rewrite /inv_x_points_to /ex_x_points_to.
@@ -180,33 +180,33 @@ Module RRSNodeIA. Section RRSNodeIA.
     { rewrite /half_val. unseal "Node". iFrame. }
     rewrite PREV.
     
-    inline_r. steps_r. forces_r. instantiate (1 := (blk, ofs, 1%Qp, _)); ss.
+    cInlineT. cStepsT. cForcesT. instantiate (1 := (blk, ofs, 1%Qp, _)); ss.
     iSplitL "PT"; iFrame; eauto.
-    steps_r. iDestruct "GRT" as "[% [PT ->]]". subst. steps_r.
+    cStepsT. iDestruct "GRT" as "[% [PT ->]]". subst. cStepsT.
 
     (** Close invariant **)
     iMod ("CLOSE" with "[PT HALF0]") as "_".
     { iExists _. solve_base_sl_red. rewrite /half_val. unseal "Node". iFrame. }
 
-    rrs_yield_ir "IST" "tidF". steps_r.
+    rrsYieldIR "IST" "tidF". cStepsT.
 
-    inline_r. steps_r. force_r (S mtid, stid, ssch).
-    forces_r. iSplitL "tidF"; iFrame; eauto. steps_r.
-    iApply wsim_sget_tgt. steps_r. rewrite /mjoin /option_join.
+    cInlineT. cStepsT. cForceT (S mtid, stid, ssch).
+    cForcesT. iSplitL "tidF"; iFrame; eauto. cStepsT.
+    iApply wsim_sget_tgt. cStepsT. rewrite /mjoin /option_join.
     destruct (st_tgt1 !! RRSI.RRSI.v_tid) eqn:F; cycle 1.
-    { rewrite F. s. destruct (@Any.downcast nat tt↑) eqn:A; steps_r; ss.
-      iDestruct "GRT" as "[<- [-> tid]]"; hss.
+    { rewrite F. s. destruct (@Any.downcast nat tt↑) eqn:A; cStepsT; ss.
+      iDestruct "GRT" as "[<- [-> tid]]"; cSimpl.
       exfalso. eapply unit_nat_neq; eauto. }
       
-    rewrite F. steps_r. destruct o; ss; cycle 1.
-    { destruct (@Any.downcast nat tt↑) eqn:A; steps_r; ss.
-      iDestruct "GRT" as "[<- [-> tid]]"; hss.
+    rewrite F. cStepsT. destruct o; ss; cycle 1.
+    { destruct (@Any.downcast nat tt↑) eqn:A; cStepsT; ss.
+      iDestruct "GRT" as "[<- [-> tid]]"; cSimpl.
       exfalso. eapply unit_nat_neq; eauto. }
 
-    destruct (@Any.downcast nat t) eqn:A; steps_r; ss.
-    iDestruct "GRT" as "[% [% tidF]]"; subst. steps_r.
+    destruct (@Any.downcast nat t) eqn:A; cStepsT; ss.
+    iDestruct "GRT" as "[% [% tidF]]"; subst. cStepsT.
 
-    do 3 (rrs_yield_ir "IST" "tidF"; steps_r).
+    do 3 (rrsYieldIR "IST" "tidF"; cStepsT).
 
     (** Open invariant **)
     rewrite /inv_x_points_to /ex_x_points_to.
@@ -215,10 +215,10 @@ Module RRSNodeIA. Section RRSNodeIA.
     { rewrite /half_val. unseal "Node". iFrame. }
     rewrite PREV.
 
-    inline_r. steps_r. forces_r.
+    cInlineT. cStepsT. cForcesT.
     instantiate (1 := (blk, ofs, Vint _, Vint _)); ss.
-    iSplitL "PT"; iFrame; eauto. steps_r.
-    iDestruct "GRT" as "[% [PT ->]]". hss. steps_r. steps_r.
+    iSplitL "PT"; iFrame; eauto. cStepsT.
+    iDestruct "GRT" as "[% [PT ->]]". cSimpl. cStepsT. cStepsT.
     replace (S mtid - mtid)%Z with 1%Z by nia.
 
     (** Close invariant **)
@@ -229,29 +229,29 @@ Module RRSNodeIA. Section RRSNodeIA.
     iMod ("CLOSE" with "[PT HALF0]") as "_".
     { iExists _. solve_base_sl_red. rewrite /half_val. unseal "Node". iFrame. }
 
-    rrs_yield_ir "IST" "tidF". rrs_yield_l. steps_l; steps_r.
-    step. steps_r. steps_l.
-    rrs_yield_ir "IST" "tidF". rrs_yield_l. steps_l; steps_r.
+    rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS; cStepsT.
+    cStep. cStepsT. cStepsS.
+    rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS; cStepsT.
 
-    unfold RRS.yield. unseal "RRS". steps_l.
+    unfold RRS.yield. unseal "RRS". cStepsS.
     erewrite lookup_weaken; try eapply Hrrs; eauto.
-    force_l (mtid + 1, stid, ssch, Invs').
-    forces_l. iSplitL "tidF RRI HALF".
+    cForceS (mtid + 1, stid, ssch, Invs').
+    cForcesS. iSplitL "tidF RRI HALF".
     { replace (mtid + 1)%Z with (Z.of_nat (S mtid)) by nia.
       replace (mtid + 1) with (S mtid) by nia.
       iSplit; eauto. iFrame. iSplit; eauto. iExists _; iSplit; eauto. solve_base_sl_red.
       rewrite /half_val. unseal "Node". iFrame. }
      
-    steps_l. steps_r. call "IST". iIntros (???) "IST".
-    steps_l. iDestruct "ASM" as "[% (% & tidF & % & % & RRI & % & INV)]"; hss.
-    steps_r. forces_l. replace (mtid + 1) with (S mtid) by nia.
+    cStepsS. cStepsT. cCall "IST". iIntros (???) "IST".
+    cStepsS. iDestruct "ASM" as "[% (% & tidF & % & % & RRI & % & INV)]"; cSimpl.
+    cStepsT. cForcesS. replace (mtid + 1) with (S mtid) by nia.
     iFrame. iSplit; eauto.
-    step. iFrame; eauto.
+    cStep. iFrame; eauto.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MA MI init_cond IstFull.
   Proof using Hschrrs Hrrs Hnode.
-    init_sim.
+    cStartModSim.
     - eapply simF_main.
     - eapply simF_f.
     - iIntros "RI". do 4 iExists _. iFrame. iSplit; eauto.

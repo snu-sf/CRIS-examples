@@ -15,135 +15,135 @@ Module MemHN. Section MemHN.
 
   Lemma simF_alloc : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.alloc).
   Proof using.
-    iStartSim. rewrite /HybMem.alloc /NonDetMem.alloc.
-    steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l. steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r.
-    iDestruct "IST" as (? ? ? ?) "%". des; hss. des_ifs; cycle 1.
-    { steps_l. ss. }
-    force_r false. steps_r. hss.
+    cStartFunSim. rewrite /HybMem.alloc /NonDetMem.alloc.
+    cStepsS. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS. cStepsT. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS; cStepsT.
+    iDestruct "IST" as (? ? ? ?) "%". des; cSimpl. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cForceT false. cStepsT. cSimpl.
 
-    steps_r. steps_l. hss.
-    steps_l. force_l _q. steps_l.
+    cStepsT. cStepsS. cSimpl.
+    cStepsS. cForceS _q. cStepsS.
 
-    step. iSplit; [eauto|].
+    cStep. iSplit; [eauto|].
     iPureIntro. repeat (esplits; eauto).
   (* SLOW *)Qed.
 
   Lemma simF_free : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.free).
   Proof using.
-    iStartSim. rewrite /HybMem.free /NonDetMem.free.
-    steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r.
+    cStartFunSim. rewrite /HybMem.free /NonDetMem.free.
+    cStepsS. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS; cStepsT. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS; cStepsT.
     iDestruct "IST" as (? ? ? ?) "%". des.
 
-    steps_l. hss. force_r false. steps_r. hss. steps_r.
-    steps_l. hss. steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l. steps_r. step. iSplit; [eauto|].
+    cStepsS. cSimpl. cForceT false. cStepsT. cSimpl. cStepsT.
+    cStepsS. cSimpl. cStepsS. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS. cStepsT. cStep. iSplit; [eauto|].
     iPureIntro. repeat (esplits; eauto).
   (*SLOW*)Qed.
 
   Lemma simF_load : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.load).
   Proof using.
-    iStartSim. rewrite /HybMem.load /NonDetMem.load.
-    steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r.
+    cStartFunSim. rewrite /HybMem.load /NonDetMem.load.
+    cStepsS. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS; cStepsT. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS; cStepsT.
     iDestruct "IST" as (? ? ? ?) "%". des.
 
-    steps_l. hss. steps_l. hss. steps_l. 
-    force_r false. steps_r. hss. steps_r.
+    cStepsS. cSimpl. cStepsS. cSimpl. cStepsS. 
+    cForceT false. cStepsT. cSimpl. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r.
-    step. iSplit; [eauto|].
+    { cStepsS. ss. }
+    cStepsS; cStepsT.
+    cStep. iSplit; [eauto|].
     iPureIntro. repeat (esplits; eauto).
   (*SLOW*)Qed.
 
   Lemma simF_store : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.store).
   Proof using.
-    iStartSim. rewrite /HybMem.store /NonDetMem.store.
-    steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r.
-    iDestruct "IST" as (? ? ? ?) "%". des; hss.
+    cStartFunSim. rewrite /HybMem.store /NonDetMem.store.
+    cStepsS. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS; cStepsT. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS; cStepsT.
+    iDestruct "IST" as (? ? ? ?) "%". des; cSimpl.
 
     destruct v.
-    steps_l. hss. steps_l.
-    force_r false. steps_r. hss. steps_r.
+    cStepsS. cSimpl. cStepsS.
+    cForceT false. cStepsT. cSimpl. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r.
-    step. iSplit; [eauto|].
+    { cStepsS. ss. }
+    cStepsS; cStepsT.
+    cStep. iSplit; [eauto|].
     iPureIntro. repeat (esplits; eauto).
   (*SLOW*)Qed.
 
   Lemma simF_cmp : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.cmp).
   Proof using.
-    iStartSim. rewrite /HybMem.cmp /NonDetMem.cmp.
-    steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r.
-    iDestruct "IST" as (? ? ? ?) "%". des; hss.
+    cStartFunSim. rewrite /HybMem.cmp /NonDetMem.cmp.
+    cStepsS. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS; cStepsT. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS; cStepsT.
+    iDestruct "IST" as (? ? ? ?) "%". des; cSimpl.
 
     destruct v.
-    steps_l. hss. steps_l.
-    force_r false. steps_r. hss. steps_r.
+    cStepsS. cSimpl. cStepsS.
+    cForceT false. cStepsT. cSimpl. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r.
-    step. iSplit; [eauto|].
+    { cStepsS. ss. }
+    cStepsS; cStepsT.
+    cStep. iSplit; [eauto|].
     iPureIntro. repeat (esplits; eauto).
   (*SLOW*)Qed.
 
   Lemma simF_cas : ISim.sim_fun open NonDetMem HybMem IstFull (fid MemHdr.cas).
   Proof using.
-    iStartSim. rewrite /HybMem.cas /NonDetMem.cas.
-    steps_l. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r. rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
-    steps_l; steps_r.
+    cStartFunSim. rewrite /HybMem.cas /NonDetMem.cas.
+    cStepsS. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS; cStepsT. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    { cStepsS. ss. }
+    cStepsS; cStepsT.
 
     destruct v. destruct v0.
-    steps_l. hss. steps_l.
-    force_r false. steps_r.
-    call "IST". iIntros (???) "IST". steps_l. steps_r.
+    cStepsS. cSimpl. cStepsS.
+    cForceT false. cStepsT.
+    cCall "IST". iIntros (???) "IST". cStepsS. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
+    { cStepsS. ss. }
 
-    steps_l; steps_r.
-    call "IST". iIntros (???) "IST". steps_l. steps_r.
+    cStepsS; cStepsT.
+    cCall "IST". iIntros (???) "IST". cStepsS. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
+    { cStepsS. ss. }
 
-    steps_l. steps_r.
+    cStepsS. cStepsT.
     des_ifs; cycle 1.
-    { steps_l. steps_r. step. iSplit; eauto. } 
-    steps_l. steps_r. 
-    call "IST". iIntros (???) "IST". steps_l. steps_r.
+    { cStepsS. cStepsT. cStep. iSplit; eauto. } 
+    cStepsS. cStepsT. 
+    cCall "IST". iIntros (???) "IST". cStepsS. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
-    { steps_l. ss. }
+    { cStepsS. ss. }
 
-    steps_l. steps_r.
-    step. iSplit; eauto.
+    cStepsS. cStepsT.
+    cStep. iSplit; eauto.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open NonDetMem HybMem emp%I IstFull.
   Proof using.
-    init_sim.
+    cStartModSim.
     - rewrite /IstFull /HybMem /NonDetMem. unfold_mod. s. 
       iIntros "_". iPureIntro. repeat (esplits; ss).
       + instantiate (1 := ∅). instantiate (1 := Mem.empty). ss.

@@ -60,7 +60,7 @@ Section MainAux.
       eexists _, _; splits.
       { ss; exists (0, 0, tt); split; refl. }
       { rewrite !nclose_nroot. iIntros "[$ [$ [$ $]]]"; ss. }
-      { unfold_pre_post. iIntros "% % [_ [_ $]]". }
+      { unfoldPrePost. iIntros "% % [_ [_ $]]". }
     }
   Qed.
 

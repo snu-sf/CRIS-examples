@@ -40,7 +40,7 @@ Section KnotAux.
       eexists _, _; splits.
       { ss; exists (tt); split; refl. }
       { iIntros "[$ [? [? ?]]]"; ss. }
-      { unfold_pre_post. iIntros "% % [% %] //". }
+      { unfoldPrePost. iIntros "% % [% %] //". }
     }
   Qed.
 
@@ -106,7 +106,7 @@ Section KnotAux.
         clear H0. apply map_disjoint_insert_l_2; simpl_map; auto with map_disjoint.
       }
     }
-    (* elimination of pure call *)
+    (* elimination of pure cCall *)
     etrans; cycle 1.
     { do 3 ctxr_rotate. do 2 ctxr_drop. ctxr_rotate.
       eapply KnotMainIA.ctxr_close with (sp:=sp) (sp_pure:=sp_pure) (sp_fun:=sp_fun); eauto.
@@ -201,7 +201,7 @@ Module KnotAll.
       rewrite /CEnv.id2blk /CEnv.load_genv /=.
       iApply (own_update with "[$]").
       apply cmra_update_included, mem_init_auth_r_valid.
-      rewrite /mem_init_val /=. hss.
+      rewrite /mem_init_val /=. cSimpl.
     }
     s; i; des; et.
   (*SLOW*)Qed.

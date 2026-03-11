@@ -165,19 +165,19 @@ Module PQueueIA. Section PQueueIA.
 
   Lemma new_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.new).
   Proof.
-    iStartSim. rewrite /PQueueI.new /PQueueA.new.
-    steps_l. destruct _q as [[stid mtid] [n range]].
+    cStartFunSim. rewrite /PQueueI.new /PQueueA.new.
+    cStepsS. destruct _q as [[stid mtid] [n range]].
     iDestruct "ASM" as "[TID [-> [-> %Hn]]]".
 
-    steps_r. rewrite /PQueueA.new.
-    sch_yield_ir "IST" "TID". sch_yield_ir "IST" "TID".
+    cStepsT. rewrite /PQueueA.new.
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     iApply wsim_mem_alloc; [try prove_inline_cond|try prove_sb_cond|ss|unfold_cris_defs].
     { lia. }
-    iIntros (queueb) "↦queue". steps_r.
-    sch_yield_ir "IST" "TID". sch_yield_ir "IST" "TID".
+    iIntros (queueb) "↦queue". cStepsT.
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     rewrite (comm Z.add) Z2Nat.inj_add //; try lia.
     rewrite replicate_add /=; iDestruct "↦queue" as "[↦range ↦queue]".
-    store_r "↦range".
+    mStoreT "↦range".
 
     iApply wsim_yy_y. iApply wsim_bind.
     instantiate (1:=(λ '(st_src, _) '(st_tgt, _),
@@ -211,10 +211,10 @@ Module PQueueIA. Section PQueueIA.
       iAssert (⌜var ≤ range⌝)%I as "#Hvar"; first (iPureIntro; lia).
       generalize var. clear var. iIntros (var).
       iInduction (var) as [|var] forall (st_src st_tgt).
-      { unfold_iter_r. steps_r.
-        append_ret_l.
-        sch_yield_ir "IST" "TID".
-        sch_yield_l.
+      { unfoldIterT. cStepsT.
+        appendRetS.
+        sYieldIR "IST" "TID".
+        sYieldS.
         iDestruct "↦queue" as "[%entries [% ↦queues]]". rewrite Z.sub_0_r.
         iAssert ([∗ list] i ↦ v ∈ entries,
           is_stack (stackN N) v.2 v.1 n ∗ (queueb, Z.of_nat i + 1)%Z ↦ v.1 ∗ stack_content v.2 [])%I
@@ -231,7 +231,7 @@ Module PQueueIA. Section PQueueIA.
           with "[◯q ↦queues ↦range]") as "#Qinv"; eauto.
         { apply nclose_subseteq. }
         { solve_base_sl_red; iFrame. }
-        step. iFrame. iSplitR.
+        cStep. iFrame. iSplitR.
         { iExists _, _; iSplit; first done.
           iExists entries; iSplit; first done. iSplit; done.
         }
@@ -245,16 +245,16 @@ Module PQueueIA. Section PQueueIA.
       }
 
       iPoseProof "Hvar" as "%".
-      unfold_iter_r. steps_r.
-      append_ret_l. sch_yield_ir "IST" "TID".
+      unfoldIterT. cStepsT.
+      appendRetS. sYieldIR "IST" "TID".
 
       (* stack allocation *)
-      inline_r. force_r (stid, mtid, n). forces_r.
+      cInlineT. cForceT (stid, mtid, n). cForcesT.
       iFrame. iSplit; eauto.
-      steps_r.
-      sch_yield_ii "IST".
-      steps_r. iDestruct "GRT" as "[TID [-> [%stack [%γs [-> [#is_stack stack]]]]]]".
-      steps_r. sch_yield_ir "IST" "TID".
+      cStepsT.
+      sYieldII "IST".
+      cStepsT. iDestruct "GRT" as "[TID [-> [%stack [%γs [-> [#is_stack stack]]]]]]".
+      cStepsT. sYieldIR "IST" "TID".
 
       iDestruct "↦queue" as "[%entries [%Hentries ↦queue]]".
       hexploit (lookup_lt_is_Some_2 entries (range - S var)); first lia; intros [p Hp].
@@ -267,9 +267,9 @@ Module PQueueIA. Section PQueueIA.
       case_decide; last lia.
 
       rewrite Nat2Z.inj_sub //.
-      store_r "↦queue".
+      mStoreT "↦queue".
       replace (length entries - S var + 1)%Z with (length entries - var)%Z by lia.
-      sch_yield_ir "IST" "TID".
+      sYieldIR "IST" "TID".
 
       replace (range - S var + 1 + 1)%Z with (range - var + 1)%Z by lia.
       rewrite bind_ret_r.
@@ -290,86 +290,86 @@ Module PQueueIA. Section PQueueIA.
     (* continuation *)
     clear_st. iIntros (st_s _ st_t _) "[IST [TID [W [%γq [#qinv queue]]]]]".
     iApply wsim_fold; iFrame "W".
-    steps_r. sch_yield_ir "IST" "TID".
-    sch_yield_l. forces_l. iFrame. iSplit; eauto. step. iSplit; done.
+    cStepsT. sYieldIR "IST" "TID".
+    sYieldS. cForcesS. iFrame. iSplit; eauto. cStep. iSplit; done.
   (*SLOW*)Qed.
 
   Lemma add_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.add).
   Proof.
-    iStartSim. rewrite /PQueueA.add /atomic_body /PQueueI.add.
-    steps_l. destruct _q as [[stid mtid] [[[γq range] priority] v]].
+    cStartFunSim. rewrite /PQueueA.add /atomic_body /PQueueI.add.
+    cStepsS. destruct _q as [[stid mtid] [[[γq range] priority] v]].
     iDestruct "ASM" as "[TID [_ [%n [%q [[-> %] #[%queueb [%queueofs [-> is_queue]]]]]]]]".
 
-    steps_r.
-    sch_yield_ir "IST" "TID". sch_yield_ir "IST" "TID".
+    cStepsT.
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     iDestruct "is_queue" as "[%entries [%Hlen [#qinv #stacks]]]".
     iInv "qinv" as "[◯entries [↦range ↦]]" "close".
     iCombine "stacks" "↦" as "↦"; rewrite -big_sepL_sep.
     hexploit (lookup_lt_is_Some_2 entries priority); first lia; intros [[stack γs] Hstack].
     iPoseProof (big_sepL_lookup_acc_impl priority with "↦") as "[[#stack ↦] ↦s]"; eauto; s.
 
-    load_r "↦".
+    mLoadT "↦".
     iMod ("close" with "[↦s ↦range ↦ ◯entries]") as "_".
     { iFrame. iApply ("↦s" with "[] [↦]"); iFrame. iIntros "!> %%%% [?$]". }
-    sch_yield_ir "IST" "TID".
+    sYieldIR "IST" "TID".
     
     (* stack push *)
-    inline_r. rewrite /StackA.push /atomic_body.
-    steps_r. force_r (_, _, (n, stack, v, γs)); forces_r. iFrame. iSplit; eauto. steps_r.
-    sch_yield_ii "IST".
-    steps_r.
+    cInlineT. rewrite /StackA.push /atomic_body.
+    cStepsT. cForceT (_, _, (n, stack, v, γs)); cForcesT. iFrame. iSplit; eauto. cStepsT.
+    sYieldII "IST".
+    cStepsT.
 
     (* atomic update *)
-    sch_yield_l. steps_l. sch_yield_l. steps_l.
+    sYieldS. cStepsS. sYieldS. cStepsS.
     rename _q into queue. set (entry := queue !!! priority).
     iDestruct "ASM" as "[%entries' [%Hlen' [● stack_contents]]]".
     iInv "qinv" as "[◯ inv]" "close". iCombine "●" "◯" gives %->%excl_auth_agree_L.
     iMod ("close" with "[◯ inv]") as "_"; first iFrame.
     iPoseProof (big_sepL_lookup_acc_impl priority with "stack_contents") as "[s contents]"; eauto.
 
-    force_r entry. force_r. iFrame "s". steps_r.
-    force_l. iSplitL "● contents GRT".
+    cForceT entry. cForceT. iFrame "s". cStepsT.
+    cForceS. iSplitL "● contents GRT".
     { iExists entries; iFrame. rewrite length_insert; iSplit; first done.
       iApply ("contents" with "[] [GRT]").
       { iIntros "!> %k %y %Hky % s". rewrite list_lookup_total_insert_ne //. }
       { s. rewrite list_lookup_total_insert // -Hlen'; lia. }
     }
 
-    steps_l. sch_yield_ii "IST".
+    cStepsS. sYieldII "IST".
     iDestruct "GRT" as "[TID _]".
-    sch_yield_ir "IST" "TID".
-    sch_yield_l. steps_l. sch_yield_l. force_l. iFrame. iSplit; eauto.
-    step. iFrame. done.
+    sYieldIR "IST" "TID".
+    sYieldS. cStepsS. sYieldS. cForceS. iFrame. iSplit; eauto.
+    cStep. iFrame. done.
   (*SLOW*)Qed.
 
   Lemma remove_min_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.remove_min).
   Proof.
-    iStartSim. rewrite /PQueueA.remove_min /atomic_body /PQueueI.remove_min.
-    steps_l. destruct _q as [[stid mtid] [γq range]].
+    cStartFunSim. rewrite /PQueueA.remove_min /atomic_body /PQueueI.remove_min.
+    cStepsS. destruct _q as [[stid mtid] [γq range]].
     iDestruct "ASM" as "[TID [_ [%n [%q [-> #[%queueb [%queueofs [-> Q]]]]]]]]".
 
-    steps_r. sch_yield_ir "IST" "TID". sch_yield_ir "IST" "TID".
+    cStepsT. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     iDestruct "Q" as "[%entries [%Hlen [#queue_inv #stack_invs]]]".
     iInv "queue_inv" as "[◯ [↦range ↦queues]]" "close".
 
     (* range load *)
-    load_r "↦range".
+    mLoadT "↦range".
     iMod ("close" with "[◯ ↦range ↦queues]") as "_"; iFrame.
-    sch_yield_ir "IST" "TID". sch_yield_l. sch_yield_l. norm_l.
+    sYieldIR "IST" "TID". sYieldS. sYieldS. cStepsS.
     rewrite !Nat2Z.id.
     iAssert (⌜range ≤ length entries⌝)%I as "#Hrange"; first by subst.
     replace (queueofs + 1)%Z with (queueofs + (length entries - range) + 1)%Z by lia.
     generalize range at 2 6 8 9. subst range. iIntros (var).
     iInduction (var) as [|var'] forall (st_src st_tgt).
-    { unfold_iter_l; unfold_iter_r. steps_l; steps_r.
-      sch_yield_ir "IST" "TID". sch_yield_l. steps_l. sch_yield_l.
-      force_l. iFrame; iSplit; eauto.
-      step; iFrame; done.
+    { unfoldIterS; unfoldIterT. cStepsS; cStepsT.
+      sYieldIR "IST" "TID". sYieldS. cStepsS. sYieldS.
+      cForceS. iFrame; iSplit; eauto.
+      cStep; iFrame; done.
     }
 
     iPoseProof ("Hrange") as "%".
-    unfold_iter_l. steps_l.
-    unfold_iter_r. steps_r. sch_yield_ir "IST" "TID".
+    unfoldIterS. cStepsS.
+    unfoldIterT. cStepsT. sYieldIR "IST" "TID".
 
     (* stack load *)
     rewrite -?Nat2Z.inj_sub; try lia.
@@ -378,33 +378,33 @@ Module PQueueIA. Section PQueueIA.
     hexploit (lookup_lt_is_Some_2 entries index); first lia; intros [[istack iγs] Hi].
     iPoseProof (big_sepL_lookup_acc _ _ index with "↦queues") as "[↦queue ↦queues]"; eauto; s.
     iPoseProof (big_sepL_lookup_acc _ _ index with "stack_invs") as "[stack _]"; eauto; s.
-    load_r "↦queue".
+    mLoadT "↦queue".
     iPoseProof ("↦queues" with "↦queue") as "↦queues".
     iMod ("close" with "[◯ ↦range ↦queues]") as "_"; iFrame.
-    sch_yield_ir "IST" "TID".
+    sYieldIR "IST" "TID".
 
-    inline_r. rewrite /StackA.pop /atomic_body. steps_r.
-    force_r (stid, mtid, (n, istack, iγs)). forces_r. iFrame. iSplit; eauto.
-    steps_r. sch_yield_ii "IST".
+    cInlineT. rewrite /StackA.pop /atomic_body. cStepsT.
+    cForceT (stid, mtid, (n, istack, iγs)). cForcesT. iFrame. iSplit; eauto.
+    cStepsT. sYieldII "IST".
 
     (* atomic stack pop *)
-    sch_yield_l. steps_l. rename _q into q. force_r (q !!! index). steps_r.
+    sYieldS. cStepsS. rename _q into q. cForceT (q !!! index). cStepsT.
     iDestruct "ASM" as "[%entries' [%Hlenq [● ↦stacks]]]".
     iInv "queue_inv" as "[◯ inv]" "close".
     iCombine "●" "◯" gives %->%excl_auth_agree_L.
     iMod ("close" with "[◯ inv]") as "_"; first iFrame.
     iPoseProof (big_sepL_lookup_acc_impl index with "↦stacks") as "[↦stack ↦stacks]"; eauto; s.
-    force_r; iFrame. steps_r. force_l. iSplitL "↦stacks GRT ●".
+    cForceT; iFrame. cStepsT. cForceS. iSplitL "↦stacks GRT ●".
     { iFrame.
       iSplit; [rewrite length_insert //|].
       iApply ("↦stacks" with "[] [-]").
       { iIntros "!> %%%%"; rewrite list_lookup_total_insert_ne //. iIntros "$". }
       { s; rewrite list_lookup_total_insert // -Hlenq; lia. }
     }
-    steps_l.
+    cStepsS.
 
     (* remainder *)
-    sch_yield_ii "IST".
+    sYieldII "IST".
 
     set (caseb :=
       match q !!! index with
@@ -417,12 +417,12 @@ Module PQueueIA. Section PQueueIA.
       set (case := match q !!! index with | [] => Vundef | _ => _ end).
       replace case with Vundef; cycle 1.
       { subst case caseb; destruct (q !!! index) as [|[?|?|]?]; ss. }
-      steps_r. iDestruct "GRT" as "[TID _]". sch_yield_ir "IST" "TID".
-      sch_yield_l. steps_l. clear case.
+      cStepsT. iDestruct "GRT" as "[TID _]". sYieldIR "IST" "TID".
+      sYieldS. cStepsS. clear case.
       set (case := match q !!! index with | Vint _ as v :: _ => _ | _ => _ end).
       replace case with (Ret (inl var') : itree crisE (nat + val)); cycle 1.
       { subst case caseb; destruct (q !!! index) as [|[?|?|]?]; ss. }
-      steps_l. subst index.
+      cStepsS. subst index.
       replace (queueofs + _ + 1 + 1)%Z with (queueofs + (length entries - var')%nat + 1)%Z by lia.
       iApply ("IHvar'" $! st_src st_tgt with "[] IST TID"); iFrame; eauto.
       iPureIntro; lia.
@@ -436,14 +436,14 @@ Module PQueueIA. Section PQueueIA.
     set (case := match v with | Vundef => _ | _ => _ end).
     replace case with (𝒴;;; Ret (inr v) : itree crisE (nat * Z + val)).
     2:{ subst case; des_ifs; ss. }
-    steps_r. iDestruct "GRT" as "[TID _]". sch_yield_ir "IST" "TID".
-    sch_yield_l. steps_l. sch_yield_l. sch_yield_l. force_l. iFrame. iSplit; eauto.
-    step. iFrame. done.
+    cStepsT. iDestruct "GRT" as "[TID _]". sYieldIR "IST" "TID".
+    sYieldS. cStepsS. sYieldS. sYieldS. cForceS. iFrame. iSplit; eauto.
+    cStep. iFrame. done.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open PQueueA PQueueI emp IstFull.
   Proof.
-    init_sim.
+    cStartModSim.
     { apply new_simF. }
     { apply add_simF. }
     { apply remove_min_simF. }
