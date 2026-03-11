@@ -23,9 +23,16 @@ Section StackIM.
   Local Notation HelpingDummy := (HelpingDummy.t mn).
   Local Notation StackM := ((StackM.t mn N (SchA.sp ∅ (↑N)) ★ HelpingOn) ★ MemA ★ SchI).
   Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
+  Local Notation IstFull := (IstProd (IstSB [mn] (IstHelp mn)) IstEq).
 
-  Local Notation IstFull := (HelpingTactics.IstFull StackM.jobID StackM.retID mn).
-
+  Lemma Ist_help : Ist_helping mn IstFull.
+  Proof.
+    iIntros (??) "[% [% [% [% [[-> ->] [[[%Hdisj _] [% [[-> ->] Ha]]] ->]]]]]]".
+    iModIntro; iExists _, _; iFrame; iSplit; auto.
+    iIntros (?) "$ !>"; iExists _, _, _, _; repeat iSplit; eauto.
+    iPureIntro. set_solver.
+  Qed.
+  
   Lemma push_simF : ISim.sim_fun open StackM StackI IstFull (fid StackHdr.push).
   Proof using.
     cStartFunSim. rewrite /StackI.push /StackM.push.
@@ -35,9 +42,8 @@ Section StackIM.
     iDestruct "ASM" as "[TID [_ [-> #[%stackb [%stackofs [-> Hinv]]]]]]".
     cStepsT. sYieldS.
     cStepS. rewrite {3}/SchA.sp. simpl_map. cStepS.
-    iApply (wsim_helping_run with "IST"); [|].
-    { simpl_map. rewrite /SB.sandbox_body. s. refl. }
-    clear st_src st_tgt; iIntros (st_src st_tgt req_id) "IST Tkn".
+    iApply (wsim_helping_run with "IST"); [exact Ist_help|simpl_map; s; f_equal|..].
+    clear st_src; iIntros (st_src req_id) "IST Tkn".
 
     (* Coinduction starts here *)
     iApply wsim_reset.
@@ -94,7 +100,7 @@ Section StackIM.
       (* atomic update happens here: since it is valid to update stack_contents here (without any
          helps from other threads), the pusher does its own job *)
       sYieldS. cStepsS.
-      iApply (wsim_helping_pend_try_run with "Help IST [-]").
+      iApply (wsim_helping_pend_try_run with "Help IST [-]"); [apply Ist_help|].
       cStepsS.
       iCombine "Hs ASM" gives
         %[->%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
@@ -223,7 +229,7 @@ Section StackIM.
       iIntros "_". cStepsT.
 
       sYieldS. cStepsS.
-      iApply (wsim_helping_done_try_run with "offer IST"); eauto.
+      iApply (wsim_helping_done_try_run with "offer IST"); eauto using Ist_help.
       iIntros "IST".
       sYieldS. cStepsS. sYieldS. cForceS. iFrame. iSplit; eauto.
       cStep. iFrame. eauto.

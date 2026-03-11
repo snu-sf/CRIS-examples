@@ -24,7 +24,7 @@ Module StackIM. Section StackIM.
   Local Notation StackM := ((StackM.t mn N (SchA.sp ∅ (↑N)) ★ HelpingOn) ★ MemA ★ SchI).
   Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
 
-  Local Notation IstFull := (HelpingTactics.IstFull StackM.jobID StackM.retID mn).
+  Local Notation IstFull := (IstProd (IstSB [mn] (IstHelp mn)) IstEq).
 
   (* Construct ISim.t for summing up each simulation proofs *)
   Lemma sim : ISim.t open StackM StackI init_cond IstFull.

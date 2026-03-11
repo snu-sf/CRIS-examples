@@ -46,7 +46,7 @@ Module SingleCoinPA. Section SingleCoinPA.
 
     cStepsT. cInlineT. cForceT (proph_coins (length l_t), coin_proph).
     cStepsT. cForceT ((proph_coins (length l_t))↑). cStepsT.
-    iPoseProof (ProphecyRA.free_id_split _ (proph_coins (length l_t)) with "F") as "> [F1 F2]".
+    iPoseProof (ProphecyRA.free_id_split_singleton _ (proph_coins (length l_t)) with "F") as "[F1 F2]".
     { ss; cSimpl; esplits; eauto. }
     cForceT; iFrame; iSplit; eauto.
     cStepsT. iDestruct "GRT" as "[-> [%b [-> P]]]". cStepsT.
