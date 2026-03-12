@@ -1,13 +1,13 @@
 Require Import CRIS.
-Require Import ImpPrelude MemHeader SchHeader.
-Require Import IncrementHeader.
+Require Import ImpPrelude MemHeader SchHeader Atomic.
+Require Export IncrHeader.
 
-Module IncrementI. Section IncrementI.
-  Context `{!crisG Γ Σ α β τ _S _I}.
+Module IncrI. Section IncrI.
+  Context `{!crisG Γ Σ α β τ _S _I, !concGS}.
 
   Definition scopes : list string := [].
 
-  Definition increment : list val → itree crisE val :=
+  Definition incr : list val → itree crisE val :=
     λ arg,
       𝒴;;; bofs <- (pargs [Tptr] arg)?;;
       𝒴;;;
@@ -23,7 +23,7 @@ Module IncrementI. Section IncrementI.
         ) ().
 
   Definition fnsems : fnsemmap :=
-    {[fid IncrementHdr.increment # (msk_scp scopes msk_true, (None, cfunU increment))]}.
+    {[fid IncrHdr.incr # (msk_scp scopes msk_true, (None, cfunU incr))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
@@ -33,4 +33,4 @@ Module IncrementI. Section IncrementI.
   Solve All Obligations with mod_tac.
 
   Definition t : Mod.t := SMod.to_mod ∅ smod.
-End IncrementI. End IncrementI.
+End IncrI. End IncrI.

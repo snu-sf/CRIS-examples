@@ -1,14 +1,12 @@
-Require Import CRIS.
-Require Export ClientI ClientA FaaA SchA MemA.
+Require Import CRIS Atomic.
+Require Export IncrHeader ClientI ClientA IncrA SchA MemA.
 Require Import SchTactics MemTactics.
 From iris Require Import frac_auth numbers.
-
-Require Import Common Mod ltac2_lib.
 
 (* Proof of refinement between ClientA.t and ClientI.t *)
 Module ClientIA. Section ClientIA.
   Import ClientA.
-  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _SCH: !schGS, _INCR: !incrG}.
+  Context `{!crisG Γ Σ α β τ Hsub Hinv, !memGS, !schGS, !incrG}.
 
   Context (N : namespace).
   Context (sp_user sp : specmap).
@@ -17,10 +15,10 @@ Module ClientIA. Section ClientIA.
 
   Local Definition IstFull := (IstProd (IstSB (ClientA.t N sp).(Mod.scopes) IstTrue) IstEq).
   Local Definition MA := (ClientA.t N sp ★ MemA.t sp).
-  Local Definition MI := ((ClientI.t ★ FaaA.t) ★ MemA.t sp).
+  Local Definition MI := ((ClientI.t ★ IncrA.t) ★ MemA.t sp).
 
   Lemma f_spawnable γ v bofs :
-    ⊢ SchA.fn_spawnable sp_user (IncrHdr.incr)
+    ⊢ SchA.fn_spawnable sp_user (ClientHdr.thread)
       (λ varg arg,
         ⌜varg = arg ∧ varg = ([Vptr bofs]↑↑)⌝
         ∗ counter γ (1/2) v
@@ -38,49 +36,60 @@ Module ClientIA. Section ClientIA.
     solve_base_sl_red; iSplit; done.
   Qed.
 
-  Lemma incr_simF : ISim.sim_fun open MA MI IstFull (fid IncrHdr.incr).
+  Lemma incr_simF : ISim.sim_fun open MA MI IstFull (fid ClientHdr.thread).
   Proof using Hsch Hclient.
-    cStartFunSim. rewrite /sfunU /sfunN /incr /ClientI.incr.
+    cStartFunSim.
 
-    cStepsS. destruct _q as [[stid mtid] [[[blk ofs] v]]].
+    cStepsS. destruct _q as [[stid mtid] [[[blk ofs] v] γ]]. rename _q0 into varg.
     iDestruct "ASM" as "[TID [[-> ->] [C #INV]]]".
 
-    cStepsS. cStepsT. rewrite /ClientI.incr /ClientA.incr /=; cStepsT.
+    cStepsS. cStepsT. rewrite /sfunU /sfunN /incr /ClientI.thread /=; cStepsT. cStepsS.
 
     sYieldIR "IST" "TID".
 
     (* tgt inline - faa *)
-    cStepsT. cInlineT. cStepsT. sYieldIR "IST" "TID".
+    cInlineT. cStepsT.
+    iApply (atomic_fun_tgt); ss. iExists (_, _); iSplit; first done.
+    iApply (atomic_update_tgt IncrA.incr_spec); ss.
+    iApply wsim_reset; cCoind CIH g __ with st_src st_tgt; iIntros "[#INV [C [IST TID]]]".
+    rewrite unfold_atomic_update. cNormT. sYieldIR "IST" "TID".
 
     (* operational atomicity here *)
     iInv "INV" as "[%x [PT CA]]" "IA".
-    cForcesT; iFrame "PT"; cStepsT.
+    cForcesT; iFrame "PT"; cStepsT. destruct _q as [|ret]; cStepsT.
+    { iMod ("IA" with "[$]") as "_". cByCoind CIH. iFrame. done. }
+    iMod (counter_incr 1 with "[C CA]") as "[C CA]"; first iFrame.
+    iMod ("IA" with "[GRT CA]") as "_".
+    { iExists (x + 1)%Z; solve_base_sl_red; iFrame. }
+    sYieldIR "IST" "TID". sYieldS. cStep. iFrame. clear dependent g.
+    sYieldS. cStep. iFrame. iIntros "->". cStepsT.
+
+    sYieldIR "IST" "TID".
+    (* tgt inline - faa *)
+    cInlineT. cStepsT.
+    iApply (atomic_fun_tgt); ss. iExists (_, _); iSplit; first done.
+    iApply (atomic_update_tgt IncrA.incr_spec); ss.
+    iApply wsim_reset; cCoind CIH g __ with st_src st_tgt; iIntros "[#INV [C [IST TID]]]".
+    rewrite unfold_atomic_update. cNormT. sYieldIR "IST" "TID".
+
+    (* operational atomicity here *)
+    clear x ret. iInv "INV" as "[%x [PT CA]]" "IA".
+    cForcesT; iFrame "PT"; cStepsT. destruct _q as [|ret]; cStepsT.
+    { iMod ("IA" with "[$]") as "_". cByCoind CIH. iFrame. done. }
 
     iMod (counter_incr 1 with "[C CA]") as "[C CA]"; first iFrame.
     iMod ("IA" with "[GRT CA]") as "_".
     { iExists (x + 1)%Z; solve_base_sl_red; iFrame. }
-    sYieldIR "IST" "TID".
-
-    iInv "INV" as "[%y [PT CA]]" "IA".
-
-    (* operational atomicity here *)
-    cForcesT; iFrame "PT"; cStepsT.
-
-    iMod (counter_incr 1 with "[C CA]") as "[C CA]"; first iFrame.
-    iMod ("IA" with "[GRT CA]") as "_".
-    { iExists (y + 1)%Z; solve_base_sl_red; iFrame. }
-    sYieldIR "IST" "TID".
-
-    cStepsT. sYieldIR "IST" "TID".
-    sYieldS. cStepsS. cForcesS. iFrame "TID".
+    sYieldIR "IST" "TID". sYieldS. cStep. iFrame. sYieldS. cStep. iFrame.
+    iIntros "->". cStepsT. sYieldIR "IST" "TID". sYieldS. cForcesS. iFrame.
     iSplitL "C".
     { iFrame. replace (v + 1 + 1)%Z with (v + 2)%Z by lia. iFrame. eauto. }
-    cStepsS. cStep. iFrame. done.
+    cStep. iFrame. done.
 (*SLOW*)Qed.
 
   Lemma main_simF : ISim.sim_fun open MA MI IstFull entry.
   Proof using Hsch Hclient.
-    cStartFunSim. rewrite /sfunU /sfunN /main /ClientI.main.
+    cStartFunSim.
 
     cStepsS. destruct _q as [[stid mtid] []]; s.
     iDestruct "ASM" as "[TID ->]".
@@ -160,7 +169,7 @@ Module ClientIA. Section ClientIA.
     iMod ("INVA" with "[CA PT]") as "_"; first solve_base_sl_red; iFrame.
 
     sYieldIR "IST" "TID". sYieldIR "IST" "TID". 
-    sYieldS; cStepsS.
+    sYieldS; cStepsS. replace (0 + 2 + (0 + 2))%Z with 4%Z by lia.
 
     cStep.
     cStepsS. cStepsT.
@@ -179,14 +188,14 @@ Module ClientIA. Section ClientIA.
 End ClientIA.
 
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _SCH: !schGS, _INCR: !incrG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !incrG}.
 
   Definition ctxr (N : namespace) (sp_user sp : specmap) :
     ClientA.sp N ⊆ sp_user →
     (SchA.sp sp_user (↑N)) ⊆ sp →
     ctx_refines
       (ClientA.t N sp ★ MemA.t sp, emp%I)
-      (ClientI.t      ★ FaaA.t ★ (MemA.t sp), emp%I).
+      (ClientI.t      ★ IncrA.t ★ (MemA.t sp), emp%I).
   Proof using.
     etrans; cycle 1. { do 2 ctxr_rotate. ctxr_refl. }
     eset (GRP := ClientI.t ★ _).

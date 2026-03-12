@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS Atomic.
 Require Import MemHeader MemA MemTactics.
 Require Import SchHeader SchI SchA SchTactics.
 Require Import StackHeader StackA.
@@ -15,8 +15,8 @@ Proof. solve_inG. Defined.
 Hint Unfold subG_queueG queue_stateG : GRA_index.
 
 Section definitions.
-  Context `{!crisG Γ Σ α β τ _S _I, _SCH: !schGS, _MEM: !memGS}.
-  Context `{!stackG StackM.jobID StackM.retID, _QUEUE: !queueG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !schGS, !memGS}.
+  Context `{!stackG StackM.jobID StackM.retID, !queueG}.
   Context (N : namespace).
 
   Definition queueN : namespace := N.@"queue".
@@ -68,8 +68,8 @@ Section definitions.
 End definitions.
 
 Module PQueueA. Section PQueueA.
-  Context `{!crisG Γ Σ α β τ _S _I, _SCH: !schGS, _MEM: !memGS}.
-  Context `{!stackG StackM.jobID StackM.retID, _QUEUE: !queueG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !schGS, !memGS}.
+  Context `{!stackG StackM.jobID StackM.retID, !queueG}.
   Context (N : namespace).
 
   Definition scopes : list string := [].
@@ -81,12 +81,25 @@ Module PQueueA. Section PQueueA.
          (λ ret, ∃ q γq, ⌜ret = q↑⌝ ∗
           is_queue N n γq range q ∗ queue_contents γq (repeat [] range)))%I)).
 
-  Definition add_spec : fspec :=
-    fspec_sch (↑N)
-      (fspec_simple (λ '((γq, range, priority, v) : gname * nat * nat * val),
-        ((λ arg, ∃ (n : nat) (q : val),
-          ⌜arg = [q; Vint priority; v]↑ ∧ priority < range⌝ ∗ is_queue N n γq range q)%Z,
-         (λ ret, ⌜ret = Vundef↑⌝))%I)).
+  Definition add_spec : fspec_atomic :=
+    <{ '((γq, range, priority, v) : gname * nat * nat * val) arg,
+      ∃ q n, ⌜arg = [q; Vint priority; v]↑ ∧ priority < range⌝ ∗ is_queue N n γq range q |
+        (l : list (list valO)),
+        queue_contents γq l |
+        ret,
+          queue_contents γq (<[priority := v :: (l !!! priority)]> l) |
+          ⌜ret = Vundef↑⌝ }> @ N.
+
+  Definition remove_min_spec_atomic : fspec_atomic :=
+    <{ '((γq, range) : gname * nat) arg,
+      ∃ q n, ⌜arg = [q]↑⌝ ∗ is_queue N n γq range q |
+        '((l, n) : list (list valO) * nat),
+        ⌜arg = n↑⌝ ∗ queue_contents γq l |
+        ret,
+          let l_p := l !!! n in
+          queue_contents γq (<[n := tail l_p]> l) ∗
+          ⌜ret = match l_p with | [] | Vundef :: _ => inl (S n) | v :: _ => inr v end↑⌝ |
+          emp}> @ N.
 
   Definition remove_min_spec : fspec :=
     fspec_sch (↑N)
@@ -99,17 +112,25 @@ Module PQueueA. Section PQueueA.
     𝒴;;; fbody_trivial ()↑.
 
   Definition add : Any.t → itree crisE Any.t :=
-    atomic_body (add_spec)
-      (λ '(_, _, (γq, _, priority, v)) _,
-        𝒴;;;
-        l <- trigger (Take (list (list val)));;
-        trigger (Assume (queue_contents γq l));;;
-        let l_p := l !!! priority in
-        trigger (Guarantee (queue_contents γq (<[priority := v :: l_p]> l)));;;
-        𝒴;;;
-        Ret Vundef↑).
+    atomic_fun add_spec (atomic_update add_spec).
 
   Definition remove_min : Any.t → itree crisE Any.t :=
+    atomic_fun remove_min_spec_atomic
+      (λ '(x, (γq, range)) arg,
+        𝒴;;; ITree.iter (λ n : nat,
+          if (decide (n = range))
+          then 𝒴;;; Ret (inr (Vundef↑, ([], n)))
+          else
+            '(ret, (l, n)) : Any.t * _ <- atomic_update remove_min_spec_atomic (x, (γq, n)) (n↑);;
+            'ret : nat + val <- (ret)↓?;;
+            match ret with
+            | inl n => Ret (inl n)
+            | inr v => Ret (inr (v↑, (l, n)))
+            end
+        ) 0
+      ).
+
+  (* Definition remove_min : Any.t → itree crisE Any.t :=
     atomic_body (remove_min_spec)
       (λ '(_, _, (γq, range)) _,
         𝒴;;;
@@ -131,7 +152,7 @@ Module PQueueA. Section PQueueA.
           end
         ) range;;
         𝒴;;;
-        Ret ret↑).
+        Ret ret↑). *)
 
   Definition fnsems : fnsemmap :=
     {[fid PQueueHdr.new # (msk_scp scopes msk_true, (fsp_some new_spec, new));
@@ -149,8 +170,8 @@ Module PQueueA. Section PQueueA.
 End PQueueA. End PQueueA.
 
 Module PQueueIA. Section PQueueIA.
-  Context `{!crisG Γ Σ α β τ _S _I, _SCH: !schGS, _MEM: !memGS}.
-  Context `{!stackG StackM.jobID StackM.retID, _QUEUE: !queueG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !schGS, !memGS}.
+  Context `{!stackG StackM.jobID StackM.retID, !queueG}.
 
   Context (N : namespace) (sp sp_user : specmap).
   Context (Hsch : (SchA.sp sp_user (↑N)) ⊆ sp).
@@ -296,13 +317,12 @@ Module PQueueIA. Section PQueueIA.
 
   Lemma add_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.add).
   Proof.
-    cStartFunSim. rewrite /PQueueA.add /atomic_body /PQueueI.add.
-    cStepsS. destruct _q as [[stid mtid] [[[γq range] priority] v]].
-    iDestruct "ASM" as "[TID [_ [%n [%q [[-> %] #[%queueb [%queueofs [-> is_queue]]]]]]]]".
+    cStartFunSim. rewrite /PQueueA.add /PQueueI.add. cStepsS; cStepsT.
+    iApply atomic_fun_src_sch; s.
+    iIntros (mtid stid [[[γq range] priority] v]) "TID [%q [%n [[-> %] #Hq]]] /=".
+    iDestruct "Hq" as "[%queueblk [%queueofs [-> [%entries [%Hlen [#qinv #stacks]]]]]]".
 
-    cStepsT.
-    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
-    iDestruct "is_queue" as "[%entries [%Hlen [#qinv #stacks]]]".
+    cStepsT. rewrite unfold_atomic_update. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     iInv "qinv" as "[◯entries [↦range ↦]]" "close".
     iCombine "stacks" "↦" as "↦"; rewrite -big_sepL_sep.
     hexploit (lookup_lt_is_Some_2 entries priority); first lia; intros [[stack γs] Hstack].
@@ -312,15 +332,14 @@ Module PQueueIA. Section PQueueIA.
     iMod ("close" with "[↦s ↦range ↦ ◯entries]") as "_".
     { iFrame. iApply ("↦s" with "[] [↦]"); iFrame. iIntros "!> %%%% [?$]". }
     sYieldIR "IST" "TID".
-    
+
     (* stack push *)
     cInlineT. rewrite /StackA.push /atomic_body.
     cStepsT. cForceT (_, _, (n, stack, v, γs)); cForcesT. iFrame. iSplit; eauto. cStepsT.
     sYieldII "IST".
-    cStepsT.
 
     (* atomic update *)
-    sYieldS. cStepsS. sYieldS. cStepsS.
+    sYieldS; cStepsS.
     rename _q into queue. set (entry := queue !!! priority).
     iDestruct "ASM" as "[%entries' [%Hlen' [● stack_contents]]]".
     iInv "qinv" as "[◯ inv]" "close". iCombine "●" "◯" gives %->%excl_auth_agree_L.
@@ -328,7 +347,7 @@ Module PQueueIA. Section PQueueIA.
     iPoseProof (big_sepL_lookup_acc_impl priority with "stack_contents") as "[s contents]"; eauto.
 
     cForceT entry. cForceT. iFrame "s". cStepsT.
-    cForceS. iSplitL "● contents GRT".
+    cForceS (inr _). cForcesS. iSplitL "● contents GRT".
     { iExists entries; iFrame. rewrite length_insert; iSplit; first done.
       iApply ("contents" with "[] [GRT]").
       { iIntros "!> %k %y %Hky % s". rewrite list_lookup_total_insert_ne //. }
@@ -338,37 +357,42 @@ Module PQueueIA. Section PQueueIA.
     cStepsS. sYieldII "IST".
     iDestruct "GRT" as "[TID _]".
     sYieldIR "IST" "TID".
-    sYieldS. cStepsS. sYieldS. cForceS. iFrame. iSplit; eauto.
-    cStep. iFrame. done.
+    sYieldS. cStep. iFrame. iSplit; first done. cStep; iFrame; done.
   (*SLOW*)Qed.
 
   Lemma remove_min_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.remove_min).
   Proof.
-    cStartFunSim. rewrite /PQueueA.remove_min /atomic_body /PQueueI.remove_min.
-    cStepsS. destruct _q as [[stid mtid] [γq range]].
-    iDestruct "ASM" as "[TID [_ [%n [%q [-> #[%queueb [%queueofs [-> Q]]]]]]]]".
+    cStartFunSim. rewrite /PQueueA.remove_min /PQueueI.remove_min.
+    cStepsS; cStepsT.
+    set (body := λ '(x, m), _). rewrite /PQueueA.remove_min_spec_atomic.
+    set (a := {| pre_priv := _ |}).
+    iApply (atomic_fun_src_sch a N body); subst a body; s.
+    iIntros (mtid stid [γq range]) "TID [%q [%n [-> #[%queueb [%queueofs [-> Q]]]]]]".
 
-    cStepsT. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
+    cStepsS. cStepsT.
+    (* unfoldIterS. cStepsS. rewrite {1}unfold_atomic_update; cStepsS. *)
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     iDestruct "Q" as "[%entries [%Hlen [#queue_inv #stack_invs]]]".
     iInv "queue_inv" as "[◯ [↦range ↦queues]]" "close".
 
     (* range load *)
     mLoadT "↦range".
     iMod ("close" with "[◯ ↦range ↦queues]") as "_"; iFrame.
-    sYieldIR "IST" "TID". sYieldS. sYieldS. cStepsS.
-    rewrite !Nat2Z.id.
+    sYieldIR "IST" "TID". sYieldS.
+    rewrite !Nat2Z.id. replace 0 with (range - range) by lia.
     iAssert (⌜range ≤ length entries⌝)%I as "#Hrange"; first by subst.
     replace (queueofs + 1)%Z with (queueofs + (length entries - range) + 1)%Z by lia.
-    generalize range at 2 6 8 9. subst range. iIntros (var).
+    generalize range at 2 8 9 10. subst range. iIntros (var).
     iInduction (var) as [|var'] forall (st_src st_tgt).
-    { unfoldIterS; unfoldIterT. cStepsS; cStepsT.
-      sYieldIR "IST" "TID". sYieldS. cStepsS. sYieldS.
-      cForceS. iFrame; iSplit; eauto.
-      cStep; iFrame; done.
+    { unfoldIterS. rewrite Nat.sub_0_r decide_True //.
+      unfoldIterT. cStepsT. cStepS.
+      sYieldIR "IST" "TID". sYieldS. cStepsS. cStep; iFrame; iSplit; auto.
+      by cStep; iFrame.
     }
 
     iPoseProof ("Hrange") as "%".
-    unfoldIterS. cStepsS.
+    unfoldIterS. rewrite decide_False; last by lia. cStepsS.
+    rewrite unfold_atomic_update; cStepsS.
     unfoldIterT. cStepsT. sYieldIR "IST" "TID".
 
     (* stack load *)
@@ -388,14 +412,15 @@ Module PQueueIA. Section PQueueIA.
     cStepsT. sYieldII "IST".
 
     (* atomic stack pop *)
-    sYieldS. cStepsS. rename _q into q. cForceT (q !!! index). cStepsT.
-    iDestruct "ASM" as "[%entries' [%Hlenq [● ↦stacks]]]".
+    sYieldS. cStepsS. destruct _q as [q ?]. cForceT (q !!! index). cStepsT.
+    iDestruct "ASM" as "[%Heq [%entries' [%Hlenq [● ↦stacks]]]]".
+    apply Any.upcast_inj in Heq as [_ <-%JMeq_eq].
     iInv "queue_inv" as "[◯ inv]" "close".
     iCombine "●" "◯" gives %->%excl_auth_agree_L.
     iMod ("close" with "[◯ inv]") as "_"; first iFrame.
     iPoseProof (big_sepL_lookup_acc_impl index with "↦stacks") as "[↦stack ↦stacks]"; eauto; s.
-    cForceT; iFrame. cStepsT. cForceS. iSplitL "↦stacks GRT ●".
-    { iFrame.
+    cForceT; iFrame. cStepsT. cForceS (inr _). cForcesS. iSplitL "↦stacks GRT ●".
+    { iSplitL; last auto. iFrame.
       iSplit; [rewrite length_insert //|].
       iApply ("↦stacks" with "[] [-]").
       { iIntros "!> %%%%"; rewrite list_lookup_total_insert_ne //. iIntros "$". }
@@ -405,7 +430,6 @@ Module PQueueIA. Section PQueueIA.
 
     (* remainder *)
     sYieldII "IST".
-
     set (caseb :=
       match q !!! index with
       | [] => true
@@ -420,10 +444,11 @@ Module PQueueIA. Section PQueueIA.
       cStepsT. iDestruct "GRT" as "[TID _]". sYieldIR "IST" "TID".
       sYieldS. cStepsS. clear case.
       set (case := match q !!! index with | Vint _ as v :: _ => _ | _ => _ end).
-      replace case with (Ret (inl var') : itree crisE (nat + val)); cycle 1.
+      replace case with ((inl (S index)) : nat + val); cycle 1.
       { subst case caseb; destruct (q !!! index) as [|[?|?|]?]; ss. }
       cStepsS. subst index.
       replace (queueofs + _ + 1 + 1)%Z with (queueofs + (length entries - var')%nat + 1)%Z by lia.
+      replace (S (length entries - S var')) with (length entries - var') by lia.
       iApply ("IHvar'" $! st_src st_tgt with "[] IST TID"); iFrame; eauto.
       iPureIntro; lia.
     }
@@ -431,13 +456,11 @@ Module PQueueIA. Section PQueueIA.
     assert (∃ v q', q !!! index = v :: q' ∧ v ≠ Vundef) as [v [q' [Hq' Hv]]].
     { destruct (q !!! index) as [|[?|?|]?]; ss; eauto. }
     rewrite Hq'; ss.
-    replace (match v with | Vundef => _ | _ => _ end) with (Ret (inr v) : itree crisE (nat + val)).
-    2:{ des_ifs. }
+    replace (match v with | Vundef => _ | _ => _ end) with ((inr v) : (nat + val)); last des_ifs.
     set (case := match v with | Vundef => _ | _ => _ end).
-    replace case with (𝒴;;; Ret (inr v) : itree crisE (nat * Z + val)).
-    2:{ subst case; des_ifs; ss. }
+    replace case with (𝒴;;; Ret (inr v) : itree crisE (nat * Z + val)); last (subst case; des_ifs).
     cStepsT. iDestruct "GRT" as "[TID _]". sYieldIR "IST" "TID".
-    sYieldS. cStepsS. sYieldS. sYieldS. cForceS. iFrame. iSplit; eauto.
+    sYieldS. cStepsS. cStep; iFrame. iSplit; first done.
     cStep. iFrame. done.
   (*SLOW*)Qed.
 
@@ -451,8 +474,8 @@ Module PQueueIA. Section PQueueIA.
   Qed.
 End PQueueIA.
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _S _I, _SCH: !schGS, _MEM: !memGS}.
-  Context `{!stackG StackM.jobID StackM.retID, _QUEUE: !queueG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !schGS, !memGS}.
+  Context `{!stackG StackM.jobID StackM.retID, !queueG}.
 
   Lemma ctxr (N : namespace) (sp_user sp : specmap) :
     SchA.sp sp_user (↑N) ⊆ sp →
@@ -461,4 +484,3 @@ Section ctxr.
       (PQueueI.t      ★ StackA.t (stackN N) (SchA.sp ∅ (↑(stackN N))) ★ SchI.t ★ MemA.t sp, emp%I).
   Proof. intros Hsp. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End PQueueIA.
-

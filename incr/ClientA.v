@@ -1,6 +1,6 @@
 Require Import CRIS.
 Require Export ImpPrelude SchA SchTactics MemA.
-Require Import FaaHeader.
+Require Import IncrHeader.
 From iris Require Import frac_auth numbers.
 
 Section RA.
@@ -13,9 +13,9 @@ Section RA.
 End RA.
 
 Module ClientA. Section ClientA.
-  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _SCH: !schGS, _INCR: !incrG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !incrG}.
 
-  Definition N_main N : namespace := (N .@ IncrHdr.main).
+  Definition N_main N : namespace := (N .@ ClientHdr.thread).
 
   Definition counter γ q (v : Z) : iProp Σ := own γ (◯F{q} v).
   Definition counter_syn {n} γ q (v : Z) : GTerm.t n := sown γ (◯F{q} v).
@@ -52,7 +52,7 @@ Module ClientA. Section ClientA.
   (* Definition init_cond E : iProp Σ := winv (E, E) ∗ Tid 0 0. *)
 
   Definition sp N : specmap :=
-    {[fid IncrHdr.incr @ incr_spec N]}.
+    {[fid ClientHdr.thread @ incr_spec N]}.
 
   (* Module definition *)
   Definition scopes : list string := [].
@@ -63,15 +63,15 @@ Module ClientA. Section ClientA.
   Definition main : Any.t → itree crisE Any.t :=
     λ _,
       𝒴;;; 'ptr_raw : val <- trigger (Choose val);;
-      𝒴;;; tid1 <- Sch.spawn (IncrHdr.incr, [ptr_raw]↑↑);;
-      𝒴;;; tid2 <- Sch.spawn (IncrHdr.incr, [ptr_raw]↑↑);;
+      𝒴;;; tid1 <- Sch.spawn (ClientHdr.thread, [ptr_raw]↑↑);;
+      𝒴;;; tid2 <- Sch.spawn (ClientHdr.thread, [ptr_raw]↑↑);;
       𝒴;;; Sch.join tid1;;;
       𝒴;;; Sch.join tid2;;;
-      𝒴;;; trigger (IO (O:=unit) "OUT" 4%Z);;;
+      𝒴;;; trigger (IO (O:=val) "OUT" 4%Z);;;
       𝒴;;; Ret (tt↑).
 
   Definition fnsems (N : namespace) : fnsemmap :=
-    {[fid IncrHdr.incr # (msk_scp scopes msk_true, (fsp_some (incr_spec N), cfunN (sfunN incr)));
+    {[fid ClientHdr.thread # (msk_scp scopes msk_true, (fsp_some (incr_spec N), cfunN (sfunN incr)));
       entry # (msk_scp scopes msk_true, (fsp_some (fspec_sch (↑N) fspec_trivial), main))]}.
 
   Program Definition smod N : SMod.t := {|

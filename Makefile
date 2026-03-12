@@ -35,8 +35,7 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R celliocb $(CRISMODULE).celliocb"; \
 	 echo "-R elimination_stack $(CRISMODULE).elimination_stack"; \
 	 echo "-R hybrid_mem $(CRISMODULE).hybrid_mem"; \
-	 echo "-R incr_cas $(CRISMODULE).incr_cas"; \
-	 echo "-R incr_faa $(CRISMODULE).incr_faa"; \
+	 echo "-R incr $(CRISMODULE).incr"; \
 	 echo "-R knot $(CRISMODULE).knot"; \
 	 echo "-R map $(CRISMODULE).map"; \
 	 echo "-R mutsum $(CRISMODULE).mutsum"; \
