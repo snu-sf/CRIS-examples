@@ -6,7 +6,7 @@ Require Import Cancel.
 
 (* Cancellation *)
 Section MainAux.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, _MEM: !memGS, _SCH: !schGS, _SPINLOCK: !spinlockG, _SPINLOCKMAIN: !spinlockmainG}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !memGS, !schGS, !spinlockG, !spinlockmainG}.
   Context (csl : string → bool) (genv : GEnv.t).
   (* sp of source module (scheduler spec excluded) *)
   Local Definition sp_user : specmap := MainA.sp ⊤.
@@ -163,7 +163,7 @@ Module MainAll.
   Local Instance Σ : GRA := ##[Γ; invΣ; newschΣ].
 
   (* tgt Mod ⊆ cancelled Mod *)
-  Theorem behavioral_refinement :
+  Lemma behavioral_refinement :
     ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : schGS) (_ : memGS)
       src_res tgt_res, refines_lmod
       (Mod.to_lmod mod_top src_res)

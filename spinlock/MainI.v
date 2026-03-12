@@ -9,7 +9,7 @@ Require Import ImpPrelude SchHeader MemHeader.
   3) initial state (via Any.t)
 *)
 Module SpinLockMainI. Section SpinLockMainI.
-  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _SCH: !schGS, _SPINLOCK: !spinlockG}.
+  Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes : list string := [].
 

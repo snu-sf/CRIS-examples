@@ -5,7 +5,7 @@ Require Import SchHeader SchA SchTactics.
 
 Module LockIA. Section LockIA.
   Import LockA.
-  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS, _SCH: !schGS, _SPINLOCK: !spinlockG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !spinlockG}.
 
   Context (E : coPset) (Hsub : ↑N_SpinLockA ⊆ E).
   Context (sp_user sp : specmap).
