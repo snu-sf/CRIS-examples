@@ -19,7 +19,7 @@ Qed.
 
 Module SingleCoinPA. Section SingleCoinPA.
   Import SingleCoinA SingleCoinP.
-  Context `{!crisG Γ Σ α β τ _S _I, _PROPH: !prophGS, _COIN: !coinGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, !prophGS, !coinGS}.
   Context (mn : string) (sp : specmap).
 
   Local Notation MA := (SingleCoinA.t sp).
@@ -77,8 +77,8 @@ Module SingleCoinPA. Section SingleCoinPA.
         esplits; eauto.
       }
       iApply (big_sepL_impl with "PL").
-      iModIntro; iIntros (k x) "% [%b' [%ol' H]]".
-      apply lookup_lt_Some in H; rewrite -EQ in H.
+      iModIntro; iIntros (k x) "%Hkx [%b' [%ol' H]]".
+      apply lookup_lt_Some in Hkx; rewrite -EQ in Hkx.
       rewrite lookup_app_l //.
       iExists _, _; iFrame.
     }

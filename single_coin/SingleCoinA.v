@@ -16,7 +16,7 @@ Global Instance subG_coinGpreS `{!crisG Γ Σ α β τ _I _S} : subG coinΓ Γ �
 Proof. solve_inG. Defined.
 
 Section definitions.
-  Context `{!crisG Γ Σ α β τ _S _I, _COIN: !coinGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, !coinGS}.
 
   Definition coin_auth_r (l : list bool) : CoinRA :=
     gmap_view_auth (DfracOwn 1)
@@ -54,22 +54,22 @@ Section definitions.
   Proof.
     iIntros "A C"; iCombine "A" "C" gives %WF.
     rewrite /coin_auth_r /coin_r in WF.
-    apply gmap_view_both_dfrac_valid_discrete in WF; destruct WF as [? [? [? [EQ ?]]]].
+    apply gmap_view_both_dfrac_valid_discrete in WF; destruct WF as [? [? [? [EQ [Hwf1 Hwf2]]]]].
     eapply elem_of_list_to_map in EQ; cycle 1.
     { rewrite fst_zip; [|rewrite length_map length_seq //]. apply NoDup_seq. }
-    apply elem_of_lookup_zip_with in EQ; destruct EQ as [? [? [? [EQ ?]]]]; clarify.
-    des. apply lookup_seq in H1; des; clarify; ss.
-    apply Some_pair_included_r in H2. rewrite Some_included_total in H2.
-    apply elem_of_list_split_length in H3. destruct H3 as [l1 [l2 [EQ EQL]]].
+    apply elem_of_lookup_zip_with in EQ; destruct EQ as [? [? [? [EQ [Heq1 Heq2]]]]]; clarify.
+    apply lookup_seq in Heq1; des; clarify; ss.
+    apply Some_pair_included_r in Hwf2. rewrite Some_included_total in Hwf2.
+    apply elem_of_list_split_length in Heq2. destruct Heq2 as [l1 [l2 [EQ EQL]]].
     apply map_eq_app in EQ; destruct EQ as [l1' [l2' [-> [EQ1 EQ2]]]].
     destruct l2'; [inv EQ2|ss]. inv EQ2.
-    apply to_agree_included in H2; inv H2.
+    apply to_agree_included in Hwf2; inv Hwf2.
     rewrite length_map. rewrite lookup_app_r // Nat.sub_diag //.
   Qed.
 End definitions.
 
 Module SingleCoinA. Section SingleCoinA.
-  Context `{!crisG Γ Σ α β τ _S _I, _COIN: !coinGS, _PROPH: !prophGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, !coinGS, !prophGS}.
 
   Definition new_spec : fspec :=
     fspec_simple (λ _ : unit,
