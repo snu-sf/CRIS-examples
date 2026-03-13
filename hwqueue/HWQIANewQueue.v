@@ -138,7 +138,6 @@ Section HWQPM.
     unfoldIterT. cStepsT. sYieldIR "IST" "TID".
     destruct Nat.ltb eqn : Hltb; first clear Hltb; last first.
     { apply Nat.ltb_ge in Hltb; lia. }
-    rewrite length_replicate.
     iPoseProof (big_sepL_insert_acc _ _ (sz - (S i)) with "ar") as "[↦ ar]".
     { rewrite lookup_app_r length_replicate // Nat.sub_diag //=. }
     cStepsT.
