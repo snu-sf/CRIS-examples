@@ -27,9 +27,10 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R $(CRISMODULE)/scheduler $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/apc $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/prophecy $(CRISMODULE)"; \
-	 echo "-R $(CRISMODULE)/imp_system $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/extract $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/helping $(CRISMODULE)"; \
+	 echo "-R imp_system $(CRISMODULE).imp_system"; \
+	 echo "-R promise_free $(CRISMODULE).promise_free"; \
 	 echo "-R cannon $(CRISMODULE).cannon"; \
 	 echo "-R cellio $(CRISMODULE).cellio"; \
 	 echo "-R celliocb $(CRISMODULE).celliocb"; \
@@ -40,7 +41,6 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R map $(CRISMODULE).map"; \
 	 echo "-R mutsum $(CRISMODULE).mutsum"; \
 	 echo "-R priority_queue $(CRISMODULE).priority_queue"; \
-	 echo "-R promise_free $(CRISMODULE).promise_free"; \
 	 echo "-R repeat $(CRISMODULE).repeat"; \
 	 echo "-R ring $(CRISMODULE).ring"; \
 	 echo "-R scheduler $(CRISMODULE).scheduler"; \
