@@ -8,7 +8,7 @@ Module SingleCoinIP. Section SingleCoinIP.
   Context (mn : string).
 
   Local Notation MA := (SingleCoinP.t mn ★ ProphecyI.t mn).
-  Local Notation MI := (CFilter.filter (ProphecyName.exports mn) SingleCoinI.t ★ ProphecyI.t mn).
+  Local Notation MI := (CFilter.filter (Prophecy.exports mn) SingleCoinI.t ★ ProphecyI.t mn).
 
   Local Definition Ist : ist_type Σ :=
     (λ st_s st_t,

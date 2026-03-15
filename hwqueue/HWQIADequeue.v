@@ -9,35 +9,22 @@ From stdpp Require Import streams list.
 
 Section HWQPM.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !schGS, !hwqG, !memGS, !prophGS}.
-  Context (mn : string).
+  Context (mnp mnh : string).
   Context (N : namespace) (sp_mem : specmap).
 
-  Definition Ist : ist_type Σ := λ st_src st_tgt,
-    (IstHelp mn st_src st_tgt ∗
-    ∃ (X : gset val),
-      free_id (λ x, (x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type) ∗
-      [∗ set] x ∈ X,
-        □ ∃ blk ofs nx, ⌜x = Vptr (blk, ofs)⌝ ∗
-          ∀ X, helping_auth 1 X =| nx, ↑N |={↑N, ∅}=∗ ∃ v, (blk, ofs) ↦ v)%I.
-  Definition IstFull : ist_type Σ :=
-    IstProd (IstSB (Mod.scopes (HWQP.t mn) ++ Mod.scopes (HelpingDummy.t mn)) Ist) IstEq.
-  Lemma Ist_help : Ist_helping mn IstFull.
-  Proof.
-    iIntros (??) "[% [% [% [% [[-> ->] [[%Ha [[% [[-> ->] ?]] ?]] ->]]]]]]".
-    iModIntro; iExists _, _; iFrame; iSplit; auto.
-    iIntros (?) "$ !>"; iExists _, _, _, _; repeat iSplit; eauto.
-    iPureIntro. set_solver.
-  Qed.
-
   Notation sp := (SchA.sp ∅ (↑N)).
-  Notation HWQM := (HWQM.t N mn).
-  Notation HWQP := (HWQP.t mn).
-  Notation HelpOn := (HelpingOn.t mn HWQM.jobCode sp).
-  Notation HelpDummy := (HelpingDummy.t mn).
+  Notation HWQM := (HWQM.t N mnh).
+  Notation HWQP := (HWQP.t mnp).
+  Notation HelpOn := (HelpingOn.t mnh HWQM.jobCode sp).
+  Notation HelpDummy := (HelpingDummy.t mnh).
   Notation MemA := (MemA.t sp_mem).
-  Notation ProphA := (ProphecyA.t mn ∅).
+  Notation ProphA := (ProphecyA.t mnp ∅).
+  Notation IstFull := (HWQIAInv.IstFull mnp mnh N).
 
-    Lemma simF_dequeue :
+  Local Ltac yield_tac H1 H2 :=
+    sYieldIR H1 H2; [eapply bool_decide_eq_true; set_solver|].
+  
+  Lemma simF_dequeue :
     ISim.sim_fun open
       ((HWQM ★ HelpOn) ★ MemA ★ ProphA) ((HWQP ★ HelpDummy) ★ MemA ★ ProphA)
       IstFull (fid HWQHdr.dequeue).
@@ -47,15 +34,15 @@ Section HWQPM.
     destruct _q as [[mtid stid] [[[n sz] γq] q]].
     iDestruct "ASM" as "[TID [_ [-> #Hinv]]]". cStepsT.
     iDestruct "Hinv" as (γb γi γc γs blk ->) "#Inv".
-    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
+    yield_tac "IST" "TID". yield_tac "IST" "TID".
     iApply wsim_reset.
     cCoind CIH g __ with st_src st_tgt. iIntros "[#Inv [IST TID]]".
     set (tgt_out := λ _ : (), _) at 2.
     unfoldIterT. rewrite {1}/tgt_out.
-    cStepsT. sYieldIR "IST" "TID".
+    cStepsT. yield_tac "IST" "TID".
 
     iInv "Inv" as "[[% X2]|HInv]" "Close".
-    { iMod (Ist_help with "IST") as "[% [% [-> [X ?]]]]".
+    { iMod (HWQIAInv.Ist_help with "IST") as "[% [% [-> [X ?]]]]".
       iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
     }
     iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
@@ -65,10 +52,10 @@ Section HWQPM.
     { iRight. repeat iExists _. eauto with iFrame. }
     clear back pvs pref rest slots deqs cont.
 
-    sYieldIR "IST" "TID". sYieldIR "IST" "TID". rewrite left_id.
+    yield_tac "IST" "TID". yield_tac "IST" "TID". rewrite left_id.
 
     iInv "Inv" as "[[% X2]|HInv]" "Close".
-    { iMod (Ist_help with "IST") as "[% [% [-> [X ?]]]]".
+    { iMod (HWQIAInv.Ist_help with "IST") as "[% [% [-> [X ?]]]]".
       iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
     }
     iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
@@ -89,8 +76,8 @@ Section HWQPM.
     iMod ("Close" with "[-IST TID Hback_snap Hi2_lower_bound]") as "_".
     { iRight. repeat iExists _. eauto with iFrame. }
     clear pref rest slots deqs pvs.
-    sYieldIR "IST" "TID". sYieldIR "IST" "TID". rewrite /HWQP.dequeue_aux. cStepsT.
-    sYieldIR "IST" "TID".
+    yield_tac "IST" "TID". yield_tac "IST" "TID". rewrite /HWQP.dequeue_aux. cStepsT.
+    yield_tac "IST" "TID".
     set (tgt_in := λ _ : nat, _).
 
     (* The range is the min between [q.back - 1] and [q.size - 1]. *)
@@ -104,14 +91,14 @@ Section HWQPM.
     revert Hn Hcont_i1. rename n into idx. generalize (back `min` sz) at 1 4 6 as n.
     intros n Hn Hcont_i1.
     iInduction n as [|n] "IH_loop" forall (st_src st_tgt Hn Hcont_i1).
-    { unfoldIterT; rewrite {1}/tgt_in. cStepsT. sYieldIR "IST" "TID".
+    { unfoldIterT; rewrite {1}/tgt_in. cStepsT. yield_tac "IST" "TID".
       cByCoind CIH. iFrame. eauto.
     }
     unfoldIterT; rewrite {2}/tgt_in. cStepsT.
-    sYieldIR "IST" "TID". sYieldIR "IST" "TID". sYieldIR "IST" "TID".
+    yield_tac "IST" "TID". yield_tac "IST" "TID". yield_tac "IST" "TID".
     (* Now the induction case: we need to open the invariant for the load. *)
     iInv "Inv" as "[[% X2]|HInv]" "Close".
-    { iMod (Ist_help with "IST") as "[% [% [-> [X ?]]]]".
+    { iMod (HWQIAInv.Ist_help with "IST") as "[% [% [-> [X ?]]]]".
       iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
     }
     iDestruct "HInv" as (back' pvs pref rest cont' slots deqs) "HInv".
@@ -141,7 +128,7 @@ Section HWQPM.
     { rewrite Hi_NULL.
       iMod ("Close" with "[-IST TID Hback_snap Hi2_lower_bound]") as "_".
       { iRight. iFrame. iPureIntro; repeat split_and; des; eauto. }
-      cStepsT. sYieldIR "IST" "TID". rewrite Nat.sub_0_r.
+      cStepsT. yield_tac "IST" "TID". rewrite Nat.sub_0_r.
       iApply ("IH_loop" with "[] [] Hback_snap Hi2_lower_bound IST TID").
       - iPureIntro. lia.
       - iPureIntro. destruct cont as [i1 i2|bs]; last done.
@@ -174,10 +161,10 @@ Section HWQPM.
 
     clear Hslots Hstate Hpref Hdeqs Hcont Hinitial_cont Hback back' Hpvs_OK Hlem.
     clear pvs pref rest cont' Hslots_i si wi Hi_not_NULL slots deqs.
-    cStepsT. sYieldIR "IST" "TID".
+    cStepsT. yield_tac "IST" "TID".
     (* Finally, the interesting where the cell was non-NULL on the load. *)
     iInv "Inv" as "[[% X2]|HInv]" "Close".
-    { iMod (Ist_help with "IST") as "[% [% [-> [X ?]]]]".
+    { iMod (HWQIAInv.Ist_help with "IST") as "[% [% [-> [X ?]]]]".
       iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
     }
     iDestruct "HInv" as (back' pvs pref rest cont' slots deqs) "HInv".
@@ -363,11 +350,11 @@ Section HWQPM.
               rewrite /= Hp2 decide_True in HC3; last by (split; try lia).
               by inversion HC3.
         }
-        cStepsS. sYieldIR "IST" "TID".
+        cStepsS. yield_tac "IST" "TID".
         iApply (wsim_mem_cmp with "Hi2 []"); [simpl_map; s; f_equal|ss|..].
         { ss; case_bool_decide; first refl; naive_solver. }
         { ss; iIntros "[$ $] !> [Ha Hb]"; iSplitL "Ha"; by iFrame. }
-        iIntros "_". cStepsT. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
+        iIntros "_". cStepsT. yield_tac "IST" "TID". yield_tac "IST" "TID".
         clear. sYieldS. cForceS. iFrame; repeat iSplit; auto. cStep. iFrame. done.
       }
       (* If the enqueue at index [i] was not committed: contradiction. *)
@@ -414,11 +401,11 @@ Section HWQPM.
         intros x2 i2 Hi2sz Hi2deq Hi2lookup. specialize (Hpvs (S x2) i2); ss.
         rewrite Hp2 in Hpvs; apply Hpvs; eauto.
       }
-      sYieldIR "IST" "TID".
+      yield_tac "IST" "TID".
       iApply (wsim_mem_cmp with "Hi2 []"); [simpl_map; s; f_equal|ss|..].
       { ss. }
       { ss; iIntros "$ !>"; iExists 1%Qp, Vundef; iIntros "[_ $] !> //". }
-      iIntros "_". cStepsT. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
+      iIntros "_". cStepsT. yield_tac "IST" "TID". yield_tac "IST" "TID".
       (* And conclude using the loop induction hypothesis. *)
       rewrite Nat.sub_0_r.
       iClear "Hval_wit_i".

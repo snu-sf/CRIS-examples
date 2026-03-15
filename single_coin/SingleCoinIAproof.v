@@ -17,7 +17,7 @@ Module SingleCoinIA. Section SingleCoinIA.
   Proof.
     intros Hreal.
     etrans; cycle 1.
-    { eapply prophecy_refines with (Pm:=emp%I); eauto.
+    { eapply prophecy_main with (Pm:=emp%I); eauto.
       { intros mn; eapply main_adequacy, SingleCoinIP.sim. }
       { intros mn; eapply main_adequacy, SingleCoinPA.sim. }
       { intros mn. rewrite /real_mod.

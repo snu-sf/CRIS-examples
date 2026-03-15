@@ -4,7 +4,7 @@ Require Import CallFilter ProphecyI SchTactics.
 (* Prophecy-inserted intermediate module, HWQP *)
 Module HWQP. Section HWQP.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS}.
-  Context (mn : string).
+  Context (mnp : string).
 
   Definition new_queue : list val → itree crisE val := λ sz,
     𝒴;;; sz <- (pargs [Tint] sz)?;;
@@ -19,7 +19,7 @@ Module HWQP. Section HWQP.
           '_ : val <- ccallU MemHdr.store [Vptr (qblk, qofs + 2 + x)%Z; Vint 0];; Ret (inl (S x))
         else
           Ret (inr ())) 0;;;
-    𝒴;;; trigger (Call (ProphecyName.new mn) ("hwq", q↑↑)↑);;; Ret q.
+    𝒴;;; trigger (Call (Prophecy.new mnp) ("hwq", q↑↑)↑);;; Ret q.
 
   Definition dequeue_aux (q : val) (range : nat) (i : nat) : itree crisE (() + val) :=
     𝒴;;;
@@ -36,7 +36,7 @@ Module HWQP. Section HWQP.
           | Vptr (xblk, xofs) =>
               𝒴;;;
                 'c : val <- ccallU MemHdr.cas [Vptr (blk, ofs + 2 + j)%Z; x; Vint 0];;
-                trigger (Call (ProphecyName.resolve mn)
+                trigger (Call (Prophecy.resolve mnp)
                   (("hwq", q↑↑), (j, bool_decide (c = x))↑↑)↑);;;
               𝒴;;; 'succ : val <- ccallU MemHdr.cmp [c; x];;
               𝒴;;;
@@ -59,10 +59,13 @@ Module HWQP. Section HWQP.
         𝒴;;; let range := Z.to_nat (Z.min sz back) in
         dequeue_aux (Vptr (qblk, qofs)) range range) ().
 
+  Definition mask : emask :=
+    CFilter.msk_filter_in (Prophecy.exports mnp ∪ MemHdr.exports ∪ SchHdr.exports) (msk_real (msk_scp [] msk_true)).
+  
   Definition fnsems : fnsemmap :=
-    {[fid HWQHdr.new_queue # (msk_real (msk_scp [] msk_true), (None, cfunU new_queue));
-      fid HWQHdr.enqueue   # (msk_real (msk_scp [] msk_true), (None, cfunU (HWQI.enqueue)));
-      fid HWQHdr.dequeue   # (msk_real (msk_scp [] msk_true), (None, cfunU dequeue))]}.
+    {[fid HWQHdr.new_queue # (mask, (None, cfunU new_queue));
+      fid HWQHdr.enqueue   # (mask, (None, cfunU (HWQI.enqueue)));
+      fid HWQHdr.dequeue   # (mask, (None, cfunU dequeue))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := [];
@@ -72,18 +75,25 @@ Module HWQP. Section HWQP.
   Solve All Obligations with mod_tac.
 
   Definition t := SMod.to_mod ∅ Mod.
+  
+  Lemma filter_helping mnh:
+    CFilter.filter (Helping.exports mnh) t = t.
+  Proof. cfilter_solver. Qed.
+
+  Lemma real: Mod.real_mod t.
+  Proof. real_mod_solver. Qed.
+
 End HWQP. End HWQP.
 
 Module HWQIP. Section HWQIP.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS}.
-  Context (mn : string).
+  Context (mnp : string).
 
-  Local Definition IstFull := IstProd (IstSB (Mod.scopes (HWQP.t mn)) IstEq) IstEq.
+  Local Definition IstFull := IstProd (IstSB (Mod.scopes (HWQP.t mnp)) IstEq) IstEq.
   Lemma ctxr :
-    let fns mn := ProphecyName.exports mn ∪ Helping.exports mn in
     ctx_refines
-      (HWQP.t mn                      ★ ProphecyI.t mn, emp)%I
-      (CFilter.filter (fns mn) HWQI.t ★ ProphecyI.t mn, emp)%I.
+      (HWQP.t mnp ★ ProphecyI.t mnp, emp)%I
+      (HWQI.t     ★ ProphecyI.t mnp, emp)%I.
   Proof using.
     apply main_adequacy with (Ist:=IstFull).
     cStartModSim.
@@ -91,30 +101,24 @@ Module HWQIP. Section HWQIP.
       cStepsS. destruct Any.downcast as [sz|]; cStepsS; ss. cStepsT.
       rewrite /HWQP.new_queue /HWQI.new_queue.
       cStepsS. cStepsT. sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss. set_solver. }
       sYieldS. cStepsS.
       destruct sz as [|[sz| | ] [|]]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss. set_solver. }
       sYieldS. cStepsS.
       iApply wsim_call; iFrame; clear_st; iIntros (ret st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss. set_solver. }
       sYieldS. cStepsS.
       destruct v as [ | [blk ofs] | ]; cStepsS; ss; cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss. set_solver. }
       sYieldS. cStepsS.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss. set_solver. }
       sYieldS. cStepsS.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss. set_solver. }
       sYieldS.
       cNormS. cNormT.
       replace 0 with (Z.to_nat sz - Z.to_nat sz) by lia.
@@ -125,9 +129,7 @@ Module HWQIP. Section HWQIP.
         unfoldIterS. unfoldIterT.
         rewrite Nat.ltb_irrefl.
         cStepsT. sYieldRR "IST".
-        { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss. set_solver. }
         sYieldRR "IST".
-        { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss. set_solver. }
         sYieldS. cStepsS. sYieldS. cStepsS. cInlineS. rewrite /ProphecyI.new. cStepsS.
         cStep. iFrame. auto.
       }
@@ -135,7 +137,6 @@ Module HWQIP. Section HWQIP.
       destruct Nat.ltb eqn : Heqb; last (apply Nat.ltb_ge in Heqb; lia).
       cStepsS. cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss. set_solver. }
       sYieldS. cStepsS.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
@@ -145,21 +146,17 @@ Module HWQIP. Section HWQIP.
     { cStartFunSim. cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       rewrite /HWQI.enqueue. cStepsS. cStepsT.
       sYieldRR "IST".
-       { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS. destruct pargs as [[[? ?] v]|]; last cStepsS; ss.
       cStepsS. cStepsT.
       sYieldRR "IST".
-       { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-       { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       rewrite /MemHdr.faa. cStepsS; cStepsT.
       destruct pargs; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-       { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
@@ -167,16 +164,13 @@ Module HWQIP. Section HWQIP.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-       { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       destruct pargs; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-       { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       case_match; last first.
       { cStepsS; cStepsT.
         sYieldRR "IST".
-        { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
         sYieldS. cStepsS.
         iApply wsim_reset.
         iStopProof. revert st_src; combine_quant st_tgt; eapply wsim_coind.
@@ -184,18 +178,15 @@ Module HWQIP. Section HWQIP.
         unfoldIterS; unfoldIterT.
         cStepsS; cStepsT.
         sYieldRR "IST".
-        { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
         sYieldS. cStepsS.
         cByCoind CIH. iFrame.
       }
       cStepsS; cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       cStep. iFrame. done.
     }
@@ -204,11 +195,9 @@ Module HWQIP. Section HWQIP.
       rewrite /HWQI.dequeue /HWQP.dequeue.
       cStepsS; cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       destruct pargs as [[qblk qofs]|]; last cStepsS; ss. cStepsS; cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       iApply wsim_reset. iStopProof. revert st_src. combine_quant st_tgt.
       eapply wsim_coind. iIntros (g _ CIH [st_tgt st_src]) "IST". destruct_quant CIH.
@@ -218,29 +207,23 @@ Module HWQIP. Section HWQIP.
       unfoldIterT. rewrite {1}/src {1}/tgt.
       cStepsS. cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       destruct pargs as [x0|]; last cStepsS; ss. cStepsS; cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       destruct pargs as [x1|]; cStepsS; ss; cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       rewrite /HWQI.dequeue_aux /HWQP.dequeue_aux. cStepsT; cStepsS.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS. cStepsS.
       assert (Z.to_nat (x0 `min` x1) <= Z.to_nat (x0 `min` x1)) as Hi by lia.
       revert Hi. generalize (Z.to_nat (x0 `min` x1)) at 1 6 9 as i.
@@ -253,21 +236,17 @@ Module HWQIP. Section HWQIP.
         rewrite {1}/src2 {1}/tgt2.
         cStepsS; cStepsT.
         sYieldRR "IST".
-        { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
         sYieldS. cStepsS. cByCoind CIH. iFrame.
       }
       unfoldIterS. unfoldIterT. rewrite {2}/src2 {2}/tgt2.
       cStepsS; cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS.
       cStepsS; cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS.
       cStepsS; cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS.
       cStepsS; cStepsT.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
@@ -275,7 +254,6 @@ Module HWQIP. Section HWQIP.
       destruct (decide (v1 = Vint 0)) as [->|Hv1].
       { cStepsS; cStepsT.
         sYieldRR "IST".
-        { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
         sYieldS.
         cStepsS; cStepsT.
         rewrite Nat.sub_0_r.
@@ -286,31 +264,26 @@ Module HWQIP. Section HWQIP.
       { destruct v1; first clarify; cStepsS; ss. }
       cStepsS; cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS.
       cStepsS; cStepsT.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       cInlineS. rewrite /ProphecyI.new; cStepsS.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS.
       cStepsS.
       iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-      { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
       sYieldS.
       destruct v2 as [n2 | ptr2 | ]; [|sYieldS; cStepsS; ss|sYieldS; cStepsS; ss].
       destruct (decide (n2 = 0%Z)) as [->|?].
       { cNormS. cStepsT. sYieldRR "IST".
-        { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
         sYieldS. cStepsS. rewrite Nat.sub_0_r.
         iApply "IH"; iFrame; iPureIntro; lia.
       }
       destruct (decide (n2 = 1%Z)) as [->|?].
       { cNormS. cStepsT. sYieldRR "IST".
-        { case_bool_decide as Hcase; first done. exfalso; apply Hcase; split; ss; set_solver. }
         sYieldS. cStepsS.
         cStep. iFrame. done.
       }

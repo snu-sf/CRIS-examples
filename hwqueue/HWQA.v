@@ -70,7 +70,7 @@ End HWQA. End HWQA.
 
 Module HWQM. Section HWQM.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
-  Context (N : namespace) (mn : string).
+  Context (N : namespace) (mnh : string).
 
   Notation jobID := (val * gname)%type. (* idx * gname *)
   Notation retID := val.
@@ -87,11 +87,11 @@ Module HWQM. Section HWQM.
   Definition enqueue : Any.t → itree crisE Any.t :=
     atomic_body (HWQA.enqueue_spec N)
       (λ '(_, (_, γq, _, l)) _,
-        ret <- trigger (Call (Helping.run mn) (l, γq)↑);;
+        ret <- trigger (Call (Helping.run mnh) (l, γq)↑);;
         ITree.iter (λ _,
           'b : bool <- trigger (Choose bool);;
           if b 
-          then trigger (Call (Helping.help mn) (()↑));;; Ret (inl ()) 
+          then trigger (Call (Helping.help mnh) (()↑));;; Ret (inl ()) 
           else Ret (inr ())) ();;;
         Ret ret).
 
@@ -118,3 +118,28 @@ Module HWQM. Section HWQM.
 
   Definition t := SMod.to_mod (SchA.sp ∅ (↑N)) Mod.
 End HWQM. End HWQM.
+
+Module HWQIAInv. Section HWQIAInv.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
+  Context (mnp mnh : string).
+  Context (N : namespace).
+
+  Definition Ist : ist_type Σ := λ st_src st_tgt,
+    (IstHelp mnh st_src st_tgt ∗
+    ∃ (X : gset val),
+      free_id (λ x, (x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type) ∗
+      [∗ set] x ∈ X,
+        □ ∃ blk ofs nx, ⌜x = Vptr (blk, ofs)⌝ ∗
+          ∀ X, helping_auth 1 X =| nx, ↑N |={↑N, ∅}=∗ ∃ v, (blk, ofs) ↦ v)%I.
+  Definition IstFull : ist_type Σ :=
+    IstProd (IstSB (Mod.scopes (HWQP.t mnp) ++ Mod.scopes (HelpingDummy.t mnh)) Ist) IstEq.
+
+  Lemma Ist_help : Ist_helping mnh IstFull.
+  Proof.
+    iIntros (??) "[% [% [% [% [[-> ->] [[%Ha [[% [[-> ->] ?]] ?]] ->]]]]]]".
+    iModIntro; iExists _, _; iFrame; iSplit; auto.
+    iIntros (?) "$ !>"; iExists _, _, _, _; repeat iSplit; eauto.
+    iPureIntro. set_solver.
+  Qed.
+  
+End HWQIAInv. End HWQIAInv.
