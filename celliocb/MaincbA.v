@@ -14,16 +14,22 @@ Module MaincbA. Section MaincbA.
       )
     )%I.
 
+  Definition input_cb: Any.t -> itree crisE Any.t :=
+    λ _,
+      i <- trigger (@IO _ Z "Input_stdin" tt);;
+      i <- trigger (@IO _ Z "Input_db" tt);;
+      Ret i↑.
+
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
-      'i: Z <- trigger (@IO _ Z "Input_stdin" tt);;
-      ccallU (Y:=unit) CtxcbHdr.foo i;;;
-      'x: Z <- trigger (@IO _ Z "Input_db" tt);; 
-      trigger (@IO _ unit "Print" x);;;
+      'i: Z <- ccallU MaincbHdr.input_cb tt;;
+      trigger (Call CtxcbHdr.foo tt↑);;;
+      trigger (@IO _ unit "Print" i);;;
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=
-    {[entry # ((msk_scp scopes msk_true), (fsp_some main_spec, main))]}.
+    {[fid MaincbHdr.input_cb     # ((msk_scp scopes msk_true), (None, input_cb));  
+      entry # ((msk_scp scopes msk_true), (fsp_some main_spec, main))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

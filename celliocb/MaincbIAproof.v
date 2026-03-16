@@ -8,13 +8,22 @@ Module MaincbIA. Section MaincbIA.
 
   Context (sp : specmap).
   Context (sp_foo: sp.1 !! fid CtxcbHdr.foo = None).
+  Context (sp_cb: sp.1 !! fid MaincbHdr.input_cb = None).
   
   Local Notation CelliocbAMod := (CelliocbA.t).
   Local Notation MaincbA := (MaincbA.t sp).
   Local Notation IstFull := (IstProd (IstSB MaincbA.(Mod.scopes) IstTrue) IstEq).
 
+  Lemma simF_cb : ISim.sim_fun open MaincbA (MaincbI.t ★ CelliocbAMod) IstFull (fid MaincbHdr.input_cb).
+  Proof using.
+    cStartFunSim. 
+    cStepsS. cStepsT. unfold MaincbA.input_cb, MaincbI.input_cb.
+    cStep. cStep. cStep. 
+    iSplit; et.
+  Qed. 
+
   Lemma simF_main : ISim.sim_fun open MaincbA (MaincbI.t ★ CelliocbAMod) IstFull entry.
-  Proof using sp_foo.
+  Proof using sp_foo sp_cb.
     cStartFunSim.
     unfold MaincbA.main, MaincbI.main.
     
@@ -25,37 +34,18 @@ Module MaincbIA. Section MaincbIA.
     (* Give cell(0) *)
     cStepsT. cInlineT. cStepsT. cForcesT. iFrame.
     
-    (* Inline input_stdin() *)
-    cStepsT. cInlineT. cStepsT. unfold MaincbI.input_stdin. 
+    (* sync callback *)
+    cStepsT. cInlineT. cStepsT. unfold MaincbI.input_cb.
+    rewrite sp_cb. cInlineS. cStepsS. unfold MaincbA.input_cb.
+    cStep. cStep. cStepsS. cStepsT. 
+     
     
-    (* trigger IO together *)
-    cStep. rename ret into i. 
-    cStepsT. cStepsS. rewrite sp_foo.
-
-    (* Take cell(i) *)
-    cInlineT. rewrite /get. cStepsT. cForcesT. iFrame. cStepsT.
-
-    (* cCall foo together *)
+    (* sync foo *)
+    rewrite sp_foo.
     cCall "IST". iIntros "% % % IST".
 
-    (* TGT : handle set(input_db) *)
-    cStepsS. cStepsT.
-    destruct Any.downcast; cStepsS; des_ifs. cStepsT.
-    
-    (* TGT : inline set *)
-    cInlineT. cStepsT. cForcesT.
-
-    (* TGT : give cell i *)
-    iFrame. cStepsT.
-    
-    (* TGT : inline input_db *)
-    cInlineT. rewrite /MaincbI.input_db. cStepsT.
-
-    (* handle IO together *)
-    cStep. cStepsT.
-
     (* TGT : inline get *)
-    cInlineT.
+    cStepsT. cInlineT.
     cStepsT. unfold get. cForceT ret0.
     
     (* TGT : get cell ret *)
@@ -63,14 +53,15 @@ Module MaincbIA. Section MaincbIA.
 
     cStepsT. cStepsS. 
     
-    (* handle IO together *)
+    (* sync print *)
     cStep. cStepsS. cStepsT. cForcesS. iSplit; et. cStep. iFrame; et. 
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MaincbA (MaincbI.t ★ CelliocbAMod) emp IstFull.
-  Proof using sp_foo.
+  Proof using sp_foo sp_cb.
     cStartModSim.
-    { iIntros "_". unfold IstFull, IstProd. repeat (iExists ∅). ss. } 
+    { iIntros "_". unfold IstFull, IstProd. repeat (iExists ∅). ss. }
+    { eapply simF_cb; eauto. }  
     { eapply simF_main; eauto. }
   Qed.
 End MaincbIA. End MaincbIA.

@@ -45,7 +45,19 @@ Section CelliocbAux.
     }
     des. rewrite FIND. ss. destruct x, p. r in ctx_real. hexploit ctx_real; eauto.
   (*SLOW*)Qed.
-  
+
+  Lemma sp_cb: sp.1 !! fid MaincbHdr.input_cb = None.
+  Proof.
+    rewrite /sp /SMod.conc_sp_from /= /smod_src /SMod.sp_core_from.
+    rewrite lookup_omap !lookup_fmap lookup_omap lookup_union_with.
+    assert (CTXNONE: SMod.fnsems CtxcbI !! fid MaincbHdr.input_cb = None).
+    { eapply not_elem_of_dom. ii. eapply ctx_main_disj; eauto.
+      rewrite /MaincbI.t /MaincbI.smod /SMod.to_mod /= /Mod.fnsems. set_solver.
+    } 
+    des. rewrite CTXNONE. ss.
+  (*SLOW*)Qed.
+
+
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src:
     refines (mod_top, init_cond ∗ CelliocbA.cell 0 ∗ Cancel.init_res)%I
@@ -89,7 +101,7 @@ Section CelliocbAux.
     etrans; cycle 1.
     { (* MaincbI ★ CelliocbA ⊆ MaincbA *)
       ctxr_rotate. ctxr_drop. ctxr_rotate.
-      eapply main_adequacy, MaincbIA.sim; eauto using sp_foo.
+      eapply main_adequacy, MaincbIA.sim; eauto using sp_foo, sp_cb.
     }
 
     etrans; cycle 1.

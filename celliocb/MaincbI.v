@@ -6,29 +6,22 @@ Module MaincbI. Section MaincbI.
 
   Definition scopes : list string := [].
 
-  Definition input_stdin: Any.t -> itree crisE Any.t :=
+  Definition input_cb: Any.t -> itree crisE Any.t :=
     λ _,
       i <- trigger (@IO _ Z "Input_stdin" tt);;
-      Ret i↑.
-
-  Definition input_db: Any.t -> itree crisE Any.t :=
-    λ _,
       i <- trigger (@IO _ Z "Input_db" tt);;
       Ret i↑.
 
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
-      ccallU (Y:=unit) CelliocbHdr.set MaincbHdr.input_stdin ;;;
-      i <- ccallU (Y:=Z) CelliocbHdr.get tt;;
-      ccallU (Y:=unit) CtxcbHdr.foo i;;;
-      ccallU (Y:=unit) CelliocbHdr.set MaincbHdr.input_db ;;;
+      ccallU (Y:=unit) CelliocbHdr.set MaincbHdr.input_cb;;;
+      trigger (Call CtxcbHdr.foo tt↑);;;
       x <- ccallU (Y:=Z) CelliocbHdr.get tt;;
       trigger (@IO _ unit "Print" x);;;
       Ret tt↑.
 
   Definition fnsems : fnsemmap :=
-    {[fid MaincbHdr.input_stdin  # ((msk_scp scopes msk_true), (None, input_stdin));
-      fid MaincbHdr.input_db     # ((msk_scp scopes msk_true), (None, input_db));
+    {[fid MaincbHdr.input_cb     # ((msk_scp scopes msk_true), (None, input_cb));
       entry  # ((msk_scp scopes msk_true), (None, main))]}.
 
   Program Definition smod: SMod.t := {|
