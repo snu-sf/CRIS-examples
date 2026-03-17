@@ -67,7 +67,7 @@ Module ClientA. Section ClientA.
       𝒴;;; tid2 <- Sch.spawn (ClientHdr.thread, [ptr_raw]↑↑);;
       𝒴;;; Sch.join tid1;;;
       𝒴;;; Sch.join tid2;;;
-      𝒴;;; trigger (IO (O:=val) "OUT" 4%Z);;;
+      𝒴;;; trigger (IO (I:=val) "OUT" 4%Z);;;
       𝒴;;; Ret (tt↑).
 
   Definition fnsems (N : namespace) : fnsemmap :=
