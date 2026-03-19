@@ -79,7 +79,7 @@ Section MPAux.
       - apply SchInSp.
       - apply MainInSp.
     }
-    eapply ctxr_cond_strengthen.
+    eapply ctxr_consequence.
     { iIntros "[? [? ?]]". iFrame. }
   (*SLOW*)Qed.
 

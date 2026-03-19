@@ -125,7 +125,7 @@ Section MutAll.
     { do 2 ctxr_rotate. ctxr_swap. ctxr_rotate. ctxr_refl. }
 
     rewrite /MutMainA.t /MutFA.t /MutGA.t /APCC.t.
-    eapply ctxr_cond_strengthen. eauto.
+    eapply ctxr_consequence. eauto.
   (*SLOW*)Qed.
 
   Lemma top_tgt :

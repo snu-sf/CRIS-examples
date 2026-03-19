@@ -24,7 +24,7 @@ Module SingleCoinIA. Section SingleCoinIA.
         mod_tac (s; esplits; ii; edestruct excluded_middle_informative; ss).
       }
     }
-    eapply ctxr_refines, ctxr_cond_strengthen; iIntros "[$ $] //".
+    eapply ctxr_refines, ctxr_consequence; iIntros "[$ $] //".
   Unshelve. all: apply True.
   Qed.
 End SingleCoinIA. End SingleCoinIA.

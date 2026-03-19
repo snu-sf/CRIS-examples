@@ -220,7 +220,7 @@ Section SCHMainAux.
     rewrite !SMod.to_mod_add /init_cond.
     rewrite /SCHMainA.t /SchA.t /RRSA.t /NDSA.t /RRSNodeA.t /NDSNodeA.t.
 
-    eapply ctxr_cond_strengthen.
+    eapply ctxr_consequence.
     iIntros "(? & ? & ? & ? & ?)". iFrame.
   (*SLOW*)Qed.
 

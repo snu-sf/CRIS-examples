@@ -113,7 +113,7 @@ Section CellioAux.
       ctxr_rotate. ctxr_drop. refl.
     }
     
-    eapply ctxr_cond_strengthen.
+    eapply ctxr_consequence.
     iIntros "$".
   (*SLOW*)Qed.
 

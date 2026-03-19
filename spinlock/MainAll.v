@@ -118,7 +118,7 @@ Section MainAux.
 
     rewrite /MainA.t /SchA.t. unseal CRIS.
     rewrite SMod.to_mod_add.
-    eapply ctxr_cond_strengthen; et.
+    eapply ctxr_consequence; et.
   (*SLOW*)Qed.
 
   (* source Mod ⊆ source SMod ⊆ cancelled Mod *)

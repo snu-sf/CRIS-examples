@@ -46,7 +46,7 @@ Section CannonAux.
       mod_tac.
     }
 
-    eapply ctxr_cond_strengthen. by iIntros "$".
+    eapply ctxr_consequence. by iIntros "$".
   (*SLOW*)Qed.
 
   Lemma top_tgt :

@@ -155,6 +155,6 @@ Module HWQIA. Section HWQIA.
       { eapply Mod.real_mod_add; et. apply SchI.real. }
     }
     rewrite !left_id -!assoc.
-    eapply ctxr_refines, ctxr_cond_strengthen. iIntros "[$ $]".
+    eapply ctxr_refines, ctxr_consequence. iIntros "[$ $]".
   Qed.
 End HWQIA. End HWQIA.

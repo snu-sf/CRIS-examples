@@ -135,7 +135,7 @@ Section KnotAux.
     etrans; cycle 1.
     { ctxr_swap. ctxr_rotate. ctxr_refl. }
 
-    eapply ctxr_cond_strengthen.
+    eapply ctxr_consequence.
     iIntros "[$ $]".
   Unshelve. exact ∅.
   (*SLOW*)Qed.

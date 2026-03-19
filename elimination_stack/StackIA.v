@@ -51,7 +51,7 @@ Module StackIA. Section StackIA.
       (StackI.t      ★ MemA.t sp ★ SchI.t, emp%I).
   Proof.
     intros Hsp.
-    etrans; first eapply ctxr_cond_strengthen.
+    etrans; first eapply ctxr_consequence.
     { instantiate (1:=(_ ∗ emp)%I); iIntros "H"; iSplitL; last done; iExact "H". }
     eapply helping_main; i; rewrite !CFilter.filter_app.
     { rewrite (comm _ _ (HelpingOn.t _ _ _)) assoc.

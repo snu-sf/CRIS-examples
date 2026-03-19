@@ -136,7 +136,7 @@ Module MainAll.
     { ctxr_rotate. refl. }
 
     rewrite /SpinLockMainA.t /SchA.t. unseal CRIS.
-    eapply ctxr_cond_strengthen; et.
+    eapply ctxr_consequence; et.
   (*SLOW*)Qed.
 
   (* source Mod ⊆ source SMod ⊆ cancelled Mod *)
