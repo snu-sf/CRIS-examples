@@ -14,7 +14,7 @@ Module StackIM. Section StackIM.
 
   (* Stack module being masked for eliminating the helping module *)
   Context (N : namespace) (sp sp_user : specmap).
-  
+
   Definition init_cond : iProp Σ := helping_auth 1 ∅%I.
 
   Local Notation MemA := (CFilter.filter (Helping.exports mn) (MemA.t sp)).
@@ -65,49 +65,39 @@ Module StackIA. Section StackIA.
     { do 3 ctxr_rotate. ctxr_swap. ctxr_refl. }
     rewrite (assoc _ (StackM.t _ _ _)).
 
-    eapply main_adequacy with (Ist := IstProd (IstSB (Mod.scopes (StackA.t N sp) ++ [mn]) IstTrue) IstEq).
+    eapply main_adequacy
+      with (Ist := IstProd (IstSB (Mod.scopes (StackA.t N sp) ++ [mn]) IstTrue) IstEq).
     cStartModSim.
-    { cStartFunSim. rewrite /StackM.new_stack /StackA.new_stack.
-      cStepsS. cForceT _q. destruct _q as [[? ?] ?]; iDestruct "ASM" as "[? [-> [% ->]]]".
-      cForcesT. iFrame; iSplit; eauto.
-      cStepsS; cStepsT.
-      sYieldII "IST". sYieldS.
-      cStepsT; cForcesS. iFrame; cStep. iFrame. done.
+    { cStartFunSim. rewrite /StackM.new_stack /StackA.new_stack. cStepsS; cStepsT.
+      aStepS; iIntros (mtid stid n) "TID [%v ->]".
+      aForceT with "TID"; iExists _; iSplit; first eauto.
+      sYieldII "IST". destruct _q as [? []]; cStepsT. sYieldS. cForceS (_, tt); cStep; iFrame.
+      iDestruct "GRT" as "[$ [% [% [% [$ $]]]]]"; iModIntro; iSplit; ss.
     }
-    { cStartFunSim. rewrite /StackM.push /StackA.push.
-      rewrite /StackA.push /StackM.push /atomic_body.
-      cStepsS. cStepsT. cForcesT. iFrame "ASM". repeat case_match; clarify.
-      cStepsT.
-      sYieldII "IST".
-      rewrite /SchA.sp; simpl_map.
-      cInlineT. rewrite /HelpingOff.HelpingOff.run. cStepsT.
-      sYieldII "IST". sYieldS.
-      cStepsS. cForcesT; iFrame. cStepsT. cForcesS. iFrame.
-      cStepsS. sYieldII "IST". cStepsT. 
-      sYieldII "IST". cStepsT. 
-      sYieldS; cForceS; iFrame.
-      cStep. iFrame. done.
+    { cStartFunSim. rewrite /StackM.push /StackA.push. cStepsS; cStepsT.
+      aStepS; iIntros (mtid stid [v γs]) "TID [%s [-> [%n #Hstack]]]".
+      aForceT with "TID"; iExists (_, _); iSplit; first by iFrame "#".
+      cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.run. cStepsT.
+      rewrite unfold_atomic_update_sem. sYieldII "IST". sYieldS. cStepsS. cForcesT; iFrame.
+      cStepsT. cForceS (inr _). cForcesS; iFrame.
+      sYieldII "IST". sYieldS. cStep; iFrame. iDestruct "GRT" as "[TID _]"; iFrame. done.
     }
-    { cStartFunSim.
-      rewrite /StackA.pop /StackM.pop /atomic_body.
-      cStepsS. cStepsT. cForcesT. iFrame "ASM". repeat case_match; clarify.
-      cStepsT. cStepsS.
-      sYieldII "IST".
-      set (IstFull := IstProd _ _).
-      cStepsT. iApply wsim_bind; iSplitL.
-      { instantiate (1:=λ x y, IstFull x.1 y.1).
-        appendRetS. case_match.
-        { cStepsT. rewrite /SchA.sp; simpl_map. cInlineT.
-          rewrite /HelpingOff.HelpingOff.help. cStepsT.
-          sYieldII "IST". cStepsT. sYieldS. cStep. iFrame.
-        }
-        { cStepsT. sYieldS. cStep. iFrame. }
+    { cStartFunSim. rewrite /StackM.pop /StackA.pop. cStepsS; cStepsT.
+      aStepS; iIntros (mtid stid γs) "TID [%s [-> [%n #Hstack]]]".
+      aForceT with "TID"; iExists _; iSplit; first by iFrame "#".
+      iApply atomic_update_sem_prepend_yield_src. sYieldII "IST". case_match.
+      { cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.help. sYieldII "IST". sYieldS.
+        appendRetS. aStep.
+        iExists 0. iAuIntro. iAaccIntro "% $ !>" with "". iSplit; first eauto.
+        iIntros "%ret_t $ !>"; iExists ret_t; iModIntro.
+        clear_st; iIntros (st_src st_tgt) "IST". cStepsT. sYieldS. cStep; iFrame.
+        iDestruct "GRT" as "[? ?]"; iFrame; ss.
       }
-      clear_st. iIntros (st_src [] st_tgt ?) "IST /=".
-      cStepsS. cForcesT; iFrame. cStepsT. cForcesS. iFrame.
-      cStepsS. sYieldII "IST".
-      sYieldS; cForceS; iFrame.
-      cStep. iFrame. done.
+      cStepsT. sYieldS. appendRetS. aStep.
+      iExists 0. iAuIntro. iAaccIntro "% $ !>" with "". iSplit; first eauto.
+      iIntros "%ret_t $ !>"; iExists ret_t; iModIntro.
+      clear_st; iIntros (st_src st_tgt) "IST". cStepsT. sYieldS. cStep; iFrame.
+      iDestruct "GRT" as "[? ?]"; iFrame; ss.
     }
     { iIntros "_"; repeat iExists _; repeat iSplit; eauto. }
   Qed.

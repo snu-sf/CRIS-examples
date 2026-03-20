@@ -4,7 +4,7 @@ Require Import CallFilter ProphecyI SchTactics.
 (* Prophecy-inserted intermediate module, HWQP *)
 Module HWQP. Section HWQP.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS}.
-  Context (mnp : string).
+  Context (mn : string).
 
   Definition new_queue : list val → itree crisE val := λ sz,
     𝒴;;; sz <- (pargs [Tint] sz)?;;
@@ -19,7 +19,7 @@ Module HWQP. Section HWQP.
           '_ : val <- ccallU MemHdr.store [Vptr (qblk, qofs + 2 + x)%Z; Vint 0];; Ret (inl (S x))
         else
           Ret (inr ())) 0;;;
-    𝒴;;; trigger (Call (Prophecy.new mnp) ("hwq", q↑↑)↑);;; Ret q.
+    𝒴;;; trigger (Call (Prophecy.new mn) ("hwq", q↑↑)↑);;; Ret q.
 
   Definition dequeue_aux (q : val) (range : nat) (i : nat) : itree crisE (() + val) :=
     𝒴;;;
@@ -36,7 +36,7 @@ Module HWQP. Section HWQP.
           | Vptr (xblk, xofs) =>
               𝒴;;;
                 'c : val <- ccallU MemHdr.cas [Vptr (blk, ofs + 2 + j)%Z; x; Vint 0];;
-                trigger (Call (Prophecy.resolve mnp)
+                trigger (Call (Prophecy.resolve mn)
                   (("hwq", q↑↑), (j, bool_decide (c = x))↑↑)↑);;;
               𝒴;;; 'succ : val <- ccallU MemHdr.cmp [c; x];;
               𝒴;;;
@@ -59,13 +59,14 @@ Module HWQP. Section HWQP.
         𝒴;;; let range := Z.to_nat (Z.min sz back) in
         dequeue_aux (Vptr (qblk, qofs)) range range) ().
 
-  Definition mask : emask :=
-    CFilter.msk_filter_in (Prophecy.exports mnp ∪ MemHdr.exports ∪ SchHdr.exports) (msk_real (msk_scp [] msk_true)).
-  
+  Definition msk : emask :=
+    CFilter.msk_filter_in (MemHdr.exports ∪ SchHdr.exports ∪ Prophecy.exports mn)
+      (msk_real (msk_scp [] msk_true)).
+
   Definition fnsems : fnsemmap :=
-    {[fid HWQHdr.new_queue # (mask, (None, cfunU new_queue));
-      fid HWQHdr.enqueue   # (mask, (None, cfunU (HWQI.enqueue)));
-      fid HWQHdr.dequeue   # (mask, (None, cfunU dequeue))]}.
+    {[fid HWQHdr.new_queue # (msk, (None, cfunU new_queue));
+      fid HWQHdr.enqueue   # (msk, (None, cfunU (HWQI.enqueue)));
+      fid HWQHdr.dequeue   # (msk, (None, cfunU dequeue))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := [];
@@ -75,25 +76,23 @@ Module HWQP. Section HWQP.
   Solve All Obligations with mod_tac.
 
   Definition t := SMod.to_mod ∅ Mod.
-  
-  Lemma filter_helping mnh:
-    CFilter.filter (Helping.exports mnh) t = t.
+
+  Lemma filter_helping mnh : CFilter.filter (Helping.exports mnh) t = t.
   Proof. cfilter_solver. Qed.
 
-  Lemma real: Mod.real_mod t.
+  Lemma real_mod : Mod.real_mod t.
   Proof. real_mod_solver. Qed.
-
 End HWQP. End HWQP.
 
 Module HWQIP. Section HWQIP.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS}.
-  Context (mnp : string).
+  Context (mn : string).
 
-  Local Definition IstFull := IstProd (IstSB (Mod.scopes (HWQP.t mnp)) IstEq) IstEq.
+  Local Definition IstFull := IstProd (IstSB (Mod.scopes (HWQP.t mn)) IstEq) IstEq.
   Lemma ctxr :
     ctx_refines
-      (HWQP.t mnp ★ ProphecyI.t mnp, emp)%I
-      (HWQI.t     ★ ProphecyI.t mnp, emp)%I.
+      (HWQP.t mn ★ ProphecyI.t mn, emp)%I
+      (HWQI.t    ★ ProphecyI.t mn, emp)%I.
   Proof using.
     apply main_adequacy with (Ist:=IstFull).
     cStartModSim.

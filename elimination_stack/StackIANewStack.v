@@ -19,7 +19,7 @@ Section StackIM.
 
   Local Notation MemA := (CFilter.filter (Helping.exports mn) (MemA.t sp)).
   Local Notation SchI := (CFilter.filter (Helping.exports mn) SchI.t).
-  Local Notation HelpingOn := (HelpingOn.t mn StackM.jobCode (SchA.sp ∅ (↑N))).
+  Local Notation HelpingOn := (HelpingOn.t mn (StackM.jobCode) (SchA.sp ∅ (↑N))).
   Local Notation HelpingDummy := (HelpingDummy.t mn).
   Local Notation StackM := ((StackM.t mn N (SchA.sp ∅ (↑N)) ★ HelpingOn) ★ MemA ★ SchI).
   Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
@@ -28,23 +28,18 @@ Section StackIM.
 
   Lemma new_stack_simF : ISim.sim_fun open StackM StackI IstFull (fid StackHdr.new_stack).
   Proof using.
-    cStartFunSim. rewrite /StackI.new_stack /StackM.new_stack.
-    cStepsS. destruct _q as [[stid mtid] n]. iDestruct "ASM" as "[TID [-> [%val ->]]]".
-    cStepsS. cStepsT.
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    cStartFunSim. rewrite /= /StackI.new_stack /StackM.new_stack. cStepS.
+    aStepS. iIntros (mtid stid n) "TID [%v ->]".
+    cStepsT. sYieldIR "IST" "TID".
 
     (* allocate new stack - can't use memtactics here..., generalize the lemma *)
     iApply wsim_mem_alloc; [try by simpl_map|ss|ss|].
     iIntros (blk) "[↦stack [↦val _]]". cStepsT.
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
 
     (* initialize stack *)
-    mStoreT "↦stack".
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
-
-    mStoreT "↦val".
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    mStoreT "↦stack". sYieldIR "IST" "TID".
+    mStoreT "↦val". sYieldIR "IST" "TID".
 
     (* Guarantee the postcondition *)
     sYieldS.
@@ -55,9 +50,6 @@ Section StackIM.
     { solve_ndisj. }
     { solve_base_sl_red. iLeft. iExists (Vint 0), (Vint 0), []; iFrame; solve_base_sl_red; ss. }
 
-    cForceS (Vptr (blk, 0%Z)). cStepsS. cForcesS.
-    iFrame "Hs◯ TID"; iSplit; eauto.
-    { iSplit; eauto. iExists _; iSplit; eauto. iExists _, _; iSplit; eauto. }
-    cStepsS. cStep. iSplit; eauto.
+    cForceS ((Vptr (blk, 0%Z))↑, tt). cStep; iFrame. iModIntro. iSplit; iFrame "#"; eauto.
   (*SLOW*)Qed.
 End StackIM.

@@ -8,9 +8,26 @@ Require Import HWQI HWQP SchI HWQA SchTactics.
 From stdpp Require Import streams list.
 
 Section HWQPM.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !schGS, !hwqG, !memGS, !prophGS}.
-  Context (mnp mnh: string).
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
+  Context (mnh mnp : string).
   Context (N : namespace) (sp_mem : specmap).
+
+  Definition Ist : ist_type Σ := λ st_src st_tgt,
+    (IstHelp mnh st_src st_tgt ∗
+    ∃ (X : gset val),
+      free_id (λ x, (x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type) ∗
+      [∗ set] x ∈ X,
+        □ ∃ blk ofs nx, ⌜x = Vptr (blk, ofs)⌝ ∗
+          ∀ X, helping_auth 1 X =| nx, ↑N |={↑N, ∅}=∗ ∃ v, (blk, ofs) ↦ v)%I.
+  Definition IstFull : ist_type Σ :=
+    IstProd (IstSB (Mod.scopes (HWQP.t mnp) ++ Mod.scopes (HelpingDummy.t mnh)) Ist) IstEq.
+  Lemma Ist_help : Ist_helping mnh IstFull.
+  Proof.
+    iIntros (??) "[% [% [% [% [[-> ->] [[%Ha [[% [[-> ->] ?]] ?]] ->]]]]]]".
+    iModIntro; iExists _, _; iFrame; iSplit; auto.
+    iIntros (?) "$ !>"; iExists _, _, _, _; repeat iSplit; eauto.
+    iPureIntro. set_solver.
+  Qed.
 
   Notation sp := (SchA.sp ∅ (↑N)).
   Notation HWQM := (HWQM.t N mnh).
@@ -19,28 +36,21 @@ Section HWQPM.
   Notation HelpDummy := (HelpingDummy.t mnh).
   Notation MemA := (MemA.t sp_mem).
   Notation ProphA := (ProphecyA.t mnp ∅).
-  Notation IstFull := (HWQIAInv.IstFull mnp mnh N).
-
-  Local Ltac yield_tac H1 H2 :=
-    sYieldIR H1 H2; [eapply bool_decide_eq_true; set_solver|].
 
   Lemma simF_new_queue : 
     ISim.sim_fun open
       ((HWQM ★ HelpOn) ★ MemA ★ ProphA) ((HWQP ★ HelpDummy) ★ MemA ★ ProphA)
       IstFull (fid HWQHdr.new_queue).
   Proof.
-    cStartFunSim. s.
-    cStepsS. destruct _q as [[mtid stid] [n sz]]; s.
-    iDestruct "ASM" as "[TID [-> [-> %Hsz]]]".
-    cStepsS. cStepsT.
-    rewrite /HWQP.new_queue /HWQA.new_queue.
-    cStepsT. yield_tac "IST" "TID". yield_tac "IST" "TID".
+    cStartFunSim. rewrite /HWQA.new_queue /HWQP.new_queue. cStepsS.
+    aStepS. iIntros (mtid stid [n sz]) "TID [-> %Hsz]".
+    cStepsT. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     iApply wsim_mem_alloc; [try by simpl_map|ss|try lia|].
     replace (Z.to_nat (2 + sz)) with (2 + sz) by lia.
     iIntros (blk); rewrite replicate_add big_sepL_app; iIntros "[[sz [back _]] ar]". cStepsT.
-    yield_tac "IST" "TID". yield_tac "IST" "TID".
-    mStoreT "sz". yield_tac "IST" "TID".
-    mStoreT "back". yield_tac "IST" "TID".
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
+    mStoreT "sz". sYieldIR "IST" "TID".
+    mStoreT "back". sYieldIR "IST" "TID".
     replace sz with ((sz - sz) + sz) at 1 by lia. rewrite replicate_add.
     replace (replicate (sz - sz) Vundef) with (replicate (sz - sz) (Vint 0))
       by rewrite Nat.sub_diag //=.
@@ -49,8 +59,8 @@ Section HWQPM.
     generalize sz at 1 4 5 10 as i; intros i Hle.
     iInduction i as [|i] forall (Hle st_src st_tgt).
     { rewrite Nat.sub_0_r /= app_nil_r.
-      unfoldIterT. cStepsT. yield_tac "IST" "TID".
-      rewrite Nat2Z.id Nat.ltb_irrefl. cStepsT. yield_tac "IST" "TID".
+      aUnfoldT. cStepsT. sYieldIR "IST" "TID".
+      rewrite Nat2Z.id Nat.ltb_irrefl. cStepsT. sYieldIR "IST" "TID".
       iDestruct "IST" as "[% [% [% [% [[-> ->] [[% IST] ->]]]]]]".
       iDestruct "IST" as "[IST [%X [free alloc]]]".
       destruct (decide (Vptr (blk, 0%Z) ∈ X)) as [HblkX|HblkX].
@@ -93,10 +103,8 @@ Section HWQPM.
         - apply proph_data_sz.
         - intros b. apply initial_block_valid.
         - simpl. apply flatten_blocks_initial. }
-      sYieldS. cForceS (Vptr (blk, 0%Z)). cForcesS. iFrame.
-      repeat iSplit; first auto.
-      { iExists _; iSplit; first auto. iExists _, _, _, _, _; iSplit; eauto. }
-      iIst "IST" with "[-]".
+      sYieldS. cForceS ((Vptr (blk, 0%Z))↑, tt).
+      iIst "IST" with "[IST alloc free]".
       { iExists _, _, _, _. repeat iSplit; des; eauto.
         iFrame "IST". iExists (X ∪ {[Vptr (blk, 0%Z)]}). 
         iSplitL "free".
@@ -119,10 +127,10 @@ Section HWQPM.
         { iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss. }
         iApply fupd_mask_intro; eauto. solve_ndisj.
       }
-      cStep. iFrame. auto.
+      cStep; iFrame "#∗". iModIntro; eauto.
     }
     (* inductive case *)
-    unfoldIterT. cStepsT. yield_tac "IST" "TID".
+    aUnfoldT. cStepsT. sYieldIR "IST" "TID".
     destruct Nat.ltb eqn : Hltb; first clear Hltb; last first.
     { apply Nat.ltb_ge in Hltb; lia. }
     iPoseProof (big_sepL_insert_acc _ _ (sz - (S i)) with "ar") as "[↦ ar]".

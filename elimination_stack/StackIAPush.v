@@ -14,7 +14,7 @@ Section StackIM.
 
   (* Stack module being masked for eliminating the helping module *)
   Context (N : namespace) (sp sp_user : specmap).
-  
+
   Definition init_cond : iProp Σ := helping_auth 1 ∅%I.
 
   Local Notation MemA := (CFilter.filter (Helping.exports mn) (MemA.t sp)).
@@ -32,16 +32,14 @@ Section StackIM.
     iIntros (?) "$ !>"; iExists _, _, _, _; repeat iSplit; eauto.
     iPureIntro. set_solver.
   Qed.
-  
+
   Lemma push_simF : ISim.sim_fun open StackM StackI IstFull (fid StackHdr.push).
   Proof using.
-    cStartFunSim. rewrite /StackI.push /StackM.push.
-    rewrite /StackM.push; cStepsS. cStepsT.
+    cStartFunSim. rewrite /StackI.push /StackM.push. cStepsS; cStepsT.
+    aStepS. iIntros (mtid stid [v γs]) "TID [%s [-> [%n #Hstack]]]".
+    iDestruct "Hstack" as "#[%stackb [%stackofs [-> Hinv]]]".
 
-    rewrite /atomic_body. cStepsS. destruct _q as [[stid mtid] [[[n vs] v] γs]].
-    iDestruct "ASM" as "[TID [_ [-> #[%stackb [%stackofs [-> Hinv]]]]]]".
-    cStepsT. sYieldS.
-    cStepS. rewrite {3}/SchA.sp. simpl_map. cStepS.
+    cStepsS; cStepsT.
     iApply (wsim_helping_run with "IST"); [exact Ist_help|simpl_map; s; f_equal|..].
     clear st_src; iIntros (st_src req_id) "IST Tkn".
 
@@ -50,8 +48,7 @@ Section StackIM.
     cCoind CIH g' __ with st_src st_tgt. iIntros "[#Hinv [TID [IST Help]]] /=".
     unfoldIterT. rewrite {1}/StackI._push. cStepsT.
 
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
 
     (* load *)
     iInv "Hinv" as "[[%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist Hoffer]]]]]]|[% ●]]" "close";
@@ -59,25 +56,18 @@ Section StackIM.
     { iExFalso. iDestruct "IST" as "[% [% [% [% [% [[% [% [IST ●2]]] ?]]]]]]".
       by iCombine "●" "●2" gives %[WF _]%gmap_view_auth_dfrac_op_valid.
     }
-
     mLoadT "H↦".
-
     iPoseProof (list_inv_comparable with "Hlist") as "[Hlist [Hval #Hcomp]]".
     iMod ("close" with "[Hs Hlist H↦ Hoffer]") as "_".
     { iLeft; iFrame. }
 
     (* alloc new head *)
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
-    iApply wsim_mem_alloc; [try by simpl_map|ss|ss|].
+    sYieldIR "IST" "TID". iApply wsim_mem_alloc; [try by simpl_map|ss|ss|].
     iIntros (blkhead) "[↦head [↦offer _]]". cStepsT.
 
     (* store to new head *)
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
-    mStoreT "↦head".
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
-    mStoreT "↦offer".
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID". mStoreT "↦head".
+    sYieldIR "IST" "TID". mStoreT "↦offer". sYieldIR "IST" "TID".
 
     (* try push *)
     iInv "Hinv" as "[[%stack_rep1 [%offer_rep1 [%l1 [Hs [H↦ [Hlist Hoffer]]]]]]|[% ●]]" "close";
@@ -94,20 +84,18 @@ Section StackIM.
     iIntros "H↦ [Hval Hval2]". iClear "Hcomp".
     case_bool_decide; subst.
     { (* success *)
-      clear CIH.
-      cStepsT.
+      clear CIH. cStepsT.
 
       (* atomic update happens here: since it is valid to update stack_contents here (without any
          helps from other threads), the pusher does its own job *)
       sYieldS. cStepsS.
       iApply (wsim_helping_pend_try_run with "Help IST [-]"); [apply Ist_help|].
       cStepsS.
-      iCombine "Hs ASM" gives
-        %[->%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
+      iCombine "Hs ASM" gives %[->%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
       iMod (own_update_2 with "Hs ASM") as "[Hs Hl]".
       { eapply auth_update, option_local_update, (exclusive_local_update _ (Excl _)). done. }
-      cForceS. iFrame. cStepsS. cStep.
-      iFrame. iSplit; eauto.
+      cForcesS. iFrame. cStep.
+      iFrame. iSplit; first eauto.
 
       clear_st; iIntros (st_src st_tgt) "#Done IST". cStepsS.
 
@@ -119,18 +107,14 @@ Section StackIM.
       }
 
       (* comparison *)
-      sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+      sYieldIR "IST" "TID".
       iCombine "Hval" "Hval2" as "Hval".
       iApply (wsim_mem_cmp with "Hval"); [prove_inline_cond|ss|eauto| | ].
       { iIntros "[[% [% $]] [% [% $]]] !> [$ $] //". }
       iIntros "_". cStepsT.
 
       (* epilogue *)
-      sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
-      sYieldS. cStepsS. sYieldS.
-      cForceS; iFrame "TID". iSplit; eauto.
-      cStep.
-      iFrame; done.
+      sYieldIR "IST" "TID". sYieldS. cStepsS. cStep; iFrame. done.
     }
 
     (* failure *)
@@ -139,27 +123,22 @@ Section StackIM.
     { iLeft. iFrame. }
 
     (* comparison - which leads us to offering *)
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    sYieldIR "IST" "TID".
     iCombine "Hval" "Hval2" as "Hval".
       iApply (wsim_mem_cmp with "Hval"); [prove_inline_cond|ss|eauto| | ].
       { iIntros "[[% [% $]] [% [% $]]] !> [$ $] //". }
-    iIntros "_". cStepsT.
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    iIntros "_". cStepsT. sYieldIR "IST" "TID".
     destruct (decide (succ = 0)); subst; cycle 1.
     { exfalso; destruct stack_rep1, stack_rep; inv Hcomp; des_ifs. }
 
     (* make an offer *)
-    cStepsT. sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    cStepsT. sYieldIR "IST" "TID".
     iApply wsim_mem_alloc; [prove_inline_cond|ss|ss|].
-    iIntros (offerb) "[↦offer [↦offerst _]]".
-    cStepsT.
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    iIntros (offerb) "[↦offer [↦offerst _]]". cStepsT.
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
 
-    mStoreT "↦offer".
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
-    mStoreT "↦offerst".
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    mStoreT "↦offer". sYieldIR "IST" "TID".
+    mStoreT "↦offerst". sYieldIR "IST" "TID".
 
     clear dependent l l1 stack_rep stack_rep1 offer_rep offer_rep1.
     iInv "Hinv" as "[[%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist [Hoffer↦ _]]]]]]]|[% ●]]" "close";
@@ -170,15 +149,14 @@ Section StackIM.
 
     mStoreT "Hoffer↦".
     iMod (own_alloc (Excl ())) as "[%γo OfferTkn]"; ss.
-    iMod (inv_alloc
-      (syn_offer_inv n γo (offerb, 0%Z) req_id (stid, mtid, (n, Vptr (stackb, stackofs), v, γs)))
+    iMod (inv_alloc (syn_offer_inv n γo (offerb, 0%Z) req_id (v, γs))
       _ _ _ (offerN N) with "[↦offer ↦offerst Help]") as "#Hoinv"; eauto.
     { solve_ndisj. }
     { solve_base_sl_red; iFrame; auto. }
 
     iMod ("close" with "[Hoffer↦ Hlist H↦ Hs]") as "_".
     { iLeft. iFrame. solve_base_sl_red. iExists γo, _, _. iSplit; eauto. }
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    sYieldIR "IST" "TID".
 
     clear dependent l stack_rep offer_rep.
     iInv "Hinv" as "[[%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist [Hoffer↦ _]]]]]]]|[% ●]]" "close";
@@ -190,7 +168,7 @@ Section StackIM.
 
     iMod ("close" with "[Hoffer↦ Hlist H↦ Hs]") as "_".
     { iLeft; iFrame. solve_base_sl_red. }
-    sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+    sYieldIR "IST" "TID".
 
     iInv "Hoinv" as "[%offerst [offerst↦ offer]] /=" "close".
     rewrite Z.add_0_l.
@@ -204,13 +182,13 @@ Section StackIM.
       iMod ("close" with "[Hofferst OfferTkn]") as "_".
       { iFrame. done. }
 
-      sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+      sYieldIR "IST" "TID".
       iAssert (emp)%I as "E"; first done.
       iApply (wsim_mem_cmp with "E");
         [try prove_inline_cond|try prove_sb_cond|unfold_cris_defs|..]; eauto.
       iIntros "_". cStepsT.
 
-      cByCoind CIH. iDestruct "offer" as "[? ?]"; iFrame. done.
+      cByCoind CIH; iFrame "#∗". iDestruct "offer" as "[? ?]"; iFrame.
     }
     case_decide; subst.
     { (* Somebody helped *)
@@ -222,7 +200,7 @@ Section StackIM.
       iMod ("close" with "[Hofferst]") as "_".
       { iFrame. done. }
 
-      sYieldIR "IST" "TID". { case_bool_decide; set_solver. }
+      sYieldIR "IST" "TID".
       iAssert (emp)%I as "E"; first done.
       iApply (wsim_mem_cmp with "E");
         [try prove_inline_cond|try prove_sb_cond|unfold_cris_defs|..]; eauto.
@@ -231,8 +209,7 @@ Section StackIM.
       sYieldS. cStepsS.
       iApply (wsim_helping_done_try_run with "offer IST"); eauto using Ist_help.
       iIntros "IST".
-      sYieldS. cStepsS. sYieldS. cForceS. iFrame. iSplit; eauto.
-      cStep. iFrame. eauto.
+      sYieldS. cStepsS. cStep; iFrame. done.
     }
 
     case_decide; try by (iCombine "OfferTkn" "offer" gives %WF). ss.

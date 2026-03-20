@@ -8,9 +8,26 @@ Require Import HWQI HWQP SchI HWQA SchTactics.
 From stdpp Require Import streams list.
 
 Section HWQPM.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !schGS, !hwqG, !memGS, !prophGS}.
-  Context (mnp mnh : string).
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
+  Context (mnh mnp : string).
   Context (N : namespace) (sp_mem : specmap).
+
+  Definition Ist : ist_type Σ := λ st_src st_tgt,
+    (IstHelp mnh st_src st_tgt ∗
+    ∃ (X : gset val),
+      free_id (λ x, (x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type) ∗
+      [∗ set] x ∈ X,
+        □ ∃ blk ofs nx, ⌜x = Vptr (blk, ofs)⌝ ∗
+          ∀ X, helping_auth 1 X =| nx, ↑N |={↑N, ∅}=∗ ∃ v, (blk, ofs) ↦ v)%I.
+  Definition IstFull : ist_type Σ :=
+    IstProd (IstSB (Mod.scopes (HWQP.t mnp) ++ Mod.scopes (HelpingDummy.t mnh)) Ist) IstEq.
+  Lemma Ist_help : Ist_helping mnh IstFull.
+  Proof.
+    iIntros (??) "[% [% [% [% [[-> ->] [[%Ha [[% [[-> ->] ?]] ?]] ->]]]]]]".
+    iModIntro; iExists _, _; iFrame; iSplit; auto.
+    iIntros (?) "$ !>"; iExists _, _, _, _; repeat iSplit; eauto.
+    iPureIntro. set_solver.
+  Qed.
 
   Notation sp := (SchA.sp ∅ (↑N)).
   Notation HWQM := (HWQM.t N mnh).
@@ -19,7 +36,6 @@ Section HWQPM.
   Notation HelpDummy := (HelpingDummy.t mnh).
   Notation MemA := (MemA.t sp_mem).
   Notation ProphA := (ProphecyA.t mnp ∅).
-  Notation IstFull := (HWQIAInv.IstFull mnp mnh N).
 
   Lemma big_lemma γe γs (ls : list val) slots (p : list nat)
     msks mtid stid n sz blk γc γi γb fl_s fl_t r g ps pt st_src st_tgt :
@@ -54,11 +70,11 @@ Section HWQPM.
     intros Hf. revert p. iIntros (p).
     iInduction p as [|e p] "IH" forall (st_src st_tgt ps pt slots ls);
       iIntros (HNoDup Ha) "#Hinv Hist TID Hs● Hbig He●".
-    { unfoldIterS. cNormS. case_match; cStepsS; ss.
+    { aUnfoldS. cNormS. case_match; cStepsS; ss.
       cForceS false. cStepsS. cStep.
       rewrite /= app_nil_r map_imap_helped_nil. iFrame.
     }
-    unfoldIterS. cNormS. case_match; cStepsS; ss. cForceS true. cStepsS.
+    aUnfoldS. cNormS. case_match; cStepsS; ss. cForceS true. cStepsS.
     destruct orb; ss. destruct msks; cStepsS; ss.
     cInlineS. cStepsS.
     assert (∀ i : nat, i ∈ p → was_committed <$> slots !! i = Some false) as Ha1.
@@ -75,7 +91,7 @@ Section HWQPM.
     rewrite [in ([∗ map] _ ↦ _ ∈ slots, _)%I]Hs.
     iDestruct (big_sepM_insert with "Hbig") as "[Hbig_n Hbig]"; first by apply lookup_delete.
     iDestruct "Hbig_n" as "[Hq [Hval_wit_n [Hwritten_n [Hpending_tok_n H]]]]".
-    iApply (wsim_helping_help2 with "TID H"); [exact (HWQIAInv.Ist_help _ _ _)|ss|..].
+    iApply (wsim_helping_help2 with "TID H"); [exact Ist_help|ss|..].
     iExists (S n). iInv "Hinv" as "Inv" "Close".
     iDestruct "Inv" as "[[% ●Help] | [% [% [% [% [% [% [% [_ [_ [_ [_ [_ [_ [He●2 _]]]]]]]]]]]]]]]";
       last first.
@@ -87,7 +103,7 @@ Section HWQPM.
     iMod (update_elts _ _ _ (ls ++ [l]) with "He● He◯") as "[He● He◯]".
     cForceS; iFrame "He◯". cStepsS. cStep. iFrame. iSplit; first done.
     clear_st. iIntros (st_src2 st_tgt2) "Done IST".
-    iMod (HWQIAInv.Ist_help with "IST") as "[%st_src' [%reqmap [-> [Help● HelpClose]]]]".
+    iMod (Ist_help with "IST") as "[%st_src' [%reqmap [-> [Help● HelpClose]]]]".
     iPoseProof (helping_auth_split (1/2) with "Help●") as "[Help● Help●2]"; first done.
     iMod ("Close" with "[Help●]") as "_"; first iFrame. { set_solver. }
     iApply fupd_mask_intro; first solve_ndisj; iIntros "_ TID". cStepsS.
@@ -121,34 +137,33 @@ Section HWQPM.
     rewrite Heq. iFrame. rewrite -app_assoc /= get_values_not_in //; iFrame.
   Qed.
 
-  Local Ltac yield_tac H1 H2 :=
-    sYieldIR H1 H2; [eapply bool_decide_eq_true; set_solver|].
-
   Lemma simF_enqueue :
     ISim.sim_fun open
       ((HWQM ★ HelpOn) ★ MemA ★ ProphA) ((HWQP ★ HelpDummy) ★ MemA ★ ProphA)
       IstFull (fid HWQHdr.enqueue).
   Proof.
-    cStartFunSim.
-    rewrite /HWQM.enqueue /HWQI.enqueue /atomic_body.
-    cStepsS. destruct _q as [[mtid stid] [[[[n sz] γq] q] v]].
-    iDestruct "ASM" as "[TID [_ [%qblk [%qofs [[-> ->] [#INV Hq]]]]]]". cStepsT.
-    iDestruct "INV" as (γb γi γc γs blk ->) "#Inv".
-    yield_tac "IST" "TID". yield_tac "IST" "TID".
+    cStartFunSim. rewrite /HWQM.enqueue /HWQI.enqueue. cStepS. aStepS.
+    iIntros (mtid stid [γq v]) "TID [%qblk [%qofs [%q [%n [%sz [[-> ->] [#Inv HQ]]]]]]]". cStepsT.
+    (* cStepsS. destruct _q as [[mtid stid] [[[[n sz] γq] q] v]].
+    iDestruct "ASM" as "[TID [_ [%qblk [%qofs [[-> ->] [#INV Hq]]]]]]". cStepsT. *)
+    iDestruct "Inv" as (γb γi γc γs blk ->) "#Inv".
+    cStepsS. iApply (wsim_helping_run with "IST"); [exact Ist_help|simpl_map; s; f_equal|..].
+    clear st_src; iIntros (st_src req_id) "IST Tkn".
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     (* Open the invariant to perform the increment. *)
     iInv "Inv" as "[[% X2]|HInv]" "Close".
-    { iMod (HWQIAInv.Ist_help with "IST") as "[% [% [-> [X ?]]]]".
+    { iMod (Ist_help with "IST") as "[% [% [-> [X ?]]]]".
       iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
     }
     iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
     iDestruct "HInv" as "[H_sz Hinv]".
     mLoadT "H_sz". iMod ("Close" with "[H_sz Hinv]") as "_".
     { iRight. iFrame. }
-    yield_tac "IST" "TID". yield_tac "IST" "TID".
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     rewrite /MemHdr.faa. cStepsT.
     clear pvs pref rest slots deqs back cont.
     iInv "Inv" as "[[% X2]|HInv]" "Close".
-    { iMod (HWQIAInv.Ist_help with "IST") as "[% [% [-> [X ?]]]]".
+    { iMod (Ist_help with "IST") as "[% [% [-> [X ?]]]]".
       iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
     }
     iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
@@ -180,13 +195,13 @@ Section HWQPM.
         destruct Hcont as ((Ha1 & Ha2) & Ha3 & Ha4).
         by repeat (split; first lia).
       }
-      yield_tac "IST" "TID". yield_tac "IST" "TID".
+      sYieldIR "IST" "TID". sYieldIR "IST" "TID".
       destruct Z.ltb eqn: Hlt.
       { apply Z.ltb_lt in Hlt; lia. }
-      cStepsT. yield_tac "IST" "TID".
+      cStepsT. sYieldIR "IST" "TID".
       iApply wsim_reset. iStopProof. revert st_src. combine_quant st_tgt.
       eapply wsim_coind. iIntros (? ? CIH [st_src st_tgt]) "[? [IST TID]]". destruct_quant CIH.
-      unfoldIterT. cNormT. yield_tac "IST" "TID". cByCoind CIH. iFrame.
+      aUnfoldT. cNormT. sYieldIR "IST" "TID". cByCoind CIH. iFrame.
     }
     (* We now have a reserved slot [i], which is still free. *)
     pose (i := back). pose (elts := map (get_value slots deqs) pref ++ rest).
@@ -201,16 +216,13 @@ Section HWQPM.
     destruct cont as [i1 i2|bs].
     { (* We access the atomic update and commit the element. *)
       sYieldS. cStepsS.
-      iApply (wsim_helping_run with "IST"); [exact (HWQIAInv.Ist_help _ _ _)|simpl_map; s; f_equal|].
-      clear_st. iIntros (st_src req_id) "IST Tok".
-      sYieldS. cNormS.
-      iApply (wsim_helping_pend_try_run with "Tok IST"); [exact (HWQIAInv.Ist_help _ _ _)|].
+      iApply (wsim_helping_pend_try_run with "Tkn IST"); [exact Ist_help|].
       cStepsS. iRename "ASM" into "He◯".
       iDestruct (sync_elts with "He● He◯") as %<-.
       set (l := Vptr (qblk, qofs)).
       iMod (update_elts _ _ _ (elts ++ [l]) with "He● He◯") as "[He● He◯]".
-      cForceS; iFrame "He◯". cStepsS. cStep.
-      iSplit; auto; iFrame.
+      cForceS; iFrame "He◯". cStepsS. cStep; iFrame.
+      iSplit; first auto.
       clear_st. iIntros (st_src st_tgt) "Done IST".
       (* We allocate the new slot. *)
       iMod (alloc_done_slot γs slots i l Hi_free with "Hs●")
@@ -225,10 +237,10 @@ Section HWQPM.
         iFrame. iSplitL "He●".
         { rewrite /elts app_assoc map_get_value_not_in_pref; try done.
           intros Hi%Hpref. rewrite Hi_free in Hi. destruct Hi; done. }
-        iSplitL "Hbig Htok_i Hq".
+        iSplitL "Hbig Htok_i HQ".
         { iApply big_sepM_insert.
           + apply eq_None_not_Some. intros Ha. apply Hslots in Ha. lia.
-          + iFrame "Hbig Hq". repeat (iSplit; first done). done. }
+          + iFrame "Hbig HQ". repeat (iSplit; first done). done. }
         iFrame "cont_wit".
         destruct Hcont as (((HC1 & HC2) & HC3) & HC4 & HC5 & HC6 & HC7 & HC8).
         iPureIntro. repeat split_and; try done; try by lia.
@@ -269,12 +281,12 @@ Section HWQPM.
       clear Hslots Hstate Hpref Hdeqs Hcont Hi_not_in_deq Hi_free Hpvs_ND Hpvs_sz Hlem.
       clear elts pvs pref rest slots deqs. subst i. rename back into i.
       (* We can now move to the store. *)
-      yield_tac "IST" "TID". yield_tac "IST" "TID".
+      sYieldIR "IST" "TID". sYieldIR "IST" "TID".
       rewrite (proj2 (Z.ltb_lt _ _) Hback_sz). cStepsT.
-      yield_tac "IST" "TID".
+      sYieldIR "IST" "TID".
       (* We open the invariant again for the store. *)
       iInv "Inv" as "[[% X2]|HInv]" "Close".
-      { iMod (HWQIAInv.Ist_help with "IST") as "[% [% [-> [X ?]]]]".
+      { iMod (Ist_help with "IST") as "[% [% [-> [X ?]]]]".
         iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
       }
       iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
@@ -377,18 +389,14 @@ Section HWQPM.
           + rewrite update_slot_lookup Hslots_i /=; rewrite Hslots_i in Hval_wit_i; ss; clarify.
             intros <-%Some_inj; eauto.
           + rewrite update_slot_lookup_ne //; eapply Hlem. }
-      yield_tac "IST" "TID". sYieldS. cStepsS. unfoldIterS. cStepsS. cForceS false.
-      cStepsS. sYieldS. cForceS. iFrame. iSplit; auto.
-      cStep. iFrame. eauto.
+      sYieldIR "IST" "TID". sYieldS. cStepsS. aUnfoldS. cStepsS. cForceS false.
+      cStepsS. sYieldS. cStep; iFrame. eauto.
     }
     (* There is no [Contra1]/[Contra2], first assume the prophecy is trivial. *)
     destruct bs as [|b blocks].
     { (* We access the atomic update and commit the element. *)
       sYieldS. cStepsS.
-      iApply (wsim_helping_run with "IST"); [exact (HWQIAInv.Ist_help _ _ _)|simpl_map; s; f_equal|].
-      clear_st. iIntros (st_src req_id) "IST Tok".
-      sYieldS. cNormS.
-      iApply (wsim_helping_pend_try_run with "Tok IST"); [exact (HWQIAInv.Ist_help _ _ _)|].
+      iApply (wsim_helping_pend_try_run with "Tkn IST"); [exact Ist_help|].
       cStepsS. iRename "ASM" into "He◯".
       iDestruct (sync_elts with "He● He◯") as %<-.
       iMod (update_elts _ _ _ (elts ++ [Vptr (qblk, qofs)]) with "He● He◯") as "[He● He◯]".
@@ -405,10 +413,10 @@ Section HWQPM.
         iFrame. iSplitL "He●".
         { rewrite /elts app_assoc map_get_value_not_in_pref; try done.
           intros Hi%Hpref. rewrite Hi_free in Hi. destruct Hi; done. }
-        iSplitL "Hbig Htok_i Hq".
+        iSplitL "Hbig Htok_i HQ".
         { iApply big_sepM_insert.
           + apply eq_None_not_Some. intros ?%Hslots. lia.
-          + iFrame "Hbig Hq". repeat (iSplit; first done). done. }
+          + iFrame "Hbig HQ". repeat (iSplit; first done). done. }
         destruct Hcont as (HC1 & HC2 & HC3).
         iPureIntro. repeat split_and; try done; try by lia.
         - intros k. destruct sz as [|sz]; first by lia.
@@ -441,12 +449,12 @@ Section HWQPM.
       clear Hslots Hstate Hpref Hdeqs Hcont Hi_not_in_deq Hi_free Hpvs_ND Hpvs_sz Hlem.
       clear pvs pref rest slots deqs elts. subst i. rename back into i.
       (* We can now move to the store. *)
-      yield_tac "IST" "TID". yield_tac "IST" "TID".
+      sYieldIR "IST" "TID". sYieldIR "IST" "TID".
       rewrite (proj2 (Z.ltb_lt _ _) Hback_sz). cStepsT.
-      yield_tac "IST" "TID".
+      sYieldIR "IST" "TID".
       (* We open the invariant again for the store. *)
       iInv "Inv" as "[[% X2]|HInv]" "Close".
-      { iMod (HWQIAInv.Ist_help with "IST") as "[% [% [-> [X ?]]]]".
+      { iMod (Ist_help with "IST") as "[% [% [-> [X ?]]]]".
         iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
       }
       iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
@@ -550,9 +558,8 @@ Section HWQPM.
             intros <-%Some_inj; eauto.
           + rewrite update_slot_lookup_ne //; eapply Hlem.
       }
-      yield_tac "IST" "TID".
-      sYieldS. cStepsS. unfoldIterS. cForceS false. cStepsS.
-      sYieldS. cForceS. iFrame. iSplit; eauto. cStep. iFrame. done.
+      sYieldIR "IST" "TID".
+      sYieldS. cStepsS. aUnfoldS. cForceS false. cStepsS. sYieldS. cStep; iFrame. done.
     }
     (* There is no [Contra1]/[Contra2], and the prophecy is non-trivial. *)
     destruct Hcont as (Hblocks & Hrest & Hpvs).
@@ -567,10 +574,7 @@ Section HWQPM.
         as "[Hs● [Htok_i [#val_wit_i [#commit_wit_i Hwriting_tok_i]]]]".
       (* We then commit at our index. *)
       sYieldS. cStepsS.
-      iApply (wsim_helping_run with "IST"); [exact (HWQIAInv.Ist_help _ _ _)|simpl_map; s; f_equal|].
-      clear_st. iIntros (st_src req_id) "IST Tok".
-      sYieldS. cNormS.
-      iApply (wsim_helping_pend_try_run with "Tok IST"); [exact (HWQIAInv.Ist_help _ _ _)|].
+      iApply (wsim_helping_pend_try_run with "Tkn IST"); [exact Ist_help|].
       cStepsS. iRename "ASM" into "He◯".
       iDestruct (sync_elts with "He● He◯") as %<-.
       iMod (update_elts _ _ _ (elts ++ [Vptr (qblk, qofs)]) with "He● He◯") as "[He● He◯]".
@@ -587,11 +591,11 @@ Section HWQPM.
         apply NoDup_app in Ha as (_ & _ & Ha). simpl in Ha.
         rewrite app_comm_cons in Ha. by apply NoDup_app in Ha as (Ha & _ & _). }
       apply NoDup_cons in Hblock_ND as (Hi & HNoDup).
-      iAssert (per_slot_own γq γs i (Vptr (qblk, qofs), Done, false)) with "[Htok_i Hq]" as "Hi".
+      iAssert (per_slot_own γq γs i (Vptr (qblk, qofs), Done, false)) with "[Htok_i HQ]" as "Hi".
       { rewrite /per_slot_own /=. eauto with iFrame. }
       iDestruct (big_sepM_insert (per_slot_own γq γs) slots i (Vptr (qblk, qofs), Done, false)
               with "[Hi Hbig]") as "Hbig"; [ done | by iFrame | .. ].
-      iMod (HWQIAInv.Ist_help with "IST") as "[% [% [-> [X XClose]]]]".
+      iMod (Ist_help with "IST") as "[% [% [-> [X XClose]]]]".
       iPoseProof (helping_auth_split (1/2) with "X") as "[X X2]"; first done.
       iMod ("Close" with "[$]") as "_".
       prependRetT tt. iApply wsim_bind. iSplitL "Hs● Hbig He● TID XClose X2".
@@ -608,7 +612,7 @@ Section HWQPM.
       iDestruct "HInv" as "[[% ●Help] | [% [% [% [% [% [% [% [_ [_ [_ [_ [_ [_ [He●2 _]]]]]]]]]]]]]]]";
         last first.
       { iCombine "Hs● He●2" gives %WF%auth_auth_op_valid; ss. }
-      iMod ("XClose" with "●Help") as "IST". cStepsS.
+      iMod ("XClose" with "●Help") as "IST".
       (* And then we can close the invariant. *)
       iMod ("Close" with "[- Hwriting_tok_i IST TID]") as "_".
       { pose (new_pref := pref ++ i :: b_pendings).
@@ -736,13 +740,13 @@ Section HWQPM.
       clear Hslots Hstate Hpref Hdeqs Hpvs Hrest Hblocks Hi_free Hi_not_in_deq Hlem.
       clear Hpvs_ND Hpvs_sz Hb_valid1 Hb_valid2 HNoDup Hi elts pvs pref slots deqs.
       clear blocks b_pendings. subst i. rename back into i.
-      yield_tac "IST" "TID". yield_tac "IST" "TID".
+      sYieldIR "IST" "TID". sYieldIR "IST" "TID".
       rewrite (proj2 (Z.ltb_lt _ _) Hback_sz). cStepsT.
-      yield_tac "IST" "TID".
+      sYieldIR "IST" "TID".
       
       (* We open the invariant again for the store. *)
       iInv "Inv" as "[[% X2]|HInv]" "Close".
-      { iMod (HWQIAInv.Ist_help with "IST") as "[% [% [-> [X ?]]]]".
+      { iMod (Ist_help with "IST") as "[% [% [-> [X ?]]]]".
         iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
       }
       iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
@@ -857,12 +861,9 @@ Section HWQPM.
             destruct s as [[? [| |]] ?]; ss; i; clarify; eauto.
           + rewrite update_slot_lookup_ne //; eapply Hlem.
       }
-      yield_tac "IST" "TID". sYieldS. cForcesS. iFrame. repeat iSplit; auto. cStep.
+      sYieldIR "IST" "TID". sYieldS. cForcesS. iFrame. repeat iSplit; auto. cStep.
       iFrame. done.
     + (* We are not the first non-done element, we will give away our AU. *)
-      sYieldS. cStepsS.
-      iApply (wsim_helping_run with "IST"); [exact (HWQIAInv.Ist_help _ _ _)|simpl_map; s; f_equal|..].
-      clear_st; iIntros (st_src req_id) "IST Tok".
       iMod (alloc_pend_slot γs slots i (Vptr (qblk, qofs)) req_id Hi_free with "Hs●")
         as "[Hs● [Htok_i [#val_wit_i [Hpend_tok_i [Hname_tok_i Hwriting_tok_i]]]]]".
       (* We close the invariant, storing our AU. *)
@@ -884,7 +885,7 @@ Section HWQPM.
           assert (k ≠ i); last by rewrite lookup_insert_ne.
           intros ->. apply Hpref in Hk as (Ha1 & ?).
           rewrite Hi_free in Ha1. inversion Ha1. }
-        iSplitL "Hbig Hpend_tok_i Tok Hq".
+        iSplitL "Hbig Hpend_tok_i Tkn HQ".
         { iApply big_sepM_insert; first done. iFrame "#∗". }
         iPureIntro. subst new_slots. repeat split_and; try done.
         - intros k. destruct sz as [|sz]; first by lia.
@@ -917,12 +918,12 @@ Section HWQPM.
       clear Hslots Hstate Hpref Hdeqs Hblocks Hrest Hpvs Hi_free Hi_not_in_deq Hlem.
       clear Hpvs_ND Hpvs_sz b_unused b_unused_not_i elts blocks pvs pref slots.
       clear deqs b_pendings. subst i. rename back into i.
-      yield_tac "IST" "TID". yield_tac "IST" "TID".
+      sYieldIR "IST" "TID". sYieldIR "IST" "TID".
       rewrite (proj2 (Z.ltb_lt _ _) Hback_sz). cStepsT.
-      yield_tac "IST" "TID".
+      sYieldIR "IST" "TID".
       (* We open the invariant again for the store. *)
       iInv "Inv" as "[[% X2]|HInv]" "Close".
-      { iMod (HWQIAInv.Ist_help with "IST") as "[% [% [-> [X ?]]]]".
+      { iMod (Ist_help with "IST") as "[% [% [-> [X ?]]]]".
         iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss.
       }
       iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
@@ -960,7 +961,7 @@ Section HWQPM.
         iDestruct (use_name_tok with "Hs● Hname_tok_i") as %Hname_tok_i.
         assert (γs_i' = req_id) as Hγs_i; last subst γs_i'.
         { rewrite Hi /= in Hname_tok_i. by inversion Hname_tok_i. }
-        iApply (wsim_helping_pend_try_run with "HAU IST"); first apply HWQIAInv.Ist_help.
+        iApply (wsim_helping_pend_try_run with "HAU IST"); first apply Ist_help.
         (* We run our atomic update ourself. *)
         cStepsS. iRename "ASM" into "He◯".
         pose (elts := map (get_value slots deqs) pref ++ rest).
@@ -1038,9 +1039,8 @@ Section HWQPM.
                 rewrite /set_written_and_done /=; intros; clarify; eauto.
               + rewrite update_slot_lookup_ne //; eapply Hlem. 
           }
-          yield_tac "IST" "TID". sYieldS. cStepsS.
-          unfoldIterS. cForceS false. cStepsS. sYieldS. cForceS; iFrame.
-          repeat iSplit; auto. cStep. iFrame. done.
+          sYieldIR "IST" "TID". sYieldS. cStepsS.
+          aUnfoldS. cForceS false. cStepsS. sYieldS. cStep; iFrame. done.
         * (* No contradiction yet, make it ours if the prophecy is non-trivial. *)
           iAssert (match bs with
                  | [] => i2_lower_bound γi (back `min` sz)
@@ -1152,9 +1152,8 @@ Section HWQPM.
                 rewrite /set_written_and_done /=; intros; clarify; eauto.
               + rewrite update_slot_lookup_ne //; eapply Hlem.  
           }
-          yield_tac "IST" "TID". sYieldS. cStepsS.
-          unfoldIterS. cForceS false. cStepsS. sYieldS. cForceS; iFrame.
-          repeat iSplit; eauto; cStep; iFrame; done.
+          sYieldIR "IST" "TID". sYieldS. cStepsS.
+          aUnfoldS. cForceS false. cStepsS. sYieldS. cStep; iFrame; done.
       - (* We have moved to the helped state. *)
         pose (l := Vptr (qblk, qofs)).
         assert (slots = <[i := (l, Help γs_i', w)]> (delete i slots))
@@ -1169,7 +1168,7 @@ Section HWQPM.
         iDestruct (use_name_tok with "Hs● Hname_tok_i") as %Hname_tok_i.
         assert (γs_i' = req_id) as Hγs_i; last subst γs_i'.
         { rewrite Hi /= in Hname_tok_i. by inversion Hname_tok_i. }
-        iApply (wsim_helping_done_try_run with "Hpost IST"); first exact (HWQIAInv.Ist_help _ _ _).
+        iApply (wsim_helping_done_try_run with "Hpost IST"); first exact Ist_help.
         iIntros "IST".
         (* We need to move from helped to done. *)
         iMod (helped_to_done with "Hs● Hname_tok_i") as "Hs●". { by rewrite Hi. }
@@ -1244,10 +1243,8 @@ Section HWQPM.
               rewrite /set_written_and_done /=; intros; clarify; eauto.
             + rewrite update_slot_lookup_ne //; eapply Hlem. 
         }
-        yield_tac "IST" "TID". sYieldS. cStepsS.
-        unfoldIterS; cForceS false; cStepsS.
-        sYieldS. cForceS; iFrame; repeat iSplit; auto; cStep.
-        iFrame. done.
+        sYieldIR "IST" "TID". sYieldS. cStepsS.
+        aUnfoldS; cForceS false; cStepsS. sYieldS; cStep; iFrame; done.
       - (* We are in the done state: contradiction. *)
         iDestruct (big_sepM_lookup _ _ i with "Hbig")
           as "[_ [_ [_ H]]]"; first done; simpl.

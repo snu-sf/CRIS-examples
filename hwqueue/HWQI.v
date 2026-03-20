@@ -1,4 +1,4 @@
-Require Export CRIS ImpPrelude HWQHeader SchHeader MemHeader ProphecyHeader.
+Require Export CRIS ImpPrelude ProphecyHeader HWQHeader SchHeader MemHeader.
 (** * Implementation of the queue operations ********************************)
 
 Module HWQI. Section HWQI.
@@ -98,13 +98,13 @@ Module HWQI. Section HWQI.
         𝒴;;; let range := Z.to_nat (Z.min sz back) in
         dequeue_aux (Vptr (qblk, qofs)) range range) ().
 
-  Definition mask : emask :=
+  Definition msk : emask :=
     CFilter.msk_filter_in (MemHdr.exports ∪ SchHdr.exports) (msk_real (msk_scp [] msk_true)).
-  
+
   Definition fnsems : fnsemmap :=
-    {[fid HWQHdr.new_queue # (mask, (None, cfunU new_queue));
-      fid HWQHdr.enqueue   # (mask, (None, cfunU enqueue));
-      fid HWQHdr.dequeue   # (mask, (None, cfunU dequeue))]}.
+    {[fid HWQHdr.new_queue # (msk, (None, cfunU new_queue));
+      fid HWQHdr.enqueue   # (msk, (None, cfunU enqueue));
+      fid HWQHdr.dequeue   # (msk, (None, cfunU dequeue))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := [];
@@ -115,8 +115,6 @@ Module HWQI. Section HWQI.
 
   Definition t := SMod.to_mod ∅ Mod.
 
-  Lemma filter_prophecy mn:
-    CFilter.filter (Prophecy.exports mn) t = t.
+  Lemma filter_prophecy mn : CFilter.filter (Prophecy.exports mn) t = t.
   Proof. cfilter_solver. Qed.
-  
 End HWQI. End HWQI.

@@ -1,4 +1,4 @@
-Require Import CRIS Atomic.
+Require Import CRIS Atomic atomic.
 Require Export IncrHeader ClientI ClientA IncrA SchA MemA.
 Require Import SchTactics MemTactics.
 From iris Require Import frac_auth numbers.
@@ -15,7 +15,7 @@ Module ClientIA. Section ClientIA.
 
   Local Definition IstFull := (IstProd (IstSB (ClientA.t N sp).(Mod.scopes) IstTrue) IstEq).
   Local Definition MA := (ClientA.t N sp ★ MemA.t sp).
-  Local Definition MI := ((ClientI.t ★ IncrA.t) ★ MemA.t sp).
+  Local Definition MI := ((ClientI.t ★ IncrA.t (N.@"a")) ★ MemA.t sp).
 
   Lemma f_spawnable γ v bofs :
     ⊢ SchA.fn_spawnable sp_user (ClientHdr.thread)
@@ -31,6 +31,7 @@ Module ClientIA. Section ClientIA.
     iApply SchA.fspec_sch_spawnable; first done.
     iIntros "%P1 %Q1 [% [-> ->]]"; iExists _, _; iSplit; first (iPureIntro).
     { exists (bofs, v, γ); split; ss. }
+    unfoldPrePost.
     iIntros (varg arg) "[%va [%sarg [[% %] [% $]]]]"; des; clarify.
     iIntros "!>"; iSplit; first done; iIntros "%% [[-> ->] ?] !>"; iExists _, _; iSplit; eauto.
     solve_base_sl_red; iSplit; done.
@@ -48,43 +49,26 @@ Module ClientIA. Section ClientIA.
     sYieldIR "IST" "TID".
 
     (* tgt inline - faa *)
-    cInlineT. cStepsT.
-    iApply (atomic_fun_tgt); ss. iExists (_, _); iSplit; first done.
-    iApply (atomic_update_tgt IncrA.incr_spec); ss.
-    iApply wsim_reset; cCoind CIH g __ with st_src st_tgt; iIntros "[#INV [C [IST TID]]]".
-    rewrite unfold_atomic_update. cNormT. sYieldIR "IST" "TID".
+    cInlineT. rewrite /IncrA.incr. cStepsT. aForceT with "IST TID".
+    iExists 1. iAuIntro. iInv "INV" as "[%x [↦ CA]]".
+    iAaccIntro with "↦". iSplit.
+    { iIntros "$"; by iFrame. }
+    iIntros (ret_t) "↦ !>"; iExists (tt↑); iSplitR; first done.
+    iMod (counter_incr 1 with "[C CA]") as "[C CA]"; iFrame.
+    clear_st. iIntros "!>" (st_src st_tgt) "IST TID ->". cStepsT. sYieldIR "IST" "TID".
 
-    (* operational atomicity here *)
-    iInv "INV" as "[%x [PT CA]]" "IA".
-    cForcesT; iFrame "PT"; cStepsT. destruct _q as [|ret]; cStepsT.
-    { iMod ("IA" with "[$]") as "_". cByCoind CIH. iFrame. done. }
-    iMod (counter_incr 1 with "[C CA]") as "[C CA]"; first iFrame.
-    iMod ("IA" with "[GRT CA]") as "_".
-    { iExists (x + 1)%Z; solve_base_sl_red; iFrame. }
-    sYieldIR "IST" "TID". sYieldS. cStep. iFrame. clear dependent g.
-    sYieldS. cStep. iFrame. iIntros "->". cStepsT.
-
-    sYieldIR "IST" "TID".
     (* tgt inline - faa *)
-    cInlineT. cStepsT.
-    iApply (atomic_fun_tgt); ss. iExists (_, _); iSplit; first done.
-    iApply (atomic_update_tgt IncrA.incr_spec); ss.
-    iApply wsim_reset; cCoind CIH g __ with st_src st_tgt; iIntros "[#INV [C [IST TID]]]".
-    rewrite unfold_atomic_update. cNormT. sYieldIR "IST" "TID".
+    cInlineT. cStepsT. rewrite /IncrA.incr. aForceT with "IST TID".
+    iExists 1. iAuIntro. clear x. iInv "INV" as "[%x [↦ CA]]".
+    iAaccIntro with "↦". iSplit.
+    { iIntros "$"; by iFrame. }
+    iIntros (ret_t) "↦ !>"; iExists (tt↑); iSplitR; first done.
+    iMod (counter_incr 1 with "[C CA]") as "[C CA]"; iFrame.
+    clear_st. iIntros "!>" (st_src st_tgt) "IST TID ->". cStepsT. sYieldIR "IST" "TID".
 
-    (* operational atomicity here *)
-    clear x ret. iInv "INV" as "[%x [PT CA]]" "IA".
-    cForcesT; iFrame "PT"; cStepsT. destruct _q as [|ret]; cStepsT.
-    { iMod ("IA" with "[$]") as "_". cByCoind CIH. iFrame. done. }
-
-    iMod (counter_incr 1 with "[C CA]") as "[C CA]"; first iFrame.
-    iMod ("IA" with "[GRT CA]") as "_".
-    { iExists (x + 1)%Z; solve_base_sl_red; iFrame. }
-    sYieldIR "IST" "TID". sYieldS. cStep. iFrame. sYieldS. cStep. iFrame.
-    iIntros "->". cStepsT. sYieldIR "IST" "TID". sYieldS. cForcesS. iFrame.
-    iSplitL "C".
+    sYieldS. cForcesS. iFrame. iSplitL "C".
     { iFrame. replace (v + 1 + 1)%Z with (v + 2)%Z by lia. iFrame. eauto. }
-    cStep. iFrame. done.
+    cStep; iFrame; done.
 (*SLOW*)Qed.
 
   Lemma main_simF : ISim.sim_fun open MA MI IstFull entry.
@@ -112,20 +96,18 @@ Module ClientIA. Section ClientIA.
     (* spawn *)
     iMod (own_alloc ((●F 0%Z ⋅ ◯F{1} 0%Z))) as "[%γc [A F]]".
     { apply frac_auth_valid; ss. }
-    iMod (inv_alloc (ccounter_syn 0 γc (blk, 0%Z)) _ _ _ (N_main N) with "[map A]") as "#I"; eauto.
+    iMod (inv_alloc (syn_ccounter γc (blk, 0%Z)) _ _ _ (N.@"client") with "[map A]") as "#I"; eauto.
     { apply nclose_subseteq. }
     { solve_base_sl_red; iFrame. }
     iPoseProof (counter_op with "[F]") as "[F1 F2]".
     { rewrite -Qp.half_half -{2}(Z.add_0_r 0%Z). iApply "F". }
-
-    iCombine "F1 I" as "F1". iCombine "F2 I" as "F2".
 
     (* src/tgt spawns *)
     rewrite /Sch.spawn; cStepsT; cStepsS. simpl_sp.
     cForceS (_, _); cForcesS; iSplitL "F1".
     { iExists _, _, _; iSplit; eauto.
       iSplitR; first iApply f_spawnable.
-      iFrame; eauto.
+      iFrame "#∗"; eauto.
     }
     cStepsS. cCall "IST". clear_st. iIntros (ret ??) "IST".
     cStepsS. iDestruct "ASM" as "[% [[-> ->] Handle]]". cStepsS. cStepsT.
@@ -164,11 +146,11 @@ Module ClientIA. Section ClientIA.
     iCombine "C Q Q2" as "C" gives %[_ WF%frac_auth_agree]. inv WF; ss.
     iDestruct "C" as "[CA CF]".
 
-    cStepsT. mLoadT "PT". 
+    cStepsT. mLoadT "PT".
 
     iMod ("INVA" with "[CA PT]") as "_"; first solve_base_sl_red; iFrame.
 
-    sYieldIR "IST" "TID". sYieldIR "IST" "TID". 
+    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     sYieldS; cStepsS. replace (0 + 2 + (0 + 2))%Z with 4%Z by lia.
 
     cStep.
@@ -195,7 +177,7 @@ Section ctxr.
     (SchA.sp sp_user (↑N)) ⊆ sp →
     ctx_refines
       (ClientA.t N sp ★ MemA.t sp, emp%I)
-      (ClientI.t      ★ IncrA.t ★ (MemA.t sp), emp%I).
+      (ClientI.t      ★ IncrA.t (N.@"a") ★ (MemA.t sp), emp%I).
   Proof using.
     etrans; cycle 1. { do 2 ctxr_rotate. ctxr_refl. }
     eset (GRP := ClientI.t ★ _).

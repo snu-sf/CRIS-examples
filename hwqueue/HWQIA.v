@@ -8,8 +8,25 @@ Require Import HWQI HWQP HWQA HWQIANewQueue HWQIAEnqueue HWQIADequeue.
 
 Module HWQPM. Section HWQPM.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
-  Context (mnp mnh : string).
+  Context (mnh mnp : string).
   Context (N : namespace) (sp_mem : specmap).
+
+  Definition Ist : ist_type Σ := λ st_src st_tgt,
+    (IstHelp mnh st_src st_tgt ∗
+    ∃ (X : gset val),
+      free_id (λ x, (x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type) ∗
+      [∗ set] x ∈ X,
+        □ ∃ blk ofs nx, ⌜x = Vptr (blk, ofs)⌝ ∗
+          ∀ X, helping_auth 1 X =| nx, ↑N |={↑N, ∅}=∗ ∃ v, (blk, ofs) ↦ v)%I.
+  Definition IstFull : ist_type Σ :=
+    IstProd (IstSB (Mod.scopes (HWQP.t mnp) ++ Mod.scopes (HelpingDummy.t mnh)) Ist) IstEq.
+  Lemma Ist_help : Ist_helping mnh IstFull.
+  Proof.
+    iIntros (??) "[% [% [% [% [[-> ->] [[%Ha [[% [[-> ->] ?]] ?]] ->]]]]]]".
+    iModIntro; iExists _, _; iFrame; iSplit; auto.
+    iIntros (?) "$ !>"; iExists _, _, _, _; repeat iSplit; eauto.
+    iPureIntro. set_solver.
+  Qed.
 
   Notation sp := (SchA.sp ∅ (↑N)).
   Notation HWQM := (HWQM.t N mnh).
@@ -21,10 +38,10 @@ Module HWQPM. Section HWQPM.
 
   Lemma ctxr :
     ctx_refines
-      ((HWQM ★ HelpOn)     ★ MemA ★ ProphA, helping_auth 1 ∅ ∗ free_id top1)%I
-      ((HWQP ★ HelpDummy)  ★ MemA ★ ProphA, emp)%I.
+      ((HWQM ★ HelpOn)    ★ MemA ★ ProphA, helping_auth 1 ∅ ∗ free_id top1)%I
+      ((HWQP ★ HelpDummy) ★ MemA ★ ProphA, emp)%I.
   Proof.
-    eapply main_adequacy with (Ist := HWQIAInv.IstFull mnp mnh N).
+    eapply main_adequacy with (Ist := IstFull).
     cStartModSim.
     { apply simF_new_queue. }
     { apply simF_enqueue. }
@@ -35,8 +52,7 @@ Module HWQPM. Section HWQPM.
       { iPureIntro; set_unfold. intros x [[? ?] [-> Hx]]; ss.
         rewrite dom_union_with dom_empty left_id in Hx; set_unfold; inv Hx; left; done.
       }
-      iFrame.
-      iSplit.
+      iFrame. iSplit.
       { iPureIntro; ss; splits; eauto. rewrite left_id //. }
       iExists ∅; iSplit; eauto.
       iPoseProof (free_id_split with "F") as "[F ?]"; last iApply (free_id_iff with "F"); cycle 1.
@@ -44,7 +60,7 @@ Module HWQPM. Section HWQPM.
         intros [? ?]; ss.
       }
       { intros x; ss. rewrite /Decision.
-        match goal with | |- {?P} + {¬ ?P} => 
+        match goal with | |- {?P} + {¬ ?P} =>
           destruct (excluded_middle_informative P)
         end; eauto.
       }
@@ -56,57 +72,65 @@ Module HWQMA. Section HWQMA.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
   Context (mnp mnh : string).
   Context (N : namespace) (sp_user sp : specmap).
-  Hypothesis (SchSP: SchA.sp sp_user (↑N) ⊆ sp).
-  
-  Lemma ctxr:
+  Context (SchSP : SchA.sp sp_user (↑N) ⊆ sp).
+
+  Lemma ctxr :
     ctx_refines
       (HWQA.t N sp, emp%I)
       (HWQM.t N mnh ★ ProphecyA.t mnp ∅ ★ HelpingOff.t mnh HWQM.jobCode (SchA.sp ∅ (↑N)), emp%I).
   Proof.
     eapply main_adequacy. instantiate (1:=λ _ _, True%I).
     cStartModSim; ss.
-    - cStartFunSim. rewrite /HWQA.new_queue.
-      cStepsS. cForcesT. iFrame. cStepsT. destruct Any.downcast; cStepsS; ss.
-      cStepsT. sYieldII "IST". sYieldS. cForcesS. iFrame. cStep. done.
-    - cStartFunSim. rewrite /HWQA.enqueue /HWQM.enqueue /atomic_body.
-      cStepsS. cStepsT. cForcesT. iFrame. cStepsT.
-      destruct _q as [[? ?] [[[[? ?] ?] ?] ?]]. sYieldII "IST".
-      cInlineT. cStepsT. rewrite /HelpingOff.run. cStepsT. sYieldII "IST".
-      sYieldS. cStepsS. cForcesT. iFrame. cStepsT. cForcesS. iFrame.
-      cStepsS. sYieldII "IST".
-      iApply wsim_reset.
-      cCoind CIH g' __ with st_src st_tgt. iIntros "IST".
-      unfoldIterT. cStepsT. case_match.
+    { cStartFunSim. rewrite /HWQA.new_queue. cStepsS. cStepT.
+      aStepS. iIntros (mtid stid [n sz]) "TID [-> %Hsz]".
+      aForceT with "TID"; iExists (_, _); iSplit; first eauto. sYieldII "IST".
+      case_match; cStepsT; sYieldS; cForceS (_, tt); cStep; iFrame.
+      by iDestruct "GRT" as "[$ $]".
+    }
+    { cStartFunSim. rewrite /HWQA.enqueue /HWQM.enqueue. cStepsS. cStepsT.
+      aStepS. iIntros (mtid stid [γq ?]) "TID ?".
+      aForceT with "TID"; iExists (_, _); iFrame. cStepsT.
+      cInlineT. cStepsT. rewrite /HelpingOff.run. cStepsT. aUnfoldS.
+      sYieldII "IST". sYieldS. cStepsS. cForcesT. iFrame. cStepsT.
+      cForceS (inr _). cForcesS. iFrame. sYieldII "IST".
+      iApply wsim_reset. cCoind CIH g' __ with st_src st_tgt. iIntros "IST".
+      aUnfoldT. cStepsT. case_match.
       { cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.help. cStepsT.
         sYieldII "IST". cByCoind CIH; iFrame.
       }
-      cStepsT. sYieldII "IST". sYieldS. cForceS; iFrame. cStep. done.
-    - cStartFunSim. rewrite /HWQA.dequeue /HWQM.dequeue /atomic_body.
-      cStepsS. cStepsT. cForcesT. iFrame. cStepsT.
-      sYieldII "IST". sYieldS.
-      destruct _q as [[? ?] [[[? ?] ?] ?]]. cStepsS. cForcesT; iFrame.
-      cStepsT. cForcesS; iFrame. cStepsS.
-      sYieldII "IST". sYieldS. cForcesS; iFrame.
-      cStep; done.
+      cStepsT. sYieldII "IST". sYieldS. cStep; iFrame. iDestruct "GRT" as "[? ?]"; by iFrame.
+    }
+    { cStartFunSim. rewrite /HWQA.dequeue. cStepsS. cStepsT.
+      aStepS; iIntros (???) "??"; aForceT with "[$]"; iExists _; iSplit; first eauto.
+      appendRetS.
+      iApply (atomic_update_sem_both2);
+        [ simpl_map; simpl_sp; ss | simpl_map; simpl_sp; ss
+        | ss | ss | try (solve_ndisj || set_solver) | try (solve_ndisj || set_solver) | | ].
+      { eauto. }
+      iExists _; iAuIntro; iAaccIntro "% $ !>" with ""; iSplit.
+      { iIntros "$ !>"; iFrame. }
+      iIntros (ret_t) "[% [% [? ?]]] !>"; iExists _; iFrame.
+      iModIntro; clear_st; iIntros (??) "_".
+      cStepsT. sYieldS. cStep; iFrame. iDestruct "GRT" as "[$ ?]"; done.
+    }
+  Unshelve. try exact 0.
   Qed.
-
 End HWQMA. End HWQMA.
 
 Module HWQIA. Section HWQIA.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !schGS, !hwqG, !memGS, !prophGS}.
 
-  Lemma refines (ctx : Mod.t) (N : namespace) (sp_user sp sp_mem : specmap) csl genv :
+  Lemma ctxr (ctx : Mod.t) (N : namespace) (sp_user sp sp_mem : specmap) csl genv :
     SchA.sp sp_user (↑N) ⊆ sp →
     real_mod ctx →
     refines
       (HWQA.t N sp ★ MemA.t sp_mem   ★ SchI.t ★ ctx,
-       MemA.init_cond csl genv ∗ ProphecyA.initial_cond ∗ helping_auth 1 ∅ ∗ free_id top1)%I
+        MemA.init_cond csl genv ∗ ProphecyA.initial_cond ∗ helping_auth 1 ∅ ∗ free_id top1)%I
       (HWQI.t      ★ MemI.t csl genv ★ SchI.t ★ ctx,
-       emp%I).
+        emp%I).
   Proof.
     intros Hsch Hreal.
-
-    set (allmds := HWQA.t N sp ★ MemA.t sp_mem ★ HWQI.t ★ MemI.t csl genv ★ SchI.t ★ ctx).
+        set (allmds := HWQA.t N sp ★ MemA.t sp_mem ★ HWQI.t ★ MemI.t csl genv ★ SchI.t ★ ctx).
     set (sz := S (max
                  (maxlen (elements (get_fids (dom (Mod.fnsems allmds)))))
                  (maxlen (Mod.scopes allmds)))).
@@ -151,7 +175,7 @@ Module HWQIA. Section HWQIA.
         rewrite !left_id !assoc. refl.
       }
       { rewrite -!assoc. et. }
-      { eapply Mod.real_mod_add; [apply HWQP.real|apply MemI.real]. }
+      { eapply Mod.real_mod_add; [apply HWQP.real_mod|apply MemI.real]. }
       { eapply Mod.real_mod_add; et. apply SchI.real. }
     }
     rewrite !left_id -!assoc.

@@ -2,7 +2,7 @@ Require Import CRIS.
 Require Import MemHeader MemA.
 Require Import SchHeader SchA.
 Require Import HelpingHeader HelpingTactics.
-Require Export StackHeader.
+Require Export StackHeader Atomic.
 
 Class stackG (jobID retID : Type) `{!crisG Γ Σ α β τ _S _I} := StackG {
   stack_tokG :: inG (exclR unitO) Γ;
@@ -17,7 +17,7 @@ Proof. solve_inG. Defined.
 Hint Unfold subG_stackG stack_tokG stack_stateG : GRA_index.
 
 Section definitions.
-  Definition jobID : Type := nat * nat * (nat * val * val * gname).
+  Definition jobID : Type := val * gname.
   Definition retID : Type := val.
   Context `{!crisG Γ Σ α β τ _S _I, !memGS, !stackG jobID retID, !schGS}.
   Context (N : namespace).
@@ -25,15 +25,11 @@ Section definitions.
   Definition offerN := N .@ "offer".
   Definition stackN := N .@ "stack".
 
-  Definition stack_content (γs : gname) (l : list (leibnizO val)) : iProp Σ :=
-    (own γs (◯ Excl' l))%I.
+  Definition stack_content (γs : gname) (l : list (leibnizO val)) : iProp Σ := own γs (◯ Excl' l).
 
   Lemma stack_content_exclusive γs l1 l2 :
     stack_content γs l1 -∗ stack_content γs l2 -∗ False.
-  Proof.
-    iIntros "Hl1 Hl2".
-    iCombine "Hl1 Hl2" gives %[]%auth_frag_op_valid_1.
-  Qed.
+  Proof. iIntros "Hl1 Hl2". iCombine "Hl1 Hl2" gives %[]%auth_frag_op_valid_1. Qed.
 
   Fixpoint syn_list_inv (l : list val) (rep : val) (n : nat) : GTerm.t n :=
     match l with
@@ -51,7 +47,7 @@ Section definitions.
         (blk, ofs) ↦{q0} v ∗ (blk, ofs + 1)%Z ↦{q1} rep' ∗ list_inv l rep' n
     end%I.
 
-  Global Instance list_inv_SLRed l n rep : SLRed n (syn_list_inv l rep n) (list_inv l rep n).
+  Global Instance list_inv_SLRed n l rep : SLRed n (syn_list_inv l rep n) (list_inv l rep n).
   Proof. revert n rep; induction l; i; solve_sl_red. Qed.
   Local Hint Extern 0 (environments.envs_entails _ (list_inv (_::_) _)) => simpl : core.
 
@@ -89,7 +85,7 @@ Section definitions.
     (∃ (offerst : τ{Z}),
       (offer.1, offer.2 + 1)%Z ↦ Vint offerst ∗
       if (decide (offerst = 0%Z))
-      then offer ↦ jid.2.1.2 ∗ syn_helping_token n rid jid
+      then offer ↦ jid.1 ∗ syn_helping_token n rid jid
       else if (decide (offerst = 1)) then syn_helping_done n rid Vundef
       else if (decide (offerst = 2)) then sown γo (Excl ())
       else ⌜False⌝)%SAT.
@@ -97,7 +93,7 @@ Section definitions.
     (∃ (offerst : Z),
       (offer.1, offer.2 + 1)%Z ↦ Vint offerst ∗
       if (decide (offerst = 0%Z))
-      then offer ↦ jid.2.1.2 ∗ helping_token rid jid
+      then offer ↦ jid.1 ∗ helping_token rid jid
       else if (decide (offerst = 1)) then helping_done rid Vundef
       else if (decide (offerst = 2)) then own γo (Excl ())
       else ⌜False⌝)%I.
@@ -110,7 +106,7 @@ Section definitions.
     | Vptr (offerb, offerofs) => 
       ∃ (γo : τ{gname}) (jid : τ{jobID}) (rid : τ{nat}),
         syn_inv offerN (syn_offer_inv n γo (offerb, offerofs) rid jid)
-        ∗ ⌜jid.2.2 = γs⌝
+        ∗ ⌜jid.2 = γs⌝
     | Vint 0 => ⌜True⌝
     | _ => ⌜False⌝
     end%SAT.
@@ -130,28 +126,10 @@ Section definitions.
   Global Instance SLRed_is_stack γs s n :
     SLRed n (syn_is_stack γs s n) (is_stack γs s n).
   Proof. solve_sl_red. Qed.
-
-  Definition new_stack_spec : fspec :=
-    fspec_sch (↑N)
-      (fspec_simple (λ n : nat,
-        ((λ arg, ∃ (v : list val), ⌜arg = v↑⌝),
-         (λ ret, ∃ v γs, ⌜ret = v↑⌝ ∗ is_stack γs v n ∗ stack_content γs []))%I)).
-
-  Definition push_spec : fspec :=
-    fspec_sch (↑N)
-      (fspec_simple (λ '((n, s, v, γs) : nat * val * val * gname),
-        ((λ arg, ⌜arg = [s; v]↑⌝ ∗ is_stack γs s n),
-         (λ ret, ⌜ret = Vundef↑⌝))))%I.
-
-  Definition pop_spec : fspec :=
-    fspec_sch (↑N)
-      (fspec_simple (λ '((n, s, γs) : nat * val * gname),
-        ((λ arg, ⌜arg = [s]↑⌝ ∗ is_stack γs s n),
-         (λ ret, True))))%I.
 End definitions.
 
 Module StackM. Section StackM.
-  Definition jobID : Type := nat * nat * (nat * val * val * gname).
+  Definition jobID : Type := val * gname.
   Definition retID : Type := val.
 
   Context `{!crisG Γ Σ α β τ _S _I, !schGS, !memGS, !stackG jobID retID}.
@@ -160,32 +138,33 @@ Module StackM. Section StackM.
   (* Module definitions *)
   Definition scopes : list string := [].
 
-  Definition jobCode : jobID → itree crisE retID :=
-    λ '(_, _, (_, _, v, γs)),
-      l <- trigger (Take (list (leibnizO val)));;
-      trigger (Assume (stack_content γs l));;;
-      trigger (Guarantee (stack_content γs (v :: l)));;;
-      Ret Vundef.
+  Definition jobCode : jobID → itree crisE retID := λ '(v, γs),
+    l <- trigger (Take (list valO));;
+    trigger (Assume (stack_content γs l));;;
+    trigger (Guarantee (stack_content γs (v :: l)));;;
+    Ret Vundef.
 
-  Definition new_stack : list val → itree crisE val :=
-    λ _, 𝒴;;; trigger (Choose val).
+  Definition new_stack : fbody := λ arg,
+    {{{ ∀∀ n, ∃ (v : list val), ⌜arg = v↑⌝ }}}
+      𝒴;;; trigger (Choose (Any.t * ()))
+    {{{ RET ret, ∃ v γs, ⌜ret = v↑⌝ ∗ is_stack N γs v n ∗ stack_content γs [] }}} @ N.
 
-  Definition push : Any.t → itree crisE Any.t :=
-    atomic_body (push_spec N) (λ x _, trigger (Call (Helping.run mn) x↑)).
-
-  Definition pop : Any.t → itree crisE Any.t :=
-    atomic_body (pop_spec N)
-      (λ x _,
-        'b : _ <- trigger (Choose bool);;
-        (if b : bool then trigger (Call (Helping.help mn) ()↑) else Ret ()↑);;;
-        l <- trigger (Take (list (leibnizO val)));;
-        trigger (Assume (stack_content x.2.2 l));;;
-        trigger (Guarantee (stack_content x.2.2 (tail l)));;;
-        let vret := match l with | v :: _ => v | _ => Vundef end in
-        Ret (vret↑)).
+  Definition push : fbody := λ arg,
+    {{{ ∀∀ '((v, γs) : val * gname), ∃ (s : val), ⌜arg = [s; v]↑⌝ ∗ ∃ (n : nat), is_stack N γs s n }}}
+      trigger (Call (Helping.run mn) (v, γs)↑);;; Ret (Vundef↑, ())
+    {{{ emp }}} @ N.
+    
+  Definition pop : fbody := λ arg,
+    {{{ ∀∀ γs, ∃ (s : val), ⌜arg = [s]↑⌝ ∗ ∃ n, is_stack N γs s n }}}
+      𝒴;;;
+        'b : bool <- trigger (Choose bool);;
+        (if b then trigger (Call (Helping.help mn) ()↑) else Ret ()↑);;;
+        <<{ ∀∀ l, stack_content γs l,
+          match l with [] => stack_content γs [] | v :: l => stack_content γs l end }>>
+    {{{ ∀∀ l, RET ret, ⌜ret = match l with [] => Vundef | v :: l => v end↑⌝ }}} @ N.
 
   Definition fnsems : fnsemmap :=
-    {[fid StackHdr.new_stack # (msk_scp scopes msk_true, (fsp_some (new_stack_spec N), cfunU new_stack));
+    {[fid StackHdr.new_stack # (msk_scp scopes msk_true, (None, new_stack));
       fid StackHdr.push # (msk_scp scopes msk_true, (None, push));
       fid StackHdr.pop # (msk_scp scopes msk_true, (None, pop))]}.
 
@@ -206,28 +185,24 @@ Module StackA. Section StackA.
   (* Module definitions *)
   Definition scopes : list string := [].
 
-  Definition new_stack : list val → itree crisE val :=
-    λ _, 𝒴;;; trigger (Choose val).
+  Definition new_stack : fbody := λ arg,
+    {{{ ∀∀ n, ∃ (v : list val), ⌜arg = v↑⌝ }}}
+      𝒴;;; trigger (Choose (Any.t * ()))
+    {{{ RET ret, ∃ v γs, ⌜ret = v↑⌝ ∗ is_stack N γs v n ∗ stack_content γs [] }}} @ N.
 
-  Definition push : Any.t → itree crisE Any.t :=
-    atomic_body (push_spec N)
-      (λ '(_, _, (_, _, v, γs)) _,
-        l <- trigger (Take (list (leibnizO val)));;
-        trigger (Assume (stack_content γs l));;;
-        trigger (Guarantee (stack_content γs (v :: l)));;;
-        Ret Vundef↑).
+  Definition push : fbody := λ arg,
+    {{{ ∀∀ '((v, γs) : val * gname), ∃ (s : val), ⌜arg = [s; v]↑⌝ ∗ ∃ (n : nat), is_stack N γs s n }}}
+      <<{ ∀∀ l, stack_content γs l, stack_content γs (v :: l) }>>
+    {{{ RET ret, ⌜ret = Vundef↑⌝ }}} @ N.
 
-  Definition pop : Any.t → itree crisE Any.t :=
-    atomic_body (pop_spec N)
-      (λ '(_, _, (_, γs)) _, 
-        l <- trigger (Take (list (leibnizO val)));;
-        trigger (Assume (stack_content γs l));;;
-        trigger (Guarantee (stack_content γs (tail l)));;;
-        let vret := match l with | v :: _ => v | _ => Vundef end in
-        Ret (vret↑)).
+  Definition pop : fbody := λ arg,
+    {{{ ∀∀ γs, ∃ (s : val), ⌜arg = [s]↑⌝ ∗ ∃ n, is_stack N γs s n }}}
+      <<{ ∀∀ l, stack_content γs l,
+        match l with [] => stack_content γs [] | v :: l => stack_content γs l end }>>
+    {{{ ∀∀ l, RET ret, ⌜ret = match l with [] => Vundef | v :: l => v end↑⌝ }}} @ N.
 
   Definition fnsems : fnsemmap :=
-    {[fid StackHdr.new_stack # (msk_scp scopes msk_true, (fsp_some (new_stack_spec N), cfunU new_stack));
+    {[fid StackHdr.new_stack # (msk_scp scopes msk_true, (None, new_stack));
       fid StackHdr.push # (msk_scp scopes msk_true, (None, push));
       fid StackHdr.pop # (msk_scp scopes msk_true, (None, pop))]}.
 

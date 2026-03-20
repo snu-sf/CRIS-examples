@@ -15,18 +15,22 @@ End RA.
 Module ClientA. Section ClientA.
   Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !incrG}.
 
-  Definition N_main N : namespace := (N .@ ClientHdr.thread).
-
   Definition counter γ q (v : Z) : iProp Σ := own γ (◯F{q} v).
   Definition counter_syn {n} γ q (v : Z) : GTerm.t n := sown γ (◯F{q} v).
   Definition counter_auth γ (v : Z) : iProp Σ := own γ (●F v).
 
-  Definition ccounter_syn n γ bofs : GTerm.t n :=
+  Definition syn_ccounter {n} γ bofs : GTerm.t n :=
     (∃ v : τ{Z, n},
       bofs ↦ Vint v ∗
       sown γ (frac_auth_auth v))%SAT.
+  Definition ccounter γ bofs : iProp Σ :=
+    (∃ v : Z,
+      bofs ↦ Vint v ∗
+      own γ (frac_auth_auth v))%I.
+  Global Instance slred_ccounter n γ bofs : SLRed n (syn_ccounter γ bofs) (ccounter γ bofs).
+  Proof. solve_sl_red. Qed.
 
-  Definition incr_inv n N γ bofs : iProp Σ := inv n (N_main N) (ccounter_syn n γ bofs).
+  Definition incr_inv n N γ bofs : iProp Σ := inv n (N .@ "client") (syn_ccounter γ bofs).
 
   (* rules *)
   Lemma counter_op γ v1 q1 v2 q2 :
@@ -49,10 +53,8 @@ Module ClientA. Section ClientA.
           ⌜varg = ([Vptr bofs]↑↑)↑ ∧ arg = varg⌝ ∗ counter γ (1/2) v ∗ incr_inv 0 N γ bofs)
         (λ '(bofs, v, γ) vret ret, ⌜vret = (tt↑↑)↑ ∧ ret = vret⌝ ∗ counter γ (1/2) (v + 2)))%I.
 
-  (* Definition init_cond E : iProp Σ := winv (E, E) ∗ Tid 0 0. *)
-
   Definition sp N : specmap :=
-    {[fid ClientHdr.thread @ incr_spec N]}.
+    {[fid ClientHdr.thread @ incr_spec (N)]}.
 
   (* Module definition *)
   Definition scopes : list string := [].

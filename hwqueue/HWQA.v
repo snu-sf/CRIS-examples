@@ -1,4 +1,4 @@
-Require Export CRIS ImpPrelude HWQHeader SchHeader MemHeader ProphecyHeader HelpingHeader.
+Require Export CRIS Atomic ImpPrelude HWQHeader SchHeader MemHeader ProphecyHeader HelpingHeader.
 Require Export CallFilter MemA SchA ProphecyA.
 Require Export HWQRA.
 Require Import MemI MemIAproof MemTactics.
@@ -14,47 +14,25 @@ Module HWQA. Section HWQA.
 
   Definition scopes : list string := [].
 
-  Definition new_queue : list val → itree crisE val :=
-    λ _, 𝒴;;; trigger (Choose val).
+  Definition new_queue : fbody := λ arg,
+    {{{ ∀∀ '((n, sz) : nat * nat), ⌜arg = [Vint sz]↑ ∧ 0 < 8 * (2 + sz) < modulus_64⌝%Z }}}
+      𝒴;;; trigger (Choose (Any.t * ()))
+    {{{ RET ret, ∃ q γq, ⌜ret = q↑⌝ ∗ is_hwq N n sz γq q ∗ hwq_cont γq [] }}} @ N.
 
-  Definition new_queue_spec : fspec :=
-    fspec_sch (↑N)
-      (fspec_simple (λ '((n, sz) : nat * nat),
-        ((λ arg, ⌜arg = [Vint sz]↑ ∧ 0 < 8 * (2 + sz) < Z.to_nat modulus_64⌝),
-         (λ ret, ∃ (q : val) (γq : gname), ⌜ret = (q↑)⌝ ∗ is_hwq N n sz γq q ∗ hwq_cont γq []))))%I.
+  Definition enqueue : fbody := λ arg,
+    {{{ ∀∀ '((γq, l) : gname * val),
+        ∃ blk ofs q n sz, ⌜arg = [q; l]↑ ∧ l = Vptr (blk, ofs)⌝ ∗ is_hwq N n sz γq q ∗ ∃ v, (blk, ofs) ↦ v }}}
+      <<{ ∀∀ (ls : list valO), hwq_cont γq ls, hwq_cont γq (ls ++ [l]) }>>
+    {{{ emp }}} @ N.
 
-  Definition enqueue_spec : fspec :=
-    fspec_sch (↑N)
-      (fspec_simple (λ '((n, sz, γq, q, l) : nat * nat * gname * val * val),
-        ((λ arg, ∃ blk ofs, ⌜l = Vptr (blk, ofs) ∧ arg = [q; l]↑⌝ ∗
-          is_hwq N n sz γq q ∗ ∃ v, (blk, ofs) ↦ v),
-         (λ ret, True))))%I.
-
-  Definition dequeue_spec : fspec :=
-    fspec_sch (↑N)
-      (fspec_simple (λ '((n, sz, γq, q) : nat * nat * gname * val),
-        ((λ arg, ⌜arg = [q]↑⌝ ∗ is_hwq N n sz γq q),
-         (λ ret, True))))%I.
-
-  Definition enqueue : Any.t → itree crisE Any.t :=
-    atomic_body enqueue_spec
-      (λ '(_, (_, γq, _, l)) _,
-        ls <- trigger (Take (list valO));;
-        trigger (Assume (hwq_cont γq ls));;;
-        trigger (Guarantee (hwq_cont γq (ls ++ [l])));;;
-        Ret Vundef↑).
-
-  Definition dequeue : Any.t → itree crisE Any.t :=
-    atomic_body dequeue_spec
-      (λ '(_, (_, γq, _)) _, 
-        ls <- trigger (Take (list valO));;
-        trigger (Assume (hwq_cont γq ls));;;
-        l <- trigger (Choose valO);;
-        trigger (Guarantee (∃ ls', ⌜ls = l :: ls'⌝ ∗ hwq_cont γq ls'));;;
-        Ret (l↑)).
+  Definition dequeue : fbody := λ arg,
+    {{{ ∀∀ (γq : gname),
+        ∃ q n sz, ⌜arg = [q]↑⌝ ∗ is_hwq N n sz γq q }}}
+      <<{ ∀∀ (ls : list valO), hwq_cont γq ls, ∃∃ ret, ∃ l ls', ⌜ret = l↑ ∧ ls = l :: ls'⌝ ∗ hwq_cont γq ls' }>>
+    {{{ emp }}} @ N.
 
   Definition fnsems : fnsemmap :=
-    {[fid HWQHdr.new_queue # (msk_scp scopes msk_true, (fsp_some new_queue_spec, cfunU new_queue));
+    {[fid HWQHdr.new_queue # (msk_scp scopes msk_true, (None, new_queue));
       fid HWQHdr.enqueue   # (msk_scp scopes msk_true, (None, enqueue));
       fid HWQHdr.dequeue   # (msk_scp scopes msk_true, (None, dequeue))]}.
 
@@ -70,7 +48,7 @@ End HWQA. End HWQA.
 
 Module HWQM. Section HWQM.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
-  Context (N : namespace) (mnh : string).
+  Context (N : namespace) (mn : string).
 
   Notation jobID := (val * gname)%type. (* idx * gname *)
   Notation retID := val.
@@ -84,30 +62,22 @@ Module HWQM. Section HWQM.
 
   Definition scopes : list string := [].
 
-  Definition enqueue : Any.t → itree crisE Any.t :=
-    atomic_body (HWQA.enqueue_spec N)
-      (λ '(_, (_, γq, _, l)) _,
-        ret <- trigger (Call (Helping.run mnh) (l, γq)↑);;
-        ITree.iter (λ _,
+  Definition enqueue : fbody := λ arg,
+    {{{ ∀∀ '((γq, l) : gname * val), ∃ blk ofs q n sz,
+        ⌜arg = [q; l]↑ ∧ l = Vptr (blk, ofs)⌝ ∗ is_hwq N n sz γq q ∗ ∃ v, (blk, ofs) ↦ v }}}
+      ret <- trigger (Call (Helping.run mn) (l, γq)↑);;
+      ITree.iter (λ _,
           'b : bool <- trigger (Choose bool);;
           if b 
-          then trigger (Call (Helping.help mnh) (()↑));;; Ret (inl ()) 
+          then trigger (Call (Helping.help mn) (()↑));;; Ret (inl ()) 
           else Ret (inr ())) ();;;
-        Ret ret).
-
-  Definition dequeue : Any.t → itree crisE Any.t :=
-    atomic_body (HWQA.dequeue_spec N)
-      (λ '(_, (_, γq, _)) _, 
-        ls <- trigger (Take (list valO));;
-        trigger (Assume (hwq_cont γq ls));;;
-        l <- trigger (Choose valO);;
-        trigger (Guarantee (∃ ls', ⌜ls = l :: ls'⌝ ∗ hwq_cont γq ls'));;;
-        Ret (l↑)).
+      𝒴;;; Ret (ret, tt)
+    {{{ emp }}} @ N.
 
   Definition fnsems : fnsemmap :=
-    {[fid HWQHdr.new_queue # (msk_scp scopes msk_true, (fsp_some (HWQA.new_queue_spec N), cfunU (HWQA.new_queue)));
+    {[fid HWQHdr.new_queue # (msk_scp scopes msk_true, (None, HWQA.new_queue N));
       fid HWQHdr.enqueue   # (msk_scp scopes msk_true, (None, enqueue));
-      fid HWQHdr.dequeue   # (msk_scp scopes msk_true, (None, dequeue))]}.
+      fid HWQHdr.dequeue   # (msk_scp scopes msk_true, (None, HWQA.dequeue N))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
@@ -118,28 +88,3 @@ Module HWQM. Section HWQM.
 
   Definition t := SMod.to_mod (SchA.sp ∅ (↑N)) Mod.
 End HWQM. End HWQM.
-
-Module HWQIAInv. Section HWQIAInv.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
-  Context (mnp mnh : string).
-  Context (N : namespace).
-
-  Definition Ist : ist_type Σ := λ st_src st_tgt,
-    (IstHelp mnh st_src st_tgt ∗
-    ∃ (X : gset val),
-      free_id (λ x, (x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type) ∗
-      [∗ set] x ∈ X,
-        □ ∃ blk ofs nx, ⌜x = Vptr (blk, ofs)⌝ ∗
-          ∀ X, helping_auth 1 X =| nx, ↑N |={↑N, ∅}=∗ ∃ v, (blk, ofs) ↦ v)%I.
-  Definition IstFull : ist_type Σ :=
-    IstProd (IstSB (Mod.scopes (HWQP.t mnp) ++ Mod.scopes (HelpingDummy.t mnh)) Ist) IstEq.
-
-  Lemma Ist_help : Ist_helping mnh IstFull.
-  Proof.
-    iIntros (??) "[% [% [% [% [[-> ->] [[%Ha [[% [[-> ->] ?]] ?]] ->]]]]]]".
-    iModIntro; iExists _, _; iFrame; iSplit; auto.
-    iIntros (?) "$ !>"; iExists _, _, _, _; repeat iSplit; eauto.
-    iPureIntro. set_solver.
-  Qed.
-  
-End HWQIAInv. End HWQIAInv.
