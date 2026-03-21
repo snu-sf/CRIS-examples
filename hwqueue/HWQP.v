@@ -171,9 +171,7 @@ Module HWQIP. Section HWQIP.
       { cStepsS; cStepsT.
         sYieldRR "IST".
         sYieldS. cStepsS.
-        iApply wsim_reset.
-        iStopProof. revert st_src; combine_quant st_tgt; eapply wsim_coind.
-        intros ??? []; iIntros "IST". destruct_quant CIH.
+        iApply wsim_reset. cCoind CIH g __ with st_src st_tgt. iIntros "IST".
         unfoldIterS; unfoldIterT.
         cStepsS; cStepsT.
         sYieldRR "IST".
@@ -198,8 +196,7 @@ Module HWQIP. Section HWQIP.
       destruct pargs as [[qblk qofs]|]; last cStepsS; ss. cStepsS; cStepsT.
       sYieldRR "IST".
       sYieldS. cStepsS.
-      iApply wsim_reset. iStopProof. revert st_src. combine_quant st_tgt.
-      eapply wsim_coind. iIntros (g _ CIH [st_tgt st_src]) "IST". destruct_quant CIH.
+      iApply wsim_reset. cCoind CIH g __ with st_src st_tgt. iIntros "IST".
       match goal with | |- context [ITree.iter ?a ?b] => set (src := a) end.
       unfoldIterS.
       match goal with | |- context [ITree.iter ?a ?b] => set (tgt := a) end.

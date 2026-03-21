@@ -199,8 +199,7 @@ Section HWQPM.
       destruct Z.ltb eqn: Hlt.
       { apply Z.ltb_lt in Hlt; lia. }
       cStepsT. sYieldIR "IST" "TID".
-      iApply wsim_reset. iStopProof. revert st_src. combine_quant st_tgt.
-      eapply wsim_coind. iIntros (? ? CIH [st_src st_tgt]) "[? [IST TID]]". destruct_quant CIH.
+      iApply wsim_reset. cCoind CIH g __ with st_src st_tgt. iIntros "[? [IST TID]]".
       aUnfoldT. cNormT. sYieldIR "IST" "TID". cByCoind CIH. iFrame.
     }
     (* We now have a reserved slot [i], which is still free. *)
