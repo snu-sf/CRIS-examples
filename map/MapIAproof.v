@@ -7,10 +7,10 @@ Module MapIA. Section MapIA.
   Lemma ctxr (sp_s sp_mem : specmap)
       (MapInSpMap : MapA.sp ⊆ sp_s) :
     ctx_refines
-      (MapA.t sp_s ★ MemA.t sp_mem, MapA.init_cond)
-      (MapI.t      ★ MemA.t sp_mem, emp%I).
+      (MapI.t      ★ MemA.t sp_mem, emp%I)
+      (MapA.t sp_s ★ MemA.t sp_mem, MapA.init_cond).
   Proof.
-    etrans; cycle 1.
+    etrans.
     { eapply MapIM.ctxr. instantiate (1:= MapM.sp); refl. }
     eapply ctxr_frameR.
     eapply MapMA.ctxr; eauto.

@@ -60,8 +60,9 @@ Section CelliocbAux.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src:
-    refines (mod_top, init_cond ∗ CelliocbA.cell 0 ∗ Cancel.init_res)%I
-            (mod_src, init_cond).
+    refines
+      (mod_src, init_cond)
+      (mod_top, init_cond ∗ CelliocbA.cell 0 ∗ Cancel.init_res)%I.
   Proof.
     eapply Cancel.cancellation; et.
     { apply SMod.cancellable_add; r; rewrite /= /MaincbA.fnsems //; mod_tac ss. }
@@ -83,7 +84,7 @@ Section CelliocbAux.
   (*SLOW*)Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_src, init_cond)%I (mod_tgt, emp%I).
+  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond)%I.
   Proof.
     eapply ctxr_refines.
     rewrite /init_cond /mod_src /smod_src /mod_tgt.
@@ -92,19 +93,19 @@ Section CelliocbAux.
     (* solve by transitivity:
       MaincbI ★ CelliocbI ⊆ MaincbI ★ CelliocbA ⊆ MaincbA ★ CelliocbA 
     *)
-    etrans; cycle 1.
+    etrans.
     { (* CelliocbI ⊆ctx CelliocbA *)
       ctxr_drop. ctxr_rotate. ctxr_drop.
       eapply main_adequacy, CelliocbIA.sim.
     }
 
-    etrans; cycle 1.
+    etrans.
     { (* MaincbI ★ CelliocbA ⊆ MaincbA *)
       ctxr_rotate. ctxr_drop. ctxr_rotate.
       eapply main_adequacy, MaincbIA.sim; eauto using sp_foo, sp_cb.
     }
 
-    etrans; cycle 1.
+    etrans.
     { (* CtxcbI ⊆ CtxcbI *)
       ctxr_rotate. ctxr_drop. refl.
     }
@@ -114,12 +115,13 @@ Section CelliocbAux.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines (mod_top, init_cond ∗ CelliocbA.cell 0 ∗ Cancel.init_res)%I
-            (mod_tgt, emp%I).
+    refines
+      (mod_tgt, emp%I)
+      (mod_top, init_cond ∗ CelliocbA.cell 0 ∗ Cancel.init_res)%I.
   Proof.
     etrans.
-    { eapply cancel_src. }
     { eapply src_tgt. }
+    { eapply cancel_src. }
   Qed.
 
   Lemma tgt_wf: Mod.wf mod_tgt.
@@ -184,8 +186,8 @@ Module CelliocbAll.
         ∀ mn, mn ∈ (SMod.scopes CtxcbI) → mn ∈ (Mod.scopes CelliocbI.t) → False),
     ∃ src_res tgt_res,
     refines_lmod
-      (Mod.to_lmod (mod_top CtxcbI) src_res)
-      (Mod.to_lmod (mod_tgt CtxcbI) tgt_res).
+      (Mod.to_lmod (mod_tgt CtxcbI) tgt_res)
+      (Mod.to_lmod (mod_top CtxcbI) src_res).
   Proof.
     apply own_admin_soundness.
     iMod cris_alloc as "[% [% [% [% ?]]]]".

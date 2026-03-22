@@ -47,6 +47,6 @@ Section ctxr.
   Context `{!crisG Γ Σ α β τ _S _I, _CANNON: !cannonGS}.
 
   Lemma ctxr (sp : specmap) :
-    ctx_refines (CannonA.t sp, CannonA.Ready) (CannonI.t, emp%I).
+    ctx_refines (CannonI.t, emp%I) (CannonA.t sp, CannonA.Ready).
   Proof using. eapply main_adequacy, sim. Qed.
 End ctxr. End CannonIA.

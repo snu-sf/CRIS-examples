@@ -174,8 +174,8 @@ Section ctxr.
     (Hrrsnode: (RRSNodeAS.sp ⊤) ⊆ sp_rrs_user)
     (Hndsnode: (NDSNodeA.sp ⊤) ⊆ sp_nds_user) :
     ctx_refines
-      (SCHMainA.t sp, emp%I)
-      (SCHMainI.t   , emp%I).
+      (SCHMainI.t   , emp%I)
+      (SCHMainA.t sp, emp%I).
   Proof using. eapply main_adequacy, (SCHMainIA.sim sp sp_sch_user sp_rrs_user sp_nds_user); eauto. Qed.
 
 End ctxr.

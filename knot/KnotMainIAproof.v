@@ -190,12 +190,12 @@ Module KnotMainIA. Section KnotMainIA.
 
   Lemma ctxr :
     ctx_refines
-      (KnotMainA.t genv sp_rec true sp
+      (KnotMainI.t genv
         ★ KnotA.t genv sp_rec sp_fun sp
         ★ MemA.t sp_mem
         ★ APCA.t sp_pure sp,
       emp%I)
-      (KnotMainI.t genv
+      (KnotMainA.t genv sp_rec true sp
         ★ KnotA.t genv sp_rec sp_fun sp
         ★ MemA.t sp_mem
         ★ APCA.t sp_pure sp,
@@ -204,8 +204,8 @@ Module KnotMainIA. Section KnotMainIA.
 
   Lemma ctxr_close :
     ctx_refines
-      (KnotMainA.t genv sp_rec false sp ★ APCC.t sp, emp%I)
-      (KnotMainA.t genv sp_rec true  sp ★ APCC.t sp, emp%I).
+      (KnotMainA.t genv sp_rec true  sp ★ APCC.t sp, emp%I)
+      (KnotMainA.t genv sp_rec false sp ★ APCC.t sp, emp%I).
   Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
     eapply main_adequacy.
     cStartModSim.

@@ -47,21 +47,21 @@ Module StackIA. Section StackIA.
   Lemma ctxr (N : namespace) (sp sp_user : specmap) :
     SchA.sp sp_user (↑N) ⊆ sp →
     ctx_refines
-      (StackA.t N sp ★ MemA.t sp ★ SchI.t, StackIM.init_cond)
-      (StackI.t      ★ MemA.t sp ★ SchI.t, emp%I).
+      (StackI.t      ★ MemA.t sp ★ SchI.t, emp%I)
+      (StackA.t N sp ★ MemA.t sp ★ SchI.t, StackIM.init_cond).
   Proof.
     intros Hsp.
-    etrans; first eapply ctxr_consequence.
+    etrans; cycle 1; first eapply ctxr_consequence.
     { instantiate (1:=(_ ∗ emp)%I); iIntros "H"; iSplitL; last done; iExact "H". }
     eapply helping_main; i; rewrite !CFilter.filter_app.
-    { rewrite (comm _ _ (HelpingOn.t _ _ _)) assoc.
-      etrans; [eapply main_adequacy, StackIM.sim|].
+    { rewrite (comm _ _ (HelpingOn.t _ _ _)) (assoc _ _ (HelpingOn.t _ _ _)).
+      etrans; [|eapply main_adequacy, StackIM.sim].
       rewrite -!assoc. ctxr_drop.
       do 2 ctxr_rotate. refl.
     }
     instantiate (1:= N); s.
 
-    etrans; cycle 1.
+    etrans.
     { do 3 ctxr_rotate. ctxr_swap. ctxr_refl. }
     rewrite (assoc _ (StackM.t _ _ _)).
 

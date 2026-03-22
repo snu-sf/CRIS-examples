@@ -239,8 +239,8 @@ Section ctx_refines.
     (SystemA.sp sp_user ⊤) ⊆ sp →
     sp.2 →
     ctx_refines
-      (SystemA.t sp_user ⊤ sp ★ PFMemA.t sp, init_cond size)
-      (SystemI.t              ★ PFMemA.t sp, emp%I).
+      (SystemI.t              ★ PFMemA.t sp, emp%I)
+      (SystemA.t sp_user ⊤ sp ★ PFMemA.t sp, init_cond size).
   Proof.
     intros ???.
     eapply main_adequacy with (Ist := (IstProd (IstSB (Mod.scopes (SystemA.t sp_user ⊤ sp)) Ist) IstEq)).

@@ -393,8 +393,8 @@ Section ctxr.
     (SystemA.sp sp_user ⊤) ⊆ sp_s →
     MPA.sp ⊆ sp_user →
     ctx_refines
-      ((MPA.t sp_s ★ SystemA.t sp_user ⊤ sp_s ★ PFMemA.t sp_s), emp%I)
-      ((MPI.t      ★ SystemA.t sp_user ⊤ sp_s ★ PFMemA.t sp_s), True%I).
+      ((MPI.t      ★ SystemA.t sp_user ⊤ sp_s ★ PFMemA.t sp_s), True%I)
+      ((MPA.t sp_s ★ SystemA.t sp_user ⊤ sp_s ★ PFMemA.t sp_s), emp%I).
   Proof using. intros ??; eapply main_adequacy, sim; eauto. Qed.
 End ctxr.
 End MPIA.

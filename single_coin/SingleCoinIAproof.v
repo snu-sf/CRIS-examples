@@ -12,11 +12,11 @@ Module SingleCoinIA. Section SingleCoinIA.
   Lemma ctxr (md : Mod.t) :
     real_mod md →
     refines
-      (CoinA ★ md, ProphecyA.initial_cond ∗ SingleCoinA.init_cond)%I
-      (CoinI ★ md, emp%I).
+      (CoinI ★ md, emp%I)
+      (CoinA ★ md, ProphecyA.initial_cond ∗ SingleCoinA.init_cond)%I.
   Proof.
     intros Hreal.
-    etrans; cycle 1.
+    etrans.
     { eapply prophecy_main with (Pm:=emp%I); eauto.
       { intros mn; eapply main_adequacy, SingleCoinIP.sim. }
       { intros mn; eapply main_adequacy, SingleCoinPA.sim. }

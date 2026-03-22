@@ -20,8 +20,9 @@ Section MutAll.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
-    refines (mod_top, emp ∗ emp ∗ Cancel.init_res)%I
-            (mod_src, emp%I).
+    refines
+      (mod_src, emp%I)
+      (mod_top, emp ∗ emp ∗ Cancel.init_res)%I.
   Proof.
     eapply Cancel.cancellation.
     { repeat apply SMod.cancellable_add; r; mod_tac ss. }
@@ -61,17 +62,17 @@ Section MutAll.
   Qed.
   
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_src, emp%I) (mod_tgt, emp%I).
+  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, emp%I).
   Proof.
     eapply ctxr_refines.
     rewrite /mod_src /mod_tgt !SMod.to_mod_add.
 
     (* abstraction of APCI to APCA *)
-    etrans; cycle 1.
+    etrans.
     { do 3 ctxr_drop. eapply APCIA.ctxr. }
 
     (* abstraction of MutF *)
-    etrans; cycle 1.
+    etrans.
     { ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
       eapply MutFIA.ctxr with (Sp:=sp) (SpPure:=sp_pure).
       { eapply apc_in_sp. }
@@ -80,7 +81,7 @@ Section MutAll.
     }
 
     (* abstraction of MutG *)
-    etrans; cycle 1.
+    etrans.
     { ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
       eapply MutGIA.ctxr with (Sp:=sp) (SpPure:=sp_pure).
       { eapply apc_in_sp. }
@@ -89,7 +90,7 @@ Section MutAll.
     }
 
     (* abstraction of MutMain *)
-    etrans; cycle 1.
+    etrans.
     { ctxr_rotate. do 2 ctxr_drop. ctxr_rotate.
       eapply MutMainIA.ctxr with (Sp:=sp) (SpPure:=sp_pure).
       { eapply apc_in_sp. }
@@ -98,7 +99,7 @@ Section MutAll.
     }
     
     (* abstraction of APCA to APCC *)
-    etrans; cycle 1.
+    etrans.
     { do 2 ctxr_rotate. ctxr_drop. eapply APCAC.ctxr.
       { eapply apc_in_sp. }
       { eapply pure_in_sp. }
@@ -113,7 +114,7 @@ Section MutAll.
     }
 
     (* elimination of pure cCall *)
-    etrans; cycle 1.
+    etrans.
     { do 2 ctxr_rotate. do 2 ctxr_drop.
       eapply MutMainIA.ctxr_close with (Sp:=sp) (SpPure:=sp_pure).
       { eapply apc_in_sp. }
@@ -121,7 +122,7 @@ Section MutAll.
       { eapply pure_in_sp. }
     }
 
-    etrans; cycle 1.
+    etrans.
     { do 2 ctxr_rotate. ctxr_swap. ctxr_rotate. ctxr_refl. }
 
     rewrite /MutMainA.t /MutFA.t /MutGA.t /APCC.t.
@@ -129,12 +130,13 @@ Section MutAll.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines (mod_top, emp ∗ emp ∗ Cancel.init_res)%I
-            (mod_tgt, emp%I).
+    refines
+      (mod_tgt, emp%I)
+      (mod_top, emp ∗ emp ∗ Cancel.init_res)%I.
   Proof.
     etrans.
-    { eapply cancel_src. }
     { eapply src_tgt. }
+    { eapply cancel_src. }
   Qed.
 
   Lemma tgt_wf : Mod.wf mod_tgt.
@@ -164,10 +166,10 @@ Module MutAll.
   Local Instance Σ : GRA := ##[Γ; invΣ].
 
   Theorem behavioral_refinement :
-    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv)
-      src_res tgt_res, refines_lmod
-      (Mod.to_lmod mod_top src_res)
-      (Mod.to_lmod mod_tgt tgt_res).
+    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) src_res tgt_res,
+      refines_lmod
+        (Mod.to_lmod mod_tgt tgt_res)
+        (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
     iMod cris_alloc as "[% [% [% [% ?]]]]".

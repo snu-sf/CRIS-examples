@@ -65,8 +65,9 @@ Section SCHMainAux.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
-    refines (mod_top, init_cond ∗ SCHMainA.init_cond ∗ Cancel.init_res)%I
-            (mod_src, init_cond).
+    refines
+      (mod_src, init_cond)      
+      (mod_top, init_cond ∗ SCHMainA.init_cond ∗ Cancel.init_res)%I.
   Proof.
     eapply Cancel.cancellation.
     { do 5 (eapply SMod.cancellable_add; r; [ctac|]). ctac. }
@@ -145,12 +146,12 @@ Section SCHMainAux.
   End SP.
 
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
+  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond).
   Proof.
     eapply ctxr_refines.
     rewrite /mod_src /mod_tgt /smod_src.
 
-    etrans; cycle 1.
+    etrans.
     { ctxr_rotate. do 7 ctxr_drop. eapply SCHMainIAproof.ctxr.
       { eapply spsch_in_sp. }
       { eapply sch_in_sp. }
@@ -160,14 +161,14 @@ Section SCHMainAux.
       { eapply ndsnode_in_sprrs. }
     }
 
-    etrans; cycle 1.
+    etrans.
     { ctxr_rotate. do 7 ctxr_drop. eapply SchIA.ctxr.
       { eapply sch_in_sp. }
       { eapply spsch_in_sp. }
       { et. }
     }
 
-    etrans; cycle 1.
+    etrans.
     { ctxr_rotate. do 7 ctxr_drop. eapply RRSIA.ctxr.
       { eapply yield_in_sp. }
       { etrans; [eapply rrs_in_spsch| eapply spsch_in_sp]. }
@@ -176,7 +177,7 @@ Section SCHMainAux.
       { et. }
     }
 
-    etrans; cycle 1.
+    etrans.
     { ctxr_rotate. do 7 ctxr_drop. eapply NDSIA.ctxr.
       { eapply yield_in_sp. }
       { etrans; [eapply nds_in_spsch| eapply spsch_in_sp]. }
@@ -185,35 +186,35 @@ Section SCHMainAux.
       { et. }
     }
 
-    etrans; cycle 1.
+    etrans.
     { do 3 ctxr_rotate. do 7 ctxr_drop. eapply MemIA.ctxr. }
 
-    etrans; cycle 1.
+    etrans.
     { ctxr_rotate. do 7 ctxr_drop. eapply MemDH.ctxr. }
     
-    etrans; cycle 1.
+    etrans.
     { do 2 ctxr_drop. do 3 (ctxr_rotate; ctxr_drop). ctxr_rotate. eapply RRSNodeIAproof.ctxr; cycle 1.
       { etrans; [eapply rrs_in_spsch|eapply spsch_in_sp]. }
       { eapply rrsnode_in_sprrs. }
       { eapply sprrs_in_sp. }
     }
 
-    etrans; cycle 1.
+    etrans.
     { do 3 ctxr_drop. do 2 ctxr_rotate. do 3 ctxr_drop. eapply NDSNodeIAproof.ctxr; cycle 1.
       { etrans; [eapply nds_in_spsch|eapply spsch_in_sp]. }
       { eapply ndsnode_in_sprrs. }
       { eapply spnds_in_sp. }
     }
 
-    etrans; cycle 1.
+    etrans.
     { do 4 ctxr_drop. ctxr_rotate. do 3 ctxr_drop. eapply elim_module. }
 
-    etrans; cycle 1.
+    etrans.
     { do 6 ctxr_drop. ctxr_rotate. ctxr_drop. eapply elim_module. }
 
     rewrite !mod_add_empty_r.
 
-    etrans; cycle 1.
+    etrans.
     { do 2 ctxr_drop. do 2 ctxr_rotate. ctxr_drop. ctxr_rotate. ctxr_refl. }
 
     rewrite /init_cond.
@@ -225,12 +226,13 @@ Section SCHMainAux.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines (mod_top, init_cond ∗ SCHMainA.init_cond ∗ Cancel.init_res)%I
-            (mod_tgt, emp%I).
+    refines
+      (mod_tgt, emp%I)
+      (mod_top, init_cond ∗ SCHMainA.init_cond ∗ Cancel.init_res)%I.
   Proof.
     etrans.
-    { eapply cancel_src. }
     { eapply src_tgt. }
+    { eapply cancel_src. }
   Qed.
 
   Ltac ttac := econs; eauto; [mod_tac|prove_nodup].
@@ -267,8 +269,8 @@ Module SCHMainAll.
       (_ : MemLib.memGS) (_ : MemA.memGS) (_ : RRSNodeA.nodeGS)
       src_res tgt_res,
     refines_lmod
-      (Mod.to_lmod mod_top src_res)
-      (Mod.to_lmod (mod_tgt csl genv) tgt_res).
+      (Mod.to_lmod (mod_tgt csl genv) tgt_res)
+      (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
     iMod cris_alloc as "[% [% [% [% ?]]]]".

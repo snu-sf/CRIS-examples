@@ -158,7 +158,7 @@ Module MemHN. Section MemHN.
 
   Lemma ctxr :
     ctx_refines
-      (NonDetMem, emp%I)
-      (HybMem, emp%I).
+      (HybMem, emp%I)
+      (NonDetMem, emp%I).
   Proof using. eapply main_adequacy, sim; eauto. Qed.
 End MemHN. End MemHN.

@@ -13,12 +13,12 @@ Module RingIA. Section RingIA.
 
   Lemma ctxr max_size (sps spt : specmap) :
     ctx_refines
-      ((RingA.t max_size sps) ★ (CtrlIA.CellG spt 0 max_size),
-       (RingA.init_cond max_size) ∗ ([∗ list] i↦x ∈ seq 0 max_size, CellA.init_cond i))%I
       ((CtrlI.t max_size)     ★ (CellIG 0 max_size),
-       emp%I).
+       emp%I)
+      ((RingA.t max_size sps) ★ (CtrlIA.CellG spt 0 max_size),
+       (RingA.init_cond max_size) ∗ ([∗ list] i↦x ∈ seq 0 max_size, CellA.init_cond i))%I.
   Proof using.
-    etrans.
+    etrans; cycle 1.
     - eapply ctxr_cond_frameR.
       eapply main_adequacy.
       apply CtrlIA.sim.
@@ -28,17 +28,17 @@ Module RingIA. Section RingIA.
       + eapply ctxr_consequence. eauto.
       + unfold CellIG, CtrlIA.CellGS, CtrlIA.CellG.
         rewrite !seq_S !map_app !mod_addL_app.
-        etrans; [|etrans]; [|apply ctxr_compose_hor|]; cycle 3.
-        * eapply ctxr_consequence.
-          i. do 2 instantiate (1:=emp%I). eauto.
+        etrans; [etrans|]; [|apply ctxr_compose_hor|]; cycle 3.
         * eapply ctxr_consequence.
           i. rewrite {1}big_sepL_app.
           iIntros "(H1 & H2)". iSplitL "H1"; [iApply "H1"|iApply "H2"].
-        * etrans; cycle 1. { apply IHmax_size. }
+        * eapply ctxr_consequence.
+          i. do 2 instantiate (1:=emp%I). eauto.
+        * etrans. { apply IHmax_size. }
           eapply ctxr_consequence.
           i. eauto.
         * s. rewrite !right_id.
-          etrans; cycle 1.
+          etrans.
           { eapply main_adequacy. eapply CellIA.sim. }
           eapply ctxr_consequence.
           i. rewrite length_seq. et.

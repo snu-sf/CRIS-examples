@@ -10,8 +10,8 @@ Module PFMemIA. Section PFMemIA.
 
   Lemma ctxr sp :
     ctx_refines
-      (PFMemA.t sp, PFMemA.init_cond)
-      (PFMemI.t PFMemA.syn [], emp%I).
+      (PFMemI.t PFMemA.syn [], emp%I)
+      (PFMemA.t sp, PFMemA.init_cond).
   Proof using.
     eapply main_adequacy with (Ist := PFMemIA.Ist).
     cStartModSim.

@@ -202,7 +202,7 @@ Module MainIA. Section MainIA.
 
   Lemma ctxr :
     ctx_refines
-      ((MainA.t N sp_s)  ★ ((LockA.t (↑N) sp_t) ★ MemA.t sp_s), emp%I)
-      ((SpinLockMainI.t) ★ ((LockA.t (↑N) sp_t) ★ MemA.t sp_s), emp%I).
+      ((SpinLockMainI.t) ★ ((LockA.t (↑N) sp_t) ★ MemA.t sp_s), emp%I)
+      ((MainA.t N sp_s)  ★ ((LockA.t (↑N) sp_t) ★ MemA.t sp_s), emp%I).
   Proof. eapply main_adequacy, sim. Qed.
 End MainIA. End MainIA.

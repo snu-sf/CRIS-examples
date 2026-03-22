@@ -105,7 +105,7 @@ Section ctxr.
     (GInPure : MutFA.SpF ⊆ SpPure)
     (PureInSp : SpPure ⊆ Sp) :
     ctx_refines
-      (MutGA.t Sp ★ APCA.t SpPure Sp, MutGA.init_cond)
-      (MutGI.t ★ APCA.t SpPure Sp, emp%I).
+      (MutGI.t ★ APCA.t SpPure Sp, emp%I)
+      (MutGA.t Sp ★ APCA.t SpPure Sp, MutGA.init_cond).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End MutGIA.

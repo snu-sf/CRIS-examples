@@ -894,7 +894,7 @@ Module MemDH. Section MemDH.
 
   Lemma ctxr :
     ctx_refines
-      (HybMem, HybMem.init_cond)
-      (DetMem, emp%I).
+      (DetMem, emp%I)
+      (HybMem, HybMem.init_cond).
   Proof using. eapply main_adequacy, sim; eauto. Qed.
 End MemDH. End MemDH.

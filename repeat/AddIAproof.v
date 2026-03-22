@@ -83,7 +83,7 @@ Module AddIA. Section AddIA.
     (* prove the IST *)
     cStep. by iSplit.
     Unshelve. et. exact (0↑).
-  (*SLOW*)Unshelve. Fail idtac. Admitted.
+  (*SLOW*)Qed.
 
   Lemma simF_add : ISim.sim_fun open AddAMod AddIMod AddA.init_cond IstFull (fid AddHdr.add).
   Proof using _crisG GEnvWF GEnvIncl APCInSpPure SpPureInSp repeatInSpPure succInSpPureFun.
@@ -141,7 +141,7 @@ Module AddIA. Section AddIA.
     iPureIntro. do 2 f_equal.
     apply add_succ_repeat_fun; et.
     Unshelve. et.
-  (*SLOW*)Unshelve. Fail idtac. Admitted.
+  (*SLOW*)Qed.
 
   Theorem sim : ISim.t open AddAMod AddIMod AddA.init_cond IstFull.
   Proof.

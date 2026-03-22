@@ -49,8 +49,9 @@ Section MainAux.
 
   (* Refinement between smod_cancel and smod_src *)
   Lemma cancel_src :
-    refines (mod_top, init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res)%I
-            (mod_src, init_cond).
+    refines
+      (mod_src, init_cond)
+      (mod_top, init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res)%I.
   Proof.
     eapply Cancel.cancellation.
     { apply SMod.cancellable_add; r; rewrite /= /MainA.fnsems /SchA.fnsems; mod_tac ss. }
@@ -65,13 +66,13 @@ Section MainAux.
   Qed.
 
   (* Refinement between smod_src and mod_tgt *)
-  Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
+  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond).
   Proof.
     apply ctxr_refines.
     rewrite /mod_src /smod_src /mod_tgt /init_cond.
 
     (* abstraction of Sch *)
-    etrans; cycle 1.
+    etrans.
     { do 3 ctxr_drop.
       eapply SchIA.ctxr.
       - apply SchInSp.
@@ -80,13 +81,13 @@ Section MainAux.
     }
 
     (* abstraction of Mem *)
-    etrans; cycle 1.
+    etrans.
     { do 3 ctxr_rotate. do 3 ctxr_drop.
       eapply MemIA.ctxr.
     }
 
     (* abstraction of SpinLock *)
-    etrans; cycle 1.
+    etrans.
     { do 2 ctxr_drop.
       eapply LockIA.ctxr; cycle 1.
       - apply SchInSp.
@@ -94,7 +95,7 @@ Section MainAux.
     }
 
     (* abstraction of SpinLockMain *)
-    etrans; cycle 1.
+    etrans.
     { ctxr_drop.
       rewrite -nclose_nroot.
       eapply MainIA.ctxr; rewrite ?nclose_nroot.
@@ -104,16 +105,16 @@ Section MainAux.
     }
 
     (* elimination of Mem *)
-    etrans; cycle 1.
+    etrans.
     { do 3 ctxr_drop. eapply elim_module. }
     rewrite right_id.
 
     (* elimination of SpinLock *)
-    etrans; cycle 1.
+    etrans.
     { do 2 ctxr_drop. eapply elim_module. }
     rewrite right_id.
 
-    etrans; cycle 1.
+    etrans.
     { ctxr_rotate. refl. }
 
     rewrite /MainA.t /SchA.t. unseal CRIS.
@@ -123,12 +124,13 @@ Section MainAux.
 
   (* source Mod ⊆ source SMod ⊆ cancelled Mod *)
   Lemma cancel_tgt :
-    refines (mod_top, init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res)%I
-            (mod_tgt, emp%I).
+    refines
+      (mod_tgt, emp%I)
+      (mod_top, init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res)%I.
   Proof.
     etrans.
-    { eapply cancel_src. }
     { eapply src_tgt. }
+    { eapply cancel_src. }
   Qed.
 
   Lemma tgt_wf : Mod.wf mod_tgt.
@@ -165,9 +167,10 @@ Module MainAll.
   (* tgt Mod ⊆ cancelled Mod *)
   Lemma behavioral_refinement :
     ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : schGS) (_ : memGS)
-      src_res tgt_res, refines_lmod
-      (Mod.to_lmod mod_top src_res)
-      (Mod.to_lmod (mod_tgt csl genv) tgt_res).
+       src_res tgt_res,
+      refines_lmod
+        (Mod.to_lmod (mod_tgt csl genv) tgt_res)
+        (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
     iMod cris_alloc as "[% [% [% [% ?]]]]".

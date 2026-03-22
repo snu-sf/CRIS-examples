@@ -113,7 +113,7 @@ Module RepeatIA. Section RepeatIA.
       cStep. by iSplit.
     }
     Unshelve. all: et. all: exact (0↑). 
-  (*SLOW*)Unshelve. Fail idtac. Admitted.
+  (*SLOW*)Qed.
 
   Lemma sim : ISim.t open RepeatAMod RepeatIMod RepeatA.init_cond IstFull.
   Proof.
@@ -132,7 +132,7 @@ Section ctxr.
         (SpPureFunInSpPure : sp_pure_fun ⊆ sp_pure)
         (repeatInSpPure: sp_pure.1 !! (fid RepeatHdr.repeat) = Some (fspec_to_rel (RepeatAS.repeat_spec sp_pure_fun ge))) :
     ctx_refines
-      ((RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I)
-      ((RepeatI.t ge)                    ★ (APCA.t sp_pure sp), emp%I).
+      ((RepeatI.t ge)                ★ (APCA.t sp_pure sp), emp%I)
+      ((RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End RepeatIA.

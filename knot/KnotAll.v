@@ -30,8 +30,9 @@ Section KnotAux.
   Local Definition init_cond : iProp Σ := KnotA.init_cond genv ∗ MemA.init_cond csl genv.
 
   Lemma cancel_src :
-    refines (mod_top, init_cond ∗ KnotA.knot_frag None ∗ Cancel.init_res)%I
-            (mod_src, init_cond).
+    refines
+      (mod_src, init_cond)
+      (mod_top, init_cond ∗ KnotA.knot_frag None ∗ Cancel.init_res)%I.
   Proof.
     eapply Cancel.cancellation.
     { repeat apply SMod.cancellable_add; r; mod_tac ss. }
@@ -44,19 +45,19 @@ Section KnotAux.
     }
   Qed.
 
-  Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
+  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond).
   Proof.
     eapply ctxr_refines.
     rewrite /mod_src /mod_tgt !SMod.to_mod_add.
 
     (* abstraction of Mem *)
-    etrans; cycle 1.
+    etrans.
     { do 3 ctxr_rotate. do 3 ctxr_drop. eapply MemIA.ctxr. }
     (* abstraction of APCI to APCA *)
-    etrans; cycle 1.
+    etrans.
     { ctxr_rotate. do 3 ctxr_drop. eapply APCIA.ctxr. }
     (* abstraction of Knot *)
-    etrans; cycle 1.
+    etrans.
     { ctxr_drop.
       eapply KnotIA.ctxr with (sp:=sp) (sp_pure:=sp_pure) (sp_rec:=sp_rec) (sp_fun:=sp_fun); eauto.
       { eapply genv_wf. }
@@ -69,7 +70,7 @@ Section KnotAux.
       }
     }
     (* abstraction of KnotMain *)
-    etrans; cycle 1.
+    etrans.
     { ctxr_norm. eapply KnotMainIA.ctxr; eauto.
       { eapply genv_wf. }
       { unfold genv. eapply incl_appr; refl. }
@@ -89,7 +90,7 @@ Section KnotAux.
       }
     }
     (* abstraction of APCA to APCC *)
-    etrans; cycle 1.
+    etrans.
     { do 2 ctxr_rotate. ctxr_drop.
       eapply APCAC.ctxr.
       { split; et.
@@ -107,7 +108,7 @@ Section KnotAux.
       }
     }
     (* elimination of pure cCall *)
-    etrans; cycle 1.
+    etrans.
     { do 3 ctxr_rotate. do 2 ctxr_drop. ctxr_rotate.
       eapply KnotMainIA.ctxr_close with (sp:=sp) (sp_pure:=sp_pure) (sp_fun:=sp_fun); eauto.
       { eapply genv_wf. }
@@ -128,11 +129,11 @@ Section KnotAux.
       }
     }
     (* elimination of mem *)
-    etrans; cycle 1.
+    etrans.
     { do 2 ctxr_rotate. do 3 ctxr_drop. eapply elim_module. }
     rewrite right_id.
 
-    etrans; cycle 1.
+    etrans.
     { ctxr_swap. ctxr_rotate. ctxr_refl. }
 
     eapply ctxr_consequence.
@@ -142,12 +143,12 @@ Section KnotAux.
 
   Lemma top_tgt :
     refines
-      (mod_top, init_cond ∗ KnotA.knot_frag None ∗ Cancel.init_res)%I
-      (mod_tgt, emp%I).
+      (mod_tgt, emp%I)
+      (mod_top, init_cond ∗ KnotA.knot_frag None ∗ Cancel.init_res)%I.
   Proof.
     etrans.
-    { eapply cancel_src. }
     { eapply src_tgt. }
+    { eapply cancel_src. }
   Qed.
 
   Lemma tgt_wf : Mod.wf mod_tgt.
@@ -180,8 +181,8 @@ Module KnotAll.
     ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : knotGS) (_ : memGS)
       src_res tgt_res,
       refines_lmod
-        (Mod.to_lmod mod_top src_res)
-        (Mod.to_lmod mod_tgt tgt_res).
+        (Mod.to_lmod mod_tgt tgt_res)
+        (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
     iMod cris_alloc as "[% [% [% [% ?]]]]".

@@ -38,8 +38,8 @@ Module HWQPM. Section HWQPM.
 
   Lemma ctxr :
     ctx_refines
-      ((HWQM ★ HelpOn)    ★ MemA ★ ProphA, helping_auth 1 ∅ ∗ free_id top1)%I
-      ((HWQP ★ HelpDummy) ★ MemA ★ ProphA, emp)%I.
+      ((HWQP ★ HelpDummy) ★ MemA ★ ProphA, emp)%I
+      ((HWQM ★ HelpOn)    ★ MemA ★ ProphA, helping_auth 1 ∅ ∗ free_id top1)%I.
   Proof.
     eapply main_adequacy with (Ist := IstFull).
     cStartModSim.
@@ -76,8 +76,8 @@ Module HWQMA. Section HWQMA.
 
   Lemma ctxr :
     ctx_refines
-      (HWQA.t N sp, emp%I)
-      (HWQM.t N mnh ★ ProphecyA.t mnp ∅ ★ HelpingOff.t mnh HWQM.jobCode (SchA.sp ∅ (↑N)), emp%I).
+      (HWQM.t N mnh ★ ProphecyA.t mnp ∅ ★ HelpingOff.t mnh HWQM.jobCode (SchA.sp ∅ (↑N)), emp%I)
+      (HWQA.t N sp, emp%I).
   Proof.
     eapply main_adequacy. instantiate (1:=λ _ _, True%I).
     cStartModSim; ss.
@@ -124,10 +124,10 @@ Module HWQIA. Section HWQIA.
     SchA.sp sp_user (↑N) ⊆ sp →
     real_mod ctx →
     refines
-      (HWQA.t N sp ★ MemA.t sp_mem   ★ SchI.t ★ ctx,
-        MemA.init_cond csl genv ∗ ProphecyA.initial_cond ∗ helping_auth 1 ∅ ∗ free_id top1)%I
       (HWQI.t      ★ MemI.t csl genv ★ SchI.t ★ ctx,
-        emp%I).
+        emp%I)
+      (HWQA.t N sp ★ MemA.t sp_mem   ★ SchI.t ★ ctx,
+        MemA.init_cond csl genv ∗ ProphecyA.initial_cond ∗ helping_auth 1 ∅ ∗ free_id top1)%I.
   Proof.
     intros Hsch Hreal.
         set (allmds := HWQA.t N sp ★ MemA.t sp_mem ★ HWQI.t ★ MemI.t csl genv ★ SchI.t ★ ctx).
@@ -135,31 +135,31 @@ Module HWQIA. Section HWQIA.
                  (maxlen (elements (get_fids (dom (Mod.fnsems allmds)))))
                  (maxlen (Mod.scopes allmds)))).
 
-    etrans; cycle 1.
+    etrans.
     { rewrite assoc.
       eapply prophecy_refines with (sz:=sz) (mdm := λ mn, HWQP.t mn ★ MemI.t csl genv).
       { intros Q. rewrite !CFilter.filter_app.
-        etrans; cycle 1.
+        etrans.
         { eapply ctxr_refines.
           ctxr_rotate. ctxr_drop. ctxr_rotate. do 2 ctxr_drop.
           rewrite HWQI.filter_prophecy. apply HWQIP.ctxr. }
         rewrite MemI.filter_prophecy.
         evar_at_last_1; [refl|f_equal]. mod_eq_solver.
       }
-      { intros Q. etrans; cycle 1.
+      { intros Q. etrans.
         { eapply ctxr_refines. do 2 ctxr_rotate. do 3 ctxr_drop. apply MemIA.ctxr. }
-        etrans; cycle 1.
+        etrans.
         { rewrite comm -assoc comm.
           eapply helping_refines
             with (mA := HWQA.t N sp ★ MemA.t sp_mem)
                  (mM := λ mnh, HWQM.t N mnh ★ MemA.t sp_mem ★ ProphecyA.t _ ∅).
-          - intros Q0 mnh. eapply ctxr_refines. etrans; cycle 1.
+          - intros Q0 mnh. eapply ctxr_refines. etrans.
             { do 2 rewrite CFilter.filter_app.
               rewrite HWQP.filter_helping MemA.filter_helping ProphecyA.filter_helping.
               do 3 ctxr_rotate. ctxr_drop. ctxr_swap. rewrite assoc. eapply HWQPM.ctxr.
             }
             evar_at_last_1; [refl|f_equal]. mod_eq_solver.
-          - intros Q0 mnh. eapply ctxr_refines. etrans; cycle 1.
+          - intros Q0 mnh. eapply ctxr_refines. etrans.
             { ctxr_rotate. ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
               eapply HWQMA.ctxr; et.
             }
@@ -170,7 +170,7 @@ Module HWQIA. Section HWQIA.
             do 3 rewrite Mod.dom_fnsems_add maxlen_get_fids_union in IN1.
             do 5 rewrite Mod.dom_fnsems_add maxlen_get_fids_union in IN2. nia.
         }
-        etrans; cycle 1.
+        etrans.
         { eapply ctxr_refines. do 2 ctxr_drop. eapply CFilter.intro_filter. }
         rewrite !left_id !assoc. refl.
       }

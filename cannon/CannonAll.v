@@ -15,8 +15,9 @@ Section CannonAux.
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
   Lemma cancel_src :
-    refines (mod_top, Ready ∗ Ball ∗ Cancel.init_res)%I
-            (mod_src, Ready)%I.
+    refines
+      (mod_src, Ready)%I
+      (mod_top, Ready ∗ Ball ∗ Cancel.init_res)%I.
   Proof.
     eapply Cancel.cancellation.
     { apply SMod.cancellable_add; r; rewrite /=; mod_tac ss. }
@@ -31,15 +32,15 @@ Section CannonAux.
   Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_src, Ready) (mod_tgt, emp%I).
+  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, Ready).
   Proof.
     eapply ctxr_refines.
     rewrite /mod_src /mod_tgt /smod_src SMod.to_mod_add.
 
-    etrans; cycle 1.
+    etrans.
     { ctxr_rotate. ctxr_drop. eapply CannonIA.ctxr. }
 
-    etrans; cycle 1.
+    etrans.
     { ctxr_rotate. ctxr_drop. eapply CannonMainIA.ctxr.
       instantiate (1:=sp). split; et.
       repeat try eapply insert_subseteq_l; last apply map_empty_subseteq.
@@ -50,12 +51,13 @@ Section CannonAux.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines (mod_top, Ready ∗ Ball ∗ Cancel.init_res)%I
-            (mod_tgt, emp%I).
+    refines
+      (mod_tgt, emp%I)
+      (mod_top, Ready ∗ Ball ∗ Cancel.init_res)%I.
   Proof.
     etrans.
-    { eapply cancel_src. }
     { eapply src_tgt. }
+    { eapply cancel_src. }
   Qed.
 
   Lemma tgt_wf : Mod.wf mod_tgt.
@@ -77,8 +79,8 @@ Module CannonAll.
     ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : cannonGS)
       src_res tgt_res,
       refines_lmod
-      (Mod.to_lmod mod_top src_res)
-      (Mod.to_lmod mod_tgt tgt_res).
+        (Mod.to_lmod mod_tgt tgt_res)
+        (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
     iMod cris_alloc as "[% [% [% [% ?]]]]".

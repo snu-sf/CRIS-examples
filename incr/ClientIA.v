@@ -176,12 +176,12 @@ Section ctxr.
     ClientA.sp N ⊆ sp_user →
     (SchA.sp sp_user (↑N)) ⊆ sp →
     ctx_refines
-      (ClientA.t N sp ★ MemA.t sp, emp%I)
-      (ClientI.t      ★ IncrA.t (N.@"a") ★ (MemA.t sp), emp%I).
+      (ClientI.t      ★ IncrA.t (N.@"a") ★ (MemA.t sp), emp%I)
+      (ClientA.t N sp ★ MemA.t sp, emp%I).
   Proof using.
-    etrans; cycle 1. { do 2 ctxr_rotate. ctxr_refl. }
+    etrans. { do 2 ctxr_rotate. ctxr_refl. }
     eset (GRP := ClientI.t ★ _).
-    etrans; cycle 1. { ctxr_rotate. ctxr_refl. }
+    etrans. { ctxr_rotate. ctxr_refl. }
     do 2 ctxr_rotate.
     eapply main_adequacy, sim; eauto.
   Qed.

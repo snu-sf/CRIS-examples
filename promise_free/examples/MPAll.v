@@ -37,9 +37,8 @@ Section MPAux.
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
     refines
-      (mod_top,
-        init_cond ∗ tview_sys_gen 1 1 0 (TView.init []) ∗ Cancel.init_res)%I
-      (mod_src, init_cond).
+      (mod_src, init_cond)
+      (mod_top, init_cond ∗ tview_sys_gen 1 1 0 (TView.init []) ∗ Cancel.init_res)%I.
   Proof.
     eapply Cancel.cancellation.
     { apply SMod.cancellable_add; last apply SMod.cancellable_add; r;
@@ -56,17 +55,17 @@ Section MPAux.
   Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_src, init_cond) (mod_tgt, emp%I).
+  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond).
   Proof.
     eapply ctxr_refines.
     rewrite /mod_src /mod_tgt /smod_src !SMod.to_mod_add.
     (* abstraction of Mem *)
-    etrans; cycle 1.
+    etrans.
     { do 2 ctxr_drop.
       eapply PFMemIA.ctxr.
     }
     (* abstraction of Sch *)
-    etrans; cycle 1.
+    etrans.
     { ctxr_drop.
       eapply SystemIA.ctxr.
       - apply UserInSp.
@@ -74,7 +73,7 @@ Section MPAux.
       - et.
     }
     (* abstraction of MP *)
-    etrans; cycle 1.
+    etrans.
     { ctxr_norm. eapply MPIA.ctxr.
       - apply SchInSp.
       - apply MainInSp.
@@ -85,12 +84,12 @@ Section MPAux.
 
   Lemma top_tgt :
     refines
-      (mod_top, init_cond ∗ tview_sys_gen 1 1 0 (TView.init []) ∗ Cancel.init_res)%I
-      (mod_tgt, emp%I).
+      (mod_tgt, emp%I)
+      (mod_top, init_cond ∗ tview_sys_gen 1 1 0 (TView.init []) ∗ Cancel.init_res)%I.
   Proof.
     etrans.
-    { eapply cancel_src. }
     { eapply src_tgt. }
+    { eapply cancel_src. }
   Qed.
 
   Ltac wf_solver :=
@@ -124,8 +123,8 @@ Module MPAll.
     ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : histGS) (_ : sysGS)
       src_res tgt_res,
         refines_lmod
-          (Mod.to_lmod mod_top src_res)
-          (Mod.to_lmod mod_tgt tgt_res).
+          (Mod.to_lmod mod_tgt tgt_res)
+          (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
     iMod cris_alloc as "[% [% [% [% ?]]]]".

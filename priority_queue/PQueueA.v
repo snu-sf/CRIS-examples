@@ -395,7 +395,7 @@ Section ctxr.
   Lemma ctxr (N : namespace) (sp_user sp : specmap) :
     SchA.sp sp_user (↑N) ⊆ sp →
     ctx_refines
-      (PQueueA.t N sp ★ StackA.t (stackN N) (SchA.sp ∅ (↑(stackN N))) ★ SchI.t ★ MemA.t sp, emp%I)
-      (PQueueI.t      ★ StackA.t (stackN N) (SchA.sp ∅ (↑(stackN N))) ★ SchI.t ★ MemA.t sp, emp%I).
+      (PQueueI.t      ★ StackA.t (stackN N) (SchA.sp ∅ (↑(stackN N))) ★ SchI.t ★ MemA.t sp, emp%I)
+      (PQueueA.t N sp ★ StackA.t (stackN N) (SchA.sp ∅ (↑(stackN N))) ★ SchI.t ★ MemA.t sp, emp%I).
   Proof. intros Hsp. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End PQueueIA.
