@@ -25,7 +25,7 @@ Lemma find_idx_red {A} (f : A -> bool) (l : list A):
     if (f hd)
     then Some (0%nat, hd)
     else
-      do (n, a) <- find_idx f tl;
+      p ← find_idx f tl; let '(n, a) := p in
       Some (S n, a)
   end.
 Proof.
@@ -51,8 +51,8 @@ Module CEnv.
   Definition load_genv (genv : GEnv.t) : t :=
     let n := List.length genv in
     {|
-      blk2id := fun blk => do '(gn, _) <- (List.nth_error genv blk); Some gn;
-      id2blk := fun id => do '(blk, _) <- find_idx (fun '(id', _) => string_dec id id') genv; Some blk
+      blk2id := fun blk => p ← (List.nth_error genv blk); let '(gn, _) := p in Some gn;
+      id2blk := fun id => p ← find_idx (fun '(id', _) => string_dec id id') genv; let '(blk, _) := p in Some blk
     |}
   .
 
@@ -60,30 +60,31 @@ Module CEnv.
         genv
         (WF : GEnv.wf genv)
     :
-      <<WF : wf (load_genv genv)>>
-  .
+      <<WF : wf (load_genv genv)>>.
   Proof.
     r in WF.
     rr. split; i; ss.
-    - uo; des_ifs.
+    - rewrite /mbind /option_bind in H |- *. des_ifs.
       + f_equal. ginduction genv; ss. i. inv WF.
-        rewrite find_idx_red in Heq1. des_ifs; ss.
-        { des_sumbool. subst. ss. clarify. }
-        des_sumbool. uo. des_ifs. destruct p. ss.
+        rewrite find_idx_red in Heq0. des_ifs; ss.
+        { destruct string_dec; ss. subst. clarify. }
+        destruct string_dec; ss. rewrite /mbind /option_bind in Heq0. des_ifs. ss.
         hexploit IHgenv; et.
       + exfalso. ginduction genv; ss. i. inv WF.
-        rewrite find_idx_red in Heq2. des_ifs; ss.
-        des_sumbool. uo. des_ifs. destruct p. ss.
+        rewrite find_idx_red in Heq0. des_ifs; ss.
+        destruct string_dec; ss. rewrite /mbind /option_bind in Heq0. des_ifs. 
         hexploit IHgenv; et.
     - ginduction genv; ss.
-      { i. uo. ss. destruct blk; ss. }
-      i. destruct a. inv WF. uo. destruct blk; ss; clarify.
-      {  rewrite find_idx_red. uo. des_ifs; des_sumbool; ss. }
+      { i. destruct blk; ss. }
+      i. destruct a. inv WF. destruct blk; ss; clarify.
+      { rewrite find_idx_red. des_ifs; ss. rewrite /mbind /option_bind.
+        des_ifs; destruct string_dec; ss. }
       hexploit IHgenv; et. i.
-      rewrite find_idx_red. uo. des_ifs; des_sumbool; ss. exfalso.
-      subst. clear - Heq1 H2. ginduction genv; ss. i.
-      rewrite find_idx_red in Heq1. des_ifs; des_sumbool; ss; et.
-      uo. des_ifs. destruct p. eapply IHgenv; et.
+      rewrite find_idx_red. rewrite /mbind /option_bind in H0 |- *. des_ifs. exfalso.
+      destruct string_dec; ss; subst.      
+      clear - Heq H2. ginduction genv; ss. i.
+      rewrite find_idx_red in Heq. des_ifs; destruct string_dec; ss; et.
+      rewrite /mbind /option_bind in Heq. des_ifs. eapply IHgenv; et.
   Qed.
 
   Definition incl_env (genv0 : GEnv.t) (genvenv : t) : Prop :=
@@ -96,10 +97,10 @@ Module CEnv.
     :
       incl_env genv0 (load_genv genv1).
   Proof.
-    ii. exploit INCL; et. i. ss. uo. des_ifs; et.
-    exfalso. clear - x0 Heq0. ginduction genv1; et.
-    i. ss. rewrite find_idx_red in Heq0. des_ifs.
-    des_sumbool. uo.  des_ifs. des; clarify.
+    ii. exploit INCL; et. i. ss. rewrite /mbind /option_bind. des_ifs; et.
+    exfalso. clear - x0 Heq. ginduction genv1; et.
+    i. ss. rewrite find_idx_red in Heq. des_ifs.
+    rewrite /mbind /option_bind in Heq. des_ifs. destruct string_dec; ss. des; clarify.
     eapply IHgenv1; et.
   Qed.
 
@@ -111,8 +112,7 @@ Module CEnv.
   Proof.
     i. cut (exists def, In (symb, def) genv).
     { i; des. eexists. eauto. }
-
-    ss. uo. des_ifs. eapply nth_error_In in Heq0. et.
+    ss. rewrite /mbind /option_bind in FIND. des_ifs. eapply nth_error_In in Heq. et.
   Qed.
 
   Lemma in_genv_in_env :
@@ -121,7 +121,7 @@ Module CEnv.
            (IN : In (symb, def) genv),
     exists blk, blk2id (load_genv genv) blk = Some symb.
   Proof.
-    i. ss. uo. eapply In_nth_error in IN. des.
+    i. ss. eapply In_nth_error in IN. des.
     eexists. rewrite ->IN. et.
   Qed.
 
@@ -134,7 +134,7 @@ Module CEnv.
     i. depgen genv. induction blk; i; ss; clarify.
     { destruct genv; ss; clarify.
       { lia. }
-      uo. destruct p. exists s. ss. }
+      destruct p. exists s. ss. }
     destruct genv; ss; clarify.
     { lia. }
     apply PeanoNat.lt_S_n in BLKRANGE. eapply IHblk; eauto.
@@ -148,14 +148,14 @@ Module CEnv.
       <<BLKRANGE : blk < Datatypes.length genv>>.
   Proof.
     intros genv. ginduction genv; i; ss; clarify.
-    uo; des_ifs. destruct p0. rewrite find_idx_red in Heq0. des_ifs.
+    rewrite /mbind /option_bind in FOUND. des_ifs. rewrite find_idx_red in Heq. des_ifs.
     { apply Nat.lt_0_succ. }
     destruct blk.
     { apply Nat.lt_0_succ. }
-    uo. des_ifs. destruct p. ss. clarify. eapply (Nat.succ_lt_mono n).
+    rewrite /mbind /option_bind in Heq. des_ifs. eapply (Nat.succ_lt_mono blk).
     eapply IHgenv; eauto.
     { r in WF. ss. apply NoDup_cons_iff in WF. des; eauto. }
-    instantiate (1:=symb). rewrite Heq0. ss.
+    instantiate (1:=symb). rewrite Heq1. ss.
   Qed.
   
 End CEnv.

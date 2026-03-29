@@ -71,9 +71,9 @@ Definition vadd (x y : val) : option val :=
   match x, y with
   | Vint n, Vint m => Some (Vint (Z.add n m))
   | Vptr (blk, ofs), Vint n =>
-    do scaled_n <- scale_int n; Some (Vptr (blk, Z.add ofs scaled_n))
+    scaled_n ← scale_int n; ret (Vptr (blk, Z.add ofs scaled_n))
   | Vint n, Vptr (blk, ofs) =>
-    do scaled_n <- scale_int n; Some (Vptr (blk, Z.add ofs scaled_n))
+    scaled_n ← scale_int n; ret (Vptr (blk, Z.add ofs scaled_n))
   | _, _ => None
   end
 .
@@ -82,7 +82,7 @@ Definition vsub (x y : val) : option val :=
   match x, y with
   | Vint n, Vint m => Some (Vint (Z.sub n m))
   | Vptr (blk, ofs), Vint n =>
-    do scaled_n <- scale_int n; Some (Vptr (blk, Z.sub ofs scaled_n))
+    scaled_n ← scale_int n; Some (Vptr (blk, Z.sub ofs scaled_n))
   | Vptr (blk1, ofs1), Vptr (blk2, ofs2) =>
     if (Nat.eqb blk1 blk2) then Some (Vint (scale_ofs (ofs1 - ofs2))) else None
   | _, _ => None

@@ -54,6 +54,7 @@ Hint Immediate rt1n_refl rt1n_trans t_step: core.
 Hint Resolve Relation_Operators.rt1n_trans: core.
 
 Global Program Instance rtc_PreOrder A (R:A -> A -> Prop): PreOrder (rtc R).
+Next Obligation. intros ? ? ? ?. induction H; et. Qed.
 
 Lemma rtc_tail A R
       (a1 a3:A)
@@ -317,5 +318,3 @@ Proof.
   { right. right. ss. }
   left. ss.
 Qed.
-
-

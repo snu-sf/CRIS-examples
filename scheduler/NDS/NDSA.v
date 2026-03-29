@@ -142,11 +142,11 @@ Module NDSA. Section NDSA.
 
     Lemma Public_Auth_Token ths tido tido' b :
       PublicAuth ths tido -∗ Public tido' b
-      -∗ ⌜ match is_some tido, b with
-         | true, true => tido = tido'
-         | true, false => tido ≠ tido'
-         | false, true => False
-         | false, false => True
+      -∗ ⌜ match tido, b with
+         | Some _, true => tido = tido'
+         | Some _, false => tido ≠ tido'
+         | None, true => False
+         | None, false => True
          end ⌝.
     Proof using.
       rewrite /PublicAuth /Public. unseal NDS.

@@ -417,9 +417,10 @@ Module MemIA. Section MemIA.
       iExists _; iSplit; ss. iPureIntro; split; ss.
       split.
       { ii. rewrite /mem_init_val /Mem.load_mem.
-        uo; des_ifs; bsimpl; des; des_sumbool; subst; ss; rewrite ?Heq0 ?Heq1 ?Heq2; des_ifs; et.
+        rewrite /mbind /option_bind.
+        des_ifs; bsimpl; des; subst; ss; rewrite ?Heq0 ?Heq1 ?Heq2; des_ifs; et.
       }
-      { intros ? ? ? H'. revert H'. rewrite /Mem.load_mem; uo; s. des_ifs.
+      { intros ? ? ? H'. revert H'. rewrite /Mem.load_mem /mbind /option_bind; s. des_ifs.
         i. inv H'. eapply lookup_lt_Some; eauto.
       }
     }

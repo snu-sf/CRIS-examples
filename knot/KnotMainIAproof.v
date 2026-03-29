@@ -70,7 +70,7 @@ Module KnotMainIA. Section KnotMainIA.
         - iPureIntro. split.
           { repeat f_equal. lia. }
           { unfold intrange_64 in *.
-            bsimpl; des; split; des_sumbool;
+            bsimpl; des; split;
             repeat destruct Z_le_gt_dec; unfold min_64, max_64, modulus_64_half in *; try nia; ss.
           }
         - iPureIntro. eexists; esplits; et. refl. 
@@ -87,7 +87,7 @@ Module KnotMainIA. Section KnotMainIA.
       { iFrame. instantiate (1:= (n - 2)). iSplit; et.
         { iPureIntro. splits; first (repeat f_equal; nia).
           { unfold intrange_64 in *.
-            bsimpl; des; split; des_sumbool; repeat destruct Z_le_gt_dec;
+            bsimpl; des; split; repeat destruct Z_le_gt_dec;
               unfold min_64, max_64, modulus_64_half in *; try nia; ss.
           }
           eexists; esplits; et. rewrite -!OrdArith.mult_from_nat -OrdArith.add_from_nat.

@@ -37,12 +37,12 @@ Module Mem.
     end.
 
   Definition valid_ptr (m0 : Mem.t) := fun '(b,ofs) =>
-    is_some (m0.(cnts) b ofs).
+    if m0.(cnts) b ofs then true else false.
 
   Definition load_mem (csl : string → bool) (genv : GEnv.t) : Mem.t :=
     Mem.mk
       (λ blk ofs,
-         do '(g, gd) <- (genv !! blk);
+         p ← (genv !! blk); let '(g, gd) := p in
          match gd↓ with
          | Some Gfun =>
            None
