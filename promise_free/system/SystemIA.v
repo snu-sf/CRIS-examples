@@ -110,7 +110,7 @@ Module SystemIA. Section SystemIA.
     unshelve (cForceS (exist _ tid_new _)).
     { ss; rewrite lookup_fmap Hnew //. }
     cStepsS. simpl_sp. rewrite ConcInGlobal. cForcesS. cStepsS.
-    iApply wsim_spawn. iIntros (nths). cStepsS. cStepsT.
+    iApply wsim_spawn. iIntros (nths). cStepsS. cForceS. cStepsS. cStepsT.
 
     iMod (own_update with "TA") as "TA".
     { eapply (gmap_view_alloc _ tid_new (DfracOwn 1) (to_agree (V, nths))); ss.

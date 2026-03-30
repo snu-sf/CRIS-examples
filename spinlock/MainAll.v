@@ -53,6 +53,7 @@ Section MainAux.
       (mod_src, init_cond)
       (mod_top, init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res)%I.
   Proof.
+    etrans. { eapply ctxr_refines, Cancel.cancellation_prepare; et; clarify. }
     eapply Cancel.cancellation.
     { apply SMod.cancellable_add; r; rewrite /= /MainA.fnsems /SchA.fnsems; mod_tac ss. }
     { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry =

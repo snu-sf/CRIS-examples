@@ -110,9 +110,10 @@ Module NDSIA. Section sim.
     cStepsS. cStepsT. simpl_sp.
     rewrite ConcInSp.
     
-    cForceS (false, pre, post). cStepsS. cForceS ((fn, tt↑↑)↑).
+    cForceS ((fn, tt↑↑)↑).
     cStepsS. iApply wsim_spawn. iIntros (stid_new).
-    cStepsS. cStepsT. iDestruct "ASM" as "Ynew".
+    cStepsS. cForceS (false, pre, post). cStepsS.
+    cStepsT. iDestruct "ASM" as "Ynew".
     set (mtid_new := 0).
 
     iMod (own_update with "JoinA") as "[JoinA JoinF]".
@@ -597,9 +598,9 @@ Module NDSIA. Section sim.
     erewrite lookup_weaken; try eapply NDSInSp; cycle 1.
     { rewrite /NDSA.sp. simpl_map. refl. }
     rewrite ConcInSp.
-    cForceS (true, user_pre, user_post). cStepsS. cForceS ((fn, farg)↑). cStepsS.
+    cForceS ((fn, farg)↑). cStepsS.
     cStepsT. iApply wsim_spawn.
-    iIntros (tid_new). cStepsS.
+    iIntros (tid_new). cStepsS. cForceS (true, user_pre, user_post). cStepsS.
     cStepsT. rewrite ?length_fmap /=. set (mtid_new := length ths).
 
     iMod (own_update with "JoinA") as "[JoinA JoinF]".

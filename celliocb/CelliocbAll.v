@@ -64,7 +64,8 @@ Section CelliocbAux.
       (mod_src, init_cond)
       (mod_top, init_cond ∗ CelliocbA.cell 0 ∗ Cancel.init_res)%I.
   Proof.
-    eapply Cancel.cancellation; et.
+    etrans. { eapply ctxr_refines, Cancel.cancellation_prepare; et; clarify. }
+    eapply Cancel.cancellation.
     { apply SMod.cancellable_add; r; rewrite /= /MaincbA.fnsems //; mod_tac ss. }
     { assert (Ce : SMod.fnsems CtxcbI !! entry = None).
       { eapply not_elem_of_dom. ii. eapply ctx_main_disj; eauto.

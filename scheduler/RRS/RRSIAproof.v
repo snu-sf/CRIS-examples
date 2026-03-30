@@ -94,7 +94,7 @@ Module RRSIA. Section RRSIA.
 
     cStepsT. cStepsS. simpl_sp.
     rewrite ConcInSp.
-    cForceS (false, 0, pre). cStepsS. cForcesS. cStepsS.
+    cForceS. cStepsS.
     iApply wsim_spawn. iIntros (stid_0).
 
     iCombine "RRIA RRI" as "RRIA".
@@ -116,7 +116,8 @@ Module RRSIA. Section RRSIA.
     iMod (Pending_Shot (get_stid x) with "P") as "S".
     iPoseProof (Shot_dup with "S") as "[S S']".
 
-    cStepsT. cStepsS. iDestruct "ASM" as "Y".
+    cStepsT. cStepsS. cForceS (false, 0, pre). cStepsS.
+    iDestruct "ASM" as "Y".
     cForcesS. iSplitL "PRE RRI TidF0 C PubF' Spawn".
     { iIntros "Y T W". do 5 iExists _. rewrite /Public. unseal RRS. iFrame. iPureIntro; eauto. }
 
@@ -409,8 +410,7 @@ Module RRSIA. Section RRSIA.
     erewrite lookup_weaken; try eapply RRSInSp; cycle 1.
     { rewrite /RRSAS.sp. simpl_map. refl. }
     
-    cForceS (true, mtid_new, pre).
-    cStepsS. cForceS. cStepsS. iApply wsim_spawn. iIntros (stid_new).
+    cForceS. cStepsS. iApply wsim_spawn. iIntros (stid_new).
 
     iPoseProof (rrinv_wf with "RRIA") as "%".
     iPoseProof (rrinv_match with "[RRIA RRI]") as "%"; first iFrame; subst.
@@ -433,7 +433,7 @@ Module RRSIA. Section RRSIA.
 
     iMod (Public_alloc with "PubA") as "[PubA PubF']"; eauto.
 
-    cStepsT. cStepsS.
+    cStepsT. cStepsS. cForceS (true, mtid_new, pre). cStepsS.
     cForcesS. iSplitL "PRE RRIP TidF' PubF' Spawn"; first iFrame.
     { subst mtid_new. rewrite -INVWF. iFrame. iIntros "Y T WI". iFrame. iPureIntro. esplits; eauto. eapply insert_non_empty. }
 
