@@ -7,6 +7,8 @@ Module MainAS. Section MainAS.
   Import CellioA.
   Context `{!crisG Γ Σ α β τ _S _I, _CELLIO: !cellioGS}.
 
+  Definition main : string := "Main.main".
+  
   Definition main_spec : fspec :=
     fspec_simple (fun _ : unit =>
                     ( fun arg => cell 0
@@ -20,6 +22,9 @@ Module MainA. Section MainA.
                 
   Definition scopes : list string := [].
 
+  Definition start: Any.t -> itree crisE Any.t :=
+    λ arg, trigger (Call MainAS.main arg).
+  
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
       'i: Z <- ccallU CtxHdr.input tt;;
@@ -28,7 +33,9 @@ Module MainA. Section MainA.
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=
-    {[entry # (msk_scp scopes msk_true, (fsp_some MainAS.main_spec, main))]}.
+    {[entry           # (msk_scp scopes msk_true, (fsp_some MainAS.main_spec, start));
+      fid MainAS.main # (msk_scp scopes msk_true, (fsp_some MainAS.main_spec, main))
+    ]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

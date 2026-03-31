@@ -20,7 +20,7 @@ Section KnotAux.
 
   Local Definition smod_src : SMod.t :=
     (KnotMainA.smod genv sp_rec false) ☆ (KnotA.smod genv sp_rec sp_fun) ☆ APCC.smod.
-  Local Definition sp : specmap := SMod.conc_sp_from smod_src.
+  Local Definition sp : specmap := SMod.sp_from smod_src.
   Local Definition mod_top : Mod.t := SMod.to_mod ∅ (SMod.cancel smod_src).
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
   Local Definition mod_tgt : Mod.t := KnotMainI.t genv ★ KnotI.t genv ★ MemI.t csl genv ★ APCI.t.
@@ -37,7 +37,7 @@ Section KnotAux.
     etrans. { eapply ctxr_refines, Cancel.cancellation_prepare; et; clarify. }
     eapply Cancel.cancellation.
     { repeat apply SMod.cancellable_add; r; mod_tac ss. }
-    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry =
+    { assert (Ht : (SMod.sp_from smod_src).1 !! entry =
                      fsp_some (KnotMainA.main_spec)) by mod_tac.
       eexists _, _; splits.
       { ss; exists (tt); split; refl. }

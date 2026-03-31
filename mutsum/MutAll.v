@@ -9,7 +9,7 @@ Section MutAll.
   Context `{!crisG Γ Σ α β τ Hsub Hinv}.
 
   Local Definition smod_src : SMod.t := MutMainA.smod false ☆ MutFA.smod ☆ MutGA.smod ☆ APCC.smod.
-  Local Definition sp : specmap := SMod.conc_sp_from smod_src.
+  Local Definition sp : specmap := SMod.sp_from smod_src.
 
   Local Definition smod_pure : SMod.t := MutFA.smod ☆ MutGA.smod.
   Local Definition sp_pure : specmap := MutFA.SpF ∪ MutGA.SpG.
@@ -27,7 +27,7 @@ Section MutAll.
     etrans. { eapply ctxr_refines, Cancel.cancellation_prepare; et; clarify. }
     eapply Cancel.cancellation.
     { repeat apply SMod.cancellable_add; r; mod_tac ss. }
-    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry = fsp_none) by mod_tac.
+    { assert (Ht : (SMod.sp_from smod_src).1 !! entry = fsp_none) by mod_tac.
       rewrite Ht; clear Ht.
       eexists _, _; splits.
       { ss; exists (tt); split; refl. }

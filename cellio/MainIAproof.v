@@ -8,6 +8,7 @@ Module MainIA. Section MainIA.
   Context `{!crisG Γ Σ α β τ _S _I, _CELLIO: !cellioGS}.
 
   Context (sp: specmap).
+  Context (sp_start: sp.1 !! (fid MainAS.main) = Some (MainAS.main_spec: fspec_rel)).
   Context (sp_input: sp.1 !! (fid CtxHdr.input) = None).
   Context (sp_foo: sp.1 !! (fid CtxHdr.foo) = None).
 
@@ -15,7 +16,15 @@ Module MainIA. Section MainIA.
   Local Definition MainA := (MainA.t sp).
   Local Definition IstFull := (IstProd (IstSB MainA.(Mod.scopes) IstTrue) IstEq).
 
-  Lemma simF_main : ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull entry.
+  Lemma simF_start : ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull entry.
+  Proof using sp_start.
+    cStartFunSim. unfold MainI.start, MainA.start.
+    cStepsS. rewrite sp_start. cStepsS. cForceS _q. cStepsS. cForceS arg. cStepsS.
+    cForceS. iFrame. cStepsS. cStepsT. cCall "IST". iIntros (? ? ?) "IST".
+    cStepsS. cForcesS. iSplit; et. cStepsT. cStep. iSplit; et.
+  Qed.
+  
+  Lemma simF_main : ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull (fid MainAS.main).
   Proof using sp_input sp_foo.
     cStartFunSim. unfold MainI.main, MainA.main.
 
@@ -57,10 +66,11 @@ Module MainIA. Section MainIA.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open MainA (MainI.t ★ CellioA) emp%I IstFull.
-  Proof using sp_input sp_foo.
+  Proof using sp_start sp_input sp_foo.
     cStartModSim.
     - iIntros "_". unfold IstFull, IstProd.
       iExists ∅, ∅, ∅, ∅. ss.
+    - eapply simF_start; eauto.
     - eapply simF_main; eauto.
   Qed.
 End MainIA. End MainIA.

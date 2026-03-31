@@ -11,7 +11,7 @@ Section CannonAux.
   Local Definition mod_top : Mod.t := (SMod.to_mod ∅ (SMod.cancel smod_src)).
   Local Definition mod_tgt : Mod.t := CannonI.t ★ (MainI.t 1).
   
-  Local Definition sp : specmap := SMod.conc_sp_from smod_src.
+  Local Definition sp : specmap := SMod.sp_from smod_src.
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
   Lemma cancel_src :
@@ -22,7 +22,7 @@ Section CannonAux.
     etrans. { eapply ctxr_refines, Cancel.cancellation_prepare; et; clarify. }
     eapply Cancel.cancellation.
     { apply SMod.cancellable_add; r; rewrite /=; mod_tac ss. }
-    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry = fsp_some (MainA.main_spec)).
+    { assert (Ht : (SMod.sp_from smod_src).1 !! entry = fsp_some (MainA.main_spec)).
       { mod_tac. }
       rewrite Ht; clear Ht.
       eexists _, _; splits.

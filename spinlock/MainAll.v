@@ -19,7 +19,7 @@ Section MainAux.
   Local Definition mod_tgt : Mod.t := SpinLockMainI.t ★ SpinLockI.t ★ MemI.t csl genv ★ SchI.t .
 
   (* the source sp *)
-  Local Definition sp : specmap := SMod.conc_sp_from smod_src.
+  Local Definition sp : specmap := SMod.sp_from smod_src.
   (* the source Mod *)
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
@@ -56,7 +56,7 @@ Section MainAux.
     etrans. { eapply ctxr_refines, Cancel.cancellation_prepare; et; clarify. }
     eapply Cancel.cancellation.
     { apply SMod.cancellable_add; r; rewrite /= /MainA.fnsems /SchA.fnsems; mod_tac ss. }
-    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry =
+    { assert (Ht : (SMod.sp_from smod_src).1 !! entry =
                      fsp_some (fspec_sch (↑nroot) fspec_trivial)) by mod_tac.
       rewrite Ht; clear Ht.
       eexists _, _; splits.

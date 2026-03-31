@@ -16,7 +16,7 @@ Section MPAux.
   Local Definition mod_top : Mod.t := SMod.to_mod ∅ (SMod.cancel smod_src).
   Local Definition mod_tgt : Mod.t := MPI.t ★ (SystemI.t) ★ (PFMemI.t syn []).
 
-  Local Definition sp : specmap := SMod.conc_sp_from smod_src.
+  Local Definition sp : specmap := SMod.sp_from smod_src.
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
   Local Definition SchInSp : (SystemA.sp sp_user_s ⊤) ⊆ sp.
@@ -45,7 +45,7 @@ Section MPAux.
     { apply SMod.cancellable_add; last apply SMod.cancellable_add; r;
         rewrite /= /MPA.fnsems /SystemA.fnsems /PFMemA.fnsems; mod_tac ss.
     }
-    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry =
+    { assert (Ht : (SMod.sp_from smod_src).1 !! entry =
                      fsp_some (MPA.main_spec)) by mod_tac.
       rewrite Ht; clear Ht.
       eexists _, _; splits.

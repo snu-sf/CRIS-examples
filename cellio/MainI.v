@@ -1,5 +1,5 @@
 Require Import CRIS.
-Require Import CellioHeader CtxHeader.
+From CRIS.cellio Require Import CellioHeader CellioA MainA CtxHeader.
 
 Set Implicit Arguments.
 
@@ -7,6 +7,9 @@ Module MainI. Section MainI.
   Context `{!crisG Γ Σ α β τ _S _I}.
 
   Definition scopes : list string := [].
+
+  Definition start: Any.t -> itree crisE Any.t :=
+    λ arg, trigger (Call MainAS.main arg).
 
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
@@ -17,7 +20,9 @@ Module MainI. Section MainI.
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=
-    {[entry # (msk_real (msk_scp scopes msk_true), (fsp_none, main))]}.
+    {[entry           # (msk_real (msk_scp scopes msk_true), (fsp_none, start));
+      fid MainAS.main # (msk_real (msk_scp scopes msk_true), (fsp_none, main))
+    ]}.
 
   Program Definition smod: SMod.t := {|
     SMod.scopes := scopes;
@@ -25,6 +30,6 @@ Module MainI. Section MainI.
     SMod.initial_st := ∅;
   |}.
   Solve All Obligations with mod_tac.
-  
+
   Definition t := SMod.to_mod ∅ smod.
 End MainI. End MainI.

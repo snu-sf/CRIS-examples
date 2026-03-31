@@ -41,7 +41,7 @@ Section SCHMainAux.
       ★ (MemI.t csl genv)
       ★ DetMem.t.
   
-  Local Definition sp : specmap := SMod.conc_sp_from smod_src.
+  Local Definition sp : specmap := SMod.sp_from smod_src.
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
   Local Definition init_cond : iProp Σ :=
@@ -72,7 +72,7 @@ Section SCHMainAux.
     etrans. { eapply ctxr_refines, Cancel.cancellation_prepare; et; clarify. }
     eapply Cancel.cancellation.
     { do 5 (eapply SMod.cancellable_add; r; [ctac|]). ctac. }
-    { assert (Ht : (SMod.conc_sp_from smod_src).1 !! entry =
+    { assert (Ht : (SMod.sp_from smod_src).1 !! entry =
                      fsp_some (SCHMainA.main_spec ⊤)) by mod_tac.
       rewrite Ht; clear Ht.
       exists (precond (SCHMainA.main_spec ⊤) tt), (postcond (SCHMainA.main_spec ⊤) tt); splits.
