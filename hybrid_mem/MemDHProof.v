@@ -3,7 +3,7 @@ From CRIS Require Import CRIS.
 Require Import ImpPrelude MemHdr MemLib HybridMem DetMem.
 From iris.algebra Require Import auth excl agree csum functions dfrac_agree.
 
-Local Notation _memRA := (mblock -d> Z -d> optionUR (dfrac_agreeR (optionO (leibnizO val))))%type.
+Local Notation _memRA := (Z -d> optionUR (dfrac_agreeR (optionO (leibnizO val))))%type.
 Local Notation memRA := (authUR _memRA)%type.
 
 Section RA.
@@ -11,30 +11,32 @@ Section RA.
   Context `{_MEM: !memGS}.
   
   Definition mem_wf (m0: Mem.t): Prop :=
-    forall b ofs v, m0.(Mem.cnts) b ofs = Some v -> b < m0.(Mem.nb)
+    (0 < Mem.next_loc m0)%Z
+    ∧ (forall loc v, m0.(Mem.cnts) loc = Some v -> (loc < Mem.next_loc m0)%Z)
   .
 
-  Definition mem_ra_upd mem b ofs r : _memRA :=
-    fun b0 ofs0 =>
-      if bool_decide (b = b0 ∧ ofs = ofs0) then r else mem b0 ofs0.
+  Definition mem_ra_upd (mem: _memRA) loc r : _memRA :=
+    fun loc0 =>
+      if bool_decide (loc = loc0) then r else mem loc0.
 
   Variable (mem_r: _memRA) (mem_s mem_t: Mem.t).
 
-  Definition not_allocated b ofs := 
-    mem_r b ofs = None ∧ Mem.cnts mem_s b ofs = None ∧ Mem.cnts mem_t b ofs = None.
+  Definition not_allocated loc :=
+    mem_r loc = None ∧ Mem.cnts mem_s loc = None ∧ Mem.cnts mem_t loc = None.
   
-  Definition alloc_by_spec b ofs := 
-    ∃ v, mem_r b ofs = Some (to_frac_agree 1 (Some v)) ∧ Mem.cnts mem_s b ofs = None ∧ Mem.cnts mem_t b ofs = Some v.
+  Definition alloc_by_spec loc :=
+    ∃ v, mem_r loc = Some (to_frac_agree 1 (Some v)) ∧ Mem.cnts mem_s loc = None ∧ Mem.cnts mem_t loc = Some v.
 
-  Definition alloc_by_impl b ofs := 
-    ∃ v, mem_r b ofs = None ∧ Mem.cnts mem_s b ofs = Some v ∧ Mem.cnts mem_t b ofs = Some v.
+  Definition alloc_by_impl loc :=
+    ∃ v, mem_r loc = None ∧ Mem.cnts mem_s loc = Some v ∧ Mem.cnts mem_t loc = Some v.
 
   Definition _sim_mem : Prop :=
-    ∀ b ofs, 
-      not_allocated b ofs ∨ alloc_by_spec b ofs ∨ alloc_by_impl b ofs.
+    ∀ loc,
+      not_allocated loc ∨ alloc_by_spec loc ∨ alloc_by_impl loc.
 
   Definition sim_mem : Prop :=
-    _sim_mem ∧ (∀ b ofs (OUT: b >= Mem.nb mem_t), not_allocated b ofs).
+    _sim_mem ∧ (∀ loc (OUT: (loc >= Mem.next_loc mem_t)%Z), not_allocated loc)
+             ∧ (∀ loc (OUT: (loc <= 0)%Z), not_allocated loc).
 
   Lemma mem_ra_alloc_next sz
     (WF: mem_wf mem_t)
@@ -42,8 +44,8 @@ Section RA.
     :
     mem_own mem_name (● mem_r)
     ⊢ |==>
-    mem_own mem_name ((● (mem_r ⋅ _points_to_r (Mem.nb mem_t, 0%Z) 1 (repeat Vundef sz))))
-    ∗ mem_own mem_name (((◯ _points_to_r (Mem.nb mem_t, 0%Z) 1 (repeat Vundef sz)))).
+    mem_own mem_name ((● (mem_r ⋅ _points_to_r (Mem.next_loc mem_t) 1 (repeat Vundef sz))))
+    ∗ mem_own mem_name (((◯ _points_to_r (Mem.next_loc mem_t) 1 (repeat Vundef sz)))).
   Proof using _MEM. 
     iIntros "P". rewrite -own_op.
     iApply (own_update with "P"). apply auth_update_alloc.
@@ -55,178 +57,178 @@ Section RA.
     - rewrite -H0. ii. rewrite !discrete_fun_lookup_op /_points_to_r.
       case_bool_decide as Hcase; s; cycle 1.
       { rewrite right_id. apply H. }
-      hexploit (MEM (Mem.nb mem_t) x0). destruct Hcase as [-> Hcase].  
+      hexploit (MEM x). destruct WF as [_ WF].
       unfold _sim_mem, not_allocated, alloc_by_spec, alloc_by_impl; i; subst; des; rewrite H1; try des_ifs;
       exploit WF; et. nia.
   Qed.
 
-  Lemma mem_ra_lookup b ofs q v (sz: Z) mem_t'
+  Lemma mem_ra_lookup loc nloc q v (sz: Z) mem_t'
     (SIM: sim_mem)
-    (MEM: mem_t' = Mem.mk (update (Mem.cnts mem_t) (Mem.nb mem_t) (λ ofs : Z, if bool_decide (0 <= ofs < sz)%Z then Some Vundef else None)) (S (Mem.nb mem_t)))
-    (OFS: bool_decide (0 <= ofs < sz)%Z = true)
+    (MEM: mem_t' = (Mem.alloc mem_t sz).2)
+    (NLOC: nloc = Mem.next_loc mem_t)
+    (SZ: (0 <= sz)%Z)
+    (LOC: (0 <? loc)%Z && (loc <? nloc + sz)%Z = true)
     :
-    mem_own mem_name ((● (mem_r ⋅ _points_to_r (Mem.nb mem_t, 0%Z) 1 (repeat Vundef (Z.to_nat sz))))) ∗ (b, ofs) ⤇{q} v
+    mem_own mem_name ((● (mem_r ⋅ _points_to_r (Mem.next_loc mem_t) 1 (repeat Vundef (Z.to_nat sz))))) ∗ loc ⤇{q} v
     ⊢
-    ⌜∃ v, (mem_r ⋅ _points_to_r (Mem.nb mem_t, 0%Z) 1 (repeat Vundef (Z.to_nat sz))) b ofs ≡ Some (to_frac_agree 1 (Some v)) ∧
-     Mem.cnts mem_t' b ofs = Some v⌝.
+    ⌜∃ v, (mem_r ⋅ _points_to_r (Mem.next_loc mem_t) 1 (repeat Vundef (Z.to_nat sz))) loc ≡ Some (to_frac_agree 1 (Some v)) ∧
+     Mem.cnts mem_t' loc = Some v⌝.
   Proof using.
     iIntros "P".
-    pose proof OFS as OFS_RANGE.
-    apply bool_decide_eq_true_1 in OFS_RANGE.
-    assert (SZ: Z.add 0 (Z.to_nat sz) = sz) by nia.
-    s. rewrite repeat_length !discrete_fun_lookup_op.
-    set (nb := Mem.nb mem_t).
-    destruct (dec b nb); subst; s.
+    apply andb_true_iff in LOC as [LOC_POS LOC_RANGE].
+    apply Z.ltb_lt in LOC_POS.
+    apply Z.ltb_lt in LOC_RANGE.
+    unfold _points_to_r.
+    rewrite repeat_length !discrete_fun_lookup_op.
+    destruct (loc <? nloc)%Z eqn:NL; cycle 1.
     {
-      (* b = nb*)
-      destruct SIM as [SIM NEXT]. 
-      specialize (SIM nb ofs). rewrite SZ.
-      specialize (NEXT nb ofs (ltac:(nia))).  
-      des; unfold not_allocated, alloc_by_spec, alloc_by_impl in *; des; clarify.
-      clear NEXT NEXT0 NEXT1.
-      iExists Vundef.
-      rewrite SIM right_id.
-      rewrite /update. fold nb.
-      destruct (dec nb nb); try nia.
-      rewrite nth_error_repeat; [|nia].
-      assert (BOOL: bool_decide (nb = nb ∧ (0 <= ofs < sz)%Z) = true).
-      { apply bool_decide_eq_true_2. split; [reflexivity|nia]. }
-      rewrite BOOL left_id OFS. ss.
-    }
-    (* b ≠ nb *)
-    unfold update. fold nb. 
-    destruct (dec nb b); try nia.
+      assert (NL0: (nloc <= loc)%Z) by (apply Z.ltb_ge in NL; nia).
+      assert (PTS: bool_decide (Mem.next_loc mem_t <= loc < Mem.next_loc mem_t + Z.of_nat (Z.to_nat sz))%Z = true).
+      { subst nloc. rewrite Z2Nat.id; [|nia]. apply bool_decide_eq_true_2. nia. }
+      assert (POS: bool_decide (0 < loc)%Z = true).
+      { apply bool_decide_eq_true_2. exact LOC_POS. }
+      assert (OLD: bool_decide (loc < Mem.next_loc mem_t)%Z = false).
+      { subst nloc. apply bool_decide_eq_false_2. nia. }
+      assert (NEW: bool_decide (loc < Mem.next_loc mem_t + sz)%Z = true).
+      { subst nloc. apply bool_decide_eq_true_2. nia. }
+      subst mem_t'. rewrite /Mem.alloc /= /Mem.update_cnts POS OLD NEW.
 
+      destruct SIM as [_ [NEXT _]].
+      specialize (NEXT loc (ltac:(nia))).
+      destruct NEXT as [Hnone [_ _]].
+      iPureIntro. exists Vundef.
+      rewrite Hnone.
+      rewrite PTS nth_error_repeat; [|apply Z2Nat.inj_lt; nia].
+      split; [rewrite left_id; reflexivity|reflexivity].
+    }
+
+    assert (NL0: (loc < nloc)%Z) by (apply Z.ltb_lt in NL; nia).
     rewrite -own_op.
-     
     iPoseProof (own_valid with "P") as "%WF".
     dup WF. rewrite auth_both_valid_discrete in WF. ss; des.
-    unfold included in *. des. specialize (WF b ofs). 
+    unfold included in *. des. specialize (WF loc).
     rewrite !discrete_fun_lookup_op in WF.
-    rewrite SZ in WF.
-    case_bool_decide; try nia.
-    (* destruct (dec b nb); destruct (bool_decide (0 <= ofs < sz)%Z); try nia. ss. *)
+    assert (PTS: bool_decide (Mem.next_loc mem_t <= loc < Mem.next_loc mem_t + Z.of_nat (Z.to_nat sz))%Z = false).
+    { subst nloc. rewrite Z2Nat.id; [|nia]. apply bool_decide_eq_false_2. nia. }
+    rewrite PTS right_id in WF.
     rewrite ->!discrete_fun_lookup_singleton in *.
-    rewrite right_id in WF.
-    destruct SIM as [SIM NEXT]. 
-    specialize (SIM b ofs). des; cycle 2.
-    { 
+    destruct SIM as [SIM _].
+    specialize (SIM loc). des; cycle 2.
+    {
       exfalso. unfold alloc_by_impl in SIM. des.
-      rewrite SIM in WF. destruct (z b ofs); inv WF.
-    } 
-    { 
+      rewrite SIM in WF. destruct (z loc); inv WF.
+    }
+    {
       exfalso. unfold not_allocated in SIM. des.
-      rewrite SIM in WF. destruct (z b ofs); inv WF.
+      rewrite SIM in WF. destruct (z loc); inv WF.
     }
 
     unfold alloc_by_spec in SIM. des.
     iPureIntro. exists v0.
-    assert (BOOL: bool_decide (b = nb ∧ (0 <= ofs < 0 + Z.to_nat sz)%Z) = false).
-    { rewrite SZ. apply bool_decide_eq_false_2. intros [EQ _]. subst. contradiction. }
-    rewrite BOOL right_id SIM. split; [reflexivity|].
-    rewrite /update. fold nb.
-    destruct (dec nb b); [contradiction|exact SIM1].
-
+    rewrite PTS right_id SIM. split; [reflexivity|].
+    subst mem_t' nloc. rewrite /Mem.alloc /= /Mem.update_cnts.
+    assert (POS: bool_decide (0 < loc)%Z = true).
+    { apply bool_decide_eq_true_2. exact LOC_POS. }
+    assert (OLD: bool_decide (loc < Mem.next_loc mem_t)%Z = true).
+    { apply bool_decide_eq_true_2. nia. }
+    rewrite POS OLD. exact SIM1.
   Qed.
     
 
-  Lemma mem_ra_lookup_point b ofs q v
+  Lemma mem_ra_lookup_point loc q v
     (SIM: _sim_mem)
     :
-    mem_own mem_name ((● mem_r)) ∗ (b, ofs) ⤇{q} v
+    mem_own mem_name ((● mem_r)) ∗ loc ⤇{q} v
     ⊢
-    ⌜mem_r b ofs ≡ Some (to_frac_agree 1 (Some v)) ∧ (Mem.cnts mem_t) b ofs = Some v⌝.
+    ⌜mem_r loc ≡ Some (to_frac_agree 1 (Some v)) ∧ (Mem.cnts mem_t) loc = Some v⌝.
   Proof using.
     iIntros "P". rewrite -own_op.
     iPoseProof (own_valid with "P") as "%WF".
     dup WF. rewrite auth_both_valid_discrete in WF. ss. des.
-    unfold included in *. des. specialize (WF b ofs). iris_tac.
+    unfold included in *. des. specialize (WF loc). iris_tac.
     rewrite ->!discrete_fun_lookup_singleton in *.
-    destruct (SIM b ofs); unfold not_allocated, alloc_by_spec, alloc_by_impl in *; des; rewrite H in WF; swap 2 3.
-    { destruct (z b ofs); ss; rewrite -?Some_op ?right_id in WF; inv WF. }
-    { destruct (z b ofs); ss; rewrite -?Some_op ?right_id in WF; inv WF. }
+    destruct (SIM loc); unfold not_allocated, alloc_by_spec, alloc_by_impl in *; des; rewrite H in WF; swap 2 3.
+    { destruct (z loc); ss; rewrite -?Some_op ?right_id in WF; inv WF. }
+    { destruct (z loc); ss; rewrite -?Some_op ?right_id in WF; inv WF. }
 
-    rewrite -WF. destruct (z b ofs); rr in WF; depdes WF.
+    rewrite -WF. destruct (z loc); rr in WF; depdes WF.
     - assert (EXT: to_frac_agree q (Some v) ≼ to_frac_agree 1 (Some v0)) by (rewrite H2; et).
       eapply dfrac_agree_included in EXT. des; subst. inv EXT0. et.
     - eapply to_frac_agree_inv in H2. ss. des. depdes H3. et.
   Qed.
 
-  Lemma mem_ra_lookup_list nb mem_r' mem_t' sz
+  Lemma mem_ra_lookup_list mem_r' mem_t' sz
     (SIM: sim_mem)
-    (MEM: mem_t' = Mem.mk (update (Mem.cnts mem_t) (Mem.nb mem_t) (λ ofs : Z, if bool_decide (0 <= ofs < sz)%Z then Some Vundef else None)) (S (Mem.nb mem_t)))
-    (MEMR: mem_r' = (mem_r ⋅ _points_to_r (Mem.nb mem_t, 0%Z) 1 (repeat Vundef (Z.to_nat sz))))
+    (MEM: mem_t' = (Mem.alloc mem_t sz).2)
+    (WF: mem_wf mem_t)
+    (MEMR: mem_r' = (mem_r ⋅ _points_to_r (Mem.next_loc mem_t) 1 (repeat Vundef (Z.to_nat sz))))
+    (SZ: (0 <= sz)%Z)
     :
-    (mem_own mem_name ((● mem_r')) ∗ [∗ list] i↦v ∈ repeat Vundef (Z.to_nat sz), (nb, (0 + i)%Z) ⤇ v)%I
+    (mem_own mem_name ((● mem_r')) ∗ [∗ list] i↦v ∈ repeat Vundef (Z.to_nat sz), ((Mem.next_loc mem_t) + i)%Z ⤇ v)%I
     ⊢
-    ⌜∀ ofs (OFS: bool_decide (0 <= ofs < sz)%Z = true), ∃ v, mem_r' nb ofs ≡ Some (to_frac_agree 1 (Some v)) ∧ (Mem.cnts mem_t') nb ofs = Some v⌝.
+    ⌜∀ loc (LOC: (Mem.next_loc mem_t <=? loc)%Z && (loc <? (Mem.next_loc mem_t) + sz)%Z = true), ∃ v, mem_r' loc ≡ Some (to_frac_agree 1 (Some v)) ∧ (Mem.cnts mem_t') loc = Some v⌝.
   Proof using.
-    iIntros "[P PTS] %ofs %P". rewrite MEMR.
-    pose proof P as OFS.
-    apply bool_decide_eq_true_1 in OFS.
-    (* Search ([∗ list] _ ∈ _,  _)%I. *)
-    iPoseProof (big_sepL_lookup_acc _ _ (Z.to_nat ofs) with "PTS") as "[PT PTS]".
-    { eapply lookup_nth_inbounds. rewrite repeat_length. nia. }
+    iIntros "[P PTS] %loc %P". rewrite MEMR.
+    apply andb_true_iff in P as [LOC0 LOC1].
+    apply Z.leb_le in LOC0.
+    apply Z.ltb_lt in LOC1.
+    iDestruct (big_sepL_lookup_acc _ _ (Z.to_nat (loc - (Mem.next_loc mem_t))) with "PTS") as "[PT _]".
+    { eapply lookup_nth_inbounds. rewrite repeat_length. apply Z2Nat.inj_lt; nia. }
     erewrite nth_repeat.
-    assert (OFS_EQ: (0 + Z.to_nat ofs)%Z = ofs) by nia. rewrite OFS_EQ.
-    iPoseProof (mem_ra_lookup with "[P PT]") as "%"; eauto; try iFrame.
+    assert (LOC_EQ: (Mem.next_loc mem_t + Z.to_nat (loc - Mem.next_loc mem_t) = loc)%Z) by nia.
+    rewrite LOC_EQ.
+    assert (LOC': (0 <? loc)%Z && (loc <? (Mem.next_loc mem_t) + sz)%Z = true).
+    {
+      apply andb_true_iff. split.
+      - apply Z.ltb_lt. destruct WF as [POS _]. nia.
+      - apply Z.ltb_lt. exact LOC1.
+    }
+    iPoseProof (mem_ra_lookup loc (Mem.next_loc mem_t) 1 Vundef sz mem_t' SIM MEM eq_refl SZ LOC' with "[$P $PT]") as "%Hlookup".
+    iPureIntro. exact Hlookup.
   Qed.
 
-  Lemma mem_ra_free b ofs v
+  Lemma mem_ra_free loc v
     :
-    mem_own mem_name ((● mem_r)) ∗ (b, ofs) ⤇{1} v
+    mem_own mem_name ((● mem_r)) ∗ loc ⤇{1} v
     ⊢ |==>
-    mem_own mem_name ((● mem_ra_upd mem_r b ofs None)).
+    mem_own mem_name ((● mem_ra_upd mem_r loc None)).
   Proof using _MEM.
     Local Transparent mem_points_to_singleton_r.
     iIntros "[Auth Frag]".
     iApply (own_update_2 with "Auth Frag").
     rewrite /mem_points_to_singleton_r auth_update_dealloc //=.
-    apply discrete_fun_local_update; intros b1.
-    apply discrete_fun_local_update; intros o1.
-    destruct (dec b1 b); subst.
-    - rewrite discrete_fun_lookup_singleton.
-      destruct (dec o1 ofs); subst.
-      + rewrite ?discrete_fun_lookup_singleton /mem_ra_upd.
-        case_bool_decide; [|naive_solver].
-        apply delete_option_local_update; eauto; apply _.
-      + rewrite discrete_fun_lookup_singleton_ne // /mem_ra_upd.
-        case_bool_decide; [naive_solver|ss].
-    - rewrite /mem_ra_upd. case_bool_decide; [naive_solver|].
-      rewrite discrete_fun_lookup_singleton_ne; ss; eauto.
+    apply discrete_fun_local_update; intros loc1.
+    destruct (dec loc1 loc); subst.
+    - rewrite discrete_fun_lookup_singleton /mem_ra_upd.
+      case_bool_decide; [|naive_solver].
+      apply delete_option_local_update; eauto; apply _.
+    - rewrite discrete_fun_lookup_singleton_ne // /mem_ra_upd.
+      case_bool_decide; [naive_solver|ss].
   Qed.
 
 
-  Lemma mem_ra_store v_new v b ofs
+  Lemma mem_ra_store v_new v loc
     (SIM: _sim_mem)
     :
-    mem_own mem_name ((● mem_r)) ∗ (b, ofs) ⤇{1} v
+    mem_own mem_name ((● mem_r)) ∗ loc ⤇{1} v
     ⊢ |==>
-    mem_own mem_name ((● mem_ra_upd mem_r b ofs (Some (to_frac_agree 1 (Some v_new))))) ∗ (b, ofs) ⤇{1} v_new.
+    mem_own mem_name ((● mem_ra_upd mem_r loc (Some (to_frac_agree 1 (Some v_new))))) ∗ loc ⤇{1} v_new.
   Proof using.
     Local Transparent mem_points_to_singleton_r.
     iIntros "[Auth Frag]".
-    iPoseProof ((mem_ra_lookup_point _ _ _ _ SIM) with "[Auth Frag]") as "%Hlu"; [iFrame|].
+    iPoseProof ((mem_ra_lookup_point _ _ _ SIM) with "[Auth Frag]") as "%Hlu"; [iFrame|].
     destruct Hlu as [Hpt _].
     rewrite -own_op.
     iApply (own_update_2 with "Auth Frag").
     rewrite /mem_points_to_singleton_r /= auth_update //.
-    apply discrete_fun_local_update; intros b1.
-    apply discrete_fun_local_update; intros o1.
-    destruct (dec b1 b); subst.
-    - destruct (dec o1 ofs); subst.
-      + rewrite Hpt ?discrete_fun_lookup_singleton /mem_ra_upd.
-        case_bool_decide; [|naive_solver].
-        apply option_local_update, exclusive_local_update; ss.
-      + rewrite ?discrete_fun_lookup_singleton /mem_ra_upd.
-        case_bool_decide; [naive_solver|].
-        rewrite ?discrete_fun_lookup_singleton_ne //.
-    - rewrite /mem_ra_upd.
-      case_bool_decide; [naive_solver|]; ss.
-      assert (NE: b <> b1) by congruence.
-      rewrite discrete_fun_lookup_singleton_ne; [|exact NE].
-      rewrite discrete_fun_lookup_singleton_ne; [|exact NE].
-      ss.
+    apply discrete_fun_local_update; intros loc1.
+    destruct (dec loc1 loc); subst.
+    - rewrite Hpt ?discrete_fun_lookup_singleton /mem_ra_upd.
+      case_bool_decide; [|naive_solver].
+      apply option_local_update, exclusive_local_update; ss.
+    - rewrite ?discrete_fun_lookup_singleton /mem_ra_upd.
+      case_bool_decide; [naive_solver|].
+      rewrite ?discrete_fun_lookup_singleton_ne //.
   Qed.
 
   Lemma mem_ra_cmp p0 q0 v0 p1 q1 v1 succ
@@ -237,29 +239,71 @@ Section RA.
     ⊢
     ⌜Mem.vcmp mem_t p0 p1 = Some (bool_decide (succ = 1))⌝.
   Proof using.
+    rewrite /HybMem.val_r.
     iIntros "(B & P1 & P2)".
-    destruct p0, p1; try destruct blkofs; try destruct blkofs0; ss.
-    - des_ifs.
-    - iPoseProof (mem_ra_lookup_point with "[B P2]") as "%"; et; iFrame.
-      specialize (SIM n0 z). unfold not_allocated, alloc_by_spec, alloc_by_impl in SIM; des; subst; ss.
-      + rewrite SIM in H. r in H. depdes H.
-      + rewrite SIM1. iPureIntro. des_ifs.
-      + rewrite SIM in H. r in H. depdes H. 
-    - destruct n; ss.
-    - iPoseProof (mem_ra_lookup_point with "[B P1]") as "%"; et; iFrame.
-      specialize (SIM n0 z). unfold not_allocated, alloc_by_spec, alloc_by_impl in SIM; des; subst; ss.
-      + rewrite SIM in H. rr in H. depdes H.
-      + rewrite SIM1. iPureIntro. des_ifs.
-      + rewrite SIM in H. rr in H. depdes H.
-    - iPoseProof (mem_ra_lookup_point with "[B P1]") as "%"; et; iFrame.
-      iPoseProof (mem_ra_lookup_point with "[B P2]") as "%"; et; iFrame.
-      dup SIM. specialize (SIM n z). unfold not_allocated, alloc_by_spec, alloc_by_impl in SIM; des; subst; ss; swap 2 3.
-      { rewrite SIM in H. rr in H. depdes H. }
-      { rewrite SIM in H. rr in H. depdes H. }
-      specialize (SIM0 n0 z0). unfold not_allocated, alloc_by_spec, alloc_by_impl in SIM0; des; subst; ss; swap 2 3.
-      { rewrite SIM0 in H0. rr in H0. depdes H0. }
-      { rewrite SIM0 in H0. rr in H0. depdes H0. }
-      rewrite SIM2 SIM4. s. des_ifs.
+    destruct p0 as [i0|[b0 ofs0]|];
+      destruct p1 as [i1|[b1 ofs1]|]; simpl in CMP; try discriminate.
+    - case_bool_decide as POS0; case_bool_decide as POS1.
+      + iPoseProof (mem_ra_lookup_point i0 q0 v0 SIM with "[$B $P1]") as "%HP0".
+        iPoseProof (mem_ra_lookup_point i1 q1 v1 SIM with "[$B $P2]") as "%HP1".
+        destruct HP0 as [_ HP0]. destruct HP1 as [_ HP1].
+        iPureIntro.
+        assert (VP0: Mem.valid_ptr mem_t i0 = true).
+        { rewrite /Mem.valid_ptr HP0. ss. }
+        assert (VP1: Mem.valid_ptr mem_t i1 = true).
+        { rewrite /Mem.valid_ptr HP1. ss. }
+        assert (BPOS0: bool_decide (0 < i0)%Z = true).
+        { apply bool_decide_eq_true_2. exact POS0. }
+        assert (BPOS1: bool_decide (0 < i1)%Z = true).
+        { apply bool_decide_eq_true_2. exact POS1. }
+        rewrite /Mem.vcmp.
+        rewrite BPOS0 BPOS1.
+        rewrite VP0 VP1. ss.
+        inv CMP. destruct (bool_decide (i0 = i1)); ss.
+      + case_bool_decide as NULL1.
+        * iPoseProof (mem_ra_lookup_point i0 q0 v0 SIM with "[$B $P1]") as "%HP0".
+          destruct HP0 as [_ HP0].
+          iPureIntro.
+          assert (VP0: Mem.valid_ptr mem_t i0 = true).
+          { rewrite /Mem.valid_ptr HP0. ss. }
+          assert (BPOS0: bool_decide (0 < i0)%Z = true).
+          { apply bool_decide_eq_true_2. exact POS0. }
+          assert (BPOS1: bool_decide (0 < i1)%Z = false).
+          { apply bool_decide_eq_false_2. exact POS1. }
+          assert (BNULL1: bool_decide (i1 = 0)%Z = true).
+          { apply bool_decide_eq_true_2. exact NULL1. }
+          rewrite /Mem.vcmp.
+          rewrite BPOS0 BPOS1 BNULL1.
+          rewrite VP0. ss.
+          inv CMP. ss.
+        * exfalso.
+          discriminate.
+      + case_bool_decide as NULL0.
+        * iPoseProof (mem_ra_lookup_point i1 q1 v1 SIM with "[$B $P2]") as "%HP1".
+          destruct HP1 as [_ HP1].
+          iPureIntro.
+          assert (VP1: Mem.valid_ptr mem_t i1 = true).
+          { rewrite /Mem.valid_ptr HP1. ss. }
+          assert (BPOS0: bool_decide (0 < i0)%Z = false).
+          { apply bool_decide_eq_false_2. exact POS0. }
+          assert (BPOS1: bool_decide (0 < i1)%Z = true).
+          { apply bool_decide_eq_true_2. exact POS1. }
+          assert (BNULL0: bool_decide (i0 = 0)%Z = true).
+          { apply bool_decide_eq_true_2. exact NULL0. }
+          rewrite /Mem.vcmp.
+          rewrite BPOS0 BPOS1 BNULL0.
+          rewrite VP1. ss.
+          inv CMP. ss.
+        * exfalso.
+          discriminate.
+      + iPureIntro.
+        assert (BPOS0: bool_decide (0 < i0)%Z = false).
+        { apply bool_decide_eq_false_2. exact POS0. }
+        assert (BPOS1: bool_decide (0 < i1)%Z = false).
+        { apply bool_decide_eq_false_2. exact POS1. }
+        rewrite /Mem.vcmp.
+        rewrite BPOS0 BPOS1.
+        inv CMP. destruct (bool_decide (i0 = i1)); ss.
   Qed.
 
 End RA.
@@ -271,7 +315,7 @@ Module MemDH. Section MemDH.
     λ st_src st_tgt,
       ((∃ (mem_src mem_tgt: Mem.t) (mem_res: _memRA),
       ⌜st_src = {[HybMem.v_mem #  mem_src↑]} ∧ st_tgt = {[DetMem.v_mem # mem_tgt↑]}⌝ ∗ 
-      ⌜mem_wf mem_src ∧ mem_wf mem_tgt ∧ (Mem.nb mem_src <= Mem.nb mem_tgt)⌝ ∗
+      ⌜mem_wf mem_src ∧ mem_wf mem_tgt ∧ (Mem.next_loc mem_src <= Mem.next_loc mem_tgt)%Z⌝ ∗
       ⌜sim_mem mem_res mem_src mem_tgt⌝ ∗
       ( |==> mem_own mem_name ((● mem_res)))))%I.
 
@@ -287,23 +331,31 @@ Module MemDH. Section MemDH.
     move: COMP. rewrite /HybMem.compare_val.
     destruct arg0 as [i0|[b0 ofs0]|];
       destruct arg1 as [i1|[b1 ofs1]|]; ss; try discriminate.
-    all: try (destruct i0; ss; try discriminate).
-    all: try (destruct i1; ss; try discriminate).
-    all: des_ifs; i; clarify; case_bool_decide; ss.
+    all: repeat case_bool_decide; ss; i; clarify; case_bool_decide; ss.
   Qed.
 
-  Definition mem_get (mem: _memRA) b ofs :=
-    match or_else (mem b ofs) (to_frac_agree 1 (Some Vundef)) with
+  Definition mem_get (mem: _memRA) loc :=
+    match or_else (mem loc) (to_frac_agree 1 (Some Vundef)) with
     | (_,v) => or_else (nth_error v.(agree_car) 0) (Some Vundef)
     end.
 
-  Lemma mem_get_sound mem b ofs v
-      (HIT : mem b ofs ≡ Some (to_frac_agree 1 (Some v))) :
-    mem_get mem b ofs = Some v.
+  Lemma mem_get_sound mem loc v
+      (HIT : mem loc ≡ Some (to_frac_agree 1 (Some v))) :
+    mem_get mem loc = Some v.
   Proof using.
     rr in HIT. depdes HIT. rewrite /mem_get -x. s. destruct x0.
     symmetry in H. eapply to_frac_agree_inv in H. des. ss. subst.
     rewrite H0. et.
+  Qed.
+
+  Lemma points_to_r_outside loc q vs loc0
+    (OUT: ~ (loc <= loc0 < loc + Z.of_nat (length vs))%Z) :
+    _points_to_r loc q vs loc0 = None.
+  Proof.
+    rewrite /_points_to_r.
+    assert (BOOL: bool_decide (loc <= loc0 < loc + Z.of_nat (length vs))%Z = false).
+    { apply bool_decide_eq_false_2. exact OUT. }
+    rewrite BOOL. reflexivity.
   Qed.
 
   Lemma simF_alloc : ISim.sim_fun open HybMem DetMem IstFull (fid MemHdr.alloc).
@@ -311,7 +363,7 @@ Module MemDH. Section MemDH.
     cStartFunSim. rewrite /HybMem.alloc /DetMem.alloc.
     
     iDestruct "IST" as (? ? ? ?) "(% & [% [% [% [% [% [% [%SIM >B]]]]]]] & %)". des; subst; cSimpl.
-    destruct SIM as [SIM NEXT].
+    destruct SIM as [SIM [NEXT NEG]].
     cStepsS. rewrite {1}/unwrapU. des_ifs; cycle 1.
     { cStepsS. des_ifs. }
     cStepsS. cStepsT. rewrite {1}/unwrapU. des_ifs; cycle 1.
@@ -323,58 +375,184 @@ Module MemDH. Section MemDH.
       { ss. rewrite /triggerUB. cStepsS; ss. }
       destruct SIZE as [SIZE2 SIZE3].
       cStepsS.
-      cForceS (Mem.nb mem_tgt - Mem.nb mem_src). cStepsS.
-      set (nb := Mem.nb mem_tgt).
-      replace (Mem.nb mem_src + (nb - Mem.nb mem_src)) with nb by nia.
-      assert (NB: ∀ ofs, mem_res nb ofs = None).
-      { i. destruct (NEXT nb ofs (ltac:(nia))). ss. }
+      cForceS (Z.to_nat (Mem.next_loc mem_tgt - Mem.next_loc mem_src)). cStepsS.
+      set (nloc := Mem.next_loc mem_tgt).
+      replace (Mem.next_loc mem_src + Z.of_nat (Z.to_nat (nloc - Mem.next_loc mem_src)))%Z with nloc by nia.
+      assert (NLOC: ∀ loc (LOC: (loc >= nloc)%Z), mem_res loc = None).
+      { i. destruct (NEXT loc (ltac:(nia))). ss. }
 
       cStepsT. cStep. iSplitR; [eauto|].
       iExists {[HybMem.v_mem #  _↑]}, _, st_tgtR, st_tgtR.
       instantiate (1 := {[DetMem.v_mem # _↑]}). repeat (iSplit; eauto).
-      iExists _, _, _. fold nb.  
+      iExists _, _, _. fold nloc.
       iSplitR. { iPureIntro. esplits; try refl. }
       iSplitR.
       {
-        iPureIntro. splits; ss.
-        - ii. ss. unfold update in *. des_ifs. apply H2 in H. nia.
-        - ii. ss. unfold update in *.  des_ifs. apply H4 in H. nia.
+        iPureIntro.
+        destruct H2 as [POSsrc WFsrc].
+        destruct H4 as [POStgt WFtgt].
+        assert (VSZ: (0 <= v)%Z) by nia.
+        splits; ss.
+        - split. { rewrite /Mem.alloc /Mem.mem_pad /=. nia. }
+          ii. rewrite /Mem.alloc /Mem.update_cnts /Mem.mem_pad /= in H |- *.
+          destruct (bool_decide (0 < loc)%Z) eqn:POS; ss.
+          destruct (bool_decide (loc < Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src))%Z) eqn:OLD.
+          * apply bool_decide_eq_true_1 in OLD.
+            assert (EQN: (Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src))%Z = nloc) by nia.
+            nia.
+          * destruct (bool_decide (loc < Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src) + v)%Z) eqn:NEW; ss.
+            apply bool_decide_eq_true_1 in NEW.
+            assert (EQN: (Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src))%Z = nloc) by nia.
+            nia.
+        - split. { rewrite /Mem.alloc /=. nia. }
+          ii. rewrite /Mem.alloc /Mem.update_cnts /= in H |- *.
+          destruct (bool_decide (0 < loc)%Z) eqn:POS; ss.
+          destruct (bool_decide (loc < Mem.next_loc mem_tgt)%Z) eqn:OLD.
+          * apply bool_decide_eq_true_1 in OLD. nia.
+          * destruct (bool_decide (loc < Mem.next_loc mem_tgt + v)%Z) eqn:NEW; ss.
+            apply bool_decide_eq_true_1 in NEW. nia.
+        - nia.
       }
       iFrame. iSplitL; eauto.
       iSplitL; cycle 1.
       {
-        iPureIntro. i. unfold update, not_allocated. ss.
-        destruct (dec nb b); try nia.
-        eapply NEXT; nia.
+        iSplitL.
+        {
+          iPureIntro. intros loc OUT.
+          cbn in OUT.
+          unfold not_allocated in *.
+          specialize (NEXT loc (ltac:(nia))).
+          destruct NEXT as [Hra [Hsrc Htgt]].
+          split; [exact Hra|]. split.
+          - rewrite /Mem.alloc /= /Mem.update_cnts /Mem.mem_pad. cbn.
+            destruct (bool_decide (0 < loc)%Z) eqn:POS; [|reflexivity].
+            destruct (bool_decide (loc < Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src))%Z) eqn:OLD.
+            { apply bool_decide_eq_true_1 in OLD. nia. }
+            destruct (bool_decide (loc < Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src) + v)%Z) eqn:NEW.
+            { apply bool_decide_eq_true_1 in NEW. nia. }
+            reflexivity.
+          - rewrite /Mem.alloc /= /Mem.update_cnts. cbn.
+            destruct (bool_decide (0 < loc)%Z) eqn:POS; [|reflexivity].
+            destruct (bool_decide (loc < Mem.next_loc mem_tgt)%Z) eqn:OLD.
+            { apply bool_decide_eq_true_1 in OLD. nia. }
+            destruct (bool_decide (loc < Mem.next_loc mem_tgt + v)%Z) eqn:NEW.
+            { apply bool_decide_eq_true_1 in NEW. nia. }
+            reflexivity.
+        }
+        {
+          iPureIntro. intros loc OUT.
+          unfold not_allocated in *.
+          specialize (NEG loc (ltac:(nia))).
+          destruct NEG as [Hra [Hsrc Htgt]].
+          split; [exact Hra|]. split.
+          - rewrite /Mem.alloc /= /Mem.update_cnts /Mem.mem_pad. cbn.
+            assert (POS: bool_decide (0 < loc)%Z = false).
+            { apply bool_decide_eq_false_2. nia. }
+            rewrite POS. reflexivity.
+          - rewrite /Mem.alloc /= /Mem.update_cnts. cbn.
+            assert (POS: bool_decide (0 < loc)%Z = false).
+            { apply bool_decide_eq_false_2. nia. }
+            rewrite POS. reflexivity.
+        }
       }
 
-      iIntros "%b %ofs". destruct (dec nb b); subst; cycle 1.
-      { (* nb ≠ b *)
-        destruct (SIM b ofs).
-        {
-          iLeft. iPureIntro. 
-          unfold not_allocated in *. des.
-          esplits; ss; unfold update; des_ifs.
-        }
-        destruct H.
-        {
-          iRight. iLeft. iPureIntro.
-          unfold alloc_by_spec in *. des.
-          exists v0. esplits; ss; unfold update; des_ifs.
-        }
-        iRight. iRight. iPureIntro.
-        unfold alloc_by_impl in *. des.
-        exists v0. esplits; ss; unfold update; des_ifs.
-      }
-      (* nb = b *)
-      destruct (bool_decide (0 <= ofs < v)%Z) eqn:SZ; cycle 1.
+      iIntros "%loc". destruct (loc <? nloc + v)%Z eqn:SZ; cycle 1.
       {
-        iLeft. iPureIntro. unfold not_allocated. s. unfold update.
-        des_ifs.
+        iLeft. iPureIntro.
+        unfold not_allocated in *.
+        specialize (NEXT loc (ltac:(nia))). destruct NEXT as [Hra [Hsrc Htgt]].
+        split; [exact Hra|]. split.
+        - rewrite /Mem.alloc /= /Mem.update_cnts /Mem.mem_pad. cbn.
+          destruct (bool_decide (0 < loc)%Z) eqn:POS; [|reflexivity].
+          destruct (bool_decide (loc < Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src))%Z) eqn:OLD.
+          { apply bool_decide_eq_true_1 in OLD. nia. }
+          destruct (bool_decide (loc < Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src) + v)%Z) eqn:NEW.
+          { apply bool_decide_eq_true_1 in NEW. apply Z.ltb_ge in SZ. nia. }
+          reflexivity.
+        - rewrite /Mem.alloc /= /Mem.update_cnts. cbn.
+          destruct (bool_decide (0 < loc)%Z) eqn:POS; [|reflexivity].
+          destruct (bool_decide (loc < Mem.next_loc mem_tgt)%Z) eqn:OLD.
+          { apply bool_decide_eq_true_1 in OLD. nia. }
+          destruct (bool_decide (loc < Mem.next_loc mem_tgt + v)%Z) eqn:NEW.
+          { apply bool_decide_eq_true_1 in NEW. apply Z.ltb_ge in SZ. nia. }
+          reflexivity.
       }
-      iRight. iRight.
-      unfold alloc_by_impl. ss.
-      iPureIntro. unfold update; des_ifs; esplits; eauto.
+      destruct (bool_decide (0 < loc)%Z) eqn:POS; cycle 1.
+      {
+        iLeft. iPureIntro.
+        unfold not_allocated in *.
+        apply bool_decide_eq_false_1 in POS.
+        specialize (NEG loc (ltac:(nia))). destruct NEG as [Hra [Hsrc Htgt]].
+        split; [exact Hra|]. split.
+        - rewrite /Mem.alloc /= /Mem.update_cnts /Mem.mem_pad. cbn.
+          assert (BPOS: bool_decide (0 < loc)%Z = false).
+          { apply bool_decide_eq_false_2. exact POS. }
+          rewrite BPOS. reflexivity.
+        - rewrite /Mem.alloc /= /Mem.update_cnts. cbn.
+          assert (BPOS: bool_decide (0 < loc)%Z = false).
+          { apply bool_decide_eq_false_2. exact POS. }
+          rewrite BPOS. reflexivity.
+      }
+      destruct (loc <? nloc)%Z eqn:NL; cycle 1.
+      {
+        iRight. iRight.
+        unfold alloc_by_impl. ss.
+        iPureIntro. exists Vundef.
+        split.
+        { apply NLOC. nia. }
+        split.
+        - rewrite /Mem.alloc /= /Mem.update_cnts /Mem.mem_pad. cbn.
+          assert (BOLD: bool_decide (loc < Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src))%Z = false).
+          { apply bool_decide_eq_false_2. apply Z.ltb_ge in NL. nia. }
+          assert (BNEW: bool_decide (loc < Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src) + v)%Z = true).
+          { apply bool_decide_eq_true_2. apply Z.ltb_ge in NL. apply Z.ltb_lt in SZ. nia. }
+          rewrite POS BOLD BNEW. reflexivity.
+        - rewrite /Mem.alloc /= /Mem.update_cnts. cbn.
+          assert (BOLD: bool_decide (loc < Mem.next_loc mem_tgt)%Z = false).
+          { apply bool_decide_eq_false_2. apply Z.ltb_ge in NL. nia. }
+          assert (BNEW: bool_decide (loc < Mem.next_loc mem_tgt + v)%Z = true).
+          { apply bool_decide_eq_true_2. apply Z.ltb_ge in NL. apply Z.ltb_lt in SZ. nia. }
+          rewrite POS BOLD BNEW. reflexivity.
+      }
+      destruct (SIM loc).
+      {
+        iLeft. iPureIntro.
+        unfold not_allocated in H. destruct H as [Hra [Hsrc Htgt]].
+        split; [exact Hra|]. split.
+        - rewrite /Mem.alloc /= /Mem.update_cnts /Mem.mem_pad. cbn.
+          assert (BOLD: bool_decide (loc < Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src))%Z = true).
+          { apply bool_decide_eq_true_2. apply Z.ltb_lt in NL. nia. }
+          rewrite POS BOLD. exact Hsrc.
+        - rewrite /Mem.alloc /= /Mem.update_cnts. cbn.
+          assert (BOLD: bool_decide (loc < Mem.next_loc mem_tgt)%Z = true).
+          { apply bool_decide_eq_true_2. apply Z.ltb_lt in NL. nia. }
+          rewrite POS BOLD. exact Htgt.
+      }
+      destruct H.
+      {
+        iRight. iLeft. iPureIntro.
+        unfold alloc_by_spec in H. destruct H as [v1 [Hra [Hsrc Htgt]]].
+        exists v1. split; [exact Hra|]. split.
+        - rewrite /Mem.alloc /= /Mem.update_cnts /Mem.mem_pad. cbn.
+          assert (BOLD: bool_decide (loc < Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src))%Z = true).
+          { apply bool_decide_eq_true_2. apply Z.ltb_lt in NL. nia. }
+          rewrite POS BOLD. exact Hsrc.
+        - rewrite /Mem.alloc /= /Mem.update_cnts. cbn.
+          assert (BOLD: bool_decide (loc < Mem.next_loc mem_tgt)%Z = true).
+          { apply bool_decide_eq_true_2. apply Z.ltb_lt in NL. nia. }
+          rewrite POS BOLD. exact Htgt.
+      }
+      iRight. iRight. iPureIntro.
+      unfold alloc_by_impl in H. destruct H as [v1 [Hra [Hsrc Htgt]]].
+      exists v1. split; [exact Hra|]. split.
+      - rewrite /Mem.alloc /= /Mem.update_cnts /Mem.mem_pad. cbn.
+        assert (BOLD: bool_decide (loc < Mem.next_loc mem_src + Z.to_nat (nloc - Mem.next_loc mem_src))%Z = true).
+        { apply bool_decide_eq_true_2. apply Z.ltb_lt in NL. nia. }
+        rewrite POS BOLD. exact Hsrc.
+      - rewrite /Mem.alloc /= /Mem.update_cnts. cbn.
+        assert (BOLD: bool_decide (loc < Mem.next_loc mem_tgt)%Z = true).
+        { apply bool_decide_eq_true_2. apply Z.ltb_lt in NL. nia. }
+        rewrite POS BOLD. exact Htgt.
     }
 
     (* using logical memory *)
@@ -383,115 +561,167 @@ Module MemDH. Section MemDH.
     { exfalso. nia. }
     destruct SIZE' as [SIZE2 SIZE3].
     cStepsT.
-    cForceS (Mem.nb mem_tgt). cStepsS. 
+    cForceS (Mem.next_loc mem_tgt). cStepsS.
     iPoseProof (mem_ra_alloc_next with "B") as ">[B W]"; eauto.
 
     iPoseProof (points_to_transform with "W") as "W".
     assert (SSIM: sim_mem mem_res mem_src mem_tgt).
-    { unfold sim_mem. esplits; eauto. } 
-    iPoseProof (mem_ra_lookup_list _ _ _ _ _ _ _ SSIM with "[B W]") as "%RES"; eauto.
+    { unfold sim_mem. esplits; eauto. }
+    iPoseProof
+      (@mem_ra_lookup_list _ _ _ _ _ _ _ _ _
+         mem_res mem_src mem_tgt
+         (mem_res ⋅ _points_to_r (Mem.next_loc mem_tgt) 1 (repeat Vundef (Z.to_nat sz)))
+         ((Mem.alloc mem_tgt sz).2) sz
+         SSIM eq_refl H4 eq_refl (ltac:(nia))
+       with "[B W]") as "%RES".
     { iFrame. }
 
-    cForcesS. iSplitL "W"; eauto. 
-    (* cForcesS. iSplitR; eauto. cStepsS. *)
-    set (nb := Mem.nb mem_tgt). cStepsS.
+    cForcesS. iSplitL "W".
+    { destruct H4. eauto. }
+    set (nloc := Mem.next_loc mem_tgt). cStepsS.
 
-    cStep. iSplitR; eauto.
+    cStep. iSplitR; [eauto|].
     iExists {[HybMem.v_mem # _↑]}, _, st_tgtR, st_tgtR.
     instantiate (1 := {[DetMem.v_mem # _↑]}). repeat (iSplit; eauto).
-    iExists _, _, _.  
+    iExists _, _, _.
     iSplitR. { iPureIntro. esplits; try refl. }
-    iSplitR. 
+    iSplitR.
     {
-      iPureIntro. splits; ss; try nia.
-      ii. ss. unfold update in *.  des_ifs. apply H4 in H. nia. 
+      iPureIntro.
+      destruct H4 as [POStgt WFtgt].
+      splits; ss.
+      - split. { rewrite /Mem.alloc /=. nia. }
+        ii. rewrite /Mem.alloc /Mem.update_cnts /= in H |- *.
+        destruct (bool_decide (0 < loc)%Z) eqn:POS; ss.
+        destruct (bool_decide (loc < Mem.next_loc mem_tgt)%Z) eqn:OLD.
+        * apply bool_decide_eq_true_1 in OLD. nia.
+        * destruct (bool_decide (loc < Mem.next_loc mem_tgt + sz)%Z) eqn:NEW; ss.
+          apply bool_decide_eq_true_1 in NEW. nia.
+      - nia.
     }
     iFrame. iSplitL; eauto.
     iSplitL; cycle 1.
     {
-      iPureIntro. i. unfold update, not_allocated. ss.
-      do 2 rewrite discrete_fun_lookup_op.
-      destruct (dec nb b); destruct (dec b nb); try nia.
-      assert (BOOL:
-        bool_decide
-          (b = nb ∧
-           (0 <= ofs < 0 + length (repeat Vundef (Z.to_nat sz)))%Z) = false).
-      { apply bool_decide_eq_false_2. intros [EQ _]. contradiction. }
-      rewrite BOOL right_id.
-      eapply NEXT; nia. 
+      iSplitL.
+      {
+        iPureIntro. intros loc OUT.
+        unfold not_allocated in *.
+        rewrite discrete_fun_lookup_op.
+        rewrite (points_to_r_outside nloc 1 (repeat Vundef (Z.to_nat sz)) loc).
+        2: {
+          intro RANGE. destruct RANGE as [_ RANGE].
+          cbn in OUT.
+          rewrite repeat_length in RANGE.
+          assert (EQSZ: Z.of_nat (Z.to_nat sz) = sz) by (apply Z2Nat.id; nia).
+          rewrite EQSZ in RANGE. nia.
+        }
+        rewrite right_id.
+        cbn in OUT.
+        specialize (NEXT loc (ltac:(nia))). destruct NEXT as [Hra [Hsrc Htgt]].
+        split; [exact Hra|]. split; [exact Hsrc|].
+        rewrite /Mem.alloc /Mem.update_cnts /=.
+        destruct (bool_decide (0 < loc)%Z) eqn:POS; ss.
+        destruct (bool_decide (loc < Mem.next_loc mem_tgt)%Z) eqn:OLD.
+        * apply bool_decide_eq_true_1 in OLD. nia.
+        * destruct (bool_decide (loc < Mem.next_loc mem_tgt + sz)%Z) eqn:NEW.
+          { apply bool_decide_eq_true_1 in NEW. nia. }
+          { reflexivity. }
+      }
+      {
+        iPureIntro. intros loc OUT.
+        destruct H4 as [POStgt WFtgt].
+        unfold not_allocated in *.
+        rewrite discrete_fun_lookup_op.
+        rewrite (points_to_r_outside nloc 1 (repeat Vundef (Z.to_nat sz)) loc).
+        2: { intro RANGE. destruct RANGE as [RANGE _]. nia. }
+        rewrite right_id.
+        specialize (NEG loc (ltac:(nia))). destruct NEG as [Hra [Hsrc Htgt]].
+        split; [exact Hra|]. split; [exact Hsrc|].
+        rewrite /Mem.alloc /Mem.update_cnts /=.
+        destruct (bool_decide (0 < loc)%Z) eqn:POS; ss.
+        apply bool_decide_eq_true_1 in POS. nia.
+      }
     }
 
-    iIntros "%b %ofs". destruct (dec nb b); subst; cycle 1.
-    { (* nb ≠ b *)
-      destruct (SIM b ofs).
-      {
-        iLeft. iPureIntro. 
-        unfold not_allocated in *. des. ss.
-        do 2 rewrite discrete_fun_lookup_op.
-        destruct (dec b nb); try nia. ss. rewrite right_id.
-        assert (BOOL:
-          bool_decide
-            (b = nb ∧
-             (0 <= ofs < 0 + length (repeat Vundef (Z.to_nat sz)))%Z) = false).
-        { apply bool_decide_eq_false_2. intros [EQ _]. contradiction. }
-        rewrite BOOL right_id.
-        esplits; ss; unfold update; des_ifs.
-      }
-      destruct H.
-      {
-        iRight. iLeft. iPureIntro.
-        unfold alloc_by_spec in *. des.
-        exists v. esplits; ss; unfold update; des_ifs.
-        do 2 rewrite discrete_fun_lookup_op.
-        destruct (dec b nb); try nia. ss.
-        assert (BOOL:
-          bool_decide
-            (b = nb ∧
-             (0 <= ofs < 0 + length (repeat Vundef (Z.to_nat sz)))%Z) = false).
-        { apply bool_decide_eq_false_2. intros [EQ _]. contradiction. }
-        rewrite BOOL right_id. ss.
-      }
-      iRight. iRight. iPureIntro.
-      unfold alloc_by_impl in *. des.
-      exists v. esplits; ss; unfold update; des_ifs.
-      do 2 rewrite discrete_fun_lookup_op.
-      destruct (dec b nb); try nia. ss.
-      assert (BOOL:
-        bool_decide
-          (b = nb ∧
-           (0 <= ofs < 0 + length (repeat Vundef (Z.to_nat sz)))%Z) = false).
-      { apply bool_decide_eq_false_2. intros [EQ _]. contradiction. }
-      rewrite BOOL right_id. ss.
-    }
-    (* nb = b *)
-    specialize (NEXT nb ofs (ltac:(nia))). 
-    unfold not_allocated in NEXT; des.
-    assert (Z.add 0 (Z.to_nat sz) = sz) by nia.
-
-    destruct (bool_decide (0 <= ofs < sz)%Z) eqn:SZ; cycle 1.
+    iIntros "%loc". destruct (loc <? nloc + sz)%Z eqn:SZ; cycle 1.
     {
-      iLeft. iPureIntro. unfold not_allocated. unfold update. s.
-      do 2 rewrite discrete_fun_lookup_op.
-      rewrite repeat_length H.
-      pose proof SZ as SZ_FALSE.
-      apply bool_decide_eq_false_1 in SZ_FALSE.
-      assert (BOOL: bool_decide (nb = nb ∧ (0 <= ofs < sz)%Z) = false).
-      { apply bool_decide_eq_false_2. intros [_ RANGE]. exact (SZ_FALSE RANGE). }
-      rewrite BOOL NEXT right_id.
-      destruct (dec nb nb); [|nia].
-      rewrite SZ. esplits; eauto.
+      iLeft. iPureIntro. unfold not_allocated in *.
+      rewrite discrete_fun_lookup_op.
+      rewrite (points_to_r_outside nloc 1 (repeat Vundef (Z.to_nat sz)) loc).
+      2: {
+        intro RANGE. destruct RANGE as [_ RANGE].
+        apply Z.ltb_ge in SZ.
+        rewrite repeat_length in RANGE.
+        assert (EQSZ: Z.of_nat (Z.to_nat sz) = sz) by (apply Z2Nat.id; nia).
+        rewrite EQSZ in RANGE. nia.
+      }
+      rewrite right_id.
+      apply Z.ltb_ge in SZ.
+      specialize (NEXT loc (ltac:(nia))). destruct NEXT as [Hra [Hsrc Htgt]].
+      split; [exact Hra|]. split; [exact Hsrc|].
+      rewrite /Mem.alloc /Mem.update_cnts /=.
+      destruct (bool_decide (0 < loc)%Z) eqn:POS; ss.
+      destruct (bool_decide (loc < Mem.next_loc mem_tgt)%Z) eqn:OLD.
+      - apply bool_decide_eq_true_1 in OLD. nia.
+      - destruct (bool_decide (loc < Mem.next_loc mem_tgt + sz)%Z) eqn:NEW.
+        { apply bool_decide_eq_true_1 in NEW. nia. }
+        { reflexivity. }
     }
-    iRight. iLeft. iPureIntro.
-    unfold alloc_by_spec. ss.
-    pose proof SZ as SZ_RANGE.
-    apply bool_decide_eq_true_1 in SZ_RANGE.
-    do 2 rewrite discrete_fun_lookup_op.
-    unfold update. destruct (dec nb nb); ss.
-    rewrite repeat_length H nth_error_repeat; [|nia].
-    assert (BOOL: bool_decide (nb = nb ∧ (0 <= ofs < sz)%Z) = true).
-    { apply bool_decide_eq_true_2. split; [reflexivity|exact SZ_RANGE]. }
-    rewrite BOOL NEXT left_id SZ. esplits; eauto.
+    destruct (bool_decide (0 < loc)%Z) eqn:POS; cycle 1.
+    {
+      iLeft. iPureIntro. unfold not_allocated in *.
+      rewrite discrete_fun_lookup_op.
+      rewrite (points_to_r_outside nloc 1 (repeat Vundef (Z.to_nat sz)) loc).
+      2: { intro RANGE. destruct RANGE as [RANGE _]. apply bool_decide_eq_false_1 in POS. destruct H4. nia. }
+      rewrite right_id.
+      apply bool_decide_eq_false_1 in POS.
+      specialize (NEG loc (ltac:(nia))). destruct NEG as [Hra [Hsrc Htgt]].
+      split; [exact Hra|]. split; [exact Hsrc|].
+      rewrite /Mem.alloc /Mem.update_cnts /=.
+      destruct (bool_decide (0 < loc)%Z) eqn:POS'; ss.
+      apply bool_decide_eq_true_1 in POS'. nia.
+    }
+    destruct (loc <? nloc)%Z eqn:NL; cycle 1.
+    { (* alloced *)
+      iRight. iLeft.
+      unfold alloc_by_spec. ss.
+      specialize (RES loc (ltac:(apply andb_true_iff; split; [apply Z.leb_le; nia|apply Z.ltb_lt; nia]))).
+      destruct RES as [v [HRES HMEM]].
+      apply Z.ltb_ge in NL.
+      destruct (NEXT loc (ltac:(nia))) as [_ [HSRC _]].
+      iPureIntro. exists v.
+      split; [exact HRES|]. split; [exact HSRC|exact HMEM].
+    }
 
+    destruct (SIM loc).
+    {
+      iLeft. iPureIntro.
+      unfold not_allocated in *. des.
+      unfold Mem.update_cnts.
+      ss. fold nloc. des_ifs.
+      rewrite discrete_fun_lookup_op.
+      rewrite (points_to_r_outside nloc 1 (repeat Vundef (Z.to_nat sz)) loc).
+      2: { intro RANGE. destruct RANGE as [RANGE _]. apply Z.ltb_lt in NL. nia. }
+      rewrite right_id. esplits; eauto.
+    }
+    destruct H.
+    {
+      iRight. iLeft. iPureIntro.
+      unfold alloc_by_spec in *. des.
+      exists v0. unfold Mem.update_cnts.
+      ss. fold nloc. des_ifs.
+      rewrite discrete_fun_lookup_op.
+      rewrite (points_to_r_outside nloc 1 (repeat Vundef (Z.to_nat sz)) loc).
+      2: { intro RANGE. destruct RANGE as [RANGE _]. apply Z.ltb_lt in NL. nia. }
+      rewrite right_id. esplits; eauto.
+    }
+    iRight. iRight. unfold alloc_by_impl in *. des.
+    iPureIntro. unfold Mem.update_cnts.
+    ss. fold nloc. des_ifs.
+    rewrite discrete_fun_lookup_op.
+    rewrite (points_to_r_outside nloc 1 (repeat Vundef (Z.to_nat sz)) loc).
+    2: { intro RANGE. destruct RANGE as [RANGE _]. apply Z.ltb_lt in NL. nia. }
+    rewrite right_id. esplits; eauto.
   (* SLOW *)Qed.
 
   Lemma simF_free : ISim.sim_fun open HybMem DetMem IstFull (fid MemHdr.free).
