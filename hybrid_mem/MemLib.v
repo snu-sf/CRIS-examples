@@ -4,76 +4,84 @@ From iris.algebra Require Import auth excl agree csum functions dfrac_agree.
 
 
 Module Mem.
-  (* Definition t : Type := mblock -> option (Z -> val). *)
   Record t : Type := mk {
-    cnts : mblock -> Z -> option val;
-    nb : mblock;
+    cnts : Z -> option val;
+    next_loc : Z;
   }
   .
 
-  Definition wf (m0 : t) : Prop := forall blk ofs (LT : (blk < m0.(nb))%nat), m0.(cnts) blk ofs = None.
+  Definition wf (m0 : t) : Prop := forall loc v, m0.(cnts) loc = Some v -> (0 < loc < m0.(next_loc))%Z.
 
-  Definition alloc (m0 : Mem.t) (sz : Z) : (mblock * Mem.t) :=
-    ((m0.(nb)),
-     Mem.mk (update (m0.(cnts)) (m0.(nb))
-                    (λ ofs, if bool_decide (0 <= ofs < sz)%Z then Some (Vundef) else None))
-            (S m0.(nb))
-    )
+  Definition update_cnts (m0 : Mem.t) (sz : Z) :=
+    let nloc := m0.(next_loc) in
+    fun loc =>
+      if bool_decide (0 < loc)%Z
+      then if bool_decide (loc < nloc)%Z then m0.(cnts) loc
+           else if bool_decide (loc < nloc + sz)%Z then Some Vundef
+                else None
+      else None.
+
+  Definition alloc (m0 : Mem.t) (sz : Z) : (Z * Mem.t) :=
+    (m0.(next_loc), Mem.mk (update_cnts m0 sz) (m0.(next_loc) + sz))
   .
 
   Opaque Z.ltb Z.leb Z.mul Z.eq_dec Nat.eq_dec.
 
-  Definition empty : t := mk (fun _ _ => None) 0.
+  Definition empty : t := mk (fun _ => None) 1.
 
-  Definition free (m0 : Mem.t) := fun '(b,ofs) =>
-    match m0.(cnts) b ofs with
-    | Some _ => Some (Mem.mk (update m0.(cnts) b (update (m0.(cnts) b) ofs None)) m0.(nb))
+  Definition free (m0 : Mem.t) := fun loc =>
+    match m0.(cnts) loc with
+    | Some _ => Some (Mem.mk (update (m0.(cnts)) loc None) m0.(next_loc))
     | _ => None
     end
   .
 
-  Definition load (m0 : Mem.t) := fun '(b,ofs) =>
-    m0.(cnts) b ofs.
+  Definition load (m0 : Mem.t) := fun loc =>
+    m0.(cnts) loc.
 
-  Definition store (m0 : Mem.t) := fun '(b,ofs) v =>
-    match m0.(cnts) b ofs with
-    | Some _ => Some (Mem.mk (fun _b _ofs => if (dec b _b) && (dec ofs _ofs)
-                                             then Some v
-                                             else m0.(cnts) _b _ofs) m0.(nb))
+  Definition store (m0 : Mem.t) := fun loc v =>
+    match m0.(cnts) loc with
+    | Some _ => Some (Mem.mk (update m0.(cnts) loc (Some v)) m0.(next_loc))
     | _ => None
     end
   .
 
-  Definition valid_ptr (m0 : Mem.t) := fun '(b,ofs) =>
-    if (m0.(cnts) b ofs) then true else false.
+  Definition valid_ptr (m0 : Mem.t) := fun loc =>
+    match m0.(cnts) loc with
+    | Some _ => true
+    | None => false
+    end.
 
   Definition vcmp (m0 : Mem.t) (x y : val) : option bool :=
     match x, y with
-    | Vint x, Vint y => Some (bool_decide (x = y))
-    | Vptr (x, xofs), Vptr (y, yofs) =>
-      if bool_decide (Mem.valid_ptr m0 (x, xofs) ∧ Mem.valid_ptr m0 (y, yofs))
-      then Some (bool_decide (x = y ∧ xofs = yofs))
-      else None
-    | Vptr (x, xofs), Vint y =>
-      if bool_decide (Mem.valid_ptr m0 (x, xofs) ∧ y = 0)
-      then Some false
-      else None
-    | Vint x, Vptr (y, yofs) =>
-      if bool_decide (Mem.valid_ptr m0 (y, yofs) ∧ x = 0)
-      then Some false
-      else None
+    | Vint x, Vint y =>
+      if bool_decide (0 < x)%Z
+      then
+        if bool_decide (0 < y)%Z
+        then if bool_decide (Mem.valid_ptr m0 x ∧ Mem.valid_ptr m0 y)
+             then Some (bool_decide (x = y))
+             else None
+        else if bool_decide (y = 0)%Z
+             then if bool_decide (Mem.valid_ptr m0 x) then Some false else None
+             else None
+      else
+        if bool_decide (0 < y)%Z
+        then if bool_decide (x = 0)%Z
+             then if bool_decide (Mem.valid_ptr m0 y) then Some false else None
+             else None
+        else Some (bool_decide (x = y))
     | _, _ => None
     end.
-    
+
   Definition mem_pad (m0 : Mem.t) (delta : nat) : Mem.t :=
-    Mem.mk m0.(Mem.cnts) (m0.(Mem.nb) + delta)
+    Mem.mk m0.(Mem.cnts) (m0.(Mem.next_loc) + Z.of_nat delta)
   .
 
 End Mem.
 
 Local Canonical Structure valO := leibnizO val.
 Local Definition frac_valO := (dfrac_agreeR (optionO valO)).
-Local Definition _memRA := (mblock -d> Z -d> optionUR frac_valO).
+Local Definition _memRA := (Z -d> optionUR frac_valO).
 Local Definition memRA := authUR _memRA.
 Class memGpreS `{!crisG Γ Σ α β τ _S _I} := {
     #[local] mem_inG :: inG memRA Γ;
@@ -90,10 +98,10 @@ Section MEM.
   Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS}.
 
   Definition mem_init_auth_r : memRA :=
-    (● ((λ blk ofs, ε): _memRA)).
+    (● ((λ loc, ε) : _memRA)).
 
   Definition mem_init_frag_r : memRA :=
-    (◯ ((λ blk ofs, ε) : _memRA)).
+    (◯ ((λ loc, ε) : _memRA)).
 
   Definition mem_init_auth : iProp Σ :=
     own mem_name (mem_init_auth_r).
@@ -122,22 +130,21 @@ Section MemRA.
 
   Definition mem_val : Type := Qp * val.
 
-  Definition _points_to_r (loc : mblock * Z) (q: Qp) (mvs : list val): _memRA :=
-    let (b, ofs) := loc in
-    fun _b _ofs =>
-      if bool_decide (_b = b ∧ (ofs <= _ofs < (ofs + Z.of_nat (List.length mvs))))%Z
-      then match (List.nth_error mvs (Z.to_nat (_ofs - ofs))) with
-        | Some v => Some (to_frac_agree q (Some v))
-        | None => ε
-        end
+  Definition _points_to_r (loc : Z) (q: Qp) (mvs : list val): _memRA :=
+    fun loc0 =>
+      if bool_decide (loc <= loc0 < (loc + Z.of_nat (List.length mvs)))%Z
+      then match (List.nth_error mvs (Z.to_nat (loc0 - loc))) with
+           | Some v => Some (to_frac_agree q (Some v))
+           | None => ε
+           end
       else ε.
 
-  Definition mem_points_to_singleton_r (loc : mblock * Z) (q: Qp) (v : val) : memRA :=
-    (◯ (discrete_fun_singleton loc.1 (discrete_fun_singleton loc.2 (Some (to_frac_agree q (Some v)))))).
-  Definition mem_points_to_singleton (loc : mblock * Z) (q: Qp) (v : val) : iProp Σ :=
-    own mem_name ((mem_points_to_singleton_r loc q v): memRA).
-  Definition mem_points_to : (mblock * Z) → Qp → list val → iProp Σ :=
-    λ '(blk, ofs) q vs, ([∗ list] i ↦ v ∈ vs, mem_points_to_singleton (blk, ofs + i)%Z q v)%I.
+  Definition mem_points_to_singleton_r (loc : Z) (q: Qp) (v : val) : memRA :=
+    (◯ (discrete_fun_singleton loc (Some (to_frac_agree q (Some v))))).
+  Definition mem_points_to_singleton (loc : Z) (q: Qp) (v : val) : iProp Σ :=
+    own mem_name ((mem_points_to_singleton_r loc q v) : memRA).
+  Definition mem_points_to : Z → Qp → list val → iProp Σ :=
+    λ loc q vs, ([∗ list] i ↦ v ∈ vs, mem_points_to_singleton (loc + i)%Z q v)%I.
 
 End MemRA.
 
@@ -145,7 +152,7 @@ Section syn_mem.
   Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS}.
 
   Definition syn_mem_points_to_singleton {n} loc q v : GTerm.t n :=
-    sown mem_name ((mem_points_to_singleton_r loc q v): memRA).
+    sown mem_name ((mem_points_to_singleton_r loc q v) : memRA).
 
 End syn_mem.
 
@@ -167,7 +174,7 @@ Section AUX.
     match xs with
     | [] => (⌜ll = Vnullptr⌝)%I
     | xhd :: xtl =>
-      (∃ lhd ltl, ⌜ll = Vptr (lhd, 0%Z)⌝ ∗ (lhd, 0%Z) |=> [xhd; ltl] ∗ is_list ltl xtl)%I
+      (∃ lhd ltl, ⌜ll = Vint lhd ∧ (0 < lhd)%Z⌝ ∗ lhd |=> [xhd; ltl] ∗ is_list ltl xtl)%I
     end.
 
   Lemma unfold_is_list ll xs:
@@ -175,30 +182,27 @@ Section AUX.
     match xs with
     | [] => (⌜ll = Vnullptr⌝)%I
     | xhd :: xtl =>
-      (∃ lhd ltl, ⌜ll = Vptr (lhd, 0%Z)⌝ ∗ (lhd, 0%Z) |=> [xhd; ltl] ∗ is_list ltl xtl)%I
+      (∃ lhd ltl, ⌜ll = Vint lhd ∧ (0 < lhd)%Z⌝ ∗ lhd |=> [xhd; ltl] ∗ is_list ltl xtl)%I
     end.
   Proof using. destruct xs; ss. Qed.
 
   Lemma unfold_is_list_cons ll xhd xtl:
     is_list ll (xhd :: xtl) =
-    (∃ lhd ltl, ⌜ll = Vptr (lhd, 0%Z)⌝ ∗ (lhd, 0%Z) |=> [xhd; ltl] ∗ is_list ltl xtl)%I.
+    (∃ lhd ltl, ⌜ll = Vint lhd ∧ (0 < lhd)%Z⌝ ∗ lhd |=> [xhd; ltl] ∗ is_list ltl xtl)%I.
   Proof using. eapply unfold_is_list. Qed.
 
   Lemma is_list_wf ll xs:
-    (is_list ll xs) -∗ (⌜(ll = Vnullptr) ∨ (match ll with | Vptr (_, 0%Z) => True | _ => False end)⌝).
+    (is_list ll xs) -∗ (⌜(ll = Vnullptr) ∨ (match ll with | Vint loc => (0 < loc)%Z | _ => False end)⌝).
   Proof using.
     iIntros "L". destruct xs; ss; et.
     { iPure "L" as L. iPureIntro. et. }
-    iDestruct "L" as (? ?) "(% & P & L)".
+    iDestruct "L" as (? ?) "(% & P & L)". des.
     iPureIntro; right; subst; ss.
   Qed.
 
 End AUX.
 
-(* Ltac Ztac := all_once_fast ltac:(fun H => first[apply Z.leb_le in H|apply Z.ltb_lt in H|apply Z.leb_gt in H|apply Z.ltb_ge in H|idtac]). *)
-
 Section AUX2.
-  (* Context `{!crisG Γ Σ α β τ _S _I}. *)
 
   Lemma repeat_nth_some X (x: X) sz ofs (IN: ofs < sz) :
     nth_error (repeat x sz) ofs = Some x.
@@ -252,11 +256,9 @@ Section AUX2.
   Proof using.
     apply Z.leb_le in LE.
     destruct (Z.eq_dec z1 z2) as [Heq | Hneq].
-  - (* Case: z1 = z2 (contradiction) *)
-    contradiction.
-  - (* Case: z1 ≠ z2 *)
-    lia.
-  Qed. (* Use NE and LE to conclude (z1 < z2)%Z *)
+  - contradiction.
+  - lia.
+  Qed.
 
 Lemma nth_lookup_Some_rev :
   ∀ (A : Type) (l : list A) (i : nat) (d x : A),
@@ -289,41 +291,70 @@ Section RA.
   Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_MEM: !memGS}.
 
-  Lemma split_points_to_r blk ofs q a l :
-    _points_to_r (blk, ofs) q (a :: l)
-    ≡ (_points_to_r (blk, ofs) q [a]) ⋅ (_points_to_r (blk, (ofs+1)%Z) q l).
+  Lemma split_points_to_r loc q a l :
+    _points_to_r loc q (a :: l)
+    ≡ (_points_to_r loc q [a]) ⋅ (_points_to_r (loc + 1)%Z q l).
   Proof using _MEM.
-    intros b o. rewrite !discrete_fun_lookup_op /=. 
-    repeat case_bool_decide; des; simplify_eq; try nia; ss.
-    { destruct (decide (o = ofs)); subst; [|nia]; rewrite ?Z.sub_diag //=. }
-    { rewrite left_id. replace (o - (ofs + 1))%Z with (o - ofs - 1)%Z by nia.
-      replace (Z.to_nat (o - ofs)) with (S (Z.to_nat (o - ofs - 1))) by nia.
-      ss.
-    }
+    intros loc0. rewrite !discrete_fun_lookup_op /= /_points_to_r.
+    cbn [List.length].
+    destruct (decide (loc0 = loc)) as [->|NE].
+    - assert (BOOL0: bool_decide (loc <= loc < loc + Z.of_nat (S (List.length l)))%Z = true).
+      { apply bool_decide_eq_true_2. rewrite Nat2Z.inj_succ. lia. }
+      assert (BOOL1: bool_decide (loc <= loc < loc + Z.of_nat (S O))%Z = true).
+      { apply bool_decide_eq_true_2. simpl. lia. }
+      assert (BOOL2: bool_decide (loc + 1 <= loc < loc + 1 + Z.of_nat (List.length l))%Z = false).
+      { apply bool_decide_eq_false_2. intros [? ?]. lia. }
+      rewrite BOOL0 BOOL1 BOOL2 Z.sub_diag /= right_id //. 
+    - destruct (Z_lt_ge_dec loc0 loc) as [LT|GE].
+      + assert (BOOL0: bool_decide (loc <= loc0 < loc + Z.of_nat (S (List.length l)))%Z = false).
+        { apply bool_decide_eq_false_2. intros [? ?]. lia. }
+        assert (BOOL1: bool_decide (loc <= loc0 < loc + Z.of_nat (S O))%Z = false).
+        { apply bool_decide_eq_false_2. intros [? ?]. lia. }
+        assert (BOOL2: bool_decide (loc + 1 <= loc0 < loc + 1 + Z.of_nat (List.length l))%Z = false).
+        { apply bool_decide_eq_false_2. intros [? ?]. lia. }
+        rewrite BOOL0 BOOL1 BOOL2 //. 
+      + assert (GT: (loc < loc0)%Z) by lia.
+        assert (NEQ1: (loc + 1 <= loc0)%Z) by lia.
+        destruct (Z_lt_ge_dec loc0 (loc + Z.of_nat (S (List.length l)))) as [IN|OUT].
+        * assert (BOOL0: bool_decide (loc <= loc0 < loc + Z.of_nat (S (List.length l)))%Z = true).
+          { apply bool_decide_eq_true_2. lia. }
+          assert (BOOL1: bool_decide (loc <= loc0 < loc + Z.of_nat (S O))%Z = false).
+          { apply bool_decide_eq_false_2. intros [? ?]. simpl in *. lia. }
+          assert (BOOL2: bool_decide (loc + 1 <= loc0 < loc + 1 + Z.of_nat (List.length l))%Z = true).
+          { apply bool_decide_eq_true_2. rewrite Nat2Z.inj_succ in IN. lia. }
+          rewrite BOOL0 BOOL1 BOOL2 left_id.
+          replace (loc0 - (loc + 1))%Z with (loc0 - loc - 1)%Z by nia.
+          replace (Z.to_nat (loc0 - loc)) with (S (Z.to_nat (loc0 - loc - 1))) by nia.
+          ss.
+        * assert (BOOL0: bool_decide (loc <= loc0 < loc + Z.of_nat (S (List.length l)))%Z = false).
+          { apply bool_decide_eq_false_2. intros [? ?]. lia. }
+          assert (BOOL1: bool_decide (loc <= loc0 < loc + Z.of_nat (S O))%Z = false).
+          { apply bool_decide_eq_false_2. intros [? ?]. simpl in *. lia. }
+          assert (BOOL2: bool_decide (loc + 1 <= loc0 < loc + 1 + Z.of_nat (List.length l))%Z = false).
+          { apply bool_decide_eq_false_2. intros [? ?]. rewrite Nat2Z.inj_succ in OUT. lia. }
+          rewrite BOOL0 BOOL1 BOOL2 //. 
   Qed.
-    
-  Lemma points_to_singleton blk ofs q a :
-    _points_to_r (blk, ofs) q [a]
-    ≡ (discrete_fun_singleton blk (discrete_fun_singleton ofs (Some (to_frac_agree q (Some a))))).
+
+  Lemma points_to_singleton loc q a :
+    _points_to_r loc q [a]
+    ≡ (discrete_fun_singleton loc (Some (to_frac_agree q (Some a)))).
   Proof using _MEM.
-    intros b o; ss.
-    ss; case_bool_decide as H'; des; simplify_eq; ss.
-    { destruct (decide (o = ofs)); subst; try nia.
-      rewrite Z.sub_diag /= ?discrete_fun_lookup_singleton //.
-    }
-    apply not_and_or in H'; des; try by rewrite discrete_fun_lookup_singleton_ne //.
-    destruct (decide (b = blk)); subst;
-      [rewrite discrete_fun_lookup_singleton discrete_fun_lookup_singleton_ne //; ii; clarify; nia
-      |rewrite discrete_fun_lookup_singleton_ne //].
+    intros loc0. unfold _points_to_r. ss.
+    case_bool_decide as RANGE.
+    - assert (loc0 = loc) by nia. subst.
+      rewrite Z.sub_diag /= discrete_fun_lookup_singleton //. 
+    - destruct (decide (loc0 = loc)) as [EQ|NE].
+      + subst. exfalso. apply RANGE. nia.
+      + rewrite discrete_fun_lookup_singleton_ne //.
   Qed.
 
   Local Transparent mem_points_to_singleton_r.
 
-  Lemma points_to_transform blk ofs q l :
-    own mem_name (((◯ _points_to_r (blk, ofs) q l)): memRA)
-    ⊢ [∗ list] i↦v ∈ l, (blk, (ofs + i)%Z) ⤇{q} v.
+  Lemma points_to_transform loc q l :
+    own mem_name (((◯ _points_to_r loc q l)) : memRA)
+    ⊢ [∗ list] i↦v ∈ l, (loc + i)%Z ⤇{q} v.
   Proof using _MEM.
-    gen ofs. induction l.
+    gen loc. induction l.
     - iIntros; eauto.
     - i. rewrite split_points_to_r. iIntros "[P L]".
       rewrite big_sepL_cons. rewrite points_to_singleton.
@@ -331,7 +362,7 @@ Section RA.
       set (λ _ _, _). set (λ _ _, _).
       assert (y = y0).
       { extensionalities. subst y y0. ss.
-        replace (ofs + 1 + H)%Z with (ofs + S H)%Z by nia. refl. }
+        replace (loc + 1 + H)%Z with (loc + S H)%Z by nia. refl. }
       rewrite H. iFrame. unfold mem_points_to_singleton, mem_points_to_singleton_r; ss.
       rewrite Z.add_0_r. iFrame.
   Qed.
@@ -369,7 +400,6 @@ Section RA.
     rr in VALID. des. ss. exfalso. eapply dfrac_full_exclusive; et.
   Qed.
 
-  (*** Auxiliary constructor for MemDHProof ***)
   Definition mem_own (g : gname) (r: memRA) := own g r.
 
 End RA.

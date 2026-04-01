@@ -18,34 +18,34 @@ Module NonDetMem. Section NonDetMem.
           mem <- trigger (SGet v_mem);; mem <- mem↓?;;
           delta <- trigger (Choose nat);;
           let mem0 := Mem.mem_pad mem delta in
-          let (blk, mem1) := Mem.alloc mem0 sz in
+          let (loc, mem1) := Mem.alloc mem0 sz in
           trigger (SPut v_mem mem1↑);;;
-          Ret (Vptr (blk, 0%Z))
+          Ret (Vint loc)
       else triggerUB
     .
 
   Definition free : list val → itree crisE val :=
     λ arg,
-      bofs <- (pargs [Tptr] arg)?;;
+      loc <- (pargs [Tint] arg)?;;
       mem <- trigger (SGet v_mem);; mem <- mem↓?;;
-      mem1 <- (Mem.free mem bofs)?;;
+      mem1 <- (Mem.free mem loc)?;;
       trigger (SPut v_mem mem1↑);;;
       Ret (Vint 0)
   . 
 
   Definition load: list val -> itree crisE val :=
     fun arg =>      
-      bofs <- (pargs [Tptr] arg)?;;        
+      loc <- (pargs [Tint] arg)?;;
       mem <- trigger (SGet v_mem);; mem <- mem↓?;;
-      v <- (Mem.load mem bofs)?;;
+      v <- (Mem.load mem loc)?;;
       Ret v
   .
 
   Definition store : list val → itree crisE val :=
     fun arg =>
-      '(bofs, v): _ <- (pargs [Tptr; Tuntyped] arg)?;;
+      '(loc, v) : _ <- (pargs [Tint; Tuntyped] arg)?;;
       mem <- trigger (SGet v_mem);; mem <- mem↓?;;
-      mem1 <- (Mem.store mem bofs v)?;;
+      mem1 <- (Mem.store mem loc v)?;;
       trigger (SPut v_mem mem1↑);;;
       Ret (Vint 0)
   .
@@ -60,11 +60,11 @@ Module NonDetMem. Section NonDetMem.
 
   Definition cas: list val -> itree crisE val :=
     fun arg =>
-      ' (bofs, (v_old, v_new)): _ <- (pargs [Tptr; Tuntyped; Tuntyped] arg)?;;
-      'v_cur: val <- ccallU MemHdr.load [Vptr bofs];;
+      '(loc, (v_old, v_new)): _ <- (pargs [Tint; Tuntyped; Tuntyped] arg)?;;
+      'v_cur: val <- ccallU MemHdr.load [Vint loc];;
       'succ: val <- ccallU MemHdr.cmp [v_cur; v_old];;
       (if (bool_decide (succ = (Vint 1)))
-       then ccallU MemHdr.store [Vptr bofs; v_new]
+       then ccallU MemHdr.store [Vint loc; v_new]
        else Ret Vundef);;;
       Ret v_cur
   .

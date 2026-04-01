@@ -9,17 +9,22 @@ Module HybMem. Section HybMem.
 
   Definition val_r (arg : val) q v : iProp Σ :=
     match arg with
-    | Vptr (b, ofs) => (b, ofs) ⤇{q} v
+    | Vint loc => if bool_decide (0 < loc)%Z then loc ⤇{q} v else True%I
     | _ => True%I
     end.
 
   Definition compare_val (v0 v1: val) : val :=
     match v0, v1 with
-    | Vint i0, Vint i1 => Vint (if bool_decide (i0 = i1) then 1 else 0)
-    | Vint 0, Vptr _ => Vint 0
-    | Vptr _, Vint 0 => Vint 0
-    | Vptr (b0,ofs0), Vptr (b1,ofs1) =>
-       if bool_decide (b0 = b1 ∧ ofs0 = ofs1) then Vint 1 else Vint 0
+    | Vint i0, Vint i1 =>
+      if bool_decide (0 < i0)%Z
+      then
+        if bool_decide (0 < i1)%Z
+        then Vint (if bool_decide (i0 = i1) then 1 else 0)
+        else if bool_decide (i1 = 0)%Z then Vint 0 else Vundef
+      else
+        if bool_decide (0 < i1)%Z
+        then if bool_decide (i0 = 0)%Z then Vint 0 else Vundef
+        else Vint (if bool_decide (i0 = i1) then 1 else 0)
     | _, _ => Vundef
     end.
 
@@ -31,63 +36,63 @@ Module HybMem. Section HybMem.
       if b
       then 
         trigger (Assume (⌜0 <= sz /\ 8 * sz < modulus_64⌝)%Z%I);;;
-        blk <- trigger (Choose nat);;
-        trigger (Guarantee ((blk, 0%Z) |=> List.repeat Vundef (Z.to_nat sz)));;;
-        Ret (Vptr (blk, 0%Z))
+        loc <- trigger (Choose Z);;
+        trigger (Guarantee (⌜(0 < loc)%Z⌝ ∗ loc |=> List.repeat Vundef (Z.to_nat sz)));;;
+        Ret (Vint loc)
       else 
           if (bool_decide (0 <= (8 * sz) < modulus_64))%Z
           then
               mem <- trigger (SGet v_mem);; mem <- mem↓?;;
               delta <- trigger (Choose nat);;
               let mem0 := Mem.mem_pad mem delta in
-              let (blk, mem1) := Mem.alloc mem0 sz in
+              let (loc, mem1) := Mem.alloc mem0 sz in
               trigger (SPut v_mem mem1↑);;;
-              Ret (Vptr (blk, 0%Z))
+              Ret (Vint loc)
           else triggerUB
     .
 
   Definition free : list val → itree crisE val :=
     λ arg,
-      bofs <- (pargs [Tptr] arg)?;;
+      loc <- (pargs [Tint] arg)?;;
       'b : bool <- trigger (Take bool);;
       if b 
       then 
-        trigger (Assume (∃v, bofs ⤇ v));;; Ret (Vint 0)
+        trigger (Assume (∃v, loc ⤇ v));;; Ret (Vint 0)
       else 
         mem <- trigger (SGet v_mem);; mem <- mem↓?;;
-        mem1 <- (Mem.free mem bofs)?;;
+        mem1 <- (Mem.free mem loc)?;;
         trigger (SPut v_mem mem1↑);;;
         Ret (Vint 0)
     . 
 
   Definition load: list val -> itree crisE val :=
     fun arg =>      
-      bofs <- (pargs [Tptr] arg)?;;    
+      loc <- (pargs [Tint] arg)?;;
       'b : bool <- trigger (Take bool);;
       if b
       then
         '(v, q) : _ <- trigger (Take _);;
-        trigger (Assume (bofs ⤇{q} v));;;
-        trigger (Guarantee (bofs ⤇{q} v));;;
+        trigger (Assume (loc ⤇{q} v));;;
+        trigger (Guarantee (loc ⤇{q} v));;;
         Ret v
       else
         mem <- trigger (SGet v_mem);; mem <- mem↓?;;
-        v <- (Mem.load mem bofs)?;;
+        v <- (Mem.load mem loc)?;;
         Ret v
       .
 
   Definition store : list val → itree crisE val :=
     fun arg =>
-      '(bofs, v): _ <- (pargs [Tptr; Tuntyped] arg)?;;
+      '(loc, v): _ <- (pargs [Tint; Tuntyped] arg)?;;
       'b : bool <- trigger (Take bool);;
       if b
       then 
-        trigger (Assume (∃v_old, bofs ⤇ v_old));;;
-        trigger (Guarantee (bofs ⤇ v));;;
+        trigger (Assume (∃v_old, loc ⤇ v_old));;;
+        trigger (Guarantee (loc ⤇ v));;;
         Ret (Vint 0)
       else 
         mem <- trigger (SGet v_mem);; mem <- mem↓?;;
-        mem1 <- (Mem.store mem bofs v)?;;
+        mem1 <- (Mem.store mem loc v)?;;
         trigger (SPut v_mem mem1↑);;;
         Ret (Vint 0)
   .
@@ -110,19 +115,19 @@ Module HybMem. Section HybMem.
 
   Definition cas : list val → itree crisE val :=
     fun arg =>
-      '(bofs, (v_old, v_new)): _ <- (pargs [Tptr; Tuntyped; Tuntyped] arg)?;;
+      '(loc, (v_old, v_new)): _ <- (pargs [Tint; Tuntyped; Tuntyped] arg)?;;
       'b : bool <- trigger (Take bool);;
       if b 
       then
         '(v_cur, succ, (v0, q0), (v1, q1)) : _ <- trigger (Take _);;
-        trigger (Assume (⌜compare_val v_cur v_old = Vint succ⌝ ∗ bofs ⤇ v_cur ∗ val_r v_cur q0 v0 ∗ val_r v_old q1 v1));;;
-        trigger (Guarantee (bofs ⤇ (if bool_decide (succ = 1) then v_new else v_cur) ∗ val_r v_cur q0 v0 ∗ val_r v_old q1 v1));;;
+        trigger (Assume (⌜compare_val v_cur v_old = Vint succ⌝ ∗ loc ⤇ v_cur ∗ val_r v_cur q0 v0 ∗ val_r v_old q1 v1));;;
+        trigger (Guarantee (loc ⤇ (if bool_decide (succ = 1) then v_new else v_cur) ∗ val_r v_cur q0 v0 ∗ val_r v_old q1 v1));;;
         Ret v_cur
       else
-        'v_cur: val <- ccallU MemHdr.load [Vptr bofs];;
+        'v_cur: val <- ccallU MemHdr.load [Vint loc];;
         'succ: val <- ccallU MemHdr.cmp [v_cur; v_old];;
         (if (bool_decide (succ = (Vint 1)))
-        then ccallU MemHdr.store [Vptr bofs; v_new]
+        then ccallU MemHdr.store [Vint loc; v_new]
         else Ret Vundef);;;
         Ret v_cur
   .
@@ -135,7 +140,6 @@ Module HybMem. Section HybMem.
       fid MemHdr.cmp   # (msk_scp scopes msk_true, (None, cfunU cmp));
       fid MemHdr.cas   # (msk_scp scopes msk_true, (None, cfunU cas))]}.
 
-  (* Module definition *)
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
