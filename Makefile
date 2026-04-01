@@ -4,10 +4,10 @@ COQTHEORIES  := $(shell find . -not -path "./deprecated/*" -not -path "./_opam/*
 
 .PHONY: all all-quick
 
-%.vo: %.v
+%.vo: Makefile.coq %.v
 	$(MAKE) -f Makefile.coq $@
 
-%.vos: %.v
+%.vos: Makefile.coq %.v
 	$(MAKE) -f Makefile.coq $@
 
 all: Makefile.coq $(COQTHEORIES)
