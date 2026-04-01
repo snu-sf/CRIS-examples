@@ -13,7 +13,7 @@ Module DetMem. Section DetMem.
     fun arg =>
       'sz : Z <- (pargs [Tint] arg)?;;
       mem <- trigger (SGet v_mem);; mem <- mem↓?;;
-      if (Z_le_gt_dec 0 sz && Z_lt_ge_dec (8 * sz) modulus_64)
+      if (bool_decide (0 <= (8 * sz) < modulus_64))%Z
       then (
             let mem0 : Mem.t := mem in
             let (blk, mem1) := Mem.alloc mem0 sz in
@@ -61,7 +61,7 @@ Module DetMem. Section DetMem.
       ' (bofs, (v_old, v_new)): _ <- (pargs [Tptr; Tuntyped; Tuntyped] arg)?;;
       'v_cur: val <- ccallU MemHdr.load [Vptr bofs];;
       'succ: val <- ccallU MemHdr.cmp [v_cur; v_old];;
-      (if (dec succ (Vint 1))
+      (if (bool_decide (succ = (Vint 1)))
        then ccallU MemHdr.store [Vptr bofs; v_new]
        else Ret Vundef);;;
       Ret v_cur

@@ -15,11 +15,11 @@ Module HybMem. Section HybMem.
 
   Definition compare_val (v0 v1: val) : val :=
     match v0, v1 with
-    | Vint i0, Vint i1 => Vint (if dec i0 i1 then 1 else 0)
+    | Vint i0, Vint i1 => Vint (if bool_decide (i0 = i1) then 1 else 0)
     | Vint 0, Vptr _ => Vint 0
     | Vptr _, Vint 0 => Vint 0
     | Vptr (b0,ofs0), Vptr (b1,ofs1) =>
-       if dec b0 b1 && dec ofs0 ofs1 then Vint 1 else Vint 0
+       if bool_decide (b0 = b1 ∧ ofs0 = ofs1) then Vint 1 else Vint 0
     | _, _ => Vundef
     end.
 
@@ -35,7 +35,7 @@ Module HybMem. Section HybMem.
         trigger (Guarantee ((blk, 0%Z) |=> List.repeat Vundef (Z.to_nat sz)));;;
         Ret (Vptr (blk, 0%Z))
       else 
-          if (Z_le_gt_dec 0 sz && Z_lt_ge_dec (8 * sz) modulus_64)
+          if (bool_decide (0 <= (8 * sz) < modulus_64))%Z
           then
               mem <- trigger (SGet v_mem);; mem <- mem↓?;;
               delta <- trigger (Choose nat);;
@@ -116,12 +116,12 @@ Module HybMem. Section HybMem.
       then
         '(v_cur, succ, (v0, q0), (v1, q1)) : _ <- trigger (Take _);;
         trigger (Assume (⌜compare_val v_cur v_old = Vint succ⌝ ∗ bofs ⤇ v_cur ∗ val_r v_cur q0 v0 ∗ val_r v_old q1 v1));;;
-        trigger (Guarantee (bofs ⤇ (if dec succ 1 then v_new else v_cur) ∗ val_r v_cur q0 v0 ∗ val_r v_old q1 v1));;;
+        trigger (Guarantee (bofs ⤇ (if bool_decide (succ = 1) then v_new else v_cur) ∗ val_r v_cur q0 v0 ∗ val_r v_old q1 v1));;;
         Ret v_cur
       else
         'v_cur: val <- ccallU MemHdr.load [Vptr bofs];;
         'succ: val <- ccallU MemHdr.cmp [v_cur; v_old];;
-        (if (dec succ (Vint 1))
+        (if (bool_decide (succ = (Vint 1)))
         then ccallU MemHdr.store [Vptr bofs; v_new]
         else Ret Vundef);;;
         Ret v_cur

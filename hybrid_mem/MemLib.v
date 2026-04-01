@@ -16,7 +16,7 @@ Module Mem.
   Definition alloc (m0 : Mem.t) (sz : Z) : (mblock * Mem.t) :=
     ((m0.(nb)),
      Mem.mk (update (m0.(cnts)) (m0.(nb))
-                    (fun ofs => if (0 <=? ofs)%Z && (ofs <? sz)%Z then Some (Vundef) else None))
+                    (λ ofs, if bool_decide (0 <= ofs < sz)%Z then Some (Vundef) else None))
             (S m0.(nb))
     )
   .
@@ -45,26 +45,26 @@ Module Mem.
   .
 
   Definition valid_ptr (m0 : Mem.t) := fun '(b,ofs) =>
-    is_some (m0.(cnts) b ofs).
+    if (m0.(cnts) b ofs) then true else false.
 
   Definition vcmp (m0 : Mem.t) (x y : val) : option bool :=
     match x, y with
-    | Vint x, Vint y => Some (dec x y : bool)
+    | Vint x, Vint y => Some (bool_decide (x = y))
     | Vptr (x, xofs), Vptr (y, yofs) =>
-      if Mem.valid_ptr m0 (x, xofs) && Mem.valid_ptr m0 (y, yofs)
-      then Some (dec x y && dec xofs yofs)
+      if bool_decide (Mem.valid_ptr m0 (x, xofs) ∧ Mem.valid_ptr m0 (y, yofs))
+      then Some (bool_decide (x = y ∧ xofs = yofs))
       else None
     | Vptr (x, xofs), Vint y =>
-      if Mem.valid_ptr m0 (x, xofs) && dec y 0%Z
+      if bool_decide (Mem.valid_ptr m0 (x, xofs) ∧ y = 0)
       then Some false
       else None
     | Vint x, Vptr (y, yofs) =>
-      if Mem.valid_ptr m0 (y, yofs) && dec x 0%Z
+      if bool_decide (Mem.valid_ptr m0 (y, yofs) ∧ x = 0)
       then Some false
       else None
     | _, _ => None
     end.
-
+    
   Definition mem_pad (m0 : Mem.t) (delta : nat) : Mem.t :=
     Mem.mk m0.(Mem.cnts) (m0.(Mem.nb) + delta)
   .
@@ -125,7 +125,7 @@ Section MemRA.
   Definition _points_to_r (loc : mblock * Z) (q: Qp) (mvs : list val): _memRA :=
     let (b, ofs) := loc in
     fun _b _ofs =>
-      if (dec _b b) && ((ofs <=? _ofs) && (_ofs <? (ofs + Z.of_nat (List.length mvs))))%Z
+      if bool_decide (_b = b ∧ (ofs <= _ofs < (ofs + Z.of_nat (List.length mvs))))%Z
       then match (List.nth_error mvs (Z.to_nat (_ofs - ofs))) with
         | Some v => Some (to_frac_agree q (Some v))
         | None => ε
@@ -195,7 +195,7 @@ Section AUX.
 
 End AUX.
 
-Ltac Ztac := all_once_fast ltac:(fun H => first[apply Z.leb_le in H|apply Z.ltb_lt in H|apply Z.leb_gt in H|apply Z.ltb_ge in H|idtac]).
+(* Ltac Ztac := all_once_fast ltac:(fun H => first[apply Z.leb_le in H|apply Z.ltb_lt in H|apply Z.leb_gt in H|apply Z.ltb_ge in H|idtac]). *)
 
 Section AUX2.
   (* Context `{!crisG Γ Σ α β τ _S _I}. *)
@@ -293,37 +293,28 @@ Section RA.
     _points_to_r (blk, ofs) q (a :: l)
     ≡ (_points_to_r (blk, ofs) q [a]) ⋅ (_points_to_r (blk, (ofs+1)%Z) q l).
   Proof using _MEM.
-    intros b o. rewrite !discrete_fun_lookup_op. ss.
-    destruct (dec b blk).
-    - subst. destruct (dec o ofs).
-      + subst. ss. des_ifs; bsimpl; des; Ztac; try nia.
-        { rewrite right_id. rewrite ->Z.sub_diag in *. ss. inv Heq0. ss. }
-        { rewrite ->Z.sub_diag in *; ss. }
-        { rewrite ->Z.sub_diag in *; ss. }
-      + des_ifs; bsimpl; des; Ztac; try nia.
-        { rewrite left_id. replace (o - (ofs + 1))%Z with (o - ofs - 1)%Z  in Heq3 by nia.
-          replace (Z.to_nat (o - ofs)) with (S (Z.to_nat (o - ofs - 1))) in Heq0 by nia.
-          ss. rewrite Heq0 in Heq3. inv Heq3. ss. }
-        { replace (o - (ofs + 1))%Z with (o - ofs - 1)%Z  in Heq3 by nia.
-          replace (Z.to_nat (o - ofs)) with (S (Z.to_nat (o - ofs - 1))) in Heq0 by nia.
-          ss. rewrite Heq0 in Heq3. inv Heq3. }
-        { replace (o - (ofs + 1))%Z with (o - ofs - 1)%Z  in Heq3 by nia.
-          replace (Z.to_nat (o - ofs)) with (S (Z.to_nat (o - ofs - 1))) in Heq0 by nia.
-          ss. rewrite Heq0 in Heq3. inv Heq3. }
-    - des_ifs.
+    intros b o. rewrite !discrete_fun_lookup_op /=. 
+    repeat case_bool_decide; des; simplify_eq; try nia; ss.
+    { destruct (decide (o = ofs)); subst; [|nia]; rewrite ?Z.sub_diag //=. }
+    { rewrite left_id. replace (o - (ofs + 1))%Z with (o - ofs - 1)%Z by nia.
+      replace (Z.to_nat (o - ofs)) with (S (Z.to_nat (o - ofs - 1))) by nia.
+      ss.
+    }
   Qed.
-
+    
   Lemma points_to_singleton blk ofs q a :
     _points_to_r (blk, ofs) q [a]
     ≡ (discrete_fun_singleton blk (discrete_fun_singleton ofs (Some (to_frac_agree q (Some a))))).
   Proof using _MEM.
-    intros b o. ss. des_ifs; destruct dec; bsimpl; des; Ztac; try nia.
-    - replace o with ofs in * by nia. rewrite Z.sub_diag in Heq0. ss. inv Heq0.
-      rewrite !discrete_fun_lookup_singleton //.
-    - replace o with ofs in * by nia. rewrite Z.sub_diag in Heq0. ss.
-    - subst. rewrite discrete_fun_lookup_singleton discrete_fun_lookup_singleton_ne; [eauto|nia].
-    - subst. rewrite discrete_fun_lookup_singleton discrete_fun_lookup_singleton_ne; [eauto|nia].
-    - rewrite discrete_fun_lookup_singleton_ne; eauto.
+    intros b o; ss.
+    ss; case_bool_decide as H'; des; simplify_eq; ss.
+    { destruct (decide (o = ofs)); subst; try nia.
+      rewrite Z.sub_diag /= ?discrete_fun_lookup_singleton //.
+    }
+    apply not_and_or in H'; des; try by rewrite discrete_fun_lookup_singleton_ne //.
+    destruct (decide (b = blk)); subst;
+      [rewrite discrete_fun_lookup_singleton discrete_fun_lookup_singleton_ne //; ii; clarify; nia
+      |rewrite discrete_fun_lookup_singleton_ne //].
   Qed.
 
   Local Transparent mem_points_to_singleton_r.

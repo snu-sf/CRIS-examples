@@ -16,7 +16,7 @@ Section RA.
 
   Definition mem_ra_upd mem b ofs r : _memRA :=
     fun b0 ofs0 =>
-      if dec b b0 && dec ofs ofs0 then r else mem b0 ofs0.
+      if bool_decide (b = b0 ∧ ofs = ofs0) then r else mem b0 ofs0.
 
   Variable (mem_r: _memRA) (mem_s mem_t: Mem.t).
 
@@ -53,11 +53,11 @@ Section RA.
       + rewrite left_id (comm _ c). et.
       + rewrite left_id. et.
     - rewrite -H0. ii. rewrite !discrete_fun_lookup_op /_points_to_r.
-      destruct (dec _ _); s; cycle 1.
+      case_bool_decide as Hcase; s; cycle 1.
       { rewrite right_id. apply H. }
-      hexploit (MEM (Mem.nb mem_t) x0). 
+      hexploit (MEM (Mem.nb mem_t) x0). destruct Hcase as [-> Hcase].  
       unfold _sim_mem, not_allocated, alloc_by_spec, alloc_by_impl; i; subst; des; rewrite H1; try des_ifs;
-      exploit WF; et; nia.
+      exploit WF; et. nia.
   Qed.
 
   Lemma mem_ra_lookup b ofs q v (sz: Z) mem_t'
@@ -73,8 +73,9 @@ Section RA.
     iIntros "P".
     assert (SZ: Z.add 0 (Z.to_nat sz) = sz) by nia.
     s. rewrite repeat_length !discrete_fun_lookup_op.
-    set (nb := Mem.nb mem_t). 
-    destruct (dec b nb); subst; s.
+    set (nb := Mem.nb mem_t).
+    case_bool_decide as Hcase; des; subst; s. 
+    (* destruct (dec b nb); subst; s. *)
     {
       (* b = nb*)
       destruct SIM as [SIM NEXT]. 
@@ -88,7 +89,8 @@ Section RA.
       iExists Vundef. ss.
     }
     (* b ≠ nb *)
-    unfold update. fold nb. destruct (dec nb b); try nia.
+    unfold update. fold nb. 
+    destruct (dec nb b); try nia.
 
     rewrite -own_op.
      
@@ -97,7 +99,8 @@ Section RA.
     unfold included in *. des. specialize (WF b ofs). 
     rewrite !discrete_fun_lookup_op in WF.
     rewrite SZ in WF.
-    destruct (dec b nb); destruct((0 <=? ofs)%Z && (ofs <? sz)%Z); try nia. ss.
+    case_bool_decide; try nia.
+    (* destruct (dec b nb); destruct((0 <=? ofs)%Z && (ofs <? sz)%Z); try nia. ss. *)
     rewrite ->!discrete_fun_lookup_singleton in *.
     rewrite right_id in WF.
     destruct SIM as [SIM NEXT]. 
@@ -171,7 +174,8 @@ Section RA.
     ss. ii. dup H. rewrite H0 in H. rewrite /mem_ra_upd.
     specialize (H x x0). specialize (H0 x x0). specialize (H1 x x0).
     destruct mz; ss; try rewrite !discrete_fun_lookup_op in H, H0 |- *.
-    - destruct dec; ss; subst; cycle 1.
+    - case_bool_decide.
+      (* destruct dec; ss; subst; cycle 1. *)
       { rewrite discrete_fun_lookup_singleton_ne in H0; et. }
       rewrite discrete_fun_lookup_singleton in H, H0.
       destruct dec; ss; subst; cycle 1.
