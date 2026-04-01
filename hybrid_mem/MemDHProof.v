@@ -1,6 +1,6 @@
-From CRIS Require Import CRIS ImpPrelude.
+From CRIS Require Import CRIS.
 
-Require Import MemHdr MemLib HybridMem DetMem.
+Require Import ImpPrelude MemHdr MemLib HybridMem DetMem.
 From iris.algebra Require Import auth excl agree csum functions dfrac_agree.
 
 Local Notation _memRA := (mblock -d> Z -d> optionUR (dfrac_agreeR (optionO (leibnizO val))))%type.
@@ -62,8 +62,8 @@ Section RA.
 
   Lemma mem_ra_lookup b ofs q v (sz: Z) mem_t'
     (SIM: sim_mem)
-    (MEM: mem_t' = Mem.mk (update (Mem.cnts mem_t) (Mem.nb mem_t) (λ ofs : Z, if (0 <=? ofs)%Z && (ofs <? sz)%Z then Some Vundef else None)) (S (Mem.nb mem_t)))
-    (OFS: (0 <=? ofs)%Z && (ofs <? sz)%Z = true)
+    (MEM: mem_t' = Mem.mk (update (Mem.cnts mem_t) (Mem.nb mem_t) (λ ofs : Z, if bool_decide (0 <= ofs < sz)%Z then Some Vundef else None)) (S (Mem.nb mem_t)))
+    (OFS: bool_decide (0 <= ofs < sz)%Z = true)
     :
     mem_own mem_name ((● (mem_r ⋅ _points_to_r (Mem.nb mem_t, 0%Z) 1 (repeat Vundef (Z.to_nat sz))))) ∗ (b, ofs) ⤇{q} v
     ⊢
@@ -71,11 +71,12 @@ Section RA.
      Mem.cnts mem_t' b ofs = Some v⌝.
   Proof using.
     iIntros "P".
+    pose proof OFS as OFS_RANGE.
+    apply bool_decide_eq_true_1 in OFS_RANGE.
     assert (SZ: Z.add 0 (Z.to_nat sz) = sz) by nia.
     s. rewrite repeat_length !discrete_fun_lookup_op.
     set (nb := Mem.nb mem_t).
-    case_bool_decide as Hcase; des; subst; s. 
-    (* destruct (dec b nb); subst; s. *)
+    destruct (dec b nb); subst; s.
     {
       (* b = nb*)
       destruct SIM as [SIM NEXT]. 
@@ -83,10 +84,14 @@ Section RA.
       specialize (NEXT nb ofs (ltac:(nia))).  
       des; unfold not_allocated, alloc_by_spec, alloc_by_impl in *; des; clarify.
       clear NEXT NEXT0 NEXT1.
-      rewrite /update SIM. fold nb.
+      iExists Vundef.
+      rewrite SIM right_id.
+      rewrite /update. fold nb.
       destruct (dec nb nb); try nia.
-      rewrite OFS. rewrite nth_error_repeat; try nia.
-      iExists Vundef. ss.
+      rewrite nth_error_repeat; [|nia].
+      assert (BOOL: bool_decide (nb = nb ∧ (0 <= ofs < sz)%Z) = true).
+      { apply bool_decide_eq_true_2. split; [reflexivity|nia]. }
+      rewrite BOOL left_id OFS. ss.
     }
     (* b ≠ nb *)
     unfold update. fold nb. 
@@ -100,7 +105,7 @@ Section RA.
     rewrite !discrete_fun_lookup_op in WF.
     rewrite SZ in WF.
     case_bool_decide; try nia.
-    (* destruct (dec b nb); destruct((0 <=? ofs)%Z && (ofs <? sz)%Z); try nia. ss. *)
+    (* destruct (dec b nb); destruct (bool_decide (0 <= ofs < sz)%Z); try nia. ss. *)
     rewrite ->!discrete_fun_lookup_singleton in *.
     rewrite right_id in WF.
     destruct SIM as [SIM NEXT]. 
@@ -115,7 +120,12 @@ Section RA.
     }
 
     unfold alloc_by_spec in SIM. des.
-    iPureIntro. rewrite right_id SIM. esplits; ss.
+    iPureIntro. exists v0.
+    assert (BOOL: bool_decide (b = nb ∧ (0 <= ofs < 0 + Z.to_nat sz)%Z) = false).
+    { rewrite SZ. apply bool_decide_eq_false_2. intros [EQ _]. subst. contradiction. }
+    rewrite BOOL right_id SIM. split; [reflexivity|].
+    rewrite /update. fold nb.
+    destruct (dec nb b); [contradiction|exact SIM1].
 
   Qed.
     
@@ -144,19 +154,21 @@ Section RA.
 
   Lemma mem_ra_lookup_list nb mem_r' mem_t' sz
     (SIM: sim_mem)
-    (MEM: mem_t' = Mem.mk (update (Mem.cnts mem_t) (Mem.nb mem_t) (λ ofs : Z, if (0 <=? ofs)%Z && (ofs <? sz)%Z then Some Vundef else None)) (S (Mem.nb mem_t)))
+    (MEM: mem_t' = Mem.mk (update (Mem.cnts mem_t) (Mem.nb mem_t) (λ ofs : Z, if bool_decide (0 <= ofs < sz)%Z then Some Vundef else None)) (S (Mem.nb mem_t)))
     (MEMR: mem_r' = (mem_r ⋅ _points_to_r (Mem.nb mem_t, 0%Z) 1 (repeat Vundef (Z.to_nat sz))))
     :
     (mem_own mem_name ((● mem_r')) ∗ [∗ list] i↦v ∈ repeat Vundef (Z.to_nat sz), (nb, (0 + i)%Z) ⤇ v)%I
     ⊢
-    ⌜∀ ofs (OFS: (0 <=? ofs)%Z && (ofs <? sz)%Z = true), ∃ v, mem_r' nb ofs ≡ Some (to_frac_agree 1 (Some v)) ∧ (Mem.cnts mem_t') nb ofs = Some v⌝.
+    ⌜∀ ofs (OFS: bool_decide (0 <= ofs < sz)%Z = true), ∃ v, mem_r' nb ofs ≡ Some (to_frac_agree 1 (Some v)) ∧ (Mem.cnts mem_t') nb ofs = Some v⌝.
   Proof using.
     iIntros "[P PTS] %ofs %P". rewrite MEMR.
+    pose proof P as OFS.
+    apply bool_decide_eq_true_1 in OFS.
     (* Search ([∗ list] _ ∈ _,  _)%I. *)
     iPoseProof (big_sepL_lookup_acc _ _ (Z.to_nat ofs) with "PTS") as "[PT PTS]".
     { eapply lookup_nth_inbounds. rewrite repeat_length. nia. }
     erewrite nth_repeat.
-    assert (OFS: (0 + Z.to_nat ofs)%Z = ofs) by nia. rewrite OFS.
+    assert (OFS_EQ: (0 + Z.to_nat ofs)%Z = ofs) by nia. rewrite OFS_EQ.
     iPoseProof (mem_ra_lookup with "[P PT]") as "%"; eauto; try iFrame.
   Qed.
 
@@ -166,27 +178,22 @@ Section RA.
     ⊢ |==>
     mem_own mem_name ((● mem_ra_upd mem_r b ofs None)).
   Proof using _MEM.
-    Local Opaque discrete_fun_singleton.
-    iIntros "P". rewrite -own_op. iApply (own_update with "P").
-    eapply auth_update_dealloc, local_update_discrete.
-    i. split.
-    { ii. rewrite /mem_ra_upd. des_ifs. apply H. }
-    ss. ii. dup H. rewrite H0 in H. rewrite /mem_ra_upd.
-    specialize (H x x0). specialize (H0 x x0). specialize (H1 x x0).
-    destruct mz; ss; try rewrite !discrete_fun_lookup_op in H, H0 |- *.
-    - case_bool_decide.
-      (* destruct dec; ss; subst; cycle 1. *)
-      { rewrite discrete_fun_lookup_singleton_ne in H0; et. }
-      rewrite discrete_fun_lookup_singleton in H, H0.
-      destruct dec; ss; subst; cycle 1.
-      { rewrite discrete_fun_lookup_singleton_ne in H0; et. }
-      rewrite discrete_fun_lookup_singleton in H, H0.
-      apply to_frac_full_valid_inv in H. rewrite H. et.
-    - destruct dec; ss; subst; cycle 1.
-      { rewrite discrete_fun_lookup_singleton_ne in H0; et. }
-      rewrite discrete_fun_lookup_singleton in H, H0.
-      destruct dec; ss.
-      rewrite discrete_fun_lookup_singleton_ne in H0; et.
+    Local Transparent mem_points_to_singleton_r.
+    iIntros "[Auth Frag]".
+    iApply (own_update_2 with "Auth Frag").
+    rewrite /mem_points_to_singleton_r auth_update_dealloc //=.
+    apply discrete_fun_local_update; intros b1.
+    apply discrete_fun_local_update; intros o1.
+    destruct (dec b1 b); subst.
+    - rewrite discrete_fun_lookup_singleton.
+      destruct (dec o1 ofs); subst.
+      + rewrite ?discrete_fun_lookup_singleton /mem_ra_upd.
+        case_bool_decide; [|naive_solver].
+        apply delete_option_local_update; eauto; apply _.
+      + rewrite discrete_fun_lookup_singleton_ne // /mem_ra_upd.
+        case_bool_decide; [naive_solver|ss].
+    - rewrite /mem_ra_upd. case_bool_decide; [naive_solver|].
+      rewrite discrete_fun_lookup_singleton_ne; ss; eauto.
   Qed.
 
 
@@ -197,29 +204,29 @@ Section RA.
     ⊢ |==>
     mem_own mem_name ((● mem_ra_upd mem_r b ofs (Some (to_frac_agree 1 (Some v_new))))) ∗ (b, ofs) ⤇{1} v_new.
   Proof using.
-    iIntros "P".
-    iPoseProof ((mem_ra_lookup_point _ _ _ _ SIM) with "P") as "%H"; iFrame.
-    des. clear H0.
-    rewrite -!own_op. iApply (own_update with "P"). 
-    Local Opaque discrete_fun_singleton. (* Why is it unfolded? *)
-    apply auth_update, local_update_discrete. s. i.
-    rewrite /mem_ra_upd. split; ii.
-    { des_ifs. eapply H0. }
-    destruct (dec b x); s; subst; cycle 1.
-    - rewrite (H1 x x0). destruct mz; s;
-        try rewrite !discrete_fun_lookup_op;
-        rewrite !discrete_fun_lookup_singleton_ne; et.
-    - destruct (dec ofs x0); s; subst; cycle 1.
-      + rewrite (H1 x x0). destruct mz; s;
-          try rewrite !discrete_fun_lookup_op;
-          rewrite !discrete_fun_lookup_singleton;
-          rewrite !discrete_fun_lookup_singleton_ne; et.
-      + specialize (H1 x x0). revert H1.
-        destruct mz; s;
-          try rewrite !discrete_fun_lookup_op;
-          rewrite !discrete_fun_lookup_singleton; et.
-        i. specialize (H0 x x0). rewrite H1 in H0.
-        eapply to_frac_full_valid_inv in H0. rewrite H0 right_id. et.
+    Local Transparent mem_points_to_singleton_r.
+    iIntros "[Auth Frag]".
+    iPoseProof ((mem_ra_lookup_point _ _ _ _ SIM) with "[Auth Frag]") as "%Hlu"; [iFrame|].
+    destruct Hlu as [Hpt _].
+    rewrite -own_op.
+    iApply (own_update_2 with "Auth Frag").
+    rewrite /mem_points_to_singleton_r /= auth_update //.
+    apply discrete_fun_local_update; intros b1.
+    apply discrete_fun_local_update; intros o1.
+    destruct (dec b1 b); subst.
+    - destruct (dec o1 ofs); subst.
+      + rewrite Hpt ?discrete_fun_lookup_singleton /mem_ra_upd.
+        case_bool_decide; [|naive_solver].
+        apply option_local_update, exclusive_local_update; ss.
+      + rewrite ?discrete_fun_lookup_singleton /mem_ra_upd.
+        case_bool_decide; [naive_solver|].
+        rewrite ?discrete_fun_lookup_singleton_ne //.
+    - rewrite /mem_ra_upd.
+      case_bool_decide; [naive_solver|]; ss.
+      assert (NE: b <> b1) by congruence.
+      rewrite discrete_fun_lookup_singleton_ne; [|exact NE].
+      rewrite discrete_fun_lookup_singleton_ne; [|exact NE].
+      ss.
   Qed.
 
   Lemma mem_ra_cmp p0 q0 v0 p1 q1 v1 succ
@@ -228,7 +235,7 @@ Section RA.
     :
     (mem_own mem_name (● mem_r) ∗ HybMem.val_r p0 q0 v0 ∗ HybMem.val_r p1 q1 v1)
     ⊢
-    ⌜Mem.vcmp mem_t p0 p1 = Some (dec succ 1 : bool)⌝.
+    ⌜Mem.vcmp mem_t p0 p1 = Some (bool_decide (succ = 1))⌝.
   Proof using.
     iIntros "(B & P1 & P2)".
     destruct p0, p1; try destruct blkofs; try destruct blkofs0; ss.
@@ -272,6 +279,19 @@ Module MemDH. Section MemDH.
   Local Definition DetMem := DetMem.t.
   Local Definition IstFull := (IstProd (IstSB HybMem.(Mod.scopes) Ist) IstEq).
 
+  Lemma compare_val_bool_decide arg0 arg1 succ
+    (COMP: HybMem.compare_val arg0 arg1 = Vint succ)
+    :
+    Vint succ = Vint (if bool_decide (succ = 1) then 1 else 0).
+  Proof.
+    move: COMP. rewrite /HybMem.compare_val.
+    destruct arg0 as [i0|[b0 ofs0]|];
+      destruct arg1 as [i1|[b1 ofs1]|]; ss; try discriminate.
+    all: try (destruct i0; ss; try discriminate).
+    all: try (destruct i1; ss; try discriminate).
+    all: des_ifs; i; clarify; case_bool_decide; ss.
+  Qed.
+
   Definition mem_get (mem: _memRA) b ofs :=
     match or_else (mem b ofs) (to_frac_agree 1 (Some Vundef)) with
     | (_,v) => or_else (nth_error v.(agree_car) 0) (Some Vundef)
@@ -299,10 +319,9 @@ Module MemDH. Section MemDH.
     cStepsS. cStepsT.
     destruct _q; cycle 1.
     { (* using physical memory *)
-      destruct (Z_le_gt_dec 0 v); des; cycle 1.
+      case_bool_decide as SIZE; cycle 1.
       { ss. rewrite /triggerUB. cStepsS; ss. }
-      destruct (Z_lt_ge_dec (8 * v) modulus_64); des; cycle 1.
-      { ss. rewrite /triggerUB. cStepsS; ss. }
+      destruct SIZE as [SIZE2 SIZE3].
       cStepsS.
       cForceS (Mem.nb mem_tgt - Mem.nb mem_src). cStepsS.
       set (nb := Mem.nb mem_tgt).
@@ -348,7 +367,7 @@ Module MemDH. Section MemDH.
         exists v0. esplits; ss; unfold update; des_ifs.
       }
       (* nb = b *)
-      destruct ((0 <=? ofs)%Z && (ofs <? v)%Z) eqn:SZ; cycle 1.
+      destruct (bool_decide (0 <= ofs < v)%Z) eqn:SZ; cycle 1.
       {
         iLeft. iPureIntro. unfold not_allocated. s. unfold update.
         des_ifs.
@@ -360,8 +379,9 @@ Module MemDH. Section MemDH.
 
     (* using logical memory *)
     cStepsS. iDestruct "ASM" as "%SIZE". des. rename v into sz.
-    destruct (Z_le_gt_dec 0 sz); ss.
-    destruct (Z_lt_ge_dec (8 * sz) modulus_64); ss.
+    case_bool_decide as SIZE'; cycle 1.
+    { exfalso. nia. }
+    destruct SIZE' as [SIZE2 SIZE3].
     cStepsT.
     cForceS (Mem.nb mem_tgt). cStepsS. 
     iPoseProof (mem_ra_alloc_next with "B") as ">[B W]"; eauto.
@@ -392,7 +412,12 @@ Module MemDH. Section MemDH.
       iPureIntro. i. unfold update, not_allocated. ss.
       do 2 rewrite discrete_fun_lookup_op.
       destruct (dec nb b); destruct (dec b nb); try nia.
-      ss. rewrite right_id. 
+      assert (BOOL:
+        bool_decide
+          (b = nb ∧
+           (0 <= ofs < 0 + length (repeat Vundef (Z.to_nat sz)))%Z) = false).
+      { apply bool_decide_eq_false_2. intros [EQ _]. contradiction. }
+      rewrite BOOL right_id.
       eapply NEXT; nia. 
     }
 
@@ -404,6 +429,12 @@ Module MemDH. Section MemDH.
         unfold not_allocated in *. des. ss.
         do 2 rewrite discrete_fun_lookup_op.
         destruct (dec b nb); try nia. ss. rewrite right_id.
+        assert (BOOL:
+          bool_decide
+            (b = nb ∧
+             (0 <= ofs < 0 + length (repeat Vundef (Z.to_nat sz)))%Z) = false).
+        { apply bool_decide_eq_false_2. intros [EQ _]. contradiction. }
+        rewrite BOOL right_id.
         esplits; ss; unfold update; des_ifs.
       }
       destruct H.
@@ -412,32 +443,54 @@ Module MemDH. Section MemDH.
         unfold alloc_by_spec in *. des.
         exists v. esplits; ss; unfold update; des_ifs.
         do 2 rewrite discrete_fun_lookup_op.
-        destruct (dec b nb); try nia. ss. rewrite right_id. ss.
+        destruct (dec b nb); try nia. ss.
+        assert (BOOL:
+          bool_decide
+            (b = nb ∧
+             (0 <= ofs < 0 + length (repeat Vundef (Z.to_nat sz)))%Z) = false).
+        { apply bool_decide_eq_false_2. intros [EQ _]. contradiction. }
+        rewrite BOOL right_id. ss.
       }
       iRight. iRight. iPureIntro.
       unfold alloc_by_impl in *. des.
       exists v. esplits; ss; unfold update; des_ifs.
       do 2 rewrite discrete_fun_lookup_op.
-      destruct (dec b nb); try nia. ss. rewrite right_id. ss.
+      destruct (dec b nb); try nia. ss.
+      assert (BOOL:
+        bool_decide
+          (b = nb ∧
+           (0 <= ofs < 0 + length (repeat Vundef (Z.to_nat sz)))%Z) = false).
+      { apply bool_decide_eq_false_2. intros [EQ _]. contradiction. }
+      rewrite BOOL right_id. ss.
     }
     (* nb = b *)
     specialize (NEXT nb ofs (ltac:(nia))). 
     unfold not_allocated in NEXT; des.
     assert (Z.add 0 (Z.to_nat sz) = sz) by nia.
 
-    destruct ((0 <=? ofs)%Z && (ofs <? sz)%Z) eqn:SZ; cycle 1.
+    destruct (bool_decide (0 <= ofs < sz)%Z) eqn:SZ; cycle 1.
     {
-      iLeft. iPureIntro. unfold not_allocated. s. unfold update.
+      iLeft. iPureIntro. unfold not_allocated. unfold update. s.
       do 2 rewrite discrete_fun_lookup_op.
       rewrite repeat_length H.
-      des_ifs; try rewrite right_id; ss.
+      pose proof SZ as SZ_FALSE.
+      apply bool_decide_eq_false_1 in SZ_FALSE.
+      assert (BOOL: bool_decide (nb = nb ∧ (0 <= ofs < sz)%Z) = false).
+      { apply bool_decide_eq_false_2. intros [_ RANGE]. exact (SZ_FALSE RANGE). }
+      rewrite BOOL NEXT right_id.
+      destruct (dec nb nb); [|nia].
+      rewrite SZ. esplits; eauto.
     }
     iRight. iLeft. iPureIntro.
     unfold alloc_by_spec. ss.
+    pose proof SZ as SZ_RANGE.
+    apply bool_decide_eq_true_1 in SZ_RANGE.
     do 2 rewrite discrete_fun_lookup_op.
     unfold update. destruct (dec nb nb); ss.
     rewrite repeat_length H nth_error_repeat; [|nia].
-    des_ifs. rewrite NEXT. esplits; eauto.
+    assert (BOOL: bool_decide (nb = nb ∧ (0 <= ofs < sz)%Z) = true).
+    { apply bool_decide_eq_true_2. split; [reflexivity|exact SZ_RANGE]. }
+    rewrite BOOL NEXT left_id SZ. esplits; eauto.
 
   (* SLOW *)Qed.
 
@@ -507,19 +560,81 @@ Module MemDH. Section MemDH.
       ii. ss. unfold update in *. des_ifs; eapply H4; eauto.
     }
     iFrame; iSplit; eauto.
-    iPureIntro. split; cycle 1.
+    iPureIntro.
+    assert (BLT: b < Mem.nb mem_tgt) by (eapply H4; exact P0).
+    split; cycle 1.
     {
-      i. specialize (NEXT b0 ofs0 OUT).
-      unfold not_allocated, update in *. ss. des.
-      unfold mem_ra_upd.
-      destruct (dec b b0); esplits; eauto; des_ifs.
+      intros b1 ofs1 OUT.
+      specialize (NEXT b1 ofs1 OUT).
+      destruct NEXT as [Hra [Hsrc Htgt]].
+      unfold not_allocated, mem_ra_upd, update.
+      destruct (dec b b1) as [EQb|NEb].
+      - subst. simpl in OUT. nia.
+      - case_bool_decide; [naive_solver|].
+        destruct (dec b b1); [contradiction|].
+        split; [exact Hra|].
+        split; [exact Hsrc|].
+        cbn.
+        destruct (dec b b1); [contradiction|exact Htgt].
     }
-    ii. 
-    specialize (SIM b0 ofs0). 
-    unfold mem_ra_upd, not_allocated, alloc_by_spec, alloc_by_impl, update in *; ss.
-    des_ifs; esplits; eauto.
-    left. des; esplits; eauto.
-    rewrite SIM in P. inv P.
+    intros b1 ofs1.
+    specialize (SIM b1 ofs1).
+    unfold mem_ra_upd, update.
+    destruct (dec b b1) as [EQb|NEb].
+    - subst b1.
+      destruct (dec ofs ofs1) as [EQofs|NEofs].
+      + subst ofs1.
+        left. unfold not_allocated.
+        destruct SIM as [SIMna|[SIMsp|SIMimpl]].
+        * unfold not_allocated in SIMna. destruct SIMna as [Hra0 [Hsrc0 Htgt0]].
+          rewrite Hra0 in P. inv P.
+        * unfold alloc_by_spec in SIMsp. destruct SIMsp as [v1 [Hra0 [Hsrc0 Htgt0]]].
+          case_bool_decide; [|naive_solver].
+          destruct (dec b b); [|contradiction].
+          destruct (dec ofs ofs); [|contradiction].
+          split; [reflexivity|].
+          split; [exact Hsrc0|].
+          cbn.
+          destruct (dec b b); [|contradiction].
+          destruct (dec ofs ofs); [reflexivity|contradiction].
+        * unfold alloc_by_impl in SIMimpl. destruct SIMimpl as [v1 [Hra0 [Hsrc0 Htgt0]]].
+          rewrite Hra0 in P. inv P.
+      + destruct (dec b b); [|contradiction].
+        destruct (dec ofs ofs1); [contradiction|].
+        assert (BOOL: bool_decide (b = b ∧ ofs = ofs1) = false).
+        { apply bool_decide_eq_false_2. intros [_ EQ]. contradiction. }
+        destruct SIM as [SIMna|[SIMsp|SIMimpl]].
+        * left. unfold not_allocated in SIMna. destruct SIMna as [Hra0 [Hsrc0 Htgt0]].
+          split; [rewrite BOOL; exact Hra0|].
+          split; [exact Hsrc0|].
+          cbn. destruct (dec b b); [|contradiction].
+          destruct (dec ofs ofs1); [contradiction|exact Htgt0].
+        * right. left. unfold alloc_by_spec in SIMsp. destruct SIMsp as [v1 [Hra0 [Hsrc0 Htgt0]]].
+          exists v1. split; [rewrite BOOL; exact Hra0|].
+          split; [exact Hsrc0|].
+          cbn. destruct (dec b b); [|contradiction].
+          destruct (dec ofs ofs1); [contradiction|exact Htgt0].
+        * right. right. unfold alloc_by_impl in SIMimpl. destruct SIMimpl as [v1 [Hra0 [Hsrc0 Htgt0]]].
+          exists v1. split; [rewrite BOOL; exact Hra0|].
+          split; [exact Hsrc0|].
+          cbn. destruct (dec b b); [|contradiction].
+          destruct (dec ofs ofs1); [contradiction|exact Htgt0].
+    - destruct (dec b b1); [contradiction|].
+      assert (BOOL: bool_decide (b = b1 ∧ ofs = ofs1) = false).
+      { apply bool_decide_eq_false_2. intros [EQ _]. contradiction. }
+      destruct SIM as [SIMna|[SIMsp|SIMimpl]].
+      + left. unfold not_allocated in SIMna. destruct SIMna as [Hra0 [Hsrc0 Htgt0]].
+        split; [rewrite BOOL; exact Hra0|].
+        split; [exact Hsrc0|].
+        cbn. destruct (dec b b1); [contradiction|exact Htgt0].
+      + right. left. unfold alloc_by_spec in SIMsp. destruct SIMsp as [v1 [Hra0 [Hsrc0 Htgt0]]].
+        exists v1. split; [rewrite BOOL; exact Hra0|].
+        split; [exact Hsrc0|].
+        cbn. destruct (dec b b1); [contradiction|exact Htgt0].
+      + right. right. unfold alloc_by_impl in SIMimpl. destruct SIMimpl as [v1 [Hra0 [Hsrc0 Htgt0]]].
+        exists v1. split; [rewrite BOOL; exact Hra0|].
+        split; [exact Hsrc0|].
+        cbn. destruct (dec b b1); [contradiction|exact Htgt0].
   (*SLOW*)Qed.
 
   Lemma simF_load : ISim.sim_fun open HybMem DetMem IstFull (fid MemHdr.load).
@@ -659,14 +774,68 @@ Module MemDH. Section MemDH.
     iFrame. iSplit; eauto.
     iPureIntro. split; cycle 1.
     {
-      i. specialize (NEXT b0 ofs0 OUT).
-      unfold mem_ra_upd, not_allocated, update in *. ss. des.
-      destruct (dec b b0); destruct (dec ofs ofs0); esplits; eauto; des_ifs. 
+      intros b1 ofs1 OUT.
+      assert (BLT: b < Mem.nb mem_tgt) by (eapply H4; exact Heq1).
+      specialize (NEXT b1 ofs1 OUT).
+      destruct NEXT as [Hra [Hsrc Htgt]].
+      unfold mem_ra_upd, not_allocated, update.
+      destruct (dec b b1) as [EQb|NEb].
+      - subst. simpl in OUT. nia.
+      - case_bool_decide; [naive_solver|].
+        destruct (dec b b1); [contradiction|].
+        split; [exact Hra|].
+        split; [exact Hsrc|].
+        cbn. destruct (dec b b1); [contradiction|exact Htgt].
     }
-    ii. unfold mem_ra_upd, not_allocated, alloc_by_spec, alloc_by_impl, update; ss.
-    des_ifs; esplits; eauto. 
-    destruct (dec b b0); destruct (dec ofs ofs0); des_ifs.
-    right. left. eauto. 
+    intros b1 ofs1.
+    specialize (SIM b1 ofs1).
+    unfold mem_ra_upd, update.
+    destruct (dec b b1) as [EQb|NEb].
+    - subst b1.
+      destruct (dec ofs ofs1) as [EQofs|NEofs].
+      + subst ofs1.
+        right. left. exists v.
+        split.
+        * case_bool_decide; [reflexivity|naive_solver].
+        * split; [exact SIM1|].
+          cbn. destruct (dec b b); [|contradiction].
+          destruct (dec ofs ofs); [reflexivity|contradiction].
+      + assert (BOOL: bool_decide (b = b ∧ ofs = ofs1) = false).
+        { apply bool_decide_eq_false_2. intros [_ EQ]. contradiction. }
+        destruct (dec b b); [|contradiction].
+        destruct (dec ofs ofs1); [contradiction|].
+        destruct SIM as [SIMna|[SIMsp|SIMimpl]].
+        * left. unfold not_allocated in SIMna. destruct SIMna as [Hra0 [Hsrc0 Htgt0]].
+          split; [rewrite BOOL; exact Hra0|].
+          split; [exact Hsrc0|].
+          cbn. destruct (dec b b); [|contradiction].
+          destruct (dec ofs ofs1); [contradiction|exact Htgt0].
+        * right. left. unfold alloc_by_spec in SIMsp. destruct SIMsp as [v1 [Hra0 [Hsrc0 Htgt0]]].
+          exists v1. split; [rewrite BOOL; exact Hra0|].
+          split; [exact Hsrc0|].
+          cbn. destruct (dec b b); [|contradiction].
+          destruct (dec ofs ofs1); [contradiction|exact Htgt0].
+        * right. right. unfold alloc_by_impl in SIMimpl. destruct SIMimpl as [v1 [Hra0 [Hsrc0 Htgt0]]].
+          exists v1. split; [rewrite BOOL; exact Hra0|].
+          split; [exact Hsrc0|].
+          cbn. destruct (dec b b); [|contradiction].
+          destruct (dec ofs ofs1); [contradiction|exact Htgt0].
+    - assert (BOOL: bool_decide (b = b1 ∧ ofs = ofs1) = false).
+      { apply bool_decide_eq_false_2. intros [EQ _]. contradiction. }
+      destruct (dec b b1); [contradiction|].
+      destruct SIM as [SIMna|[SIMsp|SIMimpl]].
+      + left. unfold not_allocated in SIMna. destruct SIMna as [Hra0 [Hsrc0 Htgt0]].
+        split; [rewrite BOOL; exact Hra0|].
+        split; [exact Hsrc0|].
+        cbn. destruct (dec b b1); [contradiction|exact Htgt0].
+      + right. left. unfold alloc_by_spec in SIMsp. destruct SIMsp as [v1 [Hra0 [Hsrc0 Htgt0]]].
+        exists v1. split; [rewrite BOOL; exact Hra0|].
+        split; [exact Hsrc0|].
+        cbn. destruct (dec b b1); [contradiction|exact Htgt0].
+      + right. right. unfold alloc_by_impl in SIMimpl. destruct SIMimpl as [v1 [Hra0 [Hsrc0 Htgt0]]].
+        exists v1. split; [rewrite BOOL; exact Hra0|].
+        split; [exact Hsrc0|].
+        cbn. destruct (dec b b1); [contradiction|exact Htgt0].
   (*SLOW*)Qed.
 
   Lemma simF_cmp : ISim.sim_fun open HybMem DetMem IstFull (fid MemHdr.cmp).
@@ -690,11 +859,7 @@ Module MemDH. Section MemDH.
       cForceS. iSplitL "ASM"; eauto. cStepsS.
       rewrite CMP. cStepsT.
       cStep. iSplit.
-      { 
-        iPureIntro. rewrite COMP. destruct (dec succ 1); des_ifs. 
-        unfold HybMem.compare_val in COMP. 
-        destruct arg0; ss; des_ifs.
-      }
+      { iPureIntro. rewrite COMP. f_equal. eapply compare_val_bool_decide; eauto. }
       iExists {[HybMem.v_mem # _↑]}, _, st_tgtR, st_tgtR.
       instantiate (1 := {[DetMem.v_mem # _↑]}). repeat (iSplit; eauto).
       iExists _, _, _.  
@@ -794,7 +959,7 @@ Module MemDH. Section MemDH.
       rewrite {1}/unwrapU. des_ifs; cycle 1.
       { cStepsS; des_ifs. }
       cStepsS. cStepsT.
-      destruct (dec v0 (Vint 1)); cycle 1.
+      destruct (bool_decide (v0 = Vint 1)) eqn:EQV0; cycle 1.
       { cStepsS. cStepsT. cStep; eauto. iFrame. eauto. }
       cStepsS. cStepsT. 
       cCall "IST". iIntros (???) "IST". cStepsS. cStepsT.
@@ -811,67 +976,105 @@ Module MemDH. Section MemDH.
 
     cInlineT. cStepsT.
     iPoseProof (mem_ra_lookup_point with "[B CUR]") as "%PT"; [eauto|iFrame|]. des.
+    pose proof (SIM b ofs) as SIMCUR.
+    unfold not_allocated, alloc_by_spec, alloc_by_impl in SIMCUR.
+    destruct SIMCUR as [SIMna|[SIMsp|SIMimpl]].
+    { destruct SIMna as [Hra _]. rewrite Hra in PT. inv PT. }
+    2: { destruct SIMimpl as [v2 [Hra _]]. rewrite Hra in PT. inv PT. }
+    destruct SIMsp as [v2 [SIM0 [SIM1 SIM2]]].
     rewrite PT0. cStepsT.
     cInlineT. cStepsT.
     iPoseProof (mem_ra_cmp with "[B CUR CMP0 CMP1]") as "%CP"; eauto; [iFrame|].
     rewrite CP. cStepsT.
-    
-    iPoseProof (mem_ra_store with "[B CUR]") as ">[B P]"; [eauto|iFrame|].
 
-    cForcesS. iSplitR "B"; iFrame. cStepsS.
-
-    destruct (dec succ 1); cycle 1.
-    { 
-      cStepsT. cStep; iFrame.
+    repeat case_bool_decide; simplify_eq.
+    - cStepsT. cInlineT. cStepsT. rewrite PT0. cStepsT.
+      iPoseProof (mem_ra_store with "[B CUR]") as ">[B P]"; [eauto|iFrame|].
+      cForcesS. iSplitR "B"; iFrame. cStepsS.
+      cStep; iFrame.
       iSplit; eauto.
       iExists {[HybMem.v_mem # _↑]}, _, st_tgtR, st_tgtR.
       instantiate (1 := {[DetMem.v_mem # _↑]}). repeat (iSplit; eauto).
       iExists _, _.  
       iSplit. { iPureIntro. esplits; try refl. }
       iSplitR. 
-      { iPureIntro. splits; ss; try nia. } 
+      { iPureIntro. splits; ss; try nia.
+        ii. ss. unfold update in *.
+        des_ifs; eapply H4; eauto.
+        destruct (dec b b0); destruct (dec ofs ofs0); ss; subst.
+        eapply PT0.
+      }
       iFrame. iSplit; eauto.
       iPureIntro. split; cycle 1.
       {
-        i. specialize (NEXT b0 ofs0 OUT).
-        unfold mem_ra_upd, not_allocated, update in *. ss. des.
-        destruct (dec b b0); destruct (dec ofs ofs0); esplits; eauto; des_ifs. 
+        intros b1 ofs1 OUT.
+        assert (BLT: b < Mem.nb mem_tgt) by (eapply H4; exact PT0).
+        specialize (NEXT b1 ofs1 OUT).
+        destruct NEXT as [Hra [Hsrc Htgt]].
+        unfold mem_ra_upd, not_allocated, update.
+        destruct (dec b b1) as [EQb|NEb].
+        - subst. simpl in OUT. nia.
+        - case_bool_decide; [naive_solver|].
+          destruct (dec b b1); [contradiction|].
+          split; [exact Hra|].
+          split; [exact Hsrc|].
+          cbn. destruct (dec b b1); [contradiction|exact Htgt].
       }
-      ii. unfold mem_ra_upd, not_allocated, alloc_by_spec, alloc_by_impl, update; ss.
-      des_ifs; esplits; eauto. 
-      destruct (dec b b0); destruct (dec ofs ofs0); des_ifs.
-      right. left. esplits; eauto.
-      specialize (SIM b0 ofs0); unfold not_allocated, alloc_by_spec, alloc_by_impl in SIM; des; ss.
-      rewrite SIM in PT. inv PT.
-    }
-
-    cStepsT. cInlineT. cStepsT. rewrite PT0. cStepsT.
-    cStep; iFrame.
-    iSplit; eauto.
-    iExists {[HybMem.v_mem # _↑]}, _, st_tgtR, st_tgtR.
-    instantiate (1 := {[DetMem.v_mem # _↑]}). repeat (iSplit; eauto).
-    iExists _, _.  
-    iSplit. { iPureIntro. esplits; try refl. }
-    iSplitR. 
-    { iPureIntro. splits; ss; try nia. 
-      ii. ss. unfold update in *.
-      des_ifs; eapply H4; eauto.
-      destruct (dec b b0); destruct (dec ofs ofs0); ss; subst.
-      eapply PT0.
-    }
-    iFrame. iSplit; eauto.
-    iPureIntro. split; cycle 1.
-    {
-      i. specialize (NEXT b0 ofs0 OUT).
-      unfold mem_ra_upd, not_allocated, update in *. ss. des.
-      destruct (dec b b0); destruct (dec ofs ofs0); esplits; eauto; des_ifs. 
-    }
-    ii. unfold mem_ra_upd, not_allocated, alloc_by_spec, alloc_by_impl, update; ss.
-    des_ifs; esplits; eauto. 
-    destruct (dec b b0); destruct (dec ofs ofs0); des_ifs.
-    right. left. esplits; eauto.
-    specialize (SIM b0 ofs0); unfold not_allocated, alloc_by_spec, alloc_by_impl in SIM; des; ss.
-    rewrite SIM in PT. inv PT.
+      intros b1 ofs1.
+      specialize (SIM b1 ofs1).
+      unfold mem_ra_upd, update.
+      destruct (dec b b1) as [EQb|NEb].
+      + subst b1.
+        destruct (dec ofs ofs1) as [EQofs|NEofs].
+        * subst ofs1.
+          right. left. exists v_new.
+          split.
+          { case_bool_decide; [reflexivity|naive_solver]. }
+          { split; [exact SIM1|].
+            cbn. destruct (dec b b); [|contradiction].
+            destruct (dec ofs ofs); [reflexivity|contradiction]. }
+        * assert (BOOL: bool_decide (b = b ∧ ofs = ofs1) = false).
+          { apply bool_decide_eq_false_2. intros [_ EQ]. contradiction. }
+          destruct (dec b b); [|contradiction].
+          destruct (dec ofs ofs1); [contradiction|].
+          destruct SIM as [SIMna|[SIMsp|SIMimpl]].
+          { left. unfold not_allocated in SIMna. destruct SIMna as [Hra0 [Hsrc0 Htgt0]].
+            split; [rewrite BOOL; exact Hra0|].
+            split; [exact Hsrc0|].
+            cbn. destruct (dec b b); [|contradiction].
+            destruct (dec ofs ofs1); [contradiction|exact Htgt0]. }
+          { right. left. unfold alloc_by_spec in SIMsp. destruct SIMsp as [v1' [Hra0 [Hsrc0 Htgt0]]].
+            exists v1'. split; [rewrite BOOL; exact Hra0|].
+            split; [exact Hsrc0|].
+            cbn. destruct (dec b b); [|contradiction].
+            destruct (dec ofs ofs1); [contradiction|exact Htgt0]. }
+          { right. right. unfold alloc_by_impl in SIMimpl. destruct SIMimpl as [v1' [Hra0 [Hsrc0 Htgt0]]].
+            exists v1'. split; [rewrite BOOL; exact Hra0|].
+            split; [exact Hsrc0|].
+            cbn. destruct (dec b b); [|contradiction].
+            destruct (dec ofs ofs1); [contradiction|exact Htgt0]. }
+      + assert (BOOL: bool_decide (b = b1 ∧ ofs = ofs1) = false).
+        { apply bool_decide_eq_false_2. intros [EQ _]. contradiction. }
+        destruct (dec b b1); [contradiction|].
+        destruct SIM as [SIMna|[SIMsp|SIMimpl]].
+        { left. unfold not_allocated in SIMna. destruct SIMna as [Hra0 [Hsrc0 Htgt0]].
+          split; [rewrite BOOL; exact Hra0|].
+          split; [exact Hsrc0|].
+          cbn. destruct (dec b b1); [contradiction|exact Htgt0]. }
+        { right. left. unfold alloc_by_spec in SIMsp. destruct SIMsp as [v1' [Hra0 [Hsrc0 Htgt0]]].
+          exists v1'. split; [rewrite BOOL; exact Hra0|].
+          split; [exact Hsrc0|].
+          cbn. destruct (dec b b1); [contradiction|exact Htgt0]. }
+        { right. right. unfold alloc_by_impl in SIMimpl. destruct SIMimpl as [v1' [Hra0 [Hsrc0 Htgt0]]].
+          exists v1'. split; [rewrite BOOL; exact Hra0|].
+          split; [exact Hsrc0|].
+          cbn. destruct (dec b b1); [contradiction|exact Htgt0]. }
+    - cStepsT.
+      cForcesS. iSplitR "B"; iFrame. cStepsS.
+      cStep; iFrame.
+      iSplit; eauto.
+      iExists {[HybMem.v_mem # _↑]}, _, st_tgtR, st_tgtR.
+      instantiate (1 := {[DetMem.v_mem # _↑]}). repeat (iSplit; eauto).
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open HybMem DetMem HybMem.init_cond IstFull.
