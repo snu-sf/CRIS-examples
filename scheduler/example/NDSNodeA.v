@@ -19,7 +19,7 @@ Module NDSNodeA. Section NDSNodeA.
 
     Definition N_nds_node : namespace := (nroot .@ "NDSNode.x").
 
-    Definition inv_x_points_to (loc: mblock * Z) : iProp Σ :=
+    Definition inv_x_points_to (loc: Z) : iProp Σ :=
       inv 0 N_nds_node (∃ (v: τ{ ⇣nat }), loc ⤇ (Vint v))%SAT.
 
     Definition f_main_spec : fspec :=
@@ -30,8 +30,8 @@ Module NDSNodeA. Section NDSNodeA.
 
     Definition f_spec : fspec :=
       fspec_nds E
-        (fspec_virtual (λ (loc: mblock * Z),
-             ((λ varg arg, ⌜varg = (tt↑↑) ∧ arg = ((Vptr loc)↑↑)↑⌝ ∗ inv_x_points_to loc)%I,
+        (fspec_virtual (λ (loc: Z),
+             ((λ varg arg, ⌜varg = (tt↑↑) ∧ arg = ((Vint loc)↑↑)↑⌝ ∗ inv_x_points_to loc)%I,
               (λ vret ret, ⌜vret = (tt↑↑) ∧ ret = (tt↑↑)↑⌝)%I))).
 
     Definition sp : specmap :=
@@ -69,5 +69,3 @@ Module NDSNodeA. Section NDSNodeA.
   
   Definition t sp := SMod.to_mod sp (smod ⊤).
 End NDSNodeA. End NDSNodeA.
-
-

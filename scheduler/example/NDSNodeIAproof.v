@@ -31,19 +31,17 @@ Module NDSNodeIA. Section NDSNodeIA.
     cStepsS. cStepsT.
 
     cInlineT. cSimpl. cStepsT. cForceT true. cStepsT. cForcesT. iSplitR; eauto.
-    cStepsT. iDestruct "GRT" as "[PT _]".
-    rename _q into blk. replace (0 + 0%nat)%Z with 0%Z by nia.
-
+    cStepsT. rename _q into blk. iDestruct "GRT" as "[% [PT _]]". rewrite right_id. 
     ndsYieldGlobalIR "IST" "tidF". cStepsT. cInlineT. cStepsT. cForceT true.
-    cStepsT. cForcesT. iSplitL "PT"; [eauto|].
-    cStepsT. iDestruct "GRT" as "PT". ndsYieldGlobalIR "IST" "tidF". ndsYieldGlobalS.
+    cStepsT. cForcesT. iSplitL "PT"; et.
+    cStepsT. ndsYieldGlobalIR "IST" "tidF". ndsYieldGlobalS.
 
     cStepsS. cStepsT. simpl_sp.
     cForceS (mtid, stid, ssch,
-              (λ varg arg, ⌜varg = (tt↑↑) ∧ arg = ((Vptr (blk, 0%Z))↑↑)⌝ ∗ inv_x_points_to (blk, 0%Z))%I,
-              (λ vret ret, existT 0 (⌜vret = tt↑↑ ∧ ret = tt↑↑⌝%SAT))).
+             (λ varg arg, ⌜varg = (tt↑↑) ∧ arg = ((Vint blk)↑↑)⌝ ∗ inv_x_points_to blk)%I,
+             (λ vret ret, existT 0 (⌜vret = tt↑↑ ∧ ret = tt↑↑⌝%SAT))).
     cStepsS.
-    iMod ((inv_alloc (∃ (v: τ{ ⇣nat }), sown mem_name (mem_points_to_singleton_r (blk, 0%Z) 1 (Vint v)))%SAT) with "[PT]") as "#I"; eauto.
+    iMod ((inv_alloc (∃ (v: τ{ ⇣nat }), sown mem_name (mem_points_to_singleton_r blk 1 (Vint v)))%SAT) with "[GRT]") as "#I"; eauto.
     { solve_base_sl_red. iExists 0. iFrame. }
     cForcesS. iSplitL "tidF".
     { iExists _. iSplit; eauto. do 3 iExists _. iSplit; eauto. iSplitR "tidF"; eauto.
@@ -51,7 +49,7 @@ Module NDSNodeIA. Section NDSNodeIA.
       { iPureIntro. erewrite lookup_weaken; try eapply Hnode; eauto. }
       rewrite /NDSA.fspec_spawnable. iIntros (??) "[%x [%Hpre %Hpost]]"; ss.
       destruct x as [[mtid' stid'] ssch'].
-      set (m := (mtid', stid', ssch', (blk, 0%Z)) : meta (f_spec ⊤)).
+      set (m := (mtid', stid', ssch', blk) : meta (f_spec ⊤)).
       iExists (precond (f_spec ⊤) m), (postcond (f_spec ⊤) m).
       iSplit; eauto.
       { iPureIntro. exists m. esplits; eauto. }
@@ -101,7 +99,7 @@ Module NDSNodeIA. Section NDSNodeIA.
   Proof using Hschnds Hnds Hnode.
     cStartFunSim. rewrite /NDSNodeI.f /f.
 
-    cStepsS. destruct _q as [[[mtid stid] ssch] [blk ofs]].
+    cStepsS. destruct _q as [[[mtid stid] ssch] blk].
     iDestruct "ASM" as "[TID (% & % & % & #I)]"; des; subst; cSimpl.
 
     cStepsS. cStepsT. ndsYieldGlobalIR "IST" "TID".
