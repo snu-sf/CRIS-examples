@@ -1,0 +1,228 @@
+Require Import CRIS Cancel.
+Require Import ImpPrelude.
+From CRIS.imp_system Require Import mem.MemI mem.MemA mem.MemIAproof.
+From CRIS.celliostk Require Import MainHeader CellioHeader CellioA CellioI MainA MainI CtxHeader CellioIAproof MainIAproof.
+
+Section CellioAux.
+  Context `{!crisG Γ Σ α β τ Hsub Hinv, _CELL: !cellioGS}.
+  Context `{_MEM: !memGS}.
+
+  Variable Ctx : SMod.t.
+  Hypothesis ctx_real: SMod.is_real Ctx.
+  Hypothesis ctx_mod_wf: Mod.wf (SMod.to_mod ∅ Ctx).
+  Hypothesis ctx_cancellable : SMod.cancellable Ctx.
+  Hypothesis ctx_has_foo: fid CtxHdr.foo ∈ dom (SMod.fnsems Ctx).
+  Hypothesis ctx_main_disj:
+    ∀ fno, fno ∈ dom (SMod.fnsems Ctx) → fno ∈ dom (Mod.fnsems MainI.t) → False.
+  Hypothesis ctx_cellio_disj:
+    ∀ fno, fno ∈ dom (SMod.fnsems Ctx) → fno ∈ dom (Mod.fnsems CellioI.t) → False.
+  Hypothesis ctx_mem_disj:
+    ∀ fno, fno ∈ dom (SMod.fnsems Ctx) → fno ∈ dom (Mod.fnsems (MemI.t [])) → False.
+  Hypothesis ctx_main_scope_disj:
+    ∀ mn, mn ∈ (SMod.scopes Ctx) → mn ∈ (Mod.scopes MainI.t) → False.
+  Hypothesis ctx_cellio_scope_disj:
+    ∀ mn, mn ∈ (SMod.scopes Ctx) → mn ∈ (Mod.scopes CellioI.t) → False.
+  Hypothesis ctx_mem_scope_disj:
+    ∀ mn, mn ∈ (SMod.scopes Ctx) → mn ∈ (Mod.scopes (MemI.t [])) → False.
+
+  Local Definition Ctx_filtered : SMod.t := SMod.filter SFilter.msk_filter_out Ctx.
+  Local Definition mod_top : Mod.t := SMod.to_mod ∅ (SMod.cancel (MainA.smod ☆ Ctx_filtered)).
+  Local Definition mod_tgt : Mod.t := MainI.t ★ CellioI.t ★ (MemI.t []) ★ (SMod.to_mod ∅ Ctx).
+
+  Local Definition sp : specmap := SMod.sp_from (MainA.smod ☆ Ctx_filtered).
+  Local Definition mod_src : Mod.t := SMod.to_mod sp MainA.smod ★ SMod.to_mod ∅ Ctx.
+
+  Local Definition init_cond : iProp Σ :=
+    (MemA.init_cond [])%I.
+
+  Lemma sp_cb: sp.1 !! fid MainHdr.input_cb = None.
+  Proof.
+    rewrite lookup_omap !lookup_fmap lookup_omap lookup_union_with.
+    assert (CTXNONE: SMod.fnsems Ctx !! fid MainHdr.input_cb = None).
+    { eapply not_elem_of_dom. ii. eapply ctx_main_disj; eauto.
+      rewrite /MainI.t /MainI.smod /SMod.to_mod /= /Mod.fnsems. set_solver.
+    } 
+    des. rewrite !lookup_fmap CTXNONE. ss.
+  (*SLOW*)Qed.
+
+  Lemma sp_foo: sp.1 !! fid CtxHdr.foo = None.
+  Proof.
+    rewrite lookup_omap !lookup_fmap lookup_omap lookup_union_with.
+    assert (FIND: exists x, SMod.fnsems Ctx !! fid CtxHdr.foo = Some (Some x)).
+    { eapply elem_of_dom in ctx_has_foo. inv ctx_has_foo. eauto.
+      inv ctx_mod_wf. destruct x; eauto.
+      destruct (SMod.fnsems Ctx !! fid CtxHdr.foo) eqn:FIND; ss.
+      inv H. hexploit (wf_fns (fid CtxHdr.foo)).
+      { rewrite /Mod.fnsems /SMod.to_mod lookup_fmap FIND //. }
+      i. ss. inv H.
+    }
+    des. rewrite !lookup_fmap FIND. ss. destruct x, p. et.
+  (*SLOW*)Qed.
+
+  (* Apply cancellation to linked spec module *)
+  Lemma cancel_src:
+    refines
+      (mod_src, init_cond)
+      (mod_top, init_cond ∗ Cancel.init_res)%I.
+  Proof.
+    rewrite /mod_src /mod_top.
+    etrans.
+    { eapply ctxr_refines. ctxr_drop.
+      eapply SFilter.smod_filter_intro. }
+    etrans.
+    { eapply ctxr_refines. ctxr_rotate. ctxr_drop.
+      eapply Cancel.cancellation_prepare; et; clarify.
+    }
+
+    etrans.
+    { eapply ctxr_refines. ctxr_rotate. ctxr_drop.
+      eapply Cancel.cancellation_prepare with (sps:=sp); et; i; cycle 1.
+      { eapply SFilter.filter_masked; et. }
+
+      ltac2:(renames H into Lfn, Lsp).
+      rewrite lookup_empty in Lsp. apply not_eq_sym, not_eq_None_Some in Lsp.
+      destruct Lsp as [? Lsp]. eapply SMod.sp_core_from_add_lookup in Lsp.
+      destruct Lsp as [Lsp|Lsp]; des; cycle 1.
+      - eapply SMod.sp_core_from_lookup in Lsp0; des. rewrite !lookup_fmap in Lsp0.
+        destruct (SMod.fnsems Ctx !! _) as [[[? []]|]|] eqn: Lctx_fc; ss; subst.
+        eapply ctx_real in Lctx_fc; subst; ss.
+      - eapply SMod.sp_core_from_lookup in Lsp; des.
+        rewrite lookup_insert_Some in Lsp; des; ss. 
+        rewrite lookup_singleton_Some in Lsp1. set_solver.
+    }
+
+    rewrite -SMod.to_mod_cancel_add left_id -(left_id _ bi_sep Cancel.init_res).
+    eapply Cancel.cancellation.
+    { apply SMod.cancellable_add.
+      - r; rewrite /= /MainA.fnsems //; mod_tac ss.
+      - eapply SFilter.filter_cancellable. et.
+    }
+    { assert (Ce : SMod.fnsems Ctx !! entry = None).
+      { eapply not_elem_of_dom. ii. eapply ctx_main_disj; eauto.
+        rewrite /MainI.t /MainI.smod /SMod.to_mod /= /Mod.fnsems. set_solver.
+      }
+      assert (Ht : (SMod.sp_from (MainA.smod ☆ Ctx_filtered)).1 !! entry = fsp_none);
+        last (rewrite Ht; clear Ht).
+      { rewrite /SMod.sp_from /SMod.sp_core_from.
+        rewrite !lookup_omap !lookup_fmap lookup_omap lookup_union_with.
+        simpl_map; ss. rewrite !lookup_fmap Ce //.
+      }
+      eexists _, _; splits.
+      - ss; exists tt; split; refl.
+      - et.
+      - et.
+    }
+  (*SLOW*)Qed.
+
+  (* Refinement between spec/impl of whole program (linked module) *)
+  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond)%I.
+  Proof.
+    eapply ctxr_refines.
+    rewrite /init_cond /mod_src /mod_tgt.
+
+    etrans.
+    { (* MemI ⊆ctx MemA *)
+      do 2 ctxr_drop. ctxr_rotate. ctxr_drop.
+      eapply main_adequacy, MemIA.sim with (sp:=sp).
+    }
+
+    (* solve by transitivity:
+      MainI ★ CellioI ⊆ MainI ★ CellioA ⊆ MainA ★ CellioA 
+    *)
+    etrans.
+    { (* CellioI ★ MemA ⊆ctx CellioA ★ MemA *)
+      ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
+      eapply main_adequacy, CellioIA.sim.
+    }
+
+    rewrite /CellioIAproof.CellioIA.CellioAMod.
+    etrans.
+    { (* MainI ★ CellioA ⊆ MainA *)
+      ctxr_rotate. ctxr_drop. ctxr_rotate. ctxr_drop.
+      eapply main_adequacy, MainIA.sim; eauto using sp_foo, sp_cb.
+    }
+
+    etrans.
+    { (* drop & rotate *)
+      do 2 ctxr_rotate. do 2 ctxr_drop. eapply elim_module.
+    }
+
+    rewrite right_id.
+    eapply ctxr_consequence. et.
+  (*SLOW*)Qed.
+
+  Lemma top_tgt :
+    refines
+      (mod_tgt, emp%I)
+      (mod_top, init_cond ∗ Cancel.init_res)%I.
+  Proof.
+    etrans.
+    { eapply src_tgt. }
+    { eapply cancel_src. }
+  Qed.
+
+  Lemma tgt_wf: Mod.wf mod_tgt.
+  Proof.
+    rewrite /mod_tgt. rewrite !assoc comm.
+    eapply Mod.add_wf; cycle 2; et.
+    { mod_tac. }
+    { eapply NoDup_app. esplits.
+      - apply ctx_mod_wf.
+      - mod_tac.
+      - prove_nodup; set_solver.
+    }
+    econs.
+    - mod_tac.
+    - prove_nodup; set_solver.
+  (*SLOW*)Qed.
+End CellioAux.
+
+Module CellioAll.
+  Import inv_instances.
+
+  Local Instance Γ : HRA := ##[invΓ; concΓ; memΓ].
+  Local Instance Σ : GRA := ##[Γ; invΣ].
+
+  Lemma behavioral_refinement :
+    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : memGS),
+    ∀ (Ctx : SMod.t)
+      (ctx_real: SMod.is_real Ctx)
+      (ctx_mod_wf: Mod.wf (SMod.to_mod ∅ Ctx))
+      (ctx_cancellable : SMod.cancellable Ctx)
+      (ctx_has_foo: fid CtxHdr.foo ∈ dom (SMod.fnsems Ctx))
+      (ctx_main_disj:
+        ∀ fno, fno ∈ dom (SMod.fnsems Ctx) → fno ∈ dom (Mod.fnsems MainI.t) → False)
+      (ctx_cellio_disj:
+        ∀ fno, fno ∈ dom (SMod.fnsems Ctx) → fno ∈ dom (Mod.fnsems CellioI.t) → False)
+      (ctx_mem_disj:
+        ∀ fno, fno ∈ dom (SMod.fnsems Ctx) → fno ∈ dom (Mod.fnsems (MemI.t [])) → False)
+      (ctx_main_scope_disj:
+        ∀ mn, mn ∈ (SMod.scopes Ctx) → mn ∈ (Mod.scopes MainI.t) → False)
+      (ctx_cellio_scope_disj:
+        ∀ mn, mn ∈ (SMod.scopes Ctx) → mn ∈ (Mod.scopes CellioI.t) → False)
+      (ctx_mem_scope_disj:
+        ∀ mn, mn ∈ (SMod.scopes Ctx) → mn ∈ (Mod.scopes (MemI.t [])) → False),
+    ∃ src_res tgt_res,
+    refines_lmod
+      (Mod.to_lmod (mod_tgt Ctx) tgt_res)
+      (Mod.to_lmod (mod_top Ctx) src_res).
+  Proof.
+    apply own_admin_soundness.
+    iMod cris_alloc as "[% [% [% [% ?]]]]".
+    iMod mem_alloc as "[% ?]".
+    iExists _, _, _, _, _.
+    pose proof top_tgt as Href.
+    iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
+    iPoseProof (Own_valid with "R") as "%".
+    iPureIntro. i.
+    rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
+    clear Href; intros [? Href].
+    hexploit (Href res); eauto.
+    { rewrite Hres. iIntros "((W & $ & $ & $ & $) & [$ _])".
+      rewrite {1}winv_split_empty comm //.
+    }
+    s; i; des; et.
+  (*SLOW*)Qed.
+End CellioAll.
+
+(* Print Assumptions CellioAll.behavioral_refinement. *)

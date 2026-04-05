@@ -34,6 +34,7 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R cannon $(CRISMODULE).cannon"; \
 	 echo "-R cellio $(CRISMODULE).cellio"; \
 	 echo "-R celliocb $(CRISMODULE).celliocb"; \
+	 echo "-R celliostk $(CRISMODULE).celliostk"; \
 	 echo "-R elimination_stack $(CRISMODULE).elimination_stack"; \
 	 echo "-R hybrid_mem $(CRISMODULE).hybrid_mem"; \
 	 echo "-R incr $(CRISMODULE).incr"; \
