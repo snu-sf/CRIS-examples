@@ -24,11 +24,8 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-arg -w -arg -redundant-canonical-projection"; \
 	 echo "-arg -w -arg -cannot-define-projection"; \
 	 echo "-R $(CRISMODULE)/theories $(CRISMODULE)"; \
-	 echo "-R $(CRISMODULE)/scheduler $(CRISMODULE)"; \
-	 echo "-R $(CRISMODULE)/apc $(CRISMODULE)"; \
-	 echo "-R $(CRISMODULE)/prophecy $(CRISMODULE)"; \
+	 echo "-R $(CRISMODULE)/library $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/extract $(CRISMODULE)"; \
-	 echo "-R $(CRISMODULE)/helping $(CRISMODULE)"; \
 	 echo "-R imp_system $(CRISMODULE).imp_system"; \
 	 echo "-R promise_free $(CRISMODULE).promise_free"; \
 	 echo "-R cannon $(CRISMODULE).cannon"; \
