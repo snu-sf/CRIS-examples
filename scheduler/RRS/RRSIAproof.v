@@ -248,10 +248,8 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = mtid)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
         case_decide; clarify; by iPoseProof (YieldToken_both with "Y YIELD2") as "%". }
-      rewrite STID in Hmtid0. inv Hmtid0.
+      rewrite STID in Hmtid0. inv Hmtid0. simpl_sp.
 
-      erewrite lookup_weaken; cycle 1.
-      { eapply H0. } { apply FunInRrsSp. }
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (mtid, stid, ssch); split; done. }
       
@@ -324,10 +322,8 @@ Module RRSIA. Section RRSIA.
       iPoseProof (rrinv_wf with "RRI") as "%WF".
       iPoseProof (rrinv_match with "[RRIA RRI]") as "%"; first iFrame. subst.
       iPoseProof (rrinv_prev_gen with "RRI") as "[RRI RRIP]".
-      iCombine "TidF TidF'" as "TidF". rewrite agree_idemp.
+      iCombine "TidF TidF'" as "TidF". rewrite agree_idemp. simpl_sp.
 
-      erewrite lookup_weaken; cycle 1.
-      { eapply H0. } { apply FunInRrsSp. }
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (0, stid, ssch); split; done. }
 
@@ -405,11 +401,8 @@ Module RRSIA. Section RRSIA.
 
     cStepsS. cStepsT. cSimpl.
     set (size rrinvO) as mtid_new.
-    cStepsS. cStepsT.
+    cStepsS. cStepsT. simpl_sp.
 
-    erewrite lookup_weaken; try eapply RRSInSp; cycle 1.
-    { rewrite /RRSAS.sp. simpl_map. refl. }
-    
     cForceS. cStepsS. iApply wsim_spawn. iIntros (stid_new).
 
     iPoseProof (rrinv_wf with "RRIA") as "%".

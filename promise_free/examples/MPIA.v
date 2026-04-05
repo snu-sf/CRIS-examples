@@ -19,7 +19,7 @@ Module MPIA. Section MPIA.
 
   Lemma mp2_spawnable : ⊢ SystemA.fspec_spawnable sp_user MPHdr.mp2 MPA.mp2_precondition.
   Proof.
-    iExists MPA.mp2_spec; iSplit; [iPureIntro; eapply lookup_weaken; eauto; by simpl_sp|].
+    iExists MPA.mp2_spec; iSplit; [iPureIntro; by simpl_sp|].
     iIntros "%P %Q [%x [-> ->]]"; iExists _, _; iSplit; [iPureIntro; exists x; split; ss|].
     unfoldPrePost. destruct x.
     iIntros (varg arg) "[$ [% [-> [% [$ [% [% $]]]]]]] /= !>"; iSplitL; eauto.

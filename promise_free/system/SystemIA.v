@@ -36,8 +36,7 @@ Module SystemIA. Section SystemIA.
       "[%stid [%tid [%𝓥 [%pre [%fvarg [%farg [%fn [[-> ->] [W [[%fsp [% Spawn]] [TV PRE]]]]]]]]]]]".
     iDestruct "IST" as (????) "[[-> ->] [[% IST] ->]]".
     iDestruct "IST" as "[%tid_cur [%tids [[-> ->] [TA TVS]]]]".
-    cStepsS.
-    unshelve erewrite lookup_weaken; try apply Hincl; eauto.
+    cStepsS. simpl_sp.
     iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
     { iPureIntro; exists (tid, stid); split; done. }
     iPoseProof ("Hspawn" with "[W PRE TV]") as "> [Pre Post]".

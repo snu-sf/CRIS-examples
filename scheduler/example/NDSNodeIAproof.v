@@ -46,7 +46,7 @@ Module NDSNodeIA. Section NDSNodeIA.
     cForcesS. iSplitL "tidF".
     { iExists _. iSplit; eauto. do 3 iExists _. iSplit; eauto. iSplitR "tidF"; eauto.
       rewrite /NDSA.fn_spawnable. iExists _; iSplit; eauto.
-      { iPureIntro. erewrite lookup_weaken; try eapply Hnode; eauto. }
+      { iPureIntro. simpl_sp; et. }
       rewrite /NDSA.fspec_spawnable. iIntros (??) "[%x [%Hpre %Hpost]]"; ss.
       destruct x as [[mtid' stid'] ssch'].
       set (m := (mtid', stid', ssch', blk) : meta (f_spec ⊤)).

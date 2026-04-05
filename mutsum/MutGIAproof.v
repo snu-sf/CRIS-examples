@@ -38,9 +38,7 @@ Module MutGIA. Section MutGIA.
     destruct _q; s.
     { (* f(0) *)
       rewrite /pure_body /cfunN.
-      cStepsT. cStepsS.
-      erewrite lookup_weaken; [| |eapply APCInSp]; cycle 1.
-      { rewrite /APCA.sp. simpl_map. refl. }
+      cStepsT. cStepsS. simpl_sp.
       cForcesS. iSplitR; et. cStepsS.
 
       (* SRC: inlining APC *)
@@ -57,9 +55,7 @@ Module MutGIA. Section MutGIA.
 
     (* f(S n) *)
     replace (S _q - 1)%Z with (Z.of_nat _q) by nia.
-    rewrite /pure_body /cfunN.
-    cStepsS. erewrite lookup_weaken; [| |eapply APCInSp]; cycle 1.
-    { rewrite /APCA.sp. simpl_map; refl. }
+    rewrite /pure_body /cfunN. cStepsS. simpl_sp.
     cStepsS. cForceS vo. cStepsS. cForcesS. iSplitR; eauto.
 
     (* SRC: inlining APC in order to cCall mutg *)

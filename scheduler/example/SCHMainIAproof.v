@@ -39,9 +39,7 @@ Module SCHMainIA. Section SCHMainIA.
     cStartFunSim.
 
     cStepsS. iDestruct "ASM" as "(-> & RI & RV & NI & T)". rewrite /SCHMainI.main. cStepsS.
-    erewrite lookup_weaken; try eapply Hsch; cycle 1.
-    { rewrite /SchA.sp. simpl_map. refl. }
-    destruct _q; ss.
+    simpl_sp. destruct _q; ss.
 
     rewrite /SchA.spawn_spec.
     set (pre := (λ svarg sarg, ⌜svarg = RRSNodeHdr.f_main↑↑ ∧ svarg = sarg⌝ ∗ RRSAS.InitRRS ∗ RRSNodeAS.full_val (Vint 0))%I).
@@ -49,7 +47,7 @@ Module SCHMainIA. Section SCHMainIA.
     cForceS (pre, postS). subst pre postS.
     cStepsS. cForcesS. iSplitL "RI RV".
     { do 3 iExists _. iSplit; eauto. iFrame. rewrite /SchA.fn_spawnable. iSplit; eauto. iExists _. iSplit; eauto.
-      { iPureIntro. erewrite lookup_weaken; try eapply Hrrs; et. }
+      { iPureIntro. simpl_sp. et. }
       rewrite /SchA.fspec_spawnable. iIntros (??) "%".
       destruct H as [x [Hpre Hpost]]; ss. rewrite /precond /= /precond in Hpre. rewrite /postcond /= /postcond in Hpost.
       destruct x as [[stid mtid] []].
@@ -65,7 +63,7 @@ Module SCHMainIA. Section SCHMainIA.
         iExists _. iSplitR; eauto. iExists _. iSplitR; eauto. iFrame.
         iDestruct "T" as "(t & T & Y)". iFrame. iSplit; eauto.
         rewrite /RRSAS.fn_spawnable_rr_init. iExists _. iSplit; eauto.
-        { iPureIntro. erewrite lookup_weaken; try eapply Hrrsnode; eauto. }
+        { iPureIntro. simpl_sp; et. }
         rewrite /RRSAS.fspec_spawnable_rr_init. iIntros (??) "%".
         rewrite /fspec_winv /fspec_virtual in H; ss; destruct H as [x [Hpre Hpost]]; ss; rewrite /precond /= /precond in Hpre; rewrite /postcond /= /postcond in Hpost.
         destruct x as [[mtid0 stid0] ssch].
@@ -88,9 +86,7 @@ Module SCHMainIA. Section SCHMainIA.
     }
     cStepsS. cStepsT. cCall "IST". iIntros (???) "IST".
     cStepsS.
-    iDestruct "ASM" as "(% & % & Join)"; des; subst; cSimpl.
-    erewrite lookup_weaken; try eapply Hsch; cycle 1.
-    { rewrite /SchA.sp. simpl_map. refl. }
+    iDestruct "ASM" as "(% & % & Join)"; des; subst; cSimpl. simpl_sp.
     cStepsT. cStepsS.
 
     rewrite /SchA.spawn_spec.
@@ -99,7 +95,7 @@ Module SCHMainIA. Section SCHMainIA.
     cForceS (pre, postS). subst pre postS.
     cStepsS. cForcesS. iSplitL "NI Join".
     { do 3 iExists _. iSplit; eauto. iFrame. rewrite /SchA.fn_spawnable. iSplit; eauto. iExists _. iSplit; eauto.
-      { iPureIntro. erewrite lookup_weaken; try eapply Hnds; eauto. }
+      { iPureIntro. simpl_sp; et. }
       rewrite /SchA.fspec_spawnable. iIntros (??) "%".
       destruct H as [x [Hpre Hpost]]; ss. rewrite /precond /= /precond in Hpre. rewrite /postcond /= /postcond in Hpost.
       destruct x as [[stid mtid] []].
@@ -115,7 +111,7 @@ Module SCHMainIA. Section SCHMainIA.
         iExists _. iSplitR; eauto. iExists _. iSplitR; eauto. iFrame.
         iDestruct "T" as "(t & T & Y)". iFrame. iSplit; eauto.
         rewrite /NDSA.fn_spawnable. iExists _. iSplit; eauto.
-        { iPureIntro. erewrite lookup_weaken; try eapply Hndsnode; eauto. }
+        { iPureIntro. simpl_sp; et. }
         rewrite /NDSA.fspec_spawnable. iIntros (??) "%".
         rewrite /fspec_winv /fspec_virtual in H; ss; destruct H as [x [Hpre Hpost]]; ss; rewrite /precond /= /precond in Hpre; rewrite /postcond /= /postcond in Hpost.
         destruct x as [[mtid0 stid0] ssch].

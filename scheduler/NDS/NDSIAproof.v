@@ -272,9 +272,7 @@ Module NDSIA. Section sim.
         case_decide; clarify; by iPoseProof (YieldToken_both with "YIELD YIELD2") as "%". }
       rewrite !list_lookup_fmap H in Hmtid0. inv Hmtid0.
 
-      iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)".
-      erewrite lookup_weaken; cycle 1.
-      { eapply Hspawn. } { eapply NdsInSchSp. }
+      iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)". simpl_sp.
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (mtid, stid, ssch); split; done. }
 
@@ -386,9 +384,7 @@ Module NDSIA. Section sim.
       unfoldIterCS. unfoldIterCT.
 
       iApply wsim_unfold; iIntros "W".
-      cStepsS.
-      erewrite lookup_weaken; try eapply NDSInSp; cycle 1.
-      { rewrite /NDSA.sp. simpl_map. refl. }
+      cStepsS. simpl_sp.
       cForceS (mtid, stid, ssch0). cForceS (tt↑). cStepsS.
       iApply wsim_guarantee_src; iFrame "W TidF TID YIELD C PubA S". iSplit; eauto.
 
@@ -439,9 +435,7 @@ Module NDSIA. Section sim.
       rewrite !list_lookup_fmap H in Hmtid0. inv Hmtid0.
       iCombine "tidF TidF" as "TidF". rewrite agree_idemp.
 
-      iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)".
-      erewrite lookup_weaken; cycle 1.
-      { eapply Hspawn. } { apply NdsInSchSp. }
+      iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)". simpl_sp.
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (0, stid, ssch); split; done. }
 
@@ -548,9 +542,7 @@ Module NDSIA. Section sim.
       unfoldIterCS. unfoldIterCT.
 
       iApply wsim_unfold; iIntros "W".
-      cStepsS.
-      erewrite lookup_weaken; try eapply NDSInSp; cycle 1.
-      { rewrite /NDSA.sp. simpl_map. refl. }
+      cStepsS. simpl_sp.
       cForceS (0, stid, ssch0). cForceS (tt↑). cStepsS.
       iApply wsim_guarantee_src; iFrame "W TidF TID YIELD C PubA S". iSplit; eauto.
 
@@ -592,11 +584,9 @@ Module NDSIA. Section sim.
       case_decide; clarify; by iPoseProof (YieldToken_both with "Y YIELD2") as "%". }
     rewrite !list_lookup_fmap H in Hmtid0. inv Hmtid0.
 
-    cStepsS. cStepsT.
+    cStepsS. cStepsT. simpl_sp.
 
     (* System spawn precondition *)
-    erewrite lookup_weaken; try eapply NDSInSp; cycle 1.
-    { rewrite /NDSA.sp. simpl_map. refl. }
     rewrite ConcInSp.
     cForceS ((fn, farg)↑). cStepsS.
     cStepsT. iApply wsim_spawn.
@@ -949,9 +939,7 @@ Module NDSIA. Section sim.
       cStep. iSplit; eauto.
       iFrame. do 3 iExists _. iSplit; eauto. do 2 iRight. iLeft. iFrame. eauto.
     }
-    { cStepsS. cStepsT.
-      erewrite lookup_weaken; try eapply NDSInSp; cycle 1.
-      { rewrite /NDSA.sp. simpl_map. refl. }
+    { cStepsS. cStepsT. simpl_sp.
       cForceS (mtid, stid, ssch0). cStepsS. cForceS. cForceS. iFrame "Tid T Y S C PubF". iSplit; eauto.
       cStepsS. cCall "JoinA TidA Rs Ys Ysch S' PubA".
       { do 4 iExists _. iFrame. iSplit; eauto. do 2 iRight. iLeft. iFrame; eauto. }

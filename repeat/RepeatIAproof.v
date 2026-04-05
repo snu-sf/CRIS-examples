@@ -42,9 +42,7 @@ Module RepeatIA. Section RepeatIA.
     cStepsS.
 
     (* SRC: find apc in sp *)
-    assert (SPAPC: sp.1 !! fid APCHdr.apc = fsp_some apc_spec).
-    { erewrite lookup_weaken; [refl| |eapply APCInSp]. rewrite /APCA.sp; simpl_map; refl. }
-    rewrite SPAPC /=.
+    simpl_sp.
 
     (* TGT: handle input *)
     cStepsT. unfold assume. cForceT. cStepsT.
