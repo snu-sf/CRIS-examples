@@ -149,13 +149,13 @@ Section MutAll.
       { eapply Mod.add_wf.
         { econs; eauto; [mod_tac|prove_nodup]. }
         { econs; eauto; [mod_tac|prove_nodup]. }
-        { set_solver. }
+        { mod_tac. }
         { prove_nodup; set_solver. }
       }
-      { rewrite Mod.dom_fnsems_add; set_solver. }
+      { mod_tac. }
       { prove_nodup; set_solver. }
     }
-    { rewrite !Mod.dom_fnsems_add; set_solver. }
+    { mod_tac. }
     { prove_nodup; set_solver. }
   Qed.
 End MutAll.

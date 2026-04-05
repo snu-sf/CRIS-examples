@@ -39,7 +39,7 @@ Module Mem.
   Definition valid_ptr (m0 : Mem.t) := fun '(b,ofs) =>
     if m0.(cnts) b ofs then true else false.
 
-  Definition load_mem (csl : string → bool) (genv : GEnv.t) : Mem.t :=
+  Definition load_mem (genv : GEnv.t) : Mem.t :=
     Mem.mk
       (λ blk ofs,
          p ← (genv !! blk); let '(g, gd) := p in
@@ -47,9 +47,8 @@ Module Mem.
          | Some Gfun =>
            None
          | Some (Gvar gv) =>
-           if csl g then None else
            if (bool_decide (ofs = 0%Z)) then Some (Vint gv) else None
-          | _ => None
+         | _ => None
          end)
       (List.length genv).
 
@@ -145,24 +144,24 @@ Module MemI. Section MemI.
       fid MemHdr.cmp   # (mask, (None, (cfunU cmp)));
       fid MemHdr.cas   # (mask, (None, (cfunU cas)))]}.
 
-  Program Definition smod csl genv : SMod.t := {|
+  Program Definition smod genv : SMod.t := {|
     SMod.scopes := scopes;
     SMod.fnsems := fnsems;
-    SMod.initial_st := {[v_mem # (Mem.load_mem csl genv)↑]};
+    SMod.initial_st := {[v_mem # (Mem.load_mem genv)↑]};
   |}.
   Solve Obligations with mod_tac.
 
-  Definition t csl genv : Mod.t := SMod.to_mod ∅ (smod csl genv).
+  Definition t genv : Mod.t := SMod.to_mod ∅ (smod genv).
 
-  Lemma filter_prophecy mn csl genv:
-    CFilter.filter (Prophecy.exports mn) (t csl genv) = t csl genv.
+  Lemma filter_prophecy mn genv:
+    CFilter.filter (Prophecy.exports mn) (t genv) = t genv.
   Proof. cfilter_solver. Qed.
 
-  Lemma filter_helping mn csl genv:
-    CFilter.filter (Helping.exports mn) (t csl genv) = t csl genv.
+  Lemma filter_helping mn genv:
+    CFilter.filter (Helping.exports mn) (t genv) = t genv.
   Proof. cfilter_solver. Qed.
 
-  Lemma real csl genv: Mod.real_mod (t csl genv).
+  Lemma real genv: Mod.real_mod (t genv).
   Proof. real_mod_solver. Qed.
   
 End MemI. End MemI.

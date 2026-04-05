@@ -1,5 +1,5 @@
 Require Import CRIS.
-Require Import CellioHeader CtxHeader.
+From CRIS.cellio Require Import CellioHeader CtxHeader.
 
 Module CellioI. Section CellioI.
   Context `{!crisG Γ Σ α β τ _S _I}.

@@ -1,12 +1,12 @@
 Require Import CRIS.
 
-Module CelliocbHdr.
-  Definition mn := "Celliocb".
+Module CellioHdr.
+  Definition mn := "Cellio".
 
   Definition fn (method: string) :=
     mn +:+ "." +:+ method.
 
   Definition set := fn "set".
   Definition get := fn "get".
-End CelliocbHdr.
+End CellioHdr.
 

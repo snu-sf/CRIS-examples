@@ -1,12 +1,12 @@
 Require Import CRIS.
 
-Module CtxcbHdr.
+Module CtxHdr.
 
-  Definition mn := "Ctxcb".
+  Definition mn := "Ctx".
     
   Definition fn (method: string) :=
     mn +:+ "." +:+ method.
   
   Definition foo := fn "foo".
   
-End CtxcbHdr.
+End CtxHdr.

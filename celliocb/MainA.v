@@ -1,9 +1,9 @@
 Require Import CRIS.
-Require Import CelliocbA CtxcbHeader CelliocbHeader MaincbHeader.
+From CRIS.celliocb Require Import CellioA CtxHeader CellioHeader MainHeader.
 
-Module MaincbA. Section MaincbA.
-  Import CelliocbA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CELLIOCB: !celliocbGS}.
+Module MainA. Section MainA.
+  Import CellioA.
+  Context `{!crisG Γ Σ α β τ _S _I, _CELLIOCB: !cellioGS}.
                 
   Definition scopes : list string := [].
 
@@ -16,19 +16,19 @@ Module MaincbA. Section MaincbA.
 
   Definition input_cb: Any.t -> itree crisE Any.t :=
     λ _,
-      i <- trigger (@IO _ Z "Input_stdin" tt);;
+      trigger (@IO _ unit "Output_stdout" 42);;;
       i <- trigger (@IO _ Z "Input_db" tt);;
       Ret i↑.
 
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
-      'i: Z <- ccallU MaincbHdr.input_cb tt;;
-      trigger (Call CtxcbHdr.foo tt↑);;;
+      'i: Z <- ccallU MainHdr.input_cb tt;;
+      trigger (Call CtxHdr.foo tt↑);;;
       trigger (@IO _ unit "Print" i);;;
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=
-    {[fid MaincbHdr.input_cb     # ((msk_scp scopes msk_true), (None, input_cb));  
+    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, input_cb));  
       entry # ((msk_scp scopes msk_true), (fsp_some main_spec, main))]}.
 
   Program Definition smod : SMod.t := {|
@@ -39,4 +39,4 @@ Module MaincbA. Section MaincbA.
   Solve All Obligations with mod_tac.
 
   Definition t sp := SMod.to_mod sp smod.
-End MaincbA. End MaincbA.
+End MainA. End MainA.

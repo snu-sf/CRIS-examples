@@ -1,5 +1,5 @@
 Require Import CRIS.
-Require Import CelliocbHeader CtxcbHeader.
+From CRIS.celliocb Require Import CellioHeader.
 
 Set Implicit Arguments.
 
@@ -8,11 +8,11 @@ Set Implicit Arguments.
    for dynamic behavior based on the provided callback. The get function retrieves 
    the value stored in the cell. *)
 
-Module CelliocbI. Section CelliocbI.
+Module CellioI. Section CellioI.
   Context `{!crisG Γ Σ α β τ _S _I}.
 
-  Definition scopes := [CelliocbHdr.mn].
-  Definition v_cv := (CelliocbHdr.mn) ↯ "cv".
+  Definition scopes := [CellioHdr.mn].
+  Definition v_cv := (CellioHdr.mn) ↯ "cv".
 
 (* For convenience we use a string callback identifier here.
    The actual function-pointer implementation and Landin’s knot reasoning
@@ -30,8 +30,8 @@ Module CelliocbI. Section CelliocbI.
 
 
   Definition fnsems : fnsemmap :=
-    {[fid CelliocbHdr.set # ((msk_scp scopes msk_true), (None, cfunU set));
-      fid CelliocbHdr.get # ((msk_scp scopes msk_true), (None, get))]}.
+    {[fid CellioHdr.set # ((msk_scp scopes msk_true), (None, cfunU set));
+      fid CellioHdr.get # ((msk_scp scopes msk_true), (None, get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
@@ -41,4 +41,4 @@ Module CelliocbI. Section CelliocbI.
   Solve All Obligations with mod_tac.
 
   Definition t := SMod.to_mod ∅ smod.
-End CelliocbI. End CelliocbI.
+End CellioI. End CellioI.

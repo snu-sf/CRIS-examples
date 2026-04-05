@@ -120,24 +120,24 @@ End HWQMA. End HWQMA.
 Module HWQIA. Section HWQIA.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !schGS, !hwqG, !memGS, !prophGS}.
 
-  Lemma ctxr (ctx : Mod.t) (N : namespace) (sp_user sp sp_mem : specmap) csl genv :
+  Lemma ctxr (ctx : Mod.t) (N : namespace) (sp_user sp sp_mem : specmap) genv :
     SchA.sp sp_user (↑N) ⊆ sp →
     real_mod ctx →
     refines
-      (HWQI.t      ★ MemI.t csl genv ★ SchI.t ★ ctx,
+      (HWQI.t      ★ MemI.t genv ★ SchI.t ★ ctx,
         emp%I)
       (HWQA.t N sp ★ MemA.t sp_mem   ★ SchI.t ★ ctx,
-        MemA.init_cond csl genv ∗ ProphecyA.initial_cond ∗ helping_auth 1 ∅ ∗ free_id top1)%I.
+        MemA.init_cond genv ∗ ProphecyA.initial_cond ∗ helping_auth 1 ∅ ∗ free_id top1)%I.
   Proof.
     intros Hsch Hreal.
-        set (allmds := HWQA.t N sp ★ MemA.t sp_mem ★ HWQI.t ★ MemI.t csl genv ★ SchI.t ★ ctx).
+        set (allmds := HWQA.t N sp ★ MemA.t sp_mem ★ HWQI.t ★ MemI.t genv ★ SchI.t ★ ctx).
     set (sz := S (max
                  (maxlen (elements (get_fids (dom (Mod.fnsems allmds)))))
                  (maxlen (Mod.scopes allmds)))).
 
     etrans.
     { rewrite assoc.
-      eapply prophecy_refines with (sz:=sz) (mdm := λ mn, HWQP.t mn ★ MemI.t csl genv).
+      eapply prophecy_refines with (sz:=sz) (mdm := λ mn, HWQP.t mn ★ MemI.t genv).
       { intros Q. rewrite !CFilter.filter_app.
         etrans.
         { eapply ctxr_refines.

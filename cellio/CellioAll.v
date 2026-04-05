@@ -149,7 +149,7 @@ Section CellioAux.
     }
 
     etrans.
-    { (* Ctx ⊆ Ctx *)
+    { (* reorder *)
       ctxr_rotate. ctxr_drop. refl.
     }
     
@@ -169,40 +169,17 @@ Section CellioAux.
 
   Lemma tgt_wf: Mod.wf mod_tgt.
   Proof.
-    rewrite /mod_tgt; eapply Mod.add_wf.
-    { econs; eauto; [mod_tac|prove_nodup]. }
-    { eapply Mod.add_wf.
-      { econs; eauto; [mod_tac|prove_nodup]. }
-      { inv ctx_mod_wf. econs.
-        { ii. destruct (SMod.fnsems Ctx !! i) eqn: FIND.
-          { rewrite /Mod.fnsems /SMod.to_mod lookup_fmap FIND /= in H. inv H.
-            destruct o; ss. hexploit (wf_fns i); eauto.
-            rewrite /Mod.fnsems /SMod.to_mod lookup_fmap FIND //.
-          }
-          { rewrite /Mod.fnsems /SMod.to_mod lookup_fmap FIND /= in H. inv H. }
-        }
-        { rewrite /SMod.to_mod /= in wf_scopes. rewrite /SMod.to_mod //. }
-      }
-      { ii. rewrite /Mod.fnsems /SMod.to_mod /= dom_fmap in H0. eauto. }
-      { eapply NoDup_app. esplits; eauto.
-        { prove_nodup. }
-        { inv ctx_mod_wf. rewrite /Mod.scopes /SMod.to_mod /= in wf_scopes.
-          rewrite /Mod.scopes /SMod.to_mod //.
-        }
-      }
+    rewrite /mod_tgt. rewrite !assoc comm.
+    eapply Mod.add_wf; cycle 2; et.
+    { mod_tac. }
+    { eapply NoDup_app. esplits.
+      - apply ctx_mod_wf.
+      - mod_tac.
+      - prove_nodup.
     }
-    { rewrite !Mod.dom_fnsems_add; set_solver. }
-    { eapply NoDup_app. esplits; eauto.
-      { prove_nodup. }
-      { ii. ss. rewrite sorting.merge_sort_Permutation in H0. set_solver. }
-      { ss. rewrite sorting.merge_sort_Permutation.
-        eapply NoDup_cons. esplits; eauto.
-        { ii. eapply ctx_cellio_disj; eauto. set_solver. }
-        { inv ctx_mod_wf. rewrite /Mod.scopes /SMod.to_mod /= in wf_scopes.
-          rewrite /Mod.scopes /SMod.to_mod //.
-        }
-      }
-    }
+    econs.
+    - mod_tac.
+    - prove_nodup.
   (*SLOW*)Qed.
 End CellioAux.
 

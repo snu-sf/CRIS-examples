@@ -8,8 +8,6 @@ Require Import KnotIAproof KnotMainIAproof.
 Section KnotAux.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, _MEM: !memGS, _KNOT: !knotGS}.
 
-  (* mem *)
-  Local Definition csl : string → bool := λ _, false.
   (* global environment *)
   Local Definition genv : GEnv.t := KnotGEnv.t ++ KnotMainGEnv.t.
 
@@ -23,11 +21,11 @@ Section KnotAux.
   Local Definition sp : specmap := SMod.sp_from smod_src.
   Local Definition mod_top : Mod.t := SMod.to_mod ∅ (SMod.cancel smod_src).
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
-  Local Definition mod_tgt : Mod.t := KnotMainI.t genv ★ KnotI.t genv ★ MemI.t csl genv ★ APCI.t.
+  Local Definition mod_tgt : Mod.t := KnotMainI.t genv ★ KnotI.t genv ★ MemI.t genv ★ APCI.t.
 
   Local Lemma genv_wf : GEnv.wf genv. Proof. cbn. prove_nodup. Qed.
 
-  Local Definition init_cond : iProp Σ := KnotA.init_cond genv ∗ MemA.init_cond csl genv.
+  Local Definition init_cond : iProp Σ := KnotA.init_cond genv ∗ MemA.init_cond genv.
 
   Lemma cancel_src :
     refines
@@ -161,13 +159,13 @@ Section KnotAux.
       { eapply Mod.add_wf.
         { econs; eauto; [mod_tac|prove_nodup]. }
         { econs; eauto; [mod_tac|prove_nodup]. }
-        { set_solver. }
+        { mod_tac. }
         { prove_nodup; set_solver. }
       }
-      { rewrite Mod.dom_fnsems_add; set_solver. }
+      { mod_tac. }
       { prove_nodup; set_solver. }
     }
-    { rewrite !Mod.dom_fnsems_add; set_solver. }
+    { mod_tac. }
     { prove_nodup; set_solver. }
   Qed.
 End KnotAux.
@@ -188,7 +186,7 @@ Module KnotAll.
     apply own_admin_soundness.
     iMod cris_alloc as "[% [% [% [% ?]]]]".
     iMod (knot_alloc ) as "[% [? ?]]".
-    iMod (mem_alloc csl genv) as "[% ?]".
+    iMod (mem_alloc genv) as "[% ?]".
     iExists _, _, _, _, _, _.
     pose proof (top_tgt tgt_wf) as Href.
     iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".

@@ -1,35 +1,35 @@
 Require Import CRIS.
-Require Import CelliocbHeader.
+From CRIS.celliocb Require Import CellioHeader.
 
 Local Definition RA := authUR (optionUR (exclR ZO)).
 
-Class celliocbGpreS `{!crisG Γ Σ α β τ _S _I} := {
-  #[local] celliocb_inG :: inG RA Γ;
+Class cellioGpreS `{!crisG Γ Σ α β τ _S _I} := {
+  #[local] cellio_inG :: inG RA Γ;
 }.
 
-Class celliocbGS `{!crisG Γ Σ α β τ _S _I} := {
-  #[local] celliocbGS_celliocbGpreS :: celliocbGpreS;
-  celliocb_name : gname;
+Class cellioGS `{!crisG Γ Σ α β τ _S _I} := {
+  #[local] cellioGS_cellioGpreS :: cellioGpreS;
+  cellio_name : gname;
 }.
 
-Definition celliocbΓ : HRA := #[RA].
-Global Instance subG_celliocbGpreS `{!crisG Γ Σ α β τ _S _I} : subG celliocbΓ Γ → celliocbGpreS.
+Definition cellioΓ : HRA := #[RA].
+Global Instance subG_cellioGpreS `{!crisG Γ Σ α β τ _S _I} : subG cellioΓ Γ → cellioGpreS.
 Proof. solve_inG. Defined.
-(* Hint Unfold subG_celliocbG celliocb_inG : GRA_index. *)
+(* Hint Unfold subG_cellioG cellio_inG : GRA_index. *)
 
-Module CelliocbA. Section CelliocbA.
+Module CellioA. Section CellioA.
   Context `{!crisG Γ Σ α β τ _S _I}.
-  Context `{_CELLIOCB: !celliocbGS}.
+  Context `{_CELLIOCB: !cellioGS}.
 
   Definition auth (v : Z) : iProp Σ :=
-    own celliocb_name (●E v).
+    own cellio_name (●E v).
 
   Definition cell (v : Z) : iProp Σ :=
-    own celliocb_name (◯E v).
+    own cellio_name (◯E v).
 
   Definition ir : DRA_mk RA := ●E 0%Z ⋅ ◯E 0%Z.
   Lemma ir_valid : ✓ ir. Proof. rewrite /ir. eapply excl_auth_valid. Qed.
-  (* Definition irΓ : celliocbΓ := *[Some ir]. *)
+  (* Definition irΓ : cellioΓ := *[Some ir]. *)
 
   Lemma cell_auth_get v v':
     cell v -∗ auth v' -∗ ⌜v = v'⌝.
@@ -51,23 +51,23 @@ Module CelliocbA. Section CelliocbA.
   Definition set: string -> itree crisE unit :=
     λ cb,
       x <- trigger (Take Z);;
-      trigger (Assume (CelliocbA.cell x));;;
+      trigger (Assume (CellioA.cell x));;;
       'i: Z <- ccallU cb tt;;
-      trigger (Guarantee (CelliocbA.cell i));;;
+      trigger (Guarantee (CellioA.cell i));;;
       Ret tt.
   
   Definition get: Any.t -> itree crisE Any.t :=
     λ _,
       x <- trigger (Take Z);;
-      trigger (Assume (CelliocbA.cell x));;;
-      trigger (Guarantee (CelliocbA.cell x));;;
+      trigger (Assume (CellioA.cell x));;;
+      trigger (Guarantee (CellioA.cell x));;;
       Ret x↑.
 
-  Definition scopes := [CelliocbHdr.mn].
+  Definition scopes := [CellioHdr.mn].
   
   Definition fnsems : fnsemmap :=
-    {[fid CelliocbHdr.set # (msk_scp scopes msk_true, (None, cfunU set));
-      fid CelliocbHdr.get # (msk_scp scopes msk_true, (None, get))]}.
+    {[fid CellioHdr.set # (msk_scp scopes msk_true, (None, cfunU set));
+      fid CellioHdr.get # (msk_scp scopes msk_true, (None, get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
@@ -80,14 +80,14 @@ Module CelliocbA. Section CelliocbA.
 
   (* We can use sp_none because Cellio will be removed before cancellation *)
   Definition t := SMod.to_mod ∅ smod.
-End CelliocbA. End CelliocbA.
+End CellioA. End CellioA.
 
-Lemma cellio_alloc `{!crisG Γ Σ α β τ Hsub Hinv, !celliocbGpreS} :
-  ⊢ o=> ∃ (_ : celliocbGS), CelliocbA.init_cond ∗ CelliocbA.cell 0.
+Lemma cellio_alloc `{!crisG Γ Σ α β τ Hsub Hinv, !cellioGpreS} :
+  ⊢ o=> ∃ (_ : cellioGS), CellioA.init_cond ∗ CellioA.cell 0.
 Proof.
   iMod (own_alloc (●E 0%Z ⋅ ◯E 0%Z)) as "[%γt T]".
   { apply auth_both_valid_discrete; esplits; ss. }
-  pose (Build_celliocbGS _ _ _ _ _ _ _ _ _ γt) as Hcell.
+  pose (Build_cellioGS _ _ _ _ _ _ _ _ _ γt) as Hcell.
   rewrite own_op; iExists Hcell. iDestruct "T" as "[T0 T1]"; iFrame.
   done.
 Qed.

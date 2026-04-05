@@ -1,22 +1,22 @@
 Require Import CRIS.
-Require Import CelliocbHeader CelliocbA CelliocbI.
+From CRIS.celliocb Require Import CellioHeader CellioA CellioI.
 
 Local Open Scope nat_scope.
 
-Module CelliocbIA. Section CelliocbIA.
-  Import CelliocbA.
-  Context `{!crisG Γ Σ α β τ _S _I, _CELLIOCB: !celliocbGS}.
+Module CellioIA. Section CellioIA.
+  Import CellioA.
+  Context `{!crisG Γ Σ α β τ _S _I, _CELLIOCB: !cellioGS}.
 
   Definition Ist : ist_type Σ :=
-    (λ st_s st_t, (∃ v, ⌜st_t = {[CelliocbI.v_cv # v↑]}⌝ ∗ auth v))%I.
+    (λ st_s st_t, (∃ v, ⌜st_t = {[CellioI.v_cv # v↑]}⌝ ∗ auth v))%I.
 
-  Local Definition CelliocbIMod := (CelliocbI.t).
-  Local Definition CelliocbAMod := (CelliocbA.t).
+  Local Definition CellioIMod := (CellioI.t).
+  Local Definition CellioAMod := (CellioA.t).
 
   Lemma simF_set :
-    ISim.sim_fun open CelliocbAMod CelliocbIMod Ist (fid CelliocbHdr.set).
+    ISim.sim_fun open CellioAMod CellioIMod Ist (fid CellioHdr.set).
   Proof using.
-    cStartFunSim. rewrite /CelliocbI.set /set.
+    cStartFunSim. rewrite /CellioI.set /set.
   
     (* Take (x:Z) & cell(x) *)
     cStepsS. destruct Any.downcast; cStepsS; des_ifs.
@@ -42,10 +42,10 @@ Module CelliocbIA. Section CelliocbIA.
     iExists v_new. iFrame; cSimpl.
   (*SLOW*)Qed.
   
-  Lemma simF_get : ISim.sim_fun open CelliocbAMod CelliocbIMod Ist (fid CelliocbHdr.get).
+  Lemma simF_get : ISim.sim_fun open CellioAMod CellioIMod Ist (fid CellioHdr.get).
   Proof using.
     cStartFunSim.
-    unfold get, CelliocbI.get.
+    unfold get, CellioI.get.
 
     (* Take (x:Z) & cell(x) *)
     cStepsS. 
@@ -63,11 +63,11 @@ Module CelliocbIA. Section CelliocbIA.
     iExists _. iFrame; eauto.
   (*SLOW*)Qed.
   
-  Lemma sim : ISim.t open CelliocbAMod CelliocbIMod CelliocbA.init_cond Ist.
+  Lemma sim : ISim.t open CellioAMod CellioIMod CellioA.init_cond Ist.
   Proof using.
     cStartModSim.
     - iIntros. iExists _. iFrame. eauto.
     - apply simF_set; eauto.
     - apply simF_get; eauto.
   Qed.
-End CelliocbIA. End CelliocbIA.
+End CellioIA. End CellioIA.

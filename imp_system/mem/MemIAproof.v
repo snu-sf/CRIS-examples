@@ -218,7 +218,6 @@ Module MemIA. Section MemIA.
   Context `{!crisG Γ Σ α β τ _S _I, !memGS}.
   Local Existing Instances memGS_memGSpreS mem_inG.
 
-  Context (csl : string → bool).
   Context (genv : GEnv.t).
   Context (sp: specmap).
 
@@ -229,7 +228,7 @@ Module MemIA. Section MemIA.
       ( |==> own mem_name (● mem_src))))%I.
 
   Local Definition MemA := (MemA.t sp).
-  Local Definition MemI := (MemI.t csl genv).
+  Local Definition MemI := (MemI.t genv).
   Local Definition IstFull := (IstProd (IstSB MemA.(Mod.scopes) Ist) IstEq).
 
   Definition mem_get (mem: MemA._memRA) b ofs :=
@@ -407,7 +406,7 @@ Module MemIA. Section MemIA.
     iExists _, _, _, _; repeat (iSplit; eauto).
   (*SLOW*)Qed.
 
-  Lemma sim : ISim.t open MemA MemI (MemA.init_cond csl genv) IstFull.
+  Lemma sim : ISim.t open MemA MemI (MemA.init_cond genv) IstFull.
   Proof using.
     cStartModSim.
     { iIntros "?"; iFrame.
@@ -435,7 +434,7 @@ End MemIA.
 Section MemIA.
   Context `{!crisG Γ Σ α β τ Hsub Hinv, !memGS}.
 
-  Lemma ctxr sp csl genv : ctx_refines (MemI.t csl genv, emp%I) (MemA.t sp, MemA.init_cond csl genv).
+  Lemma ctxr sp genv : ctx_refines (MemI.t genv, emp%I) (MemA.t sp, MemA.init_cond genv).
   Proof using.
     eapply main_adequacy, sim; eauto.
   Qed.

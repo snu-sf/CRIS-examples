@@ -25,44 +25,44 @@ Section MEM.
   Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS}.
 
   (* Initial resources for memory *)
-  Definition mem_init_val (csl : string → bool) (genv : GEnv.t) (blk : mblock) ofs : option Z :=
+  Definition mem_init_val (genv : GEnv.t) (blk : mblock) ofs : option Z :=
     match genv !! blk with
     | Some (g, gd) =>
       match gd↓ with
-      | Some (Gvar gv) => if negb (csl g) && (bool_decide (ofs = 0%Z)) then Some gv else None
+      | Some (Gvar gv) => if bool_decide (ofs = 0%Z) then Some gv else None
       | _ => None
       end
     | None => None
     end.
 
-  Definition mem_init_auth_r (csl : string → bool) (genv : GEnv.t) : memRA :=
+  Definition mem_init_auth_r (genv : GEnv.t) : memRA :=
     ● ((λ blk ofs,
-        match mem_init_val csl genv blk ofs with
+        match mem_init_val genv blk ofs with
         | Some gv => Some (to_dfrac_agree (DfracOwn 1) (Vint gv))
         | _ => ε
         end) : _memRA).
 
-  Definition mem_init_frag_r (csl : string → bool) (genv : GEnv.t) : memRA :=
+  Definition mem_init_frag_r (genv : GEnv.t) : memRA :=
     ◯ ((λ blk ofs,
-        match mem_init_val csl genv blk ofs with
+        match mem_init_val genv blk ofs with
         | Some gv => Some (to_dfrac_agree (DfracOwn 1) (Vint gv))
         | _ => ε
         end) : _memRA).
 
-  Definition mem_init_auth csl genv : iProp Σ :=
-    own mem_name (mem_init_auth_r csl genv).
+  Definition mem_init_auth genv : iProp Σ :=
+    own mem_name (mem_init_auth_r genv).
 
-  Definition mem_init_frag csl genv : iProp Σ :=
-    own mem_name (mem_init_frag_r csl genv).
+  Definition mem_init_frag genv : iProp Σ :=
+    own mem_name (mem_init_frag_r genv).
 
-  Definition mem_init csl genv : iProp Σ :=
-    own mem_name (mem_init_auth_r csl genv ⋅ mem_init_frag_r csl genv).
+  Definition mem_init genv : iProp Σ :=
+    own mem_name (mem_init_auth_r genv ⋅ mem_init_frag_r genv).
 End MEM.
 
-Lemma mem_alloc `{!crisG Γ Σ α β τ Hsub Hinv, !memGpreS} csl genv :
-  ⊢ o=> ∃ (_ : memGS), mem_init csl genv.
+Lemma mem_alloc `{!crisG Γ Σ α β τ Hsub Hinv, !memGpreS} genv :
+  ⊢ o=> ∃ (_ : memGS), mem_init genv.
 Proof.
-  iMod (own_alloc (mem_init_auth_r csl genv ⋅ mem_init_frag_r csl genv)) as "[%γm M]".
+  iMod (own_alloc (mem_init_auth_r genv ⋅ mem_init_frag_r genv)) as "[%γm M]".
   { apply auth_both_valid_discrete; split; ss; ii; des_ifs. }
   pose (Build_memGS _ _ _ _ _ _ _ _ _ γm) as Hmem.
   by iExists Hmem; iFrame.
@@ -140,9 +140,9 @@ Section MemRA.
     rewrite dfrac_op_own dfrac_valid in wf; by des.
   Qed.
 
-  Lemma mem_init_auth_r_valid (csl : string → bool) (genv : GEnv.t) blk ofs v :
-    mem_init_val csl genv blk ofs = Some v →
-    mem_points_to_singleton_r (blk, ofs) (DfracOwn 1) (Vint v) ≼ mem_init_frag_r csl genv.
+  Lemma mem_init_auth_r_valid (genv : GEnv.t) blk ofs v :
+    mem_init_val genv blk ofs = Some v →
+    mem_points_to_singleton_r (blk, ofs) (DfracOwn 1) (Vint v) ≼ mem_init_frag_r genv.
   Proof.
     intros H'. rewrite /mem_init_auth_r /mem_points_to_singleton_r /mem_init_val; ss.
     rewrite /mem_init_frag_r. apply auth_frag_mono.
@@ -290,7 +290,7 @@ Module MemA. Section MemA.
   |}.
   Solve All Obligations with mod_tac.
 
-  Definition init_cond csl genv : iProp Σ := mem_init_auth csl genv.
+  Definition init_cond genv : iProp Σ := mem_init_auth genv.
 
   Definition t sp : Mod.t := SMod.to_mod sp smod.
 

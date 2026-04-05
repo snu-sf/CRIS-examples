@@ -11,7 +11,7 @@ Require Import SCHMainI SCHMainA SCHMainIAproof.
 
 Section SCHMainAux.
   Context `{!crisG Γ Σ α β τ Hsub Hinv, _SCH: !schGS, _RRS: !rrsGS, _NDS: !ndsGS, _MEM: !memGS, _MEMLIB: !MemLib.memGS, _NODE: !nodeGS}.
-  Context (csl : string → bool) (genv : GEnv.t).
+  Context (genv : GEnv.t).
 
   (* source module *)
   Local Definition sp_rrs : specmap := RRSNodeAS.sp ⊤.
@@ -38,14 +38,14 @@ Section SCHMainAux.
       ★ (NDSI.t SchHeader.SchHdr.yield)
       ★ RRSNodeI.t
       ★ NDSNodeI.t
-      ★ (MemI.t csl genv)
+      ★ (MemI.t genv)
       ★ DetMem.t.
   
   Local Definition sp : specmap := SMod.sp_from smod_src.
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
   Local Definition init_cond : iProp Σ :=
-    SchA.init_cond ∗ RRSA.init_cond ∗ NDSA.init_cond ∗ HybMem.init_cond ∗ MemA.init_cond csl genv.
+    SchA.init_cond ∗ RRSA.init_cond ∗ NDSA.init_cond ∗ HybMem.init_cond ∗ MemA.init_cond genv.
 
   Ltac ctac :=
     rewrite /=;
@@ -236,28 +236,24 @@ Section SCHMainAux.
     { eapply cancel_src. }
   Qed.
 
-  Ltac ttac := econs; eauto; [mod_tac|prove_nodup].
-  Ltac tolv := rewrite !Mod.dom_fnsems_add; set_solver.
-  Ltac solv := prove_nodup; des_ifs; set_solver.
+  Local Ltac ttac := econs; eauto; [mod_tac|prove_nodup].
 
   Lemma tgt_wf: Mod.wf mod_tgt.
   Proof.
     rewrite /mod_tgt.
-    eapply Mod.add_wf; [ttac| |tolv|solv].
-    eapply Mod.add_wf; [ttac| |tolv|solv].
-    eapply Mod.add_wf; [ttac| |tolv|solv].
-    eapply Mod.add_wf; [ttac| |tolv|solv].
-    eapply Mod.add_wf; [ttac| |tolv|solv].
-    eapply Mod.add_wf; [ttac| |tolv|solv].
-    eapply Mod.add_wf; [ttac|ttac| |solv].
-    set_solver.
+    eapply Mod.add_wf; [ttac|    |mod_tac|prove_nodup; set_solver].
+    eapply Mod.add_wf; [ttac|    |mod_tac|prove_nodup; set_solver].
+    eapply Mod.add_wf; [ttac|    |mod_tac|prove_nodup; set_solver].
+    eapply Mod.add_wf; [ttac|    |mod_tac|prove_nodup; set_solver].
+    eapply Mod.add_wf; [ttac|    |mod_tac|prove_nodup; set_solver].
+    eapply Mod.add_wf; [ttac|    |mod_tac|prove_nodup; set_solver].
+    eapply Mod.add_wf; [ttac|ttac|mod_tac|prove_nodup; set_solver].
   Qed.
 End SCHMainAux.
 
 Module SCHMainAll.
   Import inv_instances.
   (* mem *)
-  Local Definition csl : string → bool := λ _, false.
   (* global environment - not used in this example *)
   Local Definition genv : GEnv.t := [].
 
@@ -270,7 +266,7 @@ Module SCHMainAll.
       (_ : MemLib.memGS) (_ : MemA.memGS) (_ : RRSNodeA.nodeGS)
       src_res tgt_res,
     refines_lmod
-      (Mod.to_lmod (mod_tgt csl genv) tgt_res)
+      (Mod.to_lmod (mod_tgt genv) tgt_res)
       (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
@@ -279,10 +275,10 @@ Module SCHMainAll.
     iMod rrs_alloc as "[% [? ?]]".
     iMod nds_alloc as "[% [? ?]]".
     iMod MemLib.mem_alloc as "[% ?]".
-    iMod (mem_alloc csl genv) as "[% ?]".
+    iMod (mem_alloc genv) as "[% ?]".
     iMod rrsnode_alloc as "[% ?]".
     do 10 iExists _.
-    pose proof (top_tgt csl genv) as Href.
+    pose proof (top_tgt genv) as Href.
     iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
     rewrite /refines in Href; hexploit Href; eauto using tgt_wf.

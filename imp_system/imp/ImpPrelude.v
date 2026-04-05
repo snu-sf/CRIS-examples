@@ -73,7 +73,7 @@ Definition vadd (x y : val) : option val :=
   | Vptr (blk, ofs), Vint n =>
     scaled_n ← scale_int n; ret (Vptr (blk, Z.add ofs scaled_n))
   | Vint n, Vptr (blk, ofs) =>
-    scaled_n ← scale_int n; ret (Vptr (blk, Z.add ofs scaled_n))
+    scaled_n ← scale_int n; ret (Vptr (blk, Z.add scaled_n ofs))
   | _, _ => None
   end
 .

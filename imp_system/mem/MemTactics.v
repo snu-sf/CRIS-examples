@@ -45,6 +45,27 @@ Section mem.
     iIntros "!> % % %"; rewrite Z.add_0_l; iIntros "$".
   Qed.
 
+  Lemma wsim_mem_free b ofs v' (msk : emask) k_s k_t E1 E2 r g :
+    fl_t !! fid MemHdr.free =
+      Some (Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some MemA.free, fbody_trivial)))) →
+    img_msk msk →
+    (b, ofs) ↦ v' -∗
+    (wsim fl_s fl_t Ist (E1, E2) r g R_s R_t RR ps true
+        (st_src, k_s)
+        (st_tgt, k_t (Vint 0)↑)) -∗
+    wsim fl_s fl_t Ist (E1, E2) r g R_s R_t RR ps pt
+      (st_src, k_s)
+      (st_tgt, x <- trigger (Call MemHdr.free [Vptr (b, ofs)]↑);; k_t x).
+  Proof using.
+    intros Hin [Ht [Hc [Ha [Har Hg]]]].
+    iIntros "↦ K".
+    cInlineT. cStepsT; rewrite Ht. cForceT (b, ofs, v'); cStepsT; rewrite Ht.
+    cForcesT; cStepsT; rewrite Ha; cForcesT. iFrame "↦"; iSplit; eauto.
+    cStepsT. rewrite Hc; cStepsT. rewrite Hc; cStepsT. rewrite Hg; cStepsT.
+    iDestruct "GRT" as "[-> ->]". iApply "K"; iFrame.
+  Qed.
+
   Lemma wsim_mem_store b ofs v v' (msk : emask) k_s k_t E1 E2 r g :
     fl_t !! fid MemHdr.store =
       Some (Some (SB.sandbox_body
@@ -148,3 +169,6 @@ End mem.
 
 Ltac mLoadT H := iApply (wsim_mem_load with H); [try by simpl_map|ss|]; last (iIntros H; cStepsT).
 Ltac mStoreT H := iApply (wsim_mem_store with H); [try by simpl_map|ss|]; last (iIntros H; cStepsT).
+Ltac mAllocT H := iApply wsim_mem_alloc; [try by simpl_map|ss|ss|iIntros (?) H; cStepsT].
+Ltac mFreeT H := iApply (wsim_mem_free with H); [try by simpl_map|ss|cStepsT].
+

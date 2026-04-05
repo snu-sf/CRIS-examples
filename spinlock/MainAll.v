@@ -7,7 +7,7 @@ Require Import Cancel.
 (* Cancellation *)
 Section MainAux.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !memGS, !schGS, !spinlockG, !spinlockmainG}.
-  Context (csl : string → bool) (genv : GEnv.t).
+  Context (genv : GEnv.t).
   (* sp of source module (scheduler spec excluded) *)
   Local Definition sp_user : specmap := MainA.sp ⊤.
 
@@ -16,7 +16,7 @@ Section MainAux.
   (* the top-level module after cancellation *)
   Local Definition mod_top : Mod.t := SMod.to_mod ∅ (SMod.cancel smod_src).
   (* the target module *)
-  Local Definition mod_tgt : Mod.t := SpinLockMainI.t ★ SpinLockI.t ★ MemI.t csl genv ★ SchI.t .
+  Local Definition mod_tgt : Mod.t := SpinLockMainI.t ★ SpinLockI.t ★ MemI.t genv ★ SchI.t .
 
   (* the source sp *)
   Local Definition sp : specmap := SMod.sp_from smod_src.
@@ -24,7 +24,7 @@ Section MainAux.
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
   (* initial condition for the source *)
-  Local Definition init_cond : iProp Σ := (MemA.init_cond csl genv ∗ SchA.init_cond)%I.
+  Local Definition init_cond : iProp Σ := (MemA.init_cond genv ∗ SchA.init_cond)%I.
 
   (* Some assumptions on sp inclusion *)
   Lemma SchInSp : (SchA.sp sp_user ⊤) ⊆ sp.
@@ -143,13 +143,13 @@ Section MainAux.
       { eapply Mod.add_wf.
         { econs; eauto; [mod_tac|prove_nodup]. }
         { econs; eauto; [mod_tac|prove_nodup]. }
-        { set_solver. }
+        { mod_tac. }
         { ss; prove_nodup; set_solver. }
       }
-      { rewrite Mod.dom_fnsems_add; set_solver. }
+      { mod_tac. }
       { prove_nodup; set_solver. }
     }
-    { rewrite !Mod.dom_fnsems_add; set_solver. }
+    { mod_tac. }
     { prove_nodup; set_solver. }
   Qed.
 End MainAux.
@@ -158,7 +158,6 @@ Module MainAll.
   Import inv_instances.
 
   (* initialization parameters for memory module *)
-  Local Definition csl : string → bool := λ _, false.
   Local Definition genv : GEnv.t := GEnv.unit.
 
   (* HRA & GRA *)
@@ -170,15 +169,15 @@ Module MainAll.
     ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : schGS) (_ : memGS)
        src_res tgt_res,
       refines_lmod
-        (Mod.to_lmod (mod_tgt csl genv) tgt_res)
+        (Mod.to_lmod (mod_tgt genv) tgt_res)
         (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
     iMod cris_alloc as "[% [% [% [% ?]]]]".
     iMod sch_alloc as "[% ?]".
-    iMod (mem_alloc csl genv) as "[% ?]".
+    iMod (mem_alloc genv) as "[% ?]".
     iExists _, _, _, _, _, _.
-    pose proof (cancel_tgt csl genv) as Href.
+    pose proof (cancel_tgt genv) as Href.
     iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
     rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
