@@ -349,28 +349,25 @@ Ltac clear_st :=
   hrepeat do 1 match goal with [st: alist key Any.t |- _] => clear st end.
 
 Ltac ndsYieldRR IST :=
-  (cNormS with 
-    (do 1 unshelve iApply (wsim_yield_tgt_rr); [ss|ss|ss|ss|];
-      iFrame IST)); clear_st; iIntros (??) IST.
+  cNormS; unshelve iApply (wsim_yield_tgt_rr); [ss|ss|ss|ss|];
+  iFrame IST; clear_st; iIntros (??) IST.
 
 Ltac ndsYieldIR H1 H2 :=
   let H2' := eval compute in (H1 ++ " " ++ H2)%string in
-  (cNormS with do 1 (iApply (wsim_yield_tgt_ir); [simpl_sp; ss|simpl_sp; ss|ss|ss|iFrame H2']));
+  cNormS; iApply (wsim_yield_tgt_ir); [simpl_sp; ss|simpl_sp; ss|ss|ss|iFrame H2'];
   clear_st; iIntros (??) H2'.
 
 Ltac ndsYieldS :=
-  cNormS with do 1 iApply wsim_yield_src; [ss|].
+  cNormS; iApply wsim_yield_src; [ss|].
 
 Ltac ndsYieldGlobalRR IST :=
-  (cNormS with 
-    (do 1 unshelve iApply (wsim_yield_global_tgt_rr); [ss|ss|ss|ss|];
-      iFrame IST)); clear_st; iIntros (??) IST.
+  cNormS; unshelve iApply (wsim_yield_global_tgt_rr); [ss|ss|ss|ss|];
+  iFrame IST; clear_st; iIntros (??) IST.
 
 Ltac ndsYieldGlobalIR H1 H2 :=
   let H2' := eval compute in (H1 ++ " " ++ H2)%string in
-  (cNormS with do 1 (iApply (wsim_yield_global_tgt_ir); [simpl_sp; ss|simpl_sp; ss|ss|ss|iFrame H2']));
+  cNormS; iApply (wsim_yield_global_tgt_ir); [simpl_sp; ss|simpl_sp; ss|ss|ss|iFrame H2'];
   clear_st; iIntros (??) H2'.
 
 Ltac ndsYieldGlobalS :=
-  cNormS with do 1 iApply wsim_yield_global_src; [ss|].
-
+  cNormS; iApply wsim_yield_global_src; [ss|].
