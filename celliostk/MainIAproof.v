@@ -29,9 +29,8 @@ Module MainIA. Section MainIA.
     cInlineT. cStepsT. iDestruct "GRT" as "->".
     cStep. cStepsS. cStepsT. rename ret into i.
 
-    iApply wsim_bind.
-    instantiate (1 := (λ '(sts,ls) '(stt,stk), IstFull sts stt ∗ ll_points_to stk ls)%I).
-    iSplitL "IST".
+    cBind (λ '(sts,ls) '(stt,stk), IstFull sts stt ∗ ll_points_to stk ls)%I "IST"
+      as (st_src ? st_tgt ?) "[IST PT]".
     {
       destruct (Z.le_dec 0 i); cycle 1.
       { rewrite !unfold_iter_eq. case_match; try nia.
@@ -46,17 +45,15 @@ Module MainIA. Section MainIA.
       rewrite !unfold_iter_eq. cStepsT. cStepsS. rewrite sp_cb.
 
       cInlineT. cStepsT. cForceT ls. cStepsT. cForceT. iSplitL "PT"; et. cStepsT.
-      cCall "IST". clear st_src st_tgt. iIntros (ret ? ?) "IST".
+      cCall "IST" as (ret ? ?) "IST".
       cStepsS. cStepsT. destruct Any.downcast; [|cStepsS; ss].
       cStepsS. cStepsT. iDestruct "GRT" as (??) "[-> [PH PT]]".
       replace (S n - 1)%Z with (n: Z) by nia.
       rewrite -IHn. iFrame. et.
     }
 
-    clear st_src st_tgt. iIntros (? ? ? ?) "[IST PT]".
-    cStepsT. cStepsS. rewrite sp_foo. cCall "IST".
-    clear st_s' st_t' i arg. iIntros (? ? ?) "IST". cStepsS. cStepsT.
-    iStopProof. revert r_t st_s' st_t'. induction r_s; i; iIntros "[PT IST]".
+    cStepsT. cStepsS. rewrite sp_foo. cCall "IST" as (? ? ?) "IST". cStepsS. cStepsT.
+    iStopProof. clear_st. revert r_t st_s' st_t'. induction r_s; i; iIntros "[PT IST]".
     { rewrite !unfold_iter_eq. cStepsS. cStepsT. cInlineT. cStepsT.
       cForceT []. cStepsT. cForceT. iFrame. cStepsT. cStep. iFrame. et. }
     rewrite !unfold_iter_eq. cStepsS. cStepsT.

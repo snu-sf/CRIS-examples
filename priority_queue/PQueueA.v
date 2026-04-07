@@ -141,9 +141,7 @@ Module PQueueIA. Section PQueueIA.
     aStepS. iIntros (mtid stid [n range]) "TID [-> %Hrange]".
 
     cStepsT. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
-    iApply wsim_mem_alloc; [try prove_inline_cond|try prove_sb_cond|ss|unfold_cris_defs].
-    { lia. }
-    iIntros (queueb) "↦queue". cStepsT.
+    mAllocT as (queueb) "↦queue". { lia. }
     sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     rewrite (comm Z.add) Z2Nat.inj_add //; try lia.
     rewrite replicate_add /=; iDestruct "↦queue" as "[↦range ↦queue]".
@@ -173,9 +171,8 @@ Module PQueueIA. Section PQueueIA.
     set (var := range).
     rewrite {1 2 3 4}/var.
     replace (0%Z) with (range - var)%Z by lia.
-    rewrite {5}Z.sub_diag.
     iAssert (⌜var ≤ range⌝)%I as "#Hvar"; first (iPureIntro; lia).
-    generalize var. clear var. iIntros (var).
+    cShowT. clearbody var.
     iInduction (var) as [|var] forall (st_src st_tgt).
     { aUnfoldT. cStepsT.
       appendRetS.
@@ -212,7 +209,7 @@ Module PQueueIA. Section PQueueIA.
     appendRetS. sYieldIR "IST" "TID".
 
     (* stack allocation *)
-    cInlineT. rewrite /StackA.new_stack. cStepsT.
+    cInlineT. cStepsT. rewrite /StackA.new_stack.
     aForceT with "TID". iExists _; iSplit; first eauto.
     sYieldII "IST". destruct _q as [ret_t []].
     cStepsT. iDestruct "GRT" as "[TID [%stack [%γs [-> [#is_stack stack]]]]]".
@@ -227,8 +224,7 @@ Module PQueueIA. Section PQueueIA.
       as "[↦queue ↦close]"; eauto.
     { rewrite list_lookup_insert //; lia. }
     case_decide; last lia.
-
-    rewrite Nat2Z.inj_sub //.
+    rewrite Nat2Z.inj_sub; et.
     mStoreT "↦queue".
     replace (length entries - S var + 1)%Z with (length entries - var)%Z by lia.
     sYieldIR "IST" "TID".
@@ -267,7 +263,7 @@ Module PQueueIA. Section PQueueIA.
     sYieldIR "IST" "TID".
 
     (* stack push *)
-    cInlineT. rewrite /StackA.push. cStepsT. sYieldS.
+    cInlineT. cStepsT. rewrite /StackA.push. sYieldS.
     aForceT with "[$]"; iExists (_, _); iSplit; first eauto.
     appendRetS. aStep.
     iExists (S n). iAuIntro. iInv "qinv" as "[◯ inv]".

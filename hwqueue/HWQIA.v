@@ -96,7 +96,7 @@ Module HWQMA. Section HWQMA.
       iApply wsim_reset. cCoind CIH g' __ with st_src st_tgt. iIntros "IST".
       aUnfoldT. cStepsT. case_match.
       { cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.help. cStepsT.
-        sYieldII "IST". cByCoind CIH; iFrame.
+        sYieldII "IST". cStepsT. cByCoind CIH; iFrame.
       }
       cStepsT. sYieldII "IST". sYieldS. cStep; iFrame. iDestruct "GRT" as "[? ?]"; by iFrame.
     }

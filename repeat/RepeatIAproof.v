@@ -76,30 +76,27 @@ Module RepeatIA. Section RepeatIA.
       (* SRC: unfold APC *)
       cForcesS. iSplit; eauto. cStepsS. 
       cInlineS. cStepsS. iDestruct "ASM" as "%". cSimpl.
-      cStepsS. unfold APC. cForceS 2. cStepsS.
+      cStepsS. unfold APC. cForceS 2.
 
       (* cCall apc with fn *)
-      apcCallWeak "IST"; et.
+      apcCallWeak "IST" as (???) "ISTPOST"; et.
       { instantiate (1:= 1%ord). apply OrdArith.lt_from_nat. lia. }
       { eapply Ord.lt_le_lt; et. apply OrdArith.lt_add_r. instantiate (1:=n'). apply OrdArith.lt_from_nat. lia. }
-      iSplitL "IST".
-      { unfold precond. ss. do 2 (iSplit; et). iExists (Ord.omega + n')%ord. iSplit; et. iPureIntro. apply OrdArith.add_base_l. }
-      iIntros (???) "ISTPOST".
+      { iFrame. ss. iSplit; et. iExists (Ord.omega + n')%ord. iSplit; et.
+        iPureIntro. apply OrdArith.add_base_l. }
       iDestruct "ISTPOST" as "[IST %]". unfold postcond. subst.
 
       (* TGT: cSteps tgt *)
       cStepsT. cSimpl. cStepsT. assert (S n' - 1 = n')%Z as -> by lia.
 
       (* cCall apc with repeat *)
-      apcCall "IST"; et.
+      apcCall "IST" as (???) "ISTPOST"; et.
       { instantiate (1 := 0%ord). apply OrdArith.lt_from_nat; lia. }
       { eapply Ord.lt_le_lt; et. apply OrdArith.lt_add_r. instantiate (1:= n'). apply OrdArith.lt_from_nat; lia. }
       { unfold precond. ss. iFrame. instantiate (1:= (n', (f_sem x), f_sem)). iPureIntro. split.
         - exists fn, fptr. hrepeat split; et. unfold_intrange_64; des_ifs_safe; hrepeat destruct Z_le_gt_dec; ss; try lia.
         - exists (Ord.omega + n')%ord. split; et. apply Ord.le_refl. }
-      iIntros (???) "ISTPOST".
-      unfold postcond. ss.
-      iDestruct "ISTPOST" as "[IST %]". subst.
+      ss. iDestruct "ISTPOST" as "[IST %]". subst.
 
       (* TGT: cSteps tgt *)
       cStepsT. cSimpl. cStepsT.

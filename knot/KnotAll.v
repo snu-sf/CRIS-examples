@@ -137,7 +137,6 @@ Section KnotAux.
 
     eapply ctxr_consequence.
     iIntros "[$ $]".
-  Unshelve. exact ∅.
   (*SLOW*)Qed.
 
   Lemma top_tgt :

@@ -49,7 +49,7 @@ Module ClientIA. Section ClientIA.
     sYieldIR "IST" "TID".
 
     (* tgt inline - faa *)
-    cInlineT. rewrite /IncrA.incr. cStepsT. aForceT with "IST TID".
+    cInlineT. cStepsT. rewrite /IncrA.incr. aForceT with "IST TID".
     iExists 1. iAuIntro. iInv "INV" as "[%x [↦ CA]]".
     iAaccIntro with "↦". iSplit.
     { iIntros "$"; by iFrame. }
@@ -84,8 +84,7 @@ Module ClientIA. Section ClientIA.
     sYieldIR "IST" "TID".
 
     (* tgt alloc *)
-    iApply wsim_mem_alloc. { prove_inline_cond. } { ss. } { ss. }
-    iIntros (blk) "[map _]". cStepsT.
+    mAllocT as (blk) "[map _]". cStepsT.
     sYieldIR "IST" "TID".
     sYieldIR "IST" "TID".
 
@@ -109,7 +108,7 @@ Module ClientIA. Section ClientIA.
       iSplitR; first iApply f_spawnable.
       iFrame "#∗"; eauto.
     }
-    cStepsS. cCall "IST". clear_st. iIntros (ret ??) "IST".
+    cStepsS. cCall "IST" as (ret ??) "IST".
     cStepsS. iDestruct "ASM" as "[% [[-> ->] Handle]]". cStepsS. cStepsT.
     sYieldIR "IST" "TID".
     sYieldS.
@@ -120,14 +119,14 @@ Module ClientIA. Section ClientIA.
       iSplitR; first iApply f_spawnable.
       iFrame; eauto.
     }
-    cStepsS. cCall "IST". clear_st. iIntros (ret ??) "IST".
+    cStepsS. cCall "IST" as (ret ??) "IST".
     cStepsS. iDestruct "ASM" as "[% [[-> ->] Handle2]]". cStepsS. cStepsT.
     sYieldIR "IST" "TID".
     sYieldS.
 
     rewrite /Sch.join; cStepsT; cStepsS. simpl_sp.
     cForceS (_, _, _); cForcesS. iFrame "TID Handle"; iSplit; [eauto|]. cStepsS.
-    cCall "IST". clear_st. iIntros (ret ??) "IST".
+    cCall "IST" as (ret ??) "IST".
     cStepsS. iDestruct "ASM" as "[TID [% [% [[-> ->] ASM]]]]".
     solve_base_sl_red. iDestruct "ASM" as "[[-> ->] Q]".
     cStepsS. cStepsT.
@@ -136,7 +135,7 @@ Module ClientIA. Section ClientIA.
 
     rewrite /Sch.join; cStepsT; cStepsS. simpl_sp.
     cForceS (_, _, _); cForcesS. iFrame "TID Handle2"; iSplit; [eauto|]. cStepsS.
-    cCall "IST". clear_st. iIntros (ret ??) "IST".
+    cCall "IST" as (ret ??) "IST".
     cStepsS. iDestruct "ASM" as "[TID [% [% [[-> ->] ASM]]]]".
     solve_base_sl_red. iDestruct "ASM" as "[[-> ->] Q2]".
     cStepsS. cStepsT.

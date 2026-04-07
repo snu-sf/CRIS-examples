@@ -134,10 +134,9 @@ Module MapMA. Section MapMA.
     iSplitL "MAP". { iFrame. eauto. }
 
     (* make a cCall to set *)
-    cCall "IST".
+    cCall "IST" as (ret st_src st_tgt) "IST".
 
     (* SRC: handle the postcond of set *)
-    clear_st; iIntros (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "(-> & (-> & MAP))". cStepsS; cStepsT.
 
     (* TGT: prove the postcond of set *)

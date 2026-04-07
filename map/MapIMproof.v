@@ -236,7 +236,7 @@ Module MapIM. Section MapIM.
     cStepsS. simpl_sp. cForceS (_,_); s. cForceS. cForceS. iSplit; first eauto.
 
     (* make a cCall to set *)
-    cStepsT. cCall "IST". clear_st. iIntros (ret2 st_src st_tgt) "IST".
+    cStepsT. cCall "IST" as (ret2 st_src st_tgt) "IST".
 
     (* SRC: handle the postcond of set *)
     cStepsS. iDestruct "ASM" as "(-> & _)". cStepsT.

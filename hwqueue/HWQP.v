@@ -103,19 +103,17 @@ Module HWQIP. Section HWQIP.
       sYieldS. cStepsS.
       destruct sz as [|[sz| | ] [|]]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-      sYieldS. cStepsS.
-      iApply wsim_call; iFrame; clear_st; iIntros (ret st_src st_tgt) "IST".
+      sYieldS. cStepsS. cCall "IST" as (ret st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
       sYieldS. cStepsS.
       destruct v as [ | [blk ofs] | ]; cStepsS; ss; cStepsT.
       sYieldRR "IST".
-      sYieldS. cStepsS.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
-      cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
+      sYieldS. cStepsS. cCall "IST" as (? st_src st_tgt) "IST".
+      destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
       sYieldS. cStepsS.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
+      cCall "IST" as (? ? ?) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
       sYieldS.
@@ -129,38 +127,35 @@ Module HWQIP. Section HWQIP.
         rewrite Nat.ltb_irrefl.
         cStepsT. sYieldRR "IST".
         sYieldRR "IST".
-        sYieldS. cStepsS. sYieldS. cStepsS. cInlineS. rewrite /ProphecyI.new. cStepsS.
+        sYieldS. sYieldS. cStepsS. cInlineS. cStepsS. rewrite /ProphecyI.new. cStepsS.
         cStep. iFrame. auto.
       }
       unfoldIterS. unfoldIterT.
       destruct Nat.ltb eqn : Heqb; last (apply Nat.ltb_ge in Heqb; lia).
       cStepsS. cStepsT.
       sYieldRR "IST".
-      sYieldS. cStepsS.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
+      sYieldS. cStepsS. cCall "IST" as (? st_src st_tgt) "IST".
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       replace (S (Z.to_nat sz - S n)) with (Z.to_nat sz - n) by lia.
       iApply "IH_loop"; iFrame. by iPureIntro; lia.
     }
-    { cStartFunSim. cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
-      rewrite /HWQI.enqueue. cStepsS. cStepsT.
+    { cStartFunSim. rewrite /HWQI.enqueue /MemHdr.faa.
+      cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       sYieldRR "IST".
       sYieldS. cStepsS. destruct pargs as [[[? ?] v]|]; last cStepsS; ss.
       cStepsS. cStepsT.
       sYieldRR "IST".
-      sYieldS. cStepsS.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
+      sYieldS. cStepsS. cCall "IST" as (? st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
-      sYieldS. cStepsS.
-      rewrite /MemHdr.faa. cStepsS; cStepsT.
-      destruct pargs; cStepsS; ss. cStepsT.
+      sYieldS. destruct pargs; cStepsS; ss. cStepsT.
       sYieldRR "IST".
       sYieldS. cStepsS.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
+      cCall "IST" as (? st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       destruct pargs; cStepsS; ss. cStepsT.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
+
+      cCall "IST" as (? st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
       sYieldS. cStepsS.
@@ -180,8 +175,7 @@ Module HWQIP. Section HWQIP.
       }
       cStepsS; cStepsT.
       sYieldRR "IST".
-      sYieldS. cStepsS.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
+      sYieldS. cStepsS. cCall "IST" as (? st_src st_tgt) "IST".
       cStepsS; cStepsT; destruct Any.downcast as [|]; cStepsS; ss. cStepsT.
       sYieldRR "IST".
       sYieldS. cStepsS.
@@ -203,15 +197,13 @@ Module HWQIP. Section HWQIP.
       unfoldIterT. rewrite {1}/src {1}/tgt.
       cStepsS. cStepsT.
       sYieldRR "IST".
-      sYieldS. cStepsS.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
+      sYieldS. cStepsS. cCall "IST" as (? st_src st_tgt) "IST".
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       sYieldRR "IST".
       sYieldS. cStepsS.
       destruct pargs as [x0|]; last cStepsS; ss. cStepsS; cStepsT.
       sYieldRR "IST".
-      sYieldS. cStepsS.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
+      sYieldS. cStepsS. cCall "IST" as (? st_src st_tgt) "IST".
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       sYieldRR "IST".
       sYieldS. cStepsS.
@@ -244,8 +236,7 @@ Module HWQIP. Section HWQIP.
       cStepsS; cStepsT.
       sYieldRR "IST".
       sYieldS.
-      cStepsS; cStepsT.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
+      cStepsS; cStepsT. cCall "IST" as (? st_src st_tgt) "IST".
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       destruct (decide (v1 = Vint 0)) as [->|Hv1].
       { cStepsS; cStepsT.
@@ -261,14 +252,13 @@ Module HWQIP. Section HWQIP.
       cStepsS; cStepsT.
       sYieldRR "IST".
       sYieldS.
-      cStepsS; cStepsT.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
+      cStepsS; cStepsT. cCall "IST" as (? st_src st_tgt) "IST".
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
-      cInlineS. rewrite /ProphecyI.new; cStepsS.
+      cInlineS. cStepsS. rewrite /ProphecyI.new; cStepsS.
       sYieldRR "IST".
       sYieldS.
       cStepsS.
-      iApply wsim_call; iFrame; clear_st; iIntros (? st_src st_tgt) "IST".
+      cCall "IST" as (? st_src st_tgt) "IST".
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       sYieldRR "IST".
       sYieldS.

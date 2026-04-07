@@ -151,9 +151,8 @@ Module NDSIA. Section sim.
     iIntros (st_s' st_t') "IST".
 
     cStepsS. cStepsT. iDestruct "ASM" as "(T & Y & WI)".
-    
-    cStepsS. iApply wsim_bind. iSplitL; cycle 1.
-    { instantiate (1:= λ _ _, False%I). iIntros (????) "X"; ss. }
+
+    cBind (λ _ _, False%I) as (????) "F"; ss.
 
     clear H1. iClear "Rs". iApply wsim_reset.
     cCoind CIH g Hg with x st_s' st_t'.
@@ -175,7 +174,7 @@ Module NDSIA. Section sim.
     cForcesS. iSplitL "PRE".
     { instantiate (1:=tt↑). subst P0. iFrame. }
     
-    cStepsS. cCall "IST". iIntros (???) "IST". cStepsS. cStepsT. 
+    cStepsS. cCall "IST" as (???) "IST". cStepsS. cStepsT. 
 
     iSpecialize ("POST" $! _q ret).
     iMod ("POST" with "[ASM]") as "(WI & (T & Y & PYIP & %))"; des; subst.
@@ -287,9 +286,8 @@ Module NDSIA. Section sim.
       cForcesS. iFrame "Hpre".
       cStepsS. cStepsT.
 
-      cCall "TidA JoinA Rs Ys Ysch PubA S".
+      cCall "TidA JoinA Rs Ys Ysch PubA S" as (???) "IST".
       { iExists ths, mtid, stid, ssch. iFrame. iSplit; eauto. do 2 iRight. iLeft. iFrame. eauto. }
-      iIntros (???) "IST".
 
       (* after cCall - prepare for termination *)
       cStepsS. rename _q into vret.
@@ -388,7 +386,7 @@ Module NDSIA. Section sim.
       cForceS (mtid, stid, ssch0). cForceS (tt↑). cStepsS.
       iApply wsim_guarantee_src; iFrame "W TidF TID YIELD C PubA S". iSplit; eauto.
 
-      cStepsT. cCall "IST". iIntros (???) "IST".
+      cStepsT. cCall "IST" as (???) "IST".
       cStepsS. iDestruct "ASM" as "(% & % & (TidF & TID & YIELD & S & C & PubF))".
       cStepsS.
       cStepsT.
@@ -450,9 +448,8 @@ Module NDSIA. Section sim.
       cForcesS. iFrame "P".
       cStepsS. cStepsT.
 
-      cCall "TidA JoinA Rs Ys Ysch PubA S".
+      cCall "TidA JoinA Rs Ys Ysch PubA S" as (???) "IST".
       { iExists ths, 0, stid, ssch. iFrame. iSplit; eauto. do 2 iRight. iLeft. iFrame. eauto. }
-      iIntros (???) "IST".
 
       (* after cCall - prepare for termination *)
       cStepsS. rename _q into vret.
@@ -546,7 +543,7 @@ Module NDSIA. Section sim.
       cForceS (0, stid, ssch0). cForceS (tt↑). cStepsS.
       iApply wsim_guarantee_src; iFrame "W TidF TID YIELD C PubA S". iSplit; eauto.
 
-      cStepsT. cCall "IST". iIntros (???) "IST".
+      cStepsT. cCall "IST" as (???) "IST".
       cStepsS. iDestruct "ASM" as "(WI & % & (TidF & TID & YIELD & S & C & PubF))".
       cStepsS.
       cStepsT.
@@ -621,7 +618,7 @@ Module NDSIA. Section sim.
       iExists fn. rewrite length_fmap. subst mtid_new. iFrame. iPureIntro; esplits; eauto. }
     cStepsS. cForceS (mtid_new↑). cStepsS.
     cForceS. iSplitL "JoinF2 T Y TidF S C PubF".
-    { iExists _; iSplit; eauto. iFrame; eauto. }
+    { iExists _; iSplit; eauto. rewrite length_fmap. iFrame; eauto. }
     cStepS. cStep.
 
     iSplit; eauto.
@@ -941,9 +938,8 @@ Module NDSIA. Section sim.
     }
     { cStepsS. cStepsT. simpl_sp.
       cForceS (mtid, stid, ssch0). cStepsS. cForceS. cForceS. iFrame "Tid T Y S C PubF". iSplit; eauto.
-      cStepsS. cCall "JoinA TidA Rs Ys Ysch S' PubA".
+      cStepsS. cCall "JoinA TidA Rs Ys Ysch S' PubA" as (???) "IST".
       { do 4 iExists _. iFrame. iSplit; eauto. do 2 iRight. iLeft. iFrame; eauto. }
-      iIntros (???) "IST".
       cStepsS. iDestruct "ASM" as "(% & % & (TidF & TID & YIELD & S & C & PubF))"; des; subst.
       cStepsS. cStepsT.
       cByCoind CIH. iFrame.

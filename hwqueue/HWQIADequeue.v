@@ -94,6 +94,7 @@ Section HWQPM.
 
     (* The range is the min between [q.back - 1] and [q.size - 1]. *)
     (* We now prove the inner loop part by induction in the index. *)
+    cShowS; cShowT.
     replace (Z.to_nat (sz `min` back)) with (back `min` sz) by lia.
     assert (back `min` sz ≤ back `min` sz) as Hn by done.
     assert (match cont with
@@ -121,10 +122,10 @@ Section HWQPM.
     iDestruct (back_le with "Hb● Hback_snap") as %Hback.
     (* We define the loop index as [i]. *)
     pose (i := (back `min` sz) - S n).
-    assert ((Z.to_nat (sz `min` back)) - S n = i)%nat as -> by lia.
+    assert (Eidx: (0 + 2 + (Z.to_nat (sz `min` back) - S n)%nat = i + 2)%Z) by lia.
     iPoseProof (big_sepL_lookup_acc _ _ (i) with "H_ar") as "[↦ H_ar]".
     { apply array_content_lookup; lia. }
-    rewrite left_id (comm _ 2%Z). mLoadT "↦".
+    rewrite Eidx. mLoadT "↦".
     (* If there was an initial contradiction, it is still here. *)
     iAssert ⌜match cont with
             | NoCont _       => True
@@ -220,7 +221,7 @@ Section HWQPM.
         assert (dw = true) as ->.
         { rewrite /array_get Hslots_i decide_False in Hi; last done.
           rewrite /physical_value in Hi. destruct dw; first done. by inversion Hi. }
-        iApply (wsim_mem_cas with "Hi Hi1 []"); [simpl_map; s; f_equal|ss|..].
+        rewrite Eidx. iApply (wsim_mem_cas with "Hi Hi1 []"); [simpl_map; s; f_equal|ss|..].
         { rewrite /MemA.compare_val /array_get Hslots_i decide_False //.
           ss; case_bool_decide; first refl; naive_solver.
         }
@@ -234,7 +235,7 @@ Section HWQPM.
         (* We resolve. *)
         iDestruct "Hproph" as (p str rs) "[Hp Hpvs]". iDestruct "Hpvs" as %Hpvs.
         cInlineT. cForceT (_, existT _ (p, rs, (i, true))). cForcesT. iSplitL "Hp".
-        { repeat iSplit; eauto. }
+        { repeat iSplit; eauto. iPureIntro. repeat f_equal. lia. }
         cStepsT. iDestruct "GRT" as "[-> [[-> %Hp] Hp]]".
         pose proof (stake_S p (length rs)) as Htemp; simpl in Htemp.
         rewrite Htemp in Hp; clear Htemp. rewrite reverse_cons app_inj_tail_iff in Hp.
@@ -362,12 +363,12 @@ Section HWQPM.
               rewrite /= Hp2 decide_True in HC3; last by (split; try lia).
               by inversion HC3.
         }
-        cStepsS. sYieldIR "IST" "TID".
+        sYieldIR "IST" "TID". rewrite Hi.
         iApply (wsim_mem_cmp with "Hi2 []"); [simpl_map; s; f_equal|ss|..].
         { ss; case_bool_decide; first refl; naive_solver. }
-        { ss; iIntros "[$ $] !> [Ha Hb]"; iSplitL "Ha"; by iFrame. }
+        { ss; iIntros "[$ $] !> [Ha Hb]". iSplitL "Ha"; by iFrame. }
         iIntros "_". cStepsT. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
-        clear. sYieldS. cStep; iFrame; done.
+        rewrite Hi. sYieldS. cStep; iFrame; done.
       }
       (* If the enqueue at index [i] was not committed: contradiction. *)
       exfalso.
@@ -381,7 +382,7 @@ Section HWQPM.
       { rewrite array_content_lookup; last by lia. by rewrite Hi. }
       iPoseProof (big_sepL_lookup_acc _ _ (i) with "H_ar") as "[Hi H_ar]".
       { rewrite Hcont_i //. }
-      iApply (wsim_mem_cas with "Hi Hi1 []"); [simpl_map; s; f_equal|ss|..].
+      rewrite Eidx. iApply (wsim_mem_cas with "Hi Hi1 []"); [simpl_map; s; f_equal|ss|..].
       { rewrite /MemA.compare_val //. }
       { iIntros "$ !>"; iExists 1%Qp, Vundef; iIntros "[_ $] !> //". }
       case_bool_decide; first ss.
@@ -389,7 +390,7 @@ Section HWQPM.
       (* We resolve. *)
       iDestruct "Hproph" as (p str rs) "[Hp Hpvs]". iDestruct "Hpvs" as %Hpvs.
       cInlineT. cForceT (_, existT _ (p, rs, (i, false))). cForcesT. iSplitL "Hp".
-      { repeat iSplit; eauto. }
+      { repeat iSplit; eauto. iPureIntro. repeat f_equal. lia. }
       cStepsT. iDestruct "GRT" as "[-> [[-> %Hp] Hp]]".
       pose proof (stake_S p (length rs)) as Htemp; simpl in Htemp.
       rewrite Htemp in Hp; clear Htemp. rewrite reverse_cons app_inj_tail_iff in Hp.

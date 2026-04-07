@@ -65,9 +65,9 @@ Module NDSNodeIA. Section NDSNodeIA.
     }
 
     cStepsS. cStepsS.
-    cCall "IST". iIntros (???) "IST".
+    cCall "IST" as (???) "IST".
     cStepsS. iDestruct "ASM" as "(% & % & % & % & TID & JoinF)"; des; subst; cSimpl.
-    cStepsT. ndsYieldGlobalIR "IST" "TID".
+    cStepsS. cStepsT. ndsYieldGlobalIR "IST" "TID".
     cStepsT. ndsYieldGlobalS. cStepsS.
     ndsYieldIR "IST" "TID". ndsYieldS. cStepsT.
 

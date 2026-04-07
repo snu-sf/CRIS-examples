@@ -43,9 +43,8 @@ Module SystemIA. Section SystemIA.
     { unfoldPrePost; iFrame; eauto. }
     cForceS (FSpec_mk _ _ Hfsp); eauto. cForcesS. iFrame.
 
-    cStepsS. cStepsT. cCall "TA TVS".
+    cStepsS. cStepsT. cCall "TA TVS" as (ret st_src st_tgt) "IST".
     { iFrame. iExists _, _, _, _; repeat iSplit; eauto. }
-    iIntros (ret st_src st_tgt) "IST".
     cStepsS. cStepsT.
 
     (* cStepsS. cStepsT. *)
@@ -61,8 +60,7 @@ Module SystemIA. Section SystemIA.
     iApply wsim_fold; iFrame "W".
     cForceS; iFrame "TV"; iSplit; eauto. cStepsS.
     unfoldIterCT. cStepsT.
-    cCall "IST". clear st_src st_tgt ret.
-    iIntros (ret st_src st_tgt) "IST".
+    cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[-> [-> TV]]". cStepsS.
     cStepsT.
     cByCoind CIH; iFrame.

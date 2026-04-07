@@ -120,9 +120,10 @@ Section read.
         }
       }
 
-      cForceS (val'↑). cStepsS. cForceS (val'↑). cStepsS. cForceS.
+      cForceS (val'↑). cForceS (val'↑). cForceS.
       iSplitR "IST".
-      { iFrame. iSplit; eauto. iExists val'.
+      { rewrite own_loc_na_eq /own_loc_na_def /view_at.
+        iFrame. iSplit; eauto. iExists val'.
         iSplit; eauto.
         iSplit.
         { iSplit; eauto. 
@@ -298,7 +299,7 @@ Section read.
         }
         iClear "R".
 
-        set (lc2 := _: Local.t) at 4.
+        set (lc2 := _: Local.t) at 3.
         iAssert (@{TView.cur (Local.tview lc2)} loc sn⊒{γ} ζ'')%I with "[RR SEEN]" as "SEEN".
         { rewrite AtomicSeen_eq /AtomicSeen_def /=.
           iDestruct "SEEN" as "[[%SEENALLOC %SEEN] [_ [%GOODHIST [%Vna' [%VNATV NA]]]]]".

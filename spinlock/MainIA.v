@@ -41,7 +41,7 @@ Module MainIA. Section MainIA.
     cStepsT. cForcesT.
     (* rewrite -{1}(Qp.div_2 q); iPoseProof (SchAS.tid_user_split with "TID") as "[TID1 ITD2]". *)
     iFrame "TID Lock". iSplit; eauto. cStepsT.
-    sYieldII "IST".
+    sYieldII "IST". cStepsT.
 
     (* (* success case *) *)
     iDestruct "GRT" as "[TID [<- [_ [TKN P]]]]". cStepsT.
@@ -62,7 +62,7 @@ Module MainIA. Section MainIA.
     iSplitL "TID F PT TKN".
     { solve_base_sl_red. iFrame. iSplit; eauto. }
     cStepsT.
-    sYieldII "IST".
+    sYieldII "IST". cStepsT.
     
     (* tgt inline - lock acquire - restore lock protected proposition *)
     iDestruct "GRT" as "[TID [<- _]]". cStepsT.
@@ -76,23 +76,19 @@ Module MainIA. Section MainIA.
 
   Lemma main_simF : ISim.sim_fun open MA MI IstFull entry.
   Proof using SchInSp_s SchInSp_t MainInSp.
-    cStartFunSim. rewrite /SpinLockMainI.main /main /sfunN /sfunU.
-    
-    cStepsS. destruct _q as [[stid mtid] []]. iDestruct "ASM" as "[TID ->]".
+    cStartFunSim. rewrite /SpinLockMainI.main /main /sfunN /sfunU /Sch.spawn /Sch.join.
 
-    rewrite /main. cStepsS.
-    cStepsT. rewrite /SpinLockMainI.main. cStepsT.
-    rewrite /Sch.spawn.
+    cStepsS. cStepsT. destruct _q as [[stid mtid] []]. iDestruct "ASM" as "[TID ->]".
 
     (* tgt yield *)
     sYieldIR "IST" "TID".
 
     (* tgt inline - mem alloc - counter allocation *)
-    iApply wsim_mem_alloc; ss. iIntros (blk) "[↦ _]". cStepsT.
+    mAllocT as (blk) "[↦ _]". cStepsT.
     sYieldIR "IST" "TID".
 
     (* tgt inline - mem store - counter initialization *)
-    iApply (wsim_mem_store with "[↦]"); ss. iIntros"↦". cStepsT.
+    mStoreT "↦".
     sYieldIR "IST" "TID".
 
     (* create lock-guarded proposition *)
@@ -105,8 +101,8 @@ Module MainIA. Section MainIA.
     cStepsT.
 
     (* src/tgt yields *)
-    sYieldII "IST".
-    cStepsT. iDestruct "GRT" as "[TID [-> [%val [%γl [-> [%bofs_l [-> #Lock]]]]]]]".
+    sYieldII "IST". cStepsT.
+    iDestruct "GRT" as "[TID [-> [%val [%γl [-> [%bofs_l [-> #Lock]]]]]]]".
     cStepsT.
     sYieldIR "IST" "TID".
 
@@ -121,7 +117,7 @@ Module MainIA. Section MainIA.
       - iExists _; iSplit; [iPureIntro; simpl_sp|]; ss. iApply incr_spawnable.
       - iFrame "W1"; eauto. repeat iSplit; eauto. iExists _; iFrame "Lock"; auto.
     }
-    cCall "IST". clear_st; iIntros (ret st_src st_tgt) "IST".
+    cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[% [[-> ->] TKN1]]". 
     cStepsT. cStepsS.
     sYieldIR "IST" "TID". sYieldS.
@@ -132,16 +128,15 @@ Module MainIA. Section MainIA.
       - iExists _; iSplit; [iPureIntro; simpl_sp|]; ss. iApply incr_spawnable.
       - iFrame "W2"; eauto. repeat iSplit; eauto. iExists _; iFrame "Lock"; auto.
     }
-    cCall "IST". clear_st; iIntros (ret st_src st_tgt) "IST".
+    cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[% [[-> ->] TKN2]]". 
     cStepsT. cStepsS.
     sYieldIR "IST" "TID". sYieldS.
 
     (* join thread 1 - incr *)
-    rewrite /Sch.join.
     cStepsS. simpl_sp. cForceS (_,_,_). cForcesS. iSplitL "TKN1 TID".
     { iFrame. eauto. }
-    cStepsT. cCall "IST". clear_st; iIntros (ret st_src st_tgt) "IST".
+    cStepsT. cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[TID [% [% [[-> ->] W1]]]]". solve_base_sl_red.
     cStepsS; cStepsT.
     sYieldIR "IST" "TID". sYieldS. cStepsT. cStepsS. simpl_sp.
@@ -149,7 +144,7 @@ Module MainIA. Section MainIA.
     (* join thread 2 - incr *)
     cForceS (stid, mtid, _). cForcesS. iSplitL "TID TKN2".
     { iFrame; eauto. }
-    cCall "IST". clear_st; iIntros (ret st_src st_tgt) "IST".
+    cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[TID [% [% [[-> ->] W2]]]]". solve_base_sl_red. cStepsT.
     cStepsS; cStepsT.
     sYieldIR "IST" "TID".
@@ -181,7 +176,7 @@ Module MainIA. Section MainIA.
     cStepsT.
 
     (* tgt yield *)
-    sYieldII "IST". iDestruct "GRT" as "[TID [<- _]]". cStepsT.
+    sYieldII "IST". cStepsT. iDestruct "GRT" as "[TID [<- _]]". cStepsT.
     sYieldIR "IST" "TID".
 
     (* both output - counter value *)

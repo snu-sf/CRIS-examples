@@ -62,8 +62,7 @@ Section StackIM.
     { iLeft; iFrame. }
 
     (* alloc new head *)
-    sYieldIR "IST" "TID". iApply wsim_mem_alloc; [try by simpl_map|ss|ss|].
-    iIntros (blkhead) "[↦head [↦offer _]]". cStepsT.
+    sYieldIR "IST" "TID". mAllocT as (blkhead) "[↦head [↦offer _]]". cStepsT.
 
     (* store to new head *)
     sYieldIR "IST" "TID". sYieldIR "IST" "TID". mStoreT "↦head".
@@ -133,8 +132,7 @@ Section StackIM.
 
     (* make an offer *)
     cStepsT. sYieldIR "IST" "TID".
-    iApply wsim_mem_alloc; [prove_inline_cond|ss|ss|].
-    iIntros (offerb) "[↦offer [↦offerst _]]". cStepsT.
+    mAllocT as (offerb) "[↦offer [↦offerst _]]". cStepsT.
     sYieldIR "IST" "TID". sYieldIR "IST" "TID".
 
     mStoreT "↦offer". sYieldIR "IST" "TID".

@@ -84,7 +84,7 @@ Module SCHMainIA. Section SCHMainIA.
       iIntros (??) "POST". iModIntro. subst Q1. rewrite /postcond /RRSAS.init_spec /=.
       iDestruct "POST" as "(W & % & % & F)". ss.
     }
-    cStepsS. cStepsT. cCall "IST". iIntros (???) "IST".
+    cStepsS. cStepsT. cCall "IST" as (???) "IST".
     cStepsS.
     iDestruct "ASM" as "(% & % & Join)"; des; subst; cSimpl. simpl_sp.
     cStepsT. cStepsS.
@@ -134,7 +134,7 @@ Module SCHMainIA. Section SCHMainIA.
       iDestruct "POST" as "(W & % & % & F)". ss.
     }
 
-    cStepsS. cCall "IST". iIntros (???) "IST". cStepsT. cStepsS.
+    cStepsS. cCall "IST" as (???) "IST". cStepsT. cStepsS.
     iDestruct "ASM" as "(% & % & JoinF')"; des; subst; cSimpl.
 
     sYieldIR "IST" "T". sYieldS.

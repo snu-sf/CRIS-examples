@@ -49,8 +49,7 @@ Section wsim.
       cStepS. des_if; cStepS; ss. cForceS.
       iFrame "TV". iSplit; eauto.
       cStepS. des_if; cStepS; ss.
-      cCall "IST".
-      clear st_src st_tgt. iIntros (ret st_src st_tgt) "IST".
+      cCall "IST" as (ret st_src st_tgt) "IST".
       cStepS. des_if; cStepS; ss.
       cStepS. des_if; cStepsS; ss. cStepsT.
       cByCoind CIH. iFrame. iDestruct "ASM" as "[? [? $]]".

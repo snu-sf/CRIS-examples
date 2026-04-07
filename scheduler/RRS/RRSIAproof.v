@@ -134,8 +134,7 @@ Module RRSIA. Section RRSIA.
 
     cStepsS. cStepsT. iDestruct "ASM" as "(Tsch & Ysch & WI)".
 
-    cStepsS. iApply wsim_bind. iSplitL; cycle 1.
-    { instantiate (1:= λ _ _, False%I). iIntros (????) "X"; ss. }
+    cBind (λ _ _, False%I) as (????) "X"; ss.
 
     clear H1. iApply wsim_reset.
     cCoind CIH g Hg with st_s' st_t' x.
@@ -157,7 +156,7 @@ Module RRSIA. Section RRSIA.
     cForcesS. iSplitL "PRE".
     { instantiate (1:=tt↑). subst P0. iFrame. }
     
-    cStepsS. cCall "IST". iIntros (???) "IST". cStepsS. cStepsT. 
+    cStepsS. cCall "IST" as (???) "IST". cStepsS. cStepsT. 
 
     iSpecialize ("POST" $! _q ret).
     iMod ("POST" with "[ASM]") as "(WI & (Tsch & Ysch & PYIP & %))"; des; subst.
@@ -267,15 +266,13 @@ Module RRSIA. Section RRSIA.
       { iFrame; eauto. }
       cForceS (FSpec_mk _ _ Hfsp); eauto. cForcesS. iFrame.
 
-      cStepsS. cCall "TidA Ys RRIA S NschY PubA".
+      cStepsS. cCall "TidA Ys RRIA S NschY PubA" as (???) "IST".
       { do 6 iExists _. iSplit; eauto. iFrame "TidA". do 2 iRight. iLeft. iFrame; eauto. }
-      iIntros (???) "IST".
       
       cStepsT. cStepsS.
 
-      iApply wsim_bind. iSplitL; cycle 1.
-      { instantiate (1:= λ _ _, False%I). iIntros (????) "F"; ss. }
-      
+      cBind (λ _ _, False%I) as (????) "F"; ss.
+
       (* Coinduction on yield loop *)
       iClear "IST ASM Post".
       rewrite !/RRS.spin. unseal "RRS". iApply wsim_reset.
@@ -340,15 +337,13 @@ Module RRSIA. Section RRSIA.
       { iFrame; eauto. }
       cForceS (FSpec_mk _ _ Hfsp); eauto. cForcesS. iFrame.
 
-      cStepsS. cCall "TidA Ys RRIA S Ysch' PubA".
+      cStepsS. cCall "TidA Ys RRIA S Ysch' PubA" as (???) "IST".
       { do 6 iExists _. iSplit; eauto. iFrame "TidA". do 2 iRight. iLeft. iFrame; eauto. }
-      iIntros (???) "IST".
-      
+
       cStepsT. cStepsS.
 
-      iApply wsim_bind. iSplitL; cycle 1.
-      { instantiate (1:= λ _ _, False%I). iIntros (????) "F"; ss. }
-      
+      cBind (λ _ _, False%I) as (????) "F"; ss.
+
       (* Coinduction on yield loop *)
       iClear "IST ASM Post".
       rewrite !/RRS.spin. unseal "RRS". iApply wsim_reset.

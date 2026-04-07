@@ -20,7 +20,7 @@ Module MainIA. Section MainIA.
   Proof using sp_start.
     cStartFunSim. unfold MainI.start, MainA.start.
     cStepsS. rewrite sp_start. cStepsS. cForceS _q. cStepsS. cForceS arg. cStepsS.
-    cForceS. iFrame. cStepsS. cStepsT. cCall "IST". iIntros (? ? ?) "IST".
+    cForceS. iFrame. cStepsS. cStepsT. cCall "IST" as (? ? ?) "IST".
     cStepsS. cForcesS. iSplit; et. cStepsT. cStep. iSplit; et.
   Qed.
   
@@ -31,33 +31,33 @@ Module MainIA. Section MainIA.
     (* Take cell(0) *)
     cStepsS. iDestruct "ASM" as "[-> CELL]". cSimpl.
 
-    cStepsT. cInlineT. unfold CellioA.set.
+    cStepsT. cInlineT.
     (* Give cell(0) *)
-    cStepsT. cForcesT. iSplit; et.
-    cForcesT. iSplitL "CELL"; et.
+    cForcesT. iSplit; et. unfold set. cForcesT.
+    iSplitL "CELL"; et.
 
     (* Call Input() simultaneously *)
     cStepsT. rewrite sp_input.
-    cCall "IST". iIntros (ret st_src' st_tgt') "IST".
-    cStepsS. cStepsT. destruct Any.downcast as [v|]; [|cStepsS; ss]. cSimpl.
+    cCall "IST" as (ret st_src st_tgt) "IST".
+    destruct Any.downcast as [v|]; [|cStepsS; ss]. cSimpl.
 
     (* Take cell(i) *)
     cStepsT. iDestruct "GRT'" as "<-". cSimpl. iRename "GRT" into "CELL".
 
     (* Call Foo.foo() simultaneously *)
     cStepsT. cStepsS. rewrite sp_foo.
-    cCall "IST". iIntros (r1 st_src1 st_tgt1) "IST".
-    cStepsS. cStepsT. destruct Any.downcast; [|cStepsS; ss]. cSimpl.
-    cStepsT. cInlineT. unfold CellioA.get.
+    cCall "IST" as (r1 st_src st_tgt) "IST".
+    destruct Any.downcast; [|cStepsS; ss]. cSimpl.
+    cStepsT. cInlineT.
     (* Give cell(i) *)
-    cStepT. cForcesT. iSplitL ""; eauto.
+    cForcesT. iSplitL ""; eauto. unfold get.
     cForcesT. iSplitL "CELL"; eauto.
 
     (* Take cell(i) *)
     cStepsT. iDestruct "GRT'" as "<-". cSimpl. iRename "GRT" into "CELL".
 
     (* Call Print(i) simultaneously *)
-    cStepsT. cStep.
+    cStepsT. cStepsS. cStep.
 
     cForcesS. iSplit; et.
     cStep. iFrame. ss.

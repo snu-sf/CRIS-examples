@@ -55,7 +55,7 @@ Section StackIM.
       cForceS (inr _). cForcesS. iFrame.
 
       iMod ("close" with "[Hs Hlist Hoffer H↦]") as "_".
-      { iLeft. iFrame. }
+      { iLeft. iFrame. et. }
       sYieldIR "IST" "TID".
       sYieldS. cStep; iFrame. iModIntro; iSplit; ss.
     }
@@ -203,7 +203,7 @@ Section StackIM.
       iPoseProof ("●reclaim" with "●") as "●".
       iMod ("close" with "[- IST TID ● offerv]") as "_".
       { iLeft; iFrame. }
-      iIst "IST" with "[● IST]".
+      cIst "IST" with "[● IST]".
       { iExists _, _, _, _; iFrame. iSplit; eauto. iPureIntro; esplits; eauto; set_solver. }
       sYieldIR "IST" "TID".
 

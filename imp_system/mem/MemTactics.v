@@ -167,8 +167,11 @@ Section mem.
   Qed.
 End mem.
 
-Ltac mLoadT H := iApply (wsim_mem_load with H); [try by simpl_map|ss|]; last (iIntros H; cStepsT).
-Ltac mStoreT H := iApply (wsim_mem_store with H); [try by simpl_map|ss|]; last (iIntros H; cStepsT).
-Ltac mAllocT H := iApply wsim_mem_alloc; [try by simpl_map|ss|ss|iIntros (?) H; cStepsT].
-Ltac mFreeT H := iApply (wsim_mem_free with H); [try by simpl_map|ss|cStepsT].
-
+Tactic Notation "mLoadT" uconstr(H) :=
+  iApply (wsim_mem_load with H); [try by simpl_map|ss|]; last (iIntros H; cStepsT).
+Tactic Notation "mStoreT" uconstr(H) :=
+  iApply (wsim_mem_store with H); [try by simpl_map|ss|]; last (iIntros H; cStepsT).
+Tactic Notation "mAllocT" "as" "(" simple_intropattern(x) ")" uconstr(H) :=
+  iApply wsim_mem_alloc; [try by simpl_map|ss|ss|iIntros (x) H; cStepsT].
+Tactic Notation "mFreeT" uconstr(H) :=
+  iApply (wsim_mem_free with H); [try by simpl_map|ss|cStepsT].

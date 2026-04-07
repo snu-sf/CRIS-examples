@@ -1183,18 +1183,18 @@ Module MemDH. Section MemDH.
     destruct _q; cycle 1.
     { (* physical memory *)
       cSimpl. cStepsT. cStepsS.
-      cCall "IST". iIntros (???) "IST". cStepsS. cStepsT.
+      cCall "IST" as (???) "IST". cStepsS. cStepsT.
       rewrite {1}/unwrapU. des_ifs; cycle 1.
       { cStepsS; des_ifs. }
       cStepsS. cStepsT.
-      cCall "IST". iIntros (???) "IST". cStepsS. cStepsT.
+      cCall "IST" as (???) "IST". cStepsS. cStepsT.
       rewrite {1}/unwrapU. des_ifs; cycle 1.
       { cStepsS; des_ifs. }
       cStepsS. cStepsT.
       destruct (bool_decide (v0 = Vint 1)) eqn:EQV0; cycle 1.
       { cStepsS. cStepsT. cStep; eauto. iFrame. eauto. }
       cStepsS. cStepsT. 
-      cCall "IST". iIntros (???) "IST". cStepsS. cStepsT.
+      cCall "IST" as (???) "IST". cStepsS. cStepsT.
       rewrite {1}/unwrapU. des_ifs; cycle 1.
       { cStepsS; des_ifs. }
       cStepsS. cStepsT.

@@ -9,7 +9,7 @@ Module KnotMainIA. Section KnotMainIA.
   (* 1. global environment *)
   Context (genv: GEnv.t).
   (* 2. spec tables *)
-  Context (sp sp_rec sp_fun sp_pure sp_mem : specmap).
+  Context (sp sp_rec sp_fun sp_pure : specmap).
   (* 3. hypotheses for genv *)
   Context (GEnvWF : GEnv.wf genv).
   Context (GEnvIncl : incl KnotMainGEnv.t genv).
@@ -22,7 +22,7 @@ Module KnotMainIA. Section KnotMainIA.
   Context (PureInGlobal : sp_pure ⊆ sp).
 
   Local Notation APCA := (APCA.t sp_pure sp).
-  Local Notation MemA := (MemA.t sp_mem).
+  Local Notation MemA := (MemA.t ∅).
   Local Notation KnotA := (KnotA.t genv sp_rec sp_fun sp).
   Local Notation KnotAMod := (KnotA ★ MemA ★ APCA).
   Local Notation KnotMainA := (KnotMainA.t genv sp_rec true sp).
@@ -60,12 +60,11 @@ Module KnotMainIA. Section KnotMainIA.
 
       (* first cCall - rec(n - 1) *)
       dup SPEC. inv SPEC.
-      apcCallWeak ""; et.
+      apcCallWeak "IST I" as (ret st_src st_tgt) "IST"; et.
       { instantiate (1 := 1). apply OrdArith.lt_from_nat. ss. }
       { instantiate (1 := (2 * (n - 1) + 1)%ord). eapply Ord.lt_le_lt; [|et].
         rewrite -!OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.lt_from_nat. nia. 
       }
-      iSplitL "IST I".
       { ss. instantiate (1:= (n - 1)). iFrame. iSplit; et.
         - iPureIntro. split.
           { repeat f_equal. lia. }
@@ -75,31 +74,29 @@ Module KnotMainIA. Section KnotMainIA.
           }
         - iPureIntro. eexists; esplits; et. refl. 
       }
-      clear_st. iIntros (st_src st_tgt ret) "[IST [-> I]]".
+      iDestruct "IST" as "[IST [-> I]]".
       cStepsT.
 
       (* second cCall - rec(n - 2) *)
-      apcCallWeak ""; et.
+      apcCallWeak "IST I" as (ret st_src st_tgt) "IST"; et.
       { instantiate (1:=0). apply OrdArith.lt_from_nat. ss. }
       { instantiate (1 := (2 * (n - 1))%ord). eapply Ord.lt_le_lt; [|et].
         rewrite -!OrdArith.mult_from_nat. eapply OrdArith.lt_from_nat. nia.
       }
-      { iFrame. instantiate (1:= (n - 2)). iSplit; et.
-        { iPureIntro. splits; first (repeat f_equal; nia).
-          { unfold intrange_64 in *.
-            bsimpl; des; split; repeat destruct Z_le_gt_dec;
-              unfold min_64, max_64, modulus_64_half in *; try nia; ss.
-          }
-          eexists; esplits; et. rewrite -!OrdArith.mult_from_nat -OrdArith.add_from_nat.
+      { iFrame. instantiate (1:= (n - 2)). iSplit; iPureIntro.
+        { splits; first (repeat f_equal; nia).
+          unfold intrange_64 in *.
+          bsimpl; des; split; repeat destruct Z_le_gt_dec;
+            unfold min_64, max_64, modulus_64_half in *; try nia; ss.
+        }
+        { eexists; esplits; et. rewrite -!OrdArith.mult_from_nat -OrdArith.add_from_nat.
           eapply OrdArith.le_from_nat. nia.
+        }
       }
-        clear_st. iIntros (st_src st_tgt ret) "[IST [-> I]]". cStepsT.
-
-        iApply wsim_apc_src. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iFrame. iSplit; et.
-
-        cStep. iSplit; et.
-        iPureIntro. repeat f_equal. rewrite unfold_fib; nia.
-      }
+      iDestruct "IST" as "[IST [-> I]]". cStepsT.
+      iApply wsim_apc_src. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iFrame. iSplit; et.
+      cStep. iSplit; et.
+      iPureIntro. repeat f_equal. rewrite unfold_fib; nia.
     }
     Unshelve. all: exact (0↑).
   (*SLOW*)Qed.
@@ -162,15 +159,14 @@ Module KnotMainIA. Section KnotMainIA.
     unfold APC. cForceS 1. cStepsS. 
     inv SPEC.
     (* SRC, TGT: cCall "fib" using APC tactic *)
-    apcCallWeak "FG"; et.
+    apcCallWeak "IST FG" as (ret st_src st_tgt) "IST"; et.
     { instantiate (1:=0). eapply OrdArith.lt_from_nat; et. }
     { instantiate (1:=29). cSimpl. eapply OrdArith.lt_from_nat; nia. }
-    iSplitL "FG IST".
     { ss. instantiate (1:=(Fib, 10)). iFrame. iSplit; et.
       iPureIntro. eexists; esplits; ss.
       rewrite -OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.le_from_nat; nia.
     }
-    clear_st. iIntros (st_src st_tgt ret) "[IST [-> FG]]". cStepsT.
+    iDestruct "IST" as "[IST [-> FG]]". cStepsT.
 
     (* SRC: jump APC *)
     iApply wsim_apc_src. cStepsS. cForcesS. iSplit; et. cStepsS. cForceS. cStepsS.
@@ -192,12 +188,12 @@ Module KnotMainIA. Section KnotMainIA.
     ctx_refines
       (KnotMainI.t genv
         ★ KnotA.t genv sp_rec sp_fun sp
-        ★ MemA.t sp_mem
+        ★ MemA.t ∅
         ★ APCA.t sp_pure sp,
       emp%I)
       (KnotMainA.t genv sp_rec true sp
         ★ KnotA.t genv sp_rec sp_fun sp
-        ★ MemA.t sp_mem
+        ★ MemA.t ∅
         ★ APCA.t sp_pure sp,
       emp%I).
   Proof. eapply main_adequacy, sim; eauto. Qed.
@@ -206,7 +202,7 @@ Module KnotMainIA. Section KnotMainIA.
     ctx_refines
       (KnotMainA.t genv sp_rec true  sp ★ APCC.t sp, emp%I)
       (KnotMainA.t genv sp_rec false sp ★ APCC.t sp, emp%I).
-  Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure.
+  Proof using APCInSp GEnvIncl GEnvWF KnotInSp MainInFun PureInGlobal RecInSpPure _MEM.
     eapply main_adequacy.
     cStartModSim.
     { cStartFunSim. rewrite /pure_body.
@@ -216,8 +212,7 @@ Module KnotMainIA. Section KnotMainIA.
       cForcesT. iSplitL "PRE".
       { iFrame; iPureIntro; esplits; eauto. }
       cSimpl. cStepsT. simpl_sp. cStepsT. iDestruct "GRT" as "%"; des; cSimpl.
-      cCall "IST"; eauto.
-      iIntros (???) "IST".
+      cCall "IST" as (???) "IST".
       cStepsS. cStepsT. cForcesT. iSplitL "ASM"; eauto.
       cStepsT. iDestruct "GRT" as "[% POST]". cForcesS.
       iSplitL "POST"; iFrame; eauto.

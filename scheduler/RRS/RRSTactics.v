@@ -61,7 +61,7 @@ Section wsim.
     rewrite Hsps Hspt.
     cStepsS. destruct (msk_s _); cStepS; ss.
     cStepsT. rewrite Hcall; cStepsT.
-    cCall "IST". iIntros (? st_s st_t) "IST".
+    cCall "IST" as (? st_s st_t) "IST".
     cStepsT. cStepsS.
     cByCoind CIH. iFrame.
   (*SLOW*)Qed.
@@ -109,7 +109,7 @@ Section wsim.
 
     cStepsS. des_if; cStepS; ss. cForceS; iFrame; iSplit; eauto.
     cStepsS. des_if; cStepS; ss. cStepsT. rewrite Hcall; cStepsT.
-    cCall "IST". iIntros (? st_s st_t) "IST".
+    cCall "IST" as (? st_s st_t) "IST".
     cStepsT.
     cStepsS. des_if; cStepS; ss. cStepsS. des_if; cStepsS; ss.
     cByCoind CIH. iFrame. iDestruct "ASM" as "(? & ? & $)".
@@ -162,7 +162,7 @@ Section wsim.
     cStepsS. des_if; cStepS; ss.
     cForceS. iFrame; iSplit; eauto.
     cStepsS. des_if; cStepS; ss.
-    cCall "IST". iIntros (? st_s st_t) "IST".
+    cCall "IST" as (? st_s st_t) "IST".
     cStepsT.
     cStepsS. des_if; cStepS; ss. cStepsS. des_if; cStepsS; ss.
     rewrite Ht. cForceT _q. cStepsT. rewrite Ha. cForceT. iFrame. cStepsT.
@@ -188,13 +188,13 @@ Ltac clear_st :=
   hrepeat do 1 match goal with [st: alist key Any.t |- _] => clear st end.
 
 Ltac rrsYieldRR IST :=
-  cNormS; unshelve iApply (wsim_yield_tgt_rr); [ss|ss|ss|ss|];
-  iFrame IST; clear_st; iIntros (??) IST.
+  cNormS; cNormT; unshelve iApply (wsim_yield_tgt_rr); [ss|ss|ss|ss|];
+  iFrame IST; clear_st; iIntros (??) IST; cShowT; cNormT; cHideT.
 
 Ltac rrsYieldIR H1 H2 :=
   let H2' := eval compute in (H1 ++ " " ++ H2)%string in
-  cNormS; iApply (wsim_yield_tgt_ir); [simpl_sp; ss|simpl_sp; ss|ss|ss|iFrame H2'];
-  clear_st; iIntros (??) H2'.
+  cNormS; cNormT; iApply (wsim_yield_tgt_ir); [simpl_sp; ss|simpl_sp; ss|ss|ss|iFrame H2'];
+  clear_st; iIntros (??) H2'; cShowT; cNormT; cHideT.
 
 Ltac rrsYieldS :=
-  cNormS; iApply wsim_yield_src; [ss|].
+  cNormS; iApply wsim_yield_src; [ss|cShowS; cNormS; cHideS].

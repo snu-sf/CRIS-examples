@@ -45,9 +45,9 @@ Section HWQPM.
     cStartFunSim. rewrite /HWQA.new_queue /HWQP.new_queue. cStepsS.
     aStepS. iIntros (mtid stid [n sz]) "TID [-> %Hsz]".
     cStepsT. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
-    iApply wsim_mem_alloc; [try by simpl_map|ss|try lia|].
+    mAllocT as (blk) "Q"; [lia|].
     replace (Z.to_nat (2 + sz)) with (2 + sz) by lia.
-    iIntros (blk); rewrite replicate_add big_sepL_app; iIntros "[[sz [back _]] ar]". cStepsT.
+    rewrite replicate_add big_sepL_app. iDestruct "Q" as "[[sz [back _]] ar]".
     sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     mStoreT "sz". sYieldIR "IST" "TID".
     mStoreT "back". sYieldIR "IST" "TID".
@@ -104,7 +104,7 @@ Section HWQPM.
         - intros b. apply initial_block_valid.
         - simpl. apply flatten_blocks_initial. }
       sYieldS. cForceS ((Vptr (blk, 0%Z))↑, tt).
-      iIst "IST" with "[IST alloc free]".
+      cIst "IST" with "[IST alloc free]".
       { iExists _, _, _, _. repeat iSplit; des; eauto.
         iFrame "IST". iExists (X ∪ {[Vptr (blk, 0%Z)]}). 
         iSplitL "free".

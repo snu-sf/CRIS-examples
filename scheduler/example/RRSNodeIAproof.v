@@ -104,10 +104,10 @@ Module RRSNodeIA. Section RRSNodeIA.
       { des; subst; ss. }
     }
 
-    cStepsS; cStepsT. cCall "IST". iIntros (???) "IST".
+    cStepsS; cStepsT. cCall "IST" as (???) "IST".
     cStepsS. rewrite map_size_insert map_size_empty lookup_empty.
     iDestruct "ASM" as (?) "[% [tidF [RRI [% %]]]]"; des; subst; cSimpl.
-    cStepsT.
+    cStepsS. cStepsT.
 
     rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS. simpl_sp.
 
@@ -123,11 +123,11 @@ Module RRSNodeIA. Section RRSNodeIA.
       { i. vm_compute in H. do 3 (destruct m; ss); nia. }
     }
 
-    cStepsS; cStepsT. cCall "IST". iIntros (???) "IST".
+    cStepsS; cStepsT. cCall "IST" as (???) "IST".
     cStepsS. rewrite !map_size_insert map_size_empty lookup_empty.
     rewrite lookup_insert_ne // lookup_empty.
     iDestruct "ASM" as (?) "[% [tidF [RRI [% %]]]]"; des; subst; cSimpl.
-    cStepsT; cSimpl. cStepsT.
+    cStepsS. cStepsT.
 
     rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS.
 
@@ -140,8 +140,7 @@ Module RRSNodeIA. Section RRSNodeIA.
       do 2 (rewrite lookup_insert_ne; eauto).
       rewrite lookup_insert. iSplit; eauto.
       solve_base_sl_red. rewrite /half_val. unseal "Node". iFrame. }
-
-    cStepsS; cStepsT. cCall "IST". iIntros (???) "IST".
+    cStepsS; cStepsT. cCall "IST" as (???) "IST".
     cStepsS. cStepsT. iDestruct "ASM" as "(% & (% & tidF & % & % & RRI & % & INV))"; cSimpl.
 
     cForcesS. iSplitL "tidF"; eauto.
@@ -177,7 +176,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     { rewrite /half_val. unseal "Node". iFrame. }
     rewrite PREV.
     
-    cInlineT. cStepsT. cForcesT. instantiate (1 := (blk, ofs, 1%Qp, _)); ss.
+    cInlineT. cStepsT. cForceT (blk, ofs, 1%Qp, _). cForcesT.
     iSplitL "PT"; iFrame; eauto.
     cStepsT. iDestruct "GRT" as "[% [PT ->]]". subst. cStepsT.
 
@@ -212,11 +211,9 @@ Module RRSNodeIA. Section RRSNodeIA.
     { rewrite /half_val. unseal "Node". iFrame. }
     rewrite PREV.
 
-    cInlineT. cStepsT. cForcesT.
-    instantiate (1 := (blk, ofs, Vint _, Vint _)); ss.
+    cInlineT. cStepsT. cForceT (blk, ofs, Vint _, Vint _). cForcesT.
     iSplitL "PT"; iFrame; eauto. cStepsT.
     iDestruct "GRT" as "[% [PT ->]]". cSimpl. cStepsT. cStepsT.
-    replace (S mtid - mtid)%Z with 1%Z by nia.
 
     (** Close invariant **)
     iCombine "HALF HALF0" as "FULL".
@@ -226,9 +223,9 @@ Module RRSNodeIA. Section RRSNodeIA.
     iMod ("CLOSE" with "[PT HALF0]") as "_".
     { iExists _. solve_base_sl_red. rewrite /half_val. unseal "Node". iFrame. }
 
-    rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS; cStepsT.
-    cStep. cStepsT. cStepsS.
-    rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS; cStepsT.
+    rrsYieldIR "IST" "tidF". rrsYieldS.
+    replace (S mtid - mtid)%Z with 1%Z by nia.
+    cStep. rrsYieldIR "IST" "tidF". rrsYieldS.
 
     unfold RRS.yield. unseal "RRS". cStepsS. simpl_sp.
     cForceS (mtid + 1, stid, ssch, Invs').
@@ -238,7 +235,7 @@ Module RRSNodeIA. Section RRSNodeIA.
       iSplit; eauto. iFrame. iSplit; eauto. iExists _; iSplit; eauto. solve_base_sl_red.
       rewrite /half_val. unseal "Node". iFrame. }
      
-    cStepsS. cStepsT. cCall "IST". iIntros (???) "IST".
+    cStepsS. cStepsT. cCall "IST" as (???) "IST".
     cStepsS. iDestruct "ASM" as "[% (% & tidF & % & % & RRI & % & INV)]"; cSimpl.
     cStepsT. cForcesS. replace (mtid + 1) with (S mtid) by nia.
     iFrame. iSplit; eauto.

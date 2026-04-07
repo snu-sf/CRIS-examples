@@ -40,7 +40,7 @@ Module MainIA. Section MainIA.
     
     (* sync foo *)
     rewrite sp_foo.
-    cCall "IST". iIntros "% % % IST".
+    cCall "IST" as (???) "IST".
 
     (* TGT : inline get *)
     cStepsT. cInlineT.

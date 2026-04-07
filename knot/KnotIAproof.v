@@ -11,7 +11,7 @@ Module KnotIA. Section KnotIA.
   Context (genv: GEnv.t).
 
   (* 2. spec maps *)
-  Context (sp sp_rec sp_fun sp_mem sp_pure : specmap).
+  Context (sp sp_rec sp_fun sp_pure : specmap).
 
   (* 3. hypotheses for genv *)
   Context (GEnvWF : GEnv.wf genv).
@@ -35,7 +35,7 @@ Module KnotIA. Section KnotIA.
           ∗ (var_points_to genv KnotHdr._f fb'))%I.
 
   Local Notation APCA := (APCA.t sp_pure sp).
-  Local Notation MemA := (MemA.t sp_mem).
+  Local Notation MemA := (MemA.t ∅).
   Local Notation KnotA := (KnotA.t genv sp_rec sp_fun sp).
   Local Notation KnotAMod := (KnotA ★ MemA ★ APCA).
   Local Notation KnotIMod := ((KnotI.t genv) ★ MemA ★ APCA).
@@ -77,7 +77,7 @@ Module KnotIA. Section KnotIA.
     hexploit (HIN f); eauto; intros [fb [EQ [? FBLOCK]]]; rewrite EQ /=.
 
     (* TGT: get blocks of the function pointer and "rec" *)
-    cStepsT. rewrite FBLOCK.
+    cStepsT. rewrite FBLOCK. cStepsT.
     eapply GEnvWF in SKINCL_REC; rewrite SKINCL_REC. cStepsT.
 
     (* SRC: unfold APC *)

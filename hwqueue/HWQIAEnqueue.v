@@ -121,8 +121,8 @@ Section HWQPM.
       iApply "HelpClose"; iFrame.
     }
     iPoseProof ("IH" with "TID Hs● Hbig He●") as "IH".
-    appendRetS; appendRetT. iApply wsim_bind. iSplitL "IH"; first iApply "IH". s.
-    iIntros (????) "[W [Hs● [Hbig [He● [TID ?]]]]]". cStep.
+    appendRetS; appendRetT. cBind _ "IH" as (????) "[W [Hs● [Hbig [He● [TID ?]]]]]".
+    cStep.
     assert (map_imap (helped p) (<[e:=(l, Help γ, w)]> slots)
             = map_imap (helped (e :: p)) slots) as Heq.
     { apply map_eq. intros i. destruct (decide (i = e)) as [->|Hi_not_n].
@@ -597,7 +597,7 @@ Section HWQPM.
       iMod (Ist_help with "IST") as "[% [% [-> [X XClose]]]]".
       iPoseProof (helping_auth_split (1/2) with "X") as "[X X2]"; first done.
       iMod ("Close" with "[$]") as "_".
-      prependRetT tt. iApply wsim_bind. iSplitL "Hs● Hbig He● TID XClose X2".
+      prependRetT tt. cBind _ "Hs● Hbig He● TID XClose X2" as (st_src [] st_tgt []) "Q".
       { iApply (big_lemma with "Inv [X2 XClose] TID Hs● Hbig He●");
           [by simpl_map|apply HNoDup|..].
         { intros k Hk. destruct (decide (k = i)) as [->|Hk_not_i].
@@ -605,8 +605,8 @@ Section HWQPM.
           + rewrite lookup_insert_ne; last done. apply Hb_valid2, Hk. }
         iIntros (?) "A"; iApply "XClose"; iApply "X2"; done.
       }
-      clear_st. iIntros (st_src [] st_tgt []) "[? [Hs● [Hbig [He● [TID XClose]]]]]".
-      iApply wsim_fold; iFrame.
+      iDestruct "Q" as "[? [Hs● [Hbig [He● [TID XClose]]]]]".
+      cStepsS. iApply wsim_fold; iFrame.
       iInv "Inv" as "HInv" "Close".
       iDestruct "HInv" as "[[% ●Help] | [% [% [% [% [% [% [% [_ [_ [_ [_ [_ [_ [He●2 _]]]]]]]]]]]]]]]";
         last first.

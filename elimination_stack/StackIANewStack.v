@@ -33,8 +33,7 @@ Section StackIM.
     cStepsT. sYieldIR "IST" "TID".
 
     (* allocate new stack - can't use memtactics here..., generalize the lemma *)
-    iApply wsim_mem_alloc; [try by simpl_map|ss|ss|].
-    iIntros (blk) "[↦stack [↦val _]]". cStepsT.
+    mAllocT as (blk) "[↦stack [↦val _]]". cStepsT.
     sYieldIR "IST" "TID". sYieldIR "IST" "TID".
 
     (* initialize stack *)

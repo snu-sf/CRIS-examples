@@ -35,11 +35,11 @@ Module CellioIA. Section CellioIA.
 
     cStepsS. destruct Any.downcast; cStepsS; des_ifs. cStepsS. cStepsT. 
 
-    cCall "IST". iIntros "% % % IST". 
+    cCall "IST" as (???) "IST".
     cStepsS. cStepsT.
     destruct Any.downcast; cStepsS; des_ifs. cStepsT. rename z into v_new.
 
-    mAllocT "[P0 [P1 _]]". rewrite /scale_int; case_match; ss. cStepsT.
+    mAllocT as (?) "[P0 [P1 _]]". rewrite /scale_int; case_match; ss. cStepsT.
     mStoreT "P0".
     mStoreT "P1".
 

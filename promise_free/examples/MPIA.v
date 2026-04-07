@@ -58,7 +58,7 @@ Module MPIA. Section MPIA.
     (* write *)
     cInlineT.
     cForceT (meta0 (1%positive, 0, loc, Val.Vnum 0, Ordering.na, _))%cris.
-    rewrite shift_0. cForcesT.
+    cForcesT. rewrite shift_0.
     iFrame "TV".
     iDestruct "↦" as "[↦flag ↦data]"; iSplitL "↦flag".
     { do 2 (iSplit; eauto). iApply own_loc_na_own_loc; done. }
@@ -115,9 +115,7 @@ Module MPIA. Section MPIA.
       iSplitR; first iApply mp2_spawnable.
       iExists γ; iSplit; eauto. rewrite shift_0; eauto.
     }
-    cStepsS. cStepsT. cCall "IST".
-
-    clear dependent st_src st_tgt. iIntros (ret st_src st_tgt) "IST".
+    cStepsS. cStepsT. cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[% [-> [TV [-> ->]]]]".
     cStepsT. cStepsS. iApply wsim_reset. clear Hle3 H.
 
@@ -142,7 +140,7 @@ Module MPIA. Section MPIA.
       iEval (solve_base_sl_red) in "H"; iPoseProof "H" as "->".
       cForceT (meta1 (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, _, z1))%cris.
       cForcesT.
-      iFrame "TV SN ↦flag". iSplit; auto.
+      iFrame "TV SN ↦flag". rewrite shift_0. iSplit; et.
       cStepsT.
       iDestruct "GRT" as "[-> [% [% [% [% [% [% [%V4 [[-> %] [#SN2 [↦flag TV]]]]]]]]]]]".
       cStepsT.
@@ -187,7 +185,7 @@ Module MPIA. Section MPIA.
       iDestruct "↦flag" as "[% ↦flag]".
       cForceT (meta1 (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, V3, z1))%cris.
       (* iPoseProof (AtomicSWriter_AtomicSeen with "SW") as "#SN". *)
-      cForcesT. iFrame "TV SN ↦flag". iSplit; eauto.
+      cForcesT. iFrame "TV SN ↦flag". rewrite shift_0. iSplit; eauto.
       cStepsT.
       iDestruct "GRT" as "[-> [% [% [% [% [% [% [% [[-> %Hres] [#SN2 [↦flag TV]]]]]]]]]]]".
       destruct Hres as [Hval [Hcell1 [Hcell2 [Hget [Hvle Hvle2]]]]].

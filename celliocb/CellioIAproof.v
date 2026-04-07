@@ -23,7 +23,7 @@ Module CellioIA. Section CellioIA.
 
     (* Call cb() simultaneously *)
     cStepsT. 
-    cCall "IST". iIntros "% % % IST". 
+    cCall "IST" as (???) "IST".
     cStepsS. cStepsT.
     destruct Any.downcast; cStepsS; des_ifs.
     rename z into v_new.

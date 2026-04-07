@@ -120,12 +120,12 @@ Module MemHN. Section MemHN.
     destruct v. destruct v0.
     cStepsS. cSimpl. cStepsS.
     cForceT false. cStepsT.
-    cCall "IST". iIntros (???) "IST". cStepsS. cStepsT.
+    cCall "IST" as (???) "IST". cStepsS. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
     { cStepsS. ss. }
 
     cStepsS; cStepsT.
-    cCall "IST". iIntros (???) "IST". cStepsS. cStepsT.
+    cCall "IST" as (???) "IST". cStepsS. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
     { cStepsS. ss. }
 
@@ -133,7 +133,7 @@ Module MemHN. Section MemHN.
     des_ifs; cycle 1.
     { cStepsS. cStepsT. cStep. iSplit; eauto. } 
     cStepsS. cStepsT. 
-    cCall "IST". iIntros (???) "IST". cStepsS. cStepsT.
+    cCall "IST" as (???) "IST". cStepsS. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
     { cStepsS. ss. }
 

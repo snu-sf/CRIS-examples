@@ -23,16 +23,15 @@ Module CannonMainIA. Section CannonMainIA.
     cStepsS. iDestruct "ASM" as "[-> B]". destruct Any.downcast; cStepsS; ss. simpl_sp.
 
     (* SRC: prove the precondition of "fire" *)
-    cStepsT. cForceS. instantiate (1:=()). cForceS.
-    cForceS. iFrame; iSplit; eauto. cStepsS.
+    cStepsT. cForceS (). cForcesS. iFrame; iSplit; eauto.
 
     (* SRC, TGT; cCall "fire" and take a postcondition *)
-    cCall "IST"; eauto. clear dependent st_src st_tgt. iIntros (ret st_src st_tgt) "IST".
+    cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[% %]"; des; subst. cSimpl.
-    cStepsT. cSimpl. cStepsT.
+    cStepsT. cSimpl. cStepsS.
     
     (* SRC, TGT: print 1 *)
-    cStep. cStepsS. cStepsT.
+    cStep.
 
     (* SRC: prove the postcondition & IST *)
     cForcesS. iSplit; eauto.

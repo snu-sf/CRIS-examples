@@ -33,25 +33,21 @@ Module MutMainIA. Section MutMainIA.
 
     (* SRC: handle pure (APC) *)
     rewrite /MutMainI.mainF /MutMainA.main_body /pure.
-    cForceS 11. cStepsS.
-    erewrite lookup_weaken; [| |eapply APCInSp]; cycle 1.
-    { rewrite /APCA.sp; simpl_map; refl. }
+    cForceS 11. cStepsS. simpl_sp.
     cForcesS. iSplitR; eauto.
-    cStepsS.
     
     (* SRC: inlining APC *)
     cInlineS. cStepsS. iDestruct "ASM" as "[-> <-]"; cSimpl.
     cStepsS. rewrite /APC. cForceS 1. cStepsS.
 
     (* SRC, TGT: cCall mutg using APC tactic *)
-    cStepsT. apcCall ""; eauto.
+    cStepsT. apcCall "" as (???) "ISTPOST"; eauto.
     { instantiate (1:=0). eapply OrdArith.lt_from_nat. nia. }
     { instantiate (1:=10). eapply OrdArith.lt_from_nat. nia. }
     { instantiate (1:=10). iSplit; eauto. 
       { iPureIntro. esplits; eauto; [unfold mut_max; nia|refl]. }
       { do 4 iExists _. iSplit; iPureIntro; esplits; eauto; unfold_mod; ss. }
     }
-    iIntros (???) "ISTPOST".
     iDestruct "ISTPOST" as "[IST ->]".
     
     (* SRC: jump APC *)
@@ -89,11 +85,9 @@ Module MutMainIA. Section MutMainIA.
     (* { inv H. } *)
     { cStartFunSim.
       cStepsS. cForcesT.
-      iDestruct "IST" as "%"; des; cSimpl.
+      iDestruct "IST" as "%"; des; cSimpl. cStepsT.
       rewrite /MutMainA.main_body /pure /SModTr.trans_fnsem /SModTr.HoareFun. cStepsT.
-      erewrite lookup_weaken; [| |eapply APCInSp]; cycle 1.
-      { rewrite /APCA.sp; simpl_map; refl. }
-      cStepsT. cInlineT. cForcesT.
+      simpl_sp. cStepsT. cInlineT. cForcesT.
       iDestruct "GRT" as "(% & %)". subst. iSplitR; et.
       cSimpl. cStepsT. cForcesT. iSplitR; et.
       cStepsT. cStepsS. cStep. rewrite /ist_with_eq /IstProd. iSplit; eauto.

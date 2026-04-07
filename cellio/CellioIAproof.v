@@ -26,7 +26,7 @@ Module CellioIA. Section CellioIA.
 
     (* Call Input() simultaneously *)
     cStepsT.
-    cCall "IST". iIntros (ret st_src' st_tgt') "IST".
+    cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsT. cStepsS. destruct Any.downcast as [v_new|]; [|cStepsS; ss]. cSimpl.
     cStepsT. cStepsS.
 

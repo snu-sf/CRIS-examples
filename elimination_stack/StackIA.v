@@ -80,7 +80,7 @@ Module StackIA. Section StackIA.
       cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.run. cStepsT.
       rewrite unfold_atomic_update_sem. sYieldII "IST". sYieldS. cStepsS. cForcesT; iFrame.
       cStepsT. cForceS (inr _). cForcesS; iFrame.
-      sYieldII "IST". sYieldS. cStep; iFrame. iDestruct "GRT" as "[TID _]"; iFrame. done.
+      sYieldII "IST". sYieldS. cStepsT. cStep; iFrame. iDestruct "GRT" as "[TID _]"; iFrame. done.
     }
     { cStartFunSim. rewrite /StackM.pop /StackA.pop. cStepsS; cStepsT.
       aStepS; iIntros (mtid stid γs) "TID [%s [-> [%n #Hstack]]]".

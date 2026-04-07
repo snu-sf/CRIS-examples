@@ -63,11 +63,10 @@ Module MutFIA. Section MutFIA.
     rewrite /APC. cForceS 1. cStepsS.
 
     (* SRC, TGT : cCall mutg using APC tactic *)
-    cStepsT. apcCall "IST"; eauto.
+    cStepsT. apcCall "IST" as (???) "ISTPOST"; eauto.
     { instantiate (1:=0). eapply OrdArith.lt_from_nat. nia. }
     { instantiate (1:=_q). eapply Ord.lt_le_lt; eauto. eapply OrdArith.lt_from_nat. nia. }
     { iFrame. iPureIntro. esplits; eauto; [nia|refl]. }
-    iIntros (???) "ISTPOST".
     iDestruct "ISTPOST" as "[IST ->]".
 
     (* SRC: jump APC *)

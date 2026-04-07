@@ -53,7 +53,7 @@ Module SingleCoinPA. Section SingleCoinPA.
 
     (* alloc coin *)
     iMod (coin_alloc _ b with "AUTH") as "[AUTH COIN]".
-    iIst "IST" with "[F2 PL P AUTH]".
+    cIst "IST" with "[F2 PL P AUTH]".
     { iExists (l_s ++ [b]), (l_t ++ [None]). iSplit; eauto.
       { iPureIntro; splits; ss; eauto. rewrite ?length_app; s; lia. }
       iSplitL "F2".
@@ -130,9 +130,8 @@ Module SingleCoinPA. Section SingleCoinPA.
       { rewrite EQ ?length_app /= //. }
       iSplitL "F".
       { iApply ProphecyRA.free_id_iff; ss. rewrite ?length_app //. }
-      iFrame.
-      iExists bn, [bn]; rewrite Nat.add_0_r. iFrame.
-      iPureIntro; ss; esplits; eauto. right; exists []; eauto.
+      iFrame. rewrite Nat.add_0_r. iPureIntro; ss; esplits; eauto.
+      right; exists []; eauto.
     }
   Qed.
 
