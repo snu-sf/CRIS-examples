@@ -37,7 +37,7 @@ Module MutMainIA. Section MutMainIA.
     cForcesS. iSplitR; eauto.
     
     (* SRC: inlining APC *)
-    cInlineS. cStepsS. iDestruct "ASM" as "[-> <-]"; cSimpl.
+    cInlineS. cStepsS. iDestruct "ASM" as "[-> <-]".
     cStepsS. rewrite /APC. cForceS 1. cStepsS.
 
     (* SRC, TGT: cCall mutg using APC tactic *)
@@ -51,7 +51,7 @@ Module MutMainIA. Section MutMainIA.
     iDestruct "ISTPOST" as "[IST ->]".
     
     (* SRC: jump APC *)
-    apcS. cStepsS. cStepsT. cSimpl. cStepsT.
+    apcS. cStepsS. cStepsT. cStepsT.
     cForcesS. iSplitR; first done.
     cStepsS. cForcesS.
 
@@ -88,8 +88,8 @@ Module MutMainIA. Section MutMainIA.
       iDestruct "IST" as "%"; des; cSimpl. cStepsT.
       rewrite /MutMainA.main_body /pure /SModTr.trans_fnsem /SModTr.HoareFun. cStepsT.
       simpl_sp. cStepsT. cInlineT. cForcesT.
-      iDestruct "GRT" as "(% & %)". subst. iSplitR; et.
-      cSimpl. cStepsT. cForcesT. iSplitR; et.
+      iDestruct "GRT" as "(% & %)". subst. cSimpl. iSplitR; et.
+      cStepsT. cForcesT. iSplitR; et.
       cStepsT. cStepsS. cStep. rewrite /ist_with_eq /IstProd. iSplit; eauto.
     }
     { rewrite /IstProd. iIntros "_". do 4 iExists _. eauto. }

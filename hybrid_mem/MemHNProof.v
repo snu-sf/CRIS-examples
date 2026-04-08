@@ -23,9 +23,9 @@ Module MemHN. Section MemHN.
     cStepsS; cStepsT.
     iDestruct "IST" as (? ? ? ?) "%". des; cSimpl. des_ifs; cycle 1.
     { cStepsS. ss. }
-    cForceT false. cStepsT. cSimpl.
+    cForceT false. cStepsT.
 
-    cStepsT. cStepsS. cSimpl.
+    cStepsT. cStepsS.
     cStepsS. cForceS _q. cStepsS.
 
     cStep. iSplit; [eauto|].
@@ -40,10 +40,10 @@ Module MemHN. Section MemHN.
     cStepsS; cStepsT. rewrite {1}/unwrapU. des_ifs; cycle 1.
     { cStepsS. ss. }
     cStepsS; cStepsT.
-    iDestruct "IST" as (? ? ? ?) "%". des.
+    iDestruct "IST" as (? ? ? ?) "%". des. cSimpl.
 
-    cStepsS. cSimpl. cForceT false. cStepsT. cSimpl. cStepsT.
-    cStepsS. cSimpl. cStepsS. rewrite {1}/unwrapU. des_ifs; cycle 1.
+    cStepsS. cForceT false. cStepsT. cStepsT.
+    cStepsS. cStepsS. rewrite {1}/unwrapU. des_ifs; cycle 1.
     { cStepsS. ss. }
     cStepsS. cStepsT. cStep. iSplit; [eauto|].
     iPureIntro. repeat (esplits; eauto).
@@ -57,10 +57,10 @@ Module MemHN. Section MemHN.
     cStepsS; cStepsT. rewrite {1}/unwrapU. des_ifs; cycle 1.
     { cStepsS. ss. }
     cStepsS; cStepsT.
-    iDestruct "IST" as (? ? ? ?) "%". des.
+    iDestruct "IST" as (? ? ? ?) "%". des. cSimpl.
 
-    cStepsS. cSimpl. cStepsS. cSimpl. cStepsS. 
-    cForceT false. cStepsT. cSimpl. cStepsT.
+    cStepsS. cStepsS. cStepsS. 
+    cForceT false. cStepsT. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
     { cStepsS. ss. }
     cStepsS; cStepsT.
@@ -79,8 +79,8 @@ Module MemHN. Section MemHN.
     iDestruct "IST" as (? ? ? ?) "%". des; cSimpl.
 
     destruct v.
-    cStepsS. cSimpl. cStepsS.
-    cForceT false. cStepsT. cSimpl. cStepsT.
+    cStepsS. cStepsS.
+    cForceT false. cStepsT. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
     { cStepsS. ss. }
     cStepsS; cStepsT.
@@ -99,8 +99,8 @@ Module MemHN. Section MemHN.
     iDestruct "IST" as (? ? ? ?) "%". des; cSimpl.
 
     destruct v.
-    cStepsS. cSimpl. cStepsS.
-    cForceT false. cStepsT. cSimpl. cStepsT.
+    cStepsS. cStepsS.
+    cForceT false. cStepsT. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.
     { cStepsS. ss. }
     cStepsS; cStepsT.
@@ -118,7 +118,7 @@ Module MemHN. Section MemHN.
     cStepsS; cStepsT.
 
     destruct v. destruct v0.
-    cStepsS. cSimpl. cStepsS.
+    cStepsS. cStepsS.
     cForceT false. cStepsT.
     cCall "IST" as (???) "IST". cStepsS. cStepsT.
     rewrite {1}/unwrapU. des_ifs; cycle 1.

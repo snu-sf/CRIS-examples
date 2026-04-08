@@ -28,7 +28,7 @@ Module CannonMainIA. Section CannonMainIA.
     (* SRC, TGT; cCall "fire" and take a postcondition *)
     cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[% %]"; des; subst. cSimpl.
-    cStepsT. cSimpl. cStepsS.
+    cStepsT. cStepsS.
     
     (* SRC, TGT: print 1 *)
     cStep.

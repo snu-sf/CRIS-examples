@@ -133,13 +133,13 @@ End PFMem. Section PFMemTac.
     rewrite /alloc. unseal PFM. cStepsT. cInlineT.
     iPoseProof (winv_split υ ν with "P") as "> [V U]"; first eauto.
     cForcesT. iSplitL "TID V"; iFrame; eauto.
-    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]". cSimpl.
-    cStepsT. cInlineT. cSimpl. cForceT (Tid.of_succ_nat my_tid, sz, 𝓥). cStepsT.
+    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]".
+    cStepsT. cInlineT. cForceT (Tid.of_succ_nat my_tid, sz, 𝓥). cStepsT.
     cForceT ((Tid.of_succ_nat my_tid, sz)↑). cStepsT.
     cForceT. iSplitL "PRE".
     { iDestruct "PRE" as "[[% TV] %]". iSplit; eauto. }
     cStepsT. iDestruct "GRT" as "[POST ->]". iDestruct "POST" as (??) "[-> [TV [LOC PT]]]".
-    cSimpl. cStepsT.
+    cStepsT.
     iAssert ( |==> winv υ ⊤ )%I with "[U V]" as ">P".
     { iDestruct "U" as "[A [W C]]". iFrame. iApply "C". iFrame. }    
     iApply ("SIM" with "IST TID [TV LOC PT]"); iFrame; eauto.
@@ -172,13 +172,13 @@ End PFMem. Section PFMemTac.
     rewrite /free. unseal PFM. cStepsT. cInlineT.
     iPoseProof (winv_split υ ν with "P") as "> [V U]"; first eauto.
     cForcesT. iSplitL "TID V"; iFrame; eauto.
-    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]". cSimpl.
-    cStepsT. cInlineT. cSimpl. cForceT (Tid.of_succ_nat my_tid, loc, n, 𝓥). cStepsT.
+    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]".
+    cStepsT. cInlineT. cForceT (Tid.of_succ_nat my_tid, loc, n, 𝓥). cStepsT.
     cForceT ((Tid.of_succ_nat my_tid, loc)↑). cStepsT.
     cForceT. iSplitL "PRE".
     { iDestruct "PRE" as "[[% TV] %]". iSplit; eauto. }
     cStepsT. iDestruct "GRT" as "[-> ->]".
-    cSimpl. cStepsT.
+    cStepsT.
     iAssert ( |==> winv υ ⊤ )%I with "[U V]" as ">P".
     { iDestruct "U" as "[A [W C]]". iFrame. iApply "C". iFrame. }
     iApply ("SIM" with "IST TID"); iFrame; eauto.
@@ -211,14 +211,14 @@ End PFMem. Section PFMemTac.
     rewrite /read. unseal PFM. cStepsT. cInlineT.
     iPoseProof (winv_split υ ν with "P") as "> [V U]"; first eauto.
     cForcesT. iSplitL "TID V"; iFrame; eauto.
-    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]". cSimpl.
-    cStepsT. cInlineT. cSimpl. cForceT (existT 0 (Tid.of_succ_nat my_tid, loc, ord, v, q, 𝓥)). cStepsT.
+    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]".
+    cStepsT. cInlineT. cForceT (existT 0 (Tid.of_succ_nat my_tid, loc, ord, v, q, 𝓥)). cStepsT.
     cForceT ((Tid.of_succ_nat my_tid, loc, ord)↑). cStepsT.
     cForceT. iSplitL "PRE".
     { iDestruct "PRE" as "[[% TV] %]". iSplit; eauto. }
     cStepsT. iDestruct "GRT" as "[POST ->]".
-    iDestruct "POST" as (??) "[% POST]"; des; subst.
-    cSimpl. cStepsT.
+    iDestruct "POST" as (??) "[% POST]"; des; subst. cSimpl.
+    cStepsT.
     iAssert ( |==> winv υ ⊤ )%I with "[U V]" as ">P".
     { iDestruct "U" as "[A [W C]]". iFrame. iApply "C". iFrame. }
     iApply ("SIM" with "IST TID [POST]"); iFrame; eauto.
@@ -251,14 +251,14 @@ End PFMem. Section PFMemTac.
     rewrite /read. unseal PFM. cStepsT. cInlineT.
     iPoseProof (winv_split υ ν with "P") as "> [V U]"; first eauto.
     cForcesT. iSplitL "TID V"; iFrame; eauto.
-    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]". cSimpl.
-    cStepsT. cInlineT. cSimpl. cForceT (existT 1 (Tid.of_succ_nat my_tid, loc, ord, ζ, ζ', t0, γ, q, mode, 𝓥, Vb)). cStepsT.
+    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]".
+    cStepsT. cInlineT. cForceT (existT 1 (Tid.of_succ_nat my_tid, loc, ord, ζ, ζ', t0, γ, q, mode, 𝓥, Vb)). cStepsT.
     cForceT ((Tid.of_succ_nat my_tid, loc, ord)↑). cStepsT.
     cForceT. iSplitL "PRE".
     { iDestruct "PRE" as "[[% TV] %]". iSplit; eauto. }
     cStepsT. iDestruct "GRT" as "[POST ->]".
-    iDestruct "POST" as (???????) "[% POST]"; des; subst.
-    cSimpl. cStepsT.
+    iDestruct "POST" as (???????) "[% POST]"; des; subst. cSimpl.
+    cStepsT.
     iAssert ( |==> winv υ ⊤ )%I with "[U V]" as ">P".
     { iDestruct "U" as "[A [W C]]". iFrame. iApply "C". iFrame. }
     iApply ("SIM" with "IST TID [POST]"); iFrame; eauto.
@@ -292,14 +292,14 @@ End PFMem. Section PFMemTac.
     rewrite /write. unseal PFM. cStepsT. cInlineT.
     iPoseProof (winv_split υ ν with "P") as "> [V U]"; first eauto.
     cForcesT. iSplitL "TID V"; iFrame; eauto.
-    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]". cSimpl.
-    cStepsT. cInlineT. cSimpl. cForceT (existT 1 (Tid.of_succ_nat my_tid, loc, val, ord, 𝓥, γ, ζ', Vb, tx, ζ, mode, q, tx')). cStepsT.
+    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]".
+    cStepsT. cInlineT. cForceT (existT 1 (Tid.of_succ_nat my_tid, loc, val, ord, 𝓥, γ, ζ', Vb, tx, ζ, mode, q, tx')). cStepsT.
     cForceT ((Tid.of_succ_nat my_tid, loc, val, ord)↑). cStepsT.
     cForceT. iSplitL "PRE".
     { iDestruct "PRE" as "[[% TV] %]". iSplit; eauto. }
     cStepsT. iDestruct "GRT" as "[POST ->]".
-    iDestruct "POST" as (??????) "[% POST]"; des; subst.
-    cSimpl. cStepsT.
+    iDestruct "POST" as (??????) "[% POST]"; des; subst. cSimpl.
+    cStepsT.
     iAssert ( |==> winv υ ⊤ )%I with "[U V]" as ">P".
     { iDestruct "U" as "[A [W C]]". iFrame. iApply "C". iFrame. }
     iApply ("SIM" with "IST TID [POST]"); iFrame; eauto.
@@ -332,14 +332,14 @@ End PFMem. Section PFMemTac.
     rewrite /cas. unseal PFM. cStepsT. cInlineT.
     iPoseProof (winv_split υ ν with "P") as "> [V U]"; first eauto.
     cForcesT. iSplitL "TID V"; iFrame; eauto.
-    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]". cSimpl.
-    cStepsT. cInlineT. cSimpl. cForceT (Tid.of_succ_nat my_tid, loc, old, new, ordr, ordw, 𝓥, γ, ζ', Vb, tx, ζ, mode, Pr). cStepsT.
+    cStepsT. iDestruct "GRT" as "[V [[-> TID] ->]]".
+    cStepsT. cInlineT. cForceT (Tid.of_succ_nat my_tid, loc, old, new, ordr, ordw, 𝓥, γ, ζ', Vb, tx, ζ, mode, Pr). cStepsT.
     cForceT ((Tid.of_succ_nat my_tid, loc, old, new, ordr, ordw)↑). cStepsT.
     cForceT. iSplitL "PRE".
     { iDestruct "PRE" as "[[% TV] %]". iSplit; eauto. }
     cStepsT. iDestruct "GRT" as "[POST ->]".
-    iDestruct "POST" as (??????????) "[% POST]"; des; subst.
-    cSimpl. cStepsT.
+    iDestruct "POST" as (??????????) "[% POST]"; des; subst. cSimpl.
+    cStepsT.
     iAssert ( |==> winv υ ⊤ )%I with "[U V]" as ">P".
     { iDestruct "U" as "[A [W C]]". iFrame. iApply "C". iFrame. }
     iApply ("SIM" with "IST TID [POST]"); iFrame; eauto.

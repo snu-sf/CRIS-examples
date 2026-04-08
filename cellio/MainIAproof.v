@@ -29,7 +29,7 @@ Module MainIA. Section MainIA.
     cStartFunSim. unfold MainI.main, MainA.main.
 
     (* Take cell(0) *)
-    cStepsS. iDestruct "ASM" as "[-> CELL]". cSimpl.
+    cStepsS. iDestruct "ASM" as "[-> CELL]".
 
     cStepsT. cInlineT.
     (* Give cell(0) *)
@@ -39,22 +39,22 @@ Module MainIA. Section MainIA.
     (* Call Input() simultaneously *)
     cStepsT. rewrite sp_input.
     cCall "IST" as (ret st_src st_tgt) "IST".
-    destruct Any.downcast as [v|]; [|cStepsS; ss]. cSimpl.
+    destruct Any.downcast as [v|]; [|cStepsS; ss].
 
     (* Take cell(i) *)
-    cStepsT. iDestruct "GRT'" as "<-". cSimpl. iRename "GRT" into "CELL".
+    cStepsT. iDestruct "GRT'" as "<-". iRename "GRT" into "CELL".
 
     (* Call Foo.foo() simultaneously *)
     cStepsT. cStepsS. rewrite sp_foo.
     cCall "IST" as (r1 st_src st_tgt) "IST".
-    destruct Any.downcast; [|cStepsS; ss]. cSimpl.
+    destruct Any.downcast; [|cStepsS; ss].
     cStepsT. cInlineT.
     (* Give cell(i) *)
     cForcesT. iSplitL ""; eauto. unfold get.
     cForcesT. iSplitL "CELL"; eauto.
 
     (* Take cell(i) *)
-    cStepsT. iDestruct "GRT'" as "<-". cSimpl. iRename "GRT" into "CELL".
+    cStepsT. iDestruct "GRT'" as "<-". iRename "GRT" into "CELL".
 
     (* Call Print(i) simultaneously *)
     cStepsT. cStepsS. cStep.

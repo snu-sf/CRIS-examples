@@ -22,7 +22,7 @@ Section write.
       destruct p as [[[[tid loc] val] ord] 𝓥]. cStepsS.
       iDestruct "ASM" as "[-> [-> [PT TV]]]". cSimpl.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
-      cStepsT. cSimpl. cStepsT.
+      cStepsT. cStepsT.
       rewrite /PFMemI.check_ident.
       des_ifs; last (iPoseProof (tview_both_valid with "TA TV") as "%F"; des; ss; clarify).
       cStepsT. destruct _q as [[e config'] [EVWRITE STEP]].
@@ -205,7 +205,7 @@ Section write.
     { destruct p as [[[[[[[[[[[[tid loc] val] ord] 𝓥] γ] ζ'] Vb] tx] ζ] mode] q] tx']. cStepsS.
       iDestruct "ASM" as "[-> [[-> %ORDRLX] [SEEN [PT [TV WRITE]]]]]". cSimpl.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
-      cStepsT. cSimpl. cStepsT.
+      cStepsT. cStepsT.
       rewrite /PFMemI.check_ident.
       des_ifs; last (iPoseProof (tview_both_valid with "TA TV") as "%F"; des; ss; clarify).
       cStepsT. destruct _q as [[e config'] [EVWRITE STEP]].

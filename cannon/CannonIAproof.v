@@ -24,7 +24,7 @@ Module CannonIA. Section CannonIA.
     (* already fired *)
     { iExFalso. iApply FiredBall; iFrame. }
 
-    cStepsS. cStepsT. cSimpl. cStepsT.
+    cStepsS. cStepsT. cStepsT.
     change (1 `div` 1)%Z with 1%Z.
 
     (* SRC, TGT: print 1 *)

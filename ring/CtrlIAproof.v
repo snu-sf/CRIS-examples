@@ -248,7 +248,7 @@ Module CtrlIA. Section CtrlIA.
 
     (* TGT: take cSteps using GRT from get_spec *)
     cStepsT. iDestruct "GRT" as "(% & % & CELL)". subst. cSimpl.
-    cStepsT. cSimpl. cForcesS. cStep.
+    cStepsT. cForcesS. cStep.
     iSplitL ""; eauto.
 
     (* Prove the IST *)

@@ -22,8 +22,8 @@ Section CAS.
     destruct _q as [[[[[[[[[[[[[tid loc] old] new] ordr] ordw] 𝓥] γ] ζ'] Vb] tx] ζn] mode] Pr].
     cStepsS.
     iDestruct "ASM" as "[-> [[-> [%RLXR [%RLXW %COMPARABLE]]] [TV [SN [PT [AW [PR #CMP]]]]]]]".
-    iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA HFA]]]]]]".
-    cSimpl. cStepsT.
+    iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA HFA]]]]]]". cSimpl.
+    cStepsT.
 
     (* conditions *)
     iPoseProof (tview_both_valid with "TA TV") as "%IN".

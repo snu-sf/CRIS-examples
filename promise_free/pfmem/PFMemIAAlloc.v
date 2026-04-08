@@ -141,7 +141,7 @@ Section alloc.
     dup STEP; inv STEP0. inv STEP1; inv LOCAL.
     iMod (hist_auth_alloc_vs with "HA") as "[HA PTS]"; eauto.
     { inv WF; ss. }
-    cStepsT. cSimpl. remember (Configuration.mk (IdentMap.add _ _ _) _) as config'.
+    cStepsT. remember (Configuration.mk (IdentMap.add _ _ _) _) as config'.
     iPoseProof (tview_auth_update with "TA TV") as "> [TA TV]"; ss.
     iMod (hist_freeable_auth_alloc with "FA") as "[F FA]"; eauto. { inv WF; ss. }
     iAssert (Ist st_src _) with "[HA TA FA]" as "IST".
@@ -191,7 +191,7 @@ Section alloc.
       { iPureIntro; split; first done. hexploit Local.alloc_step_future; eauto.
         { inv WF. inv WF0; eauto. }
         { inv WF; eauto. }
-        { i; des; eauto. }
+        { i; des; cSimpl; eauto. }
       }
       rewrite /own_loc_na_vec /view_at Nat2Z.id.
       iStopProof.

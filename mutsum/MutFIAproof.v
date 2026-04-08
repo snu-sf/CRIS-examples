@@ -70,7 +70,7 @@ Module MutFIA. Section MutFIA.
     iDestruct "ISTPOST" as "[IST ->]".
 
     (* SRC: jump APC *)
-    apcS. cStepsT. cSimpl. cStepsT. cStepsS.
+    apcS. cStepsT. cStepsT. cStepsS.
     cForcesS; iSplitR; eauto. cStepsS.
     cForcesS; iSplitR; eauto. cStepsS.
     cStep. iSplitR "IST"; iFrame; eauto.

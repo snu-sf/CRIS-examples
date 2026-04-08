@@ -22,7 +22,7 @@ Section init.
     cStepsT.
 
     iPoseProof (tview_both_valid with "TA TV") as "[% [% [%FIND %]]]"; rewrite FIND.
-    destruct (IdentMap.find tid ths) eqn : FIND2; first by cStepsT. cStepsT. cSimpl.
+    destruct (IdentMap.find tid ths) eqn : FIND2; first by cStepsT. cStepsT.
     remember (Local.mk _ _ _ _ _) as lc_new.
     iMod (tview_auth_alloc ths tid _ lc_new with "TA") as "[TA TV2]"; eauto.
     cForceS (Val.zero↑). cStepsS. cForceS (Val.zero↑). cStepsS. cForceS.

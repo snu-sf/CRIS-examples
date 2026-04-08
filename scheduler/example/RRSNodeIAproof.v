@@ -161,7 +161,7 @@ Module RRSNodeIA. Section RRSNodeIA.
 
     cStepsS. depdes _q. rename x into mtid'. destruct p as [[[[mtid stid] ssch] [blk ofs]] Invs].
     iDestruct "ASM" as "(WI & % & % & tidF & RRIP & RRI & [% | HALF] & % & % & % & [% #inv])"; des; cSimpl.
-    cStepsS; cStepsT; cSimpl. cStepsT. solve_base_sl_red. destruct mtid as [|mtid]; ss.
+    cStepsS; cStepsT. cStepsT. solve_base_sl_red. destruct mtid as [|mtid]; ss.
 
     assert (rrs_in_sp : (RRSAS.sp sp_user ⊤ get_stid PYIP) ⊆ sp).
     { etrans; eauto. }

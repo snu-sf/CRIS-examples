@@ -23,7 +23,7 @@ Section read.
       destruct f as [[[[[tid loc] ord] val] q] 𝓥]. unfoldPrePost.
       iDestruct "ASM" as "[-> [-> [PT TV]]]". cStepsT.
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
-      cStepsT. cSimpl. cStepsT.
+      cStepsT. cStepsT.
       rewrite /PFMemI.check_ident.
       des_ifs; last (iPoseProof (tview_both_valid with "TA TV") as "%F"; des; ss; clarify).
       cStepsT. destruct _q as [[[e val'] config'] [EVREAD STEP]].
@@ -144,7 +144,7 @@ Section read.
       cStepsS.
       iDestruct "ASM" as "[-> [[-> %ORDRLX] [SEEN [PT TV]]]]".
       iDestruct "IST" as "[%gl [%ths [%Vcut [[-> [%CUT [%CUTCL [%WF [%WF2 [%PFG %PFL]]]]]] [HA [TA FA]]]]]]".
-      cStepsT. cSimpl. cStepsT.
+      cStepsT. cStepsT.
       rewrite /PFMemI.check_ident.
       des_ifs; last (iPoseProof (tview_both_valid with "TA TV") as "%F"; des; ss; clarify).
       cStepsT. destruct _q as [[[e v] config'] [EVREAD STEP]].

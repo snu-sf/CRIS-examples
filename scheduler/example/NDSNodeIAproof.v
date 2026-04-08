@@ -30,7 +30,7 @@ Module NDSNodeIA. Section NDSNodeIA.
     iDestruct "ASM" as "(tidF & % & %)"; des; subst; cSimpl.
     cStepsS. cStepsT.
 
-    cInlineT. cSimpl. cStepsT. cForceT true. cStepsT. cForcesT. iSplitR; eauto.
+    cInlineT. cStepsT. cForceT true. cStepsT. cForcesT. iSplitR; eauto.
     cStepsT. rename _q into blk. iDestruct "GRT" as "[% [PT _]]". rewrite right_id. 
     ndsYieldGlobalIR "IST" "tidF". cStepsT. cInlineT. cStepsT. cForceT true.
     cStepsT. cForcesT. iSplitL "PT"; et.

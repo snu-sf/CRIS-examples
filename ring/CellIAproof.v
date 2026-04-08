@@ -31,7 +31,7 @@ Module CellIA. Section CellIA.
     iPoseProof (cell_auth_get with "C A") as "%". subst.
 
     (* TGT: return the value of Cell with [idx] *)
-    cStepsT. cSimpl. cStepsT.
+    cStepsT. cStepsT.
 
     (* SRC: take cSteps *)
     cForcesS. iSplitL "C". { eauto. }
@@ -72,7 +72,7 @@ Module CellIA. Section CellIA.
     iMod (cell_auth_set with "C A") as "(C & A)".
 
     (* TGT, SRC: take cSteps *)
-    cStepsT. cSimpl.
+    cStepsT.
     cForcesS. iSplitL "C". { eauto. } cStepsS.
 
     (* Prove the IST *)

@@ -35,7 +35,7 @@ Module CellioIA. Section CellioIA.
 
     cForceS. iFrame.
     
-    cStepsT. cSimpl. cStepsT. cStepsS.
+    cStepsT. cStepsT. cStepsS.
 
     cStep.
     iSplit; eauto.
@@ -52,7 +52,7 @@ Module CellioIA. Section CellioIA.
     iDestruct "IST" as (v) "(% & AUTH)". subst.
 
     iPoseProof (cell_auth_get with "ASM AUTH") as "%"; subst.
-    cStepsT. cSimpl. cStepsT.
+    cStepsT. cStepsT.
 
     (* Give cell(x) *)
     cForcesS. iFrame. 
