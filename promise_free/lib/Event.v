@@ -1,7 +1,4 @@
-Require Import List.
-Require Import Orders.
-Require Import MSetList.
-Require Import ZArith.
+From Stdlib Require Import List Orders MSetList ZArith.
 
 Require Import sflib Coqlib.
 

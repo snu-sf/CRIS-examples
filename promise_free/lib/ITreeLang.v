@@ -22,8 +22,8 @@ Require Import Val.
 Require Import Language.
 
 Require Import Event.
-Require Export Program.
 Require Import Ordering.
+From Stdlib Require Export Program.
 
 Open Scope cat_scope.
 Open Scope monad_scope.

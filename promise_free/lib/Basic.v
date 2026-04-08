@@ -1,9 +1,7 @@
 Require Import CRIS.
 
+From Stdlib Require Import FMapFacts MSetList.
 Require Import UsualFMapPositive.
-Require Import FMapFacts.
-Require Import MSetList.
-
 Require Import DataStructure.
 
 Set Implicit Arguments.

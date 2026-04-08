@@ -1,5 +1,5 @@
 (* Definitions of lattices partially copied from gpfsl *)
-From Coq Require Export Utf8 ssreflect.
+From Stdlib Require Export Utf8 ssreflect.
 From stdpp Require Export prelude finite gmap.
 From stdpp Require Import sorting.
 

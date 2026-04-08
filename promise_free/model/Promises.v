@@ -1,6 +1,6 @@
 Require Import CRIS.
 
-Require Import MSetList.
+From Stdlib Require Import MSetList.
 
 Require Import Basic.
 Require Import DataStructure.

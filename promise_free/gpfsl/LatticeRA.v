@@ -3,6 +3,7 @@ Require Import CRIS.
 From iris.algebra Require Import cmra auth lib.frac_auth.
 Require Export base.
 Require Import iris.prelude.options.
+From Stdlib.QArith Require Import Qcanon.
 
 Section lat.
 Context {Lat : latticeT}.
@@ -146,8 +147,6 @@ Section lat_auth.
     by apply bi.pure_mono=>-[? _].
   Qed.
 End lat_auth.
-
-From Coq.QArith Require Import Qcanon.
 
 Lemma frac_prod_max {A : cmra} (q: frac) (a b : A) :
   ✓ (q, a) → (1%Qp, b) ≼ (q, a) → False.

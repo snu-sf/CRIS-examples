@@ -1,6 +1,6 @@
 Require Import CRIS.
 
-Require Import FMapFacts.
+From Stdlib Require Import FMapFacts.
 
 Require Import Basic.
 Require Import Loc.

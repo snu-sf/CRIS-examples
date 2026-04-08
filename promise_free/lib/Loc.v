@@ -1,10 +1,6 @@
 Require Import CRIS.
 
-Require Import Orders.
-Require Import MSetList.
-Require Import FMapList.
-Require Import OrderedTypeEx.
-Require Import FunInd.
+From Stdlib Require Import Orders MSetList FMapList OrderedTypeEx FunInd.
 
 Require Import DataStructure.
 Require Import Basic.

@@ -2,7 +2,7 @@ Require Import CRIS.
 Require Import PFMemHeader PFMemI PFMemA HistoryRA AtomicRA.
 Require Import base Time TView View Cell Memory Global Time.
 Require Import
-  PFMemIAproof PFMemIAInit PFMemIAAlloc PFMemIAFree PFMemIAWrite PFMemIARead
+  PFMemIAproof PFMemIAAlloc PFMemIAFree PFMemIAWrite PFMemIARead
   PFMemIACAS PFMemIAFence PFMemIASpawn.
 
 Module PFMemIA. Section PFMemIA.

@@ -4,7 +4,7 @@ Require Import MemI MemIAproof MemTactics.
 Require Import ProphecyI ProphecyFacts.
 Require Import HelpingTactics.
 Require Import HWQI HWQP SchI SchTactics.
-Require Import IndefiniteDescription Sorted. (* require for prophecy *)
+From Stdlib Require Import IndefiniteDescription Sorted. (* require for prophecy *)
 From iris.algebra Require Import numbers excl auth list gset gmap agree csum.
 From iris.bi.lib Require Import fractional.
 From iris.proofmode Require Import proofmode.

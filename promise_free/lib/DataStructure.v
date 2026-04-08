@@ -1,6 +1,5 @@
 Require Import CRIS.
-
-Require Import MSetList MSetFacts.
+From Stdlib Require Import MSetList MSetFacts.
 
 Set Implicit Arguments.
 

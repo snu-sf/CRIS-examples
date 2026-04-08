@@ -1,6 +1,6 @@
 Require Import CRIS.
 
-Require Import Coq.Lists.ListDec Decidable.
+From Stdlib Require Import Lists.ListDec Decidable.
 
 Require Import Basic.
 Require Import DataStructure.

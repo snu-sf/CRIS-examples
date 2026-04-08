@@ -1,6 +1,5 @@
 Require Import CRIS.
-
-Require Import OrderedTypeEx FMapInterface FMapPositive FMapFacts.
+From Stdlib Require Import OrderedTypeEx FMapInterface FMapPositive FMapFacts.
 
 Set Implicit Arguments.
 

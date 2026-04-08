@@ -1,7 +1,5 @@
 Require Import CRIS.
-
-Require Import OrdersFacts FMapPositive.
-
+From Stdlib Require Import OrdersFacts FMapPositive.
 Require Import Basic.
 Require Import DataStructure.
 Require Import UsualFMapPositive.
