@@ -147,7 +147,7 @@ Module PQueueIA. Section PQueueIA.
     rewrite replicate_add /=; iDestruct "↦queue" as "[↦range ↦queue]".
     mStoreT "↦range".
 
-    iApply wsim_yy_y. iApply wsim_bind_strong.
+    iApply wsim_yy_y. iApply wsim_bind_strong; cShowR.
     rewrite ?Nat2Z.id.
     iAssert (∃ entries,
       ⌜length entries = range⌝ ∗

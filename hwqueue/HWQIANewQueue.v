@@ -56,7 +56,7 @@ Section HWQPM.
       by rewrite Nat.sub_diag //=.
     rewrite -[X in ITree.iter _ X](Nat.sub_diag sz).
     assert (sz ≤ sz) as Hle by lia; revert Hle.
-    generalize sz at 1 4 5 10 as i; intros i Hle.
+    cShowR; generalize sz at 1 4 5 10 as i; intros i Hle.
     iInduction i as [|i] forall (Hle st_src st_tgt).
     { rewrite Nat.sub_0_r /= app_nil_r.
       aUnfoldT. cStepsT. sYieldIR "IST" "TID".

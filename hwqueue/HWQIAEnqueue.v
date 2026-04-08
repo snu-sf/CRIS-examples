@@ -113,7 +113,7 @@ Section HWQPM.
       with "[Done Hval_wit_n Hwritten_n Hcommitted_wit_n Hbig Hq]")
       as "Hbig"; first by apply lookup_delete.
     { iClear "IH". iFrame "Hbig". rewrite /per_slot_own /=. iFrame. }
-    rewrite insert_delete_insert /update_slot Hn insert_delete_insert.
+    cShowR. rewrite insert_delete_insert /update_slot Hn insert_delete_insert.
     assert (∀ i : nat, i ∈ p → was_committed <$> <[e:=(l, Help γ, w)]> slots !! i = Some false) as HHH.
     { intros i Hi. rewrite lookup_insert_ne; [ by apply Ha1 | by set_solver ]. }
     iSpecialize ("IH" $! _ st_tgt2 true false _ _ HNoDup HHH with "Hinv [Help●2 HelpClose]").
