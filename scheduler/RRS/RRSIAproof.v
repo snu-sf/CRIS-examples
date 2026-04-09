@@ -95,7 +95,7 @@ Module RRSIA. Section RRSIA.
     cStepsT. cStepsS. simpl_sp.
     rewrite ConcInSp.
     cForceS. cStepsS.
-    iApply wsim_spawn. iIntros (stid_0).
+    cSpawn as (stid_0).
 
     iCombine "RRIA RRI" as "RRIA".
     iPoseProof (rrinv_merge with "RRIA") as "RRIA".
@@ -396,9 +396,9 @@ Module RRSIA. Section RRSIA.
 
     cStepsS. cStepsT. cSimpl.
     set (size rrinvO) as mtid_new.
-    cStepsS. cStepsT. simpl_sp.
+    cStepsS. cStepsT.
 
-    cForceS. cStepsS. iApply wsim_spawn. iIntros (stid_new).
+    cForceS. cStepsS. cSpawn as (stid_new).
 
     iPoseProof (rrinv_wf with "RRIA") as "%".
     iPoseProof (rrinv_match with "[RRIA RRI]") as "%"; first iFrame; subst.
@@ -421,7 +421,9 @@ Module RRSIA. Section RRSIA.
 
     iMod (Public_alloc with "PubA") as "[PubA PubF']"; eauto.
 
-    cStepsT. cStepsS. cForceS (true, mtid_new, pre). cStepsS.
+    cStepsT. cStepsS. cShowS. simpl_sp.
+
+    cForceS (true, mtid_new, pre). cStepsS.
     cForcesS. iSplitL "PRE RRIP TidF' PubF' Spawn"; first iFrame.
     { subst mtid_new. rewrite -INVWF. iFrame. iIntros "Y T WI". iFrame. iPureIntro. esplits; eauto. eapply insert_non_empty. }
 

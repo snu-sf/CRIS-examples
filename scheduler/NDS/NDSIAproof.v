@@ -111,7 +111,7 @@ Module NDSIA. Section sim.
     rewrite ConcInSp.
     
     cForceS ((fn, tt↑↑)↑).
-    cStepsS. iApply wsim_spawn. iIntros (stid_new).
+    cStepsS. cSpawn as (stid_new).
     cStepsS. cForceS (false, pre, post). cStepsS.
     cStepsT. iDestruct "ASM" as "Ynew".
     set (mtid_new := 0).
@@ -586,8 +586,7 @@ Module NDSIA. Section sim.
     (* System spawn precondition *)
     rewrite ConcInSp.
     cForceS ((fn, farg)↑). cStepsS.
-    cStepsT. iApply wsim_spawn.
-    iIntros (tid_new). cStepsS. cForceS (true, user_pre, user_post). cStepsS.
+    cStepsT. cSpawn as (tid_new). cStepsS. cForceS (true, user_pre, user_post). cStepsS.
     cStepsT. rewrite ?length_fmap /=. set (mtid_new := length ths).
 
     iMod (own_update with "JoinA") as "[JoinA JoinF]".

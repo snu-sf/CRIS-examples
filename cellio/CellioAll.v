@@ -81,11 +81,11 @@ Section CellioAux.
       eapply CFilter.smod_filter_intro with (bl:={[MainAS.main]}). }
     etrans.
     { eapply ctxr_refines. ctxr_rotate. ctxr_drop.
-      eapply Cancel.cancellation_prepare; et; clarify.
+      eapply Cancel.prepare; et; clarify.
     }
     etrans.
     { eapply ctxr_refines. ctxr_rotate. ctxr_drop.
-      eapply Cancel.cancellation_prepare with (sps := sp); et; i; cycle 1.
+      eapply Cancel.prepare with (sps := sp); et; i; cycle 1.
       { rewrite SFilter.cfilter_comm in H0.
         eapply SFilter.filter_masked; et.
       }
@@ -105,7 +105,7 @@ Section CellioAux.
     }
 
     rewrite -SMod.to_mod_cancel_add left_id.
-    eapply Cancel.cancellation.
+    eapply Cancel.cancel.
     { apply SMod.cancellable_add.
       - r; rewrite /= /MainA.fnsems //; mod_tac ss.
       - eapply CFilter.filter_cancellable, SFilter.filter_cancellable. et.

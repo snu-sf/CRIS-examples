@@ -19,8 +19,8 @@ Section CannonAux.
       (mod_src, Ready)%I
       (mod_top, Ready ∗ Ball ∗ Cancel.init_res)%I.
   Proof.
-    etrans. { eapply ctxr_refines, Cancel.cancellation_prepare; et; clarify. }
-    eapply Cancel.cancellation.
+    etrans. { eapply ctxr_refines, Cancel.prepare; et; clarify. }
+    eapply Cancel.cancel.
     { apply SMod.cancellable_add; r; rewrite /=; mod_tac ss. }
     { assert (Ht : (SMod.sp_from smod_src).1 !! entry = fsp_some (MainA.main_spec)).
       { mod_tac. }

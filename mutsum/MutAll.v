@@ -24,8 +24,8 @@ Section MutAll.
       (mod_src, emp%I)
       (mod_top, emp ∗ emp ∗ Cancel.init_res)%I.
   Proof.
-    etrans. { eapply ctxr_refines, Cancel.cancellation_prepare; et; clarify. }
-    eapply Cancel.cancellation.
+    etrans. { eapply ctxr_refines, Cancel.prepare; et; clarify. }
+    eapply Cancel.cancel.
     { repeat apply SMod.cancellable_add; r; mod_tac ss. }
     { assert (Ht : (SMod.sp_from smod_src).1 !! entry = fsp_none) by mod_tac.
       rewrite Ht; clear Ht.

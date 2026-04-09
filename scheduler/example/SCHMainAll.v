@@ -69,8 +69,8 @@ Section SCHMainAux.
       (mod_src, init_cond)      
       (mod_top, init_cond ∗ SCHMainA.init_cond ∗ Cancel.init_res)%I.
   Proof.
-    etrans. { eapply ctxr_refines, Cancel.cancellation_prepare; et; clarify. }
-    eapply Cancel.cancellation.
+    etrans. { eapply ctxr_refines, Cancel.prepare; et; clarify. }
+    eapply Cancel.cancel.
     { do 5 (eapply SMod.cancellable_add; r; [ctac|]). ctac. }
     { assert (Ht : (SMod.sp_from smod_src).1 !! entry =
                      fsp_some (SCHMainA.main_spec ⊤)) by mod_tac.

@@ -64,12 +64,12 @@ Section CellioAux.
       eapply SFilter.smod_filter_intro. }
     etrans.
     { eapply ctxr_refines. ctxr_rotate. ctxr_drop.
-      eapply Cancel.cancellation_prepare; et; clarify.
+      eapply Cancel.prepare; et; clarify.
     }
 
     etrans.
     { eapply ctxr_refines. ctxr_rotate. ctxr_drop.
-      eapply Cancel.cancellation_prepare with (sps:=sp); et; i; cycle 1.
+      eapply Cancel.prepare with (sps:=sp); et; i; cycle 1.
       { eapply SFilter.filter_masked; et. }
 
       ltac2:(renames H into Lfn, Lsp).
@@ -85,7 +85,7 @@ Section CellioAux.
     }
 
     rewrite -SMod.to_mod_cancel_add left_id.
-    eapply Cancel.cancellation.
+    eapply Cancel.cancel.
     { apply SMod.cancellable_add.
       - r; rewrite /= /MainA.fnsems //; mod_tac ss.
       - eapply SFilter.filter_cancellable. et.

@@ -40,8 +40,8 @@ Section MPAux.
       (mod_src, init_cond)
       (mod_top, init_cond ∗ tview_sys_gen 1 1 0 (TView.init []) ∗ Cancel.init_res)%I.
   Proof.
-    etrans. { eapply ctxr_refines, Cancel.cancellation_prepare; et; clarify. }
-    eapply Cancel.cancellation.
+    etrans. { eapply ctxr_refines, Cancel.prepare; et; clarify. }
+    eapply Cancel.cancel.
     { apply SMod.cancellable_add; last apply SMod.cancellable_add; r;
         rewrite /= /MPA.fnsems /SystemA.fnsems /PFMemA.fnsems; mod_tac ss.
     }
