@@ -21,8 +21,8 @@ Module CellioIA. Section CellioIA.
     cStartFunSim. unfold CellioI.set, CellioA.set.
 
     (* Take (x:Z) & cell(x) *)
-    cStepsS. iDestruct "ASM" as "->".
-    ltac2:(renames _q into v). iRename "ASM'" into "CELL".
+    cStepsS. destruct Any.downcast; cStepsS; des_ifs.
+    rename _q into v. iRename "ASM" into "CELL".
 
     (* Call Input() simultaneously *)
     cStepsT.
@@ -36,11 +36,7 @@ Module CellioIA. Section CellioIA.
     iPoseProof (cell_auth_get with "CELL AUTH") as "<-".
     iMod (cell_auth_set with "CELL AUTH") as "(CELL & AUTH)".
 
-    cForcesS. iSplitL "CELL"; eauto.
-
-    cStepsS. cForcesS.
-    iSplit; eauto.
-    cStepsT. cStepsS.
+    cStepsT. cForcesS. iSplitL "CELL"; eauto.
 
     cStep.
     iSplitL ""; eauto.
@@ -52,8 +48,8 @@ Module CellioIA. Section CellioIA.
     cStartFunSim. unfold CellioI.get, CellioA.get.
 
     (* Take (x:Z) & cell(x) *)
-    cStepsS. iDestruct "ASM" as "->".
-    ltac2:(renames _q into v). iRename "ASM'" into "CELL".
+    cStepsS. destruct Any.downcast; cStepsS; des_ifs.
+    rename _q into v. iRename "ASM" into "CELL".
     iDestruct "IST" as (v') "(-> & AUTH)".
 
     iPoseProof (cell_auth_get with "CELL AUTH") as "<-".
@@ -63,8 +59,6 @@ Module CellioIA. Section CellioIA.
     (* Give cell(x) *)
     cForcesS. iSplitL "CELL"; eauto.
     
-    cStepsS. cForcesS. iSplit; eauto.
-
     cStep. iSplit; eauto.
     iExists _. iFrame. eauto.
   (*SLOW*)Qed.

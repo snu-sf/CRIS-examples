@@ -27,14 +27,14 @@ Module MapI. Section MapI.
   Definition init : list val → itree crisE val :=
     λ varg,
       'sz : Z <- (pargs [Tint] varg)?;;
-      'hptr : val <- ccallU MemHdr.alloc [Vint sz];;
+      'hptr : val <- ccallU (cftyp _ _) MemHdr.alloc [Vint sz];;
       cput v_hptr hptr;;;
       (iterC
          (λ i,
             if (decide (i < sz)%Z)
             then
               vptr <- (vadd hptr (Vint (i * 8)))?;;
-              'u : val <- ccallU MemHdr.store [vptr; Vint 0];;
+              'u : val <- ccallU (cftyp _ _) MemHdr.store [vptr; Vint 0];;
               Ret (inl (i + 1)%Z)
             else
               Ret (inr tt)) 0%Z);;;
@@ -45,7 +45,7 @@ Module MapI. Section MapI.
       k <- (pargs [Tint] varg)?;;
       hptr <- cgetU v_hptr;;
       vptr <- (vadd hptr (Vint (k * 8)))?;;
-      'r : val <- ccallU MemHdr.load [vptr];; r <- (unint r)?;;
+      'r : val <- ccallU (cftyp _ _) MemHdr.load [vptr];; r <- (unint r)?;;
       Ret (Vint r).
 
   Definition set : list val → itree crisE val :=
@@ -53,20 +53,20 @@ Module MapI. Section MapI.
       '(k, v):_ <- (pargs [Tint; Tint] varg)?;;
       hptr <- cgetU v_hptr;; 
       vptr <- (vadd hptr (Vint (k * 8)))?;;
-      'u : val <- ccallU MemHdr.store [vptr; Vint v];;
+      'u : val <- ccallU (cftyp _ _) MemHdr.store [vptr; Vint v];;
       Ret Vundef.
 
   Definition set_by_user : list val → itree crisE val :=
     λ varg,
       k <- (pargs [Tint] varg)?;;
       v <- trigger (IO "input" ());;
-      ccallU MapHdr.set [Vint k; Vint v].
+      ccallU (cftyp _ _) MapHdr.set [Vint k; Vint v].
 
   Definition fnsems : fnsemmap :=
-    {[fid MapHdr.init # (msk_scp scopes msk_true, (None, cfunU init));
-      fid MapHdr.get  # (msk_scp scopes msk_true, (None, cfunU get));
-      fid MapHdr.set  # (msk_scp scopes msk_true, (None, cfunU set));
-      fid MapHdr.set_by_user # (msk_scp scopes msk_true, (None, cfunU set_by_user))]}.
+    {[fid MapHdr.init # (msk_scp scopes msk_true, (None, cfunU (cftyp _ _) init));
+      fid MapHdr.get  # (msk_scp scopes msk_true, (None, cfunU (cftyp _ _) get));
+      fid MapHdr.set  # (msk_scp scopes msk_true, (None, cfunU (cftyp _ _) set));
+      fid MapHdr.set_by_user # (msk_scp scopes msk_true, (None, cfunU (cftyp _ _) set_by_user))]}.
   
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

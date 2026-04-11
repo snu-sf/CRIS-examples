@@ -53,24 +53,24 @@ Module System. Section System.
   Definition terminate : itree E unit :=
     Seal.sealing "System"
       (iterC ((λ _,
-        '() : _ <- ccallU SystemHdr.yield tt;;
+        '() : _ <- ccallU (cftyp _ _) SystemHdr.yield tt;;
         Ret (inl tt: () + ())
       )) tt).
 
   Definition alloc : nat → itree E Val.t :=
     λ sz,
-      'tid : Ident.t <- ccallU SystemHdr.get_tid ();;
-      ccallU PFMemHdr.alloc (tid, sz).
+      'tid : Ident.t <- ccallU (cftyp _ _) SystemHdr.get_tid ();;
+      ccallU (cftyp _ _) PFMemHdr.alloc (tid, sz).
 
   Definition write : Loc.t * Val.t * Ordering.t → itree E Val.t :=
     λ '(loc, val, ord),
-      'tid : Ident.t <- ccallU SystemHdr.get_tid ();;
-      ccallU PFMemHdr.write (tid, loc, val, ord).
+      'tid : Ident.t <- ccallU (cftyp _ _) SystemHdr.get_tid ();;
+      ccallU (cftyp _ _) PFMemHdr.write (tid, loc, val, ord).
 
   Definition read : Loc.t * Ordering.t → itree E Val.t :=
     λ '(loc, ord),
-      'tid : Ident.t <- ccallU SystemHdr.get_tid ();;
-      ccallU PFMemHdr.read (tid, loc, ord).
+      'tid : Ident.t <- ccallU (cftyp _ _) SystemHdr.get_tid ();;
+      ccallU (cftyp _ _) PFMemHdr.read (tid, loc, ord).
 End System. End System.
 
 Notation 𝒴 := (System.yield).

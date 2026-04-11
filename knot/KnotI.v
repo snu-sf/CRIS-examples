@@ -10,7 +10,7 @@ Module KnotI. Section KnotI.
     λ varg,
       fb <- (pargs [Tblk] varg)?;;
       blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;
-      '_: val <- ccallU MemHdr.store [Vptr (blk, 0%Z); Vptr (fb, 0%Z)];;
+      '_: val <- ccallU (cftyp _ _) MemHdr.store [Vptr (blk, 0%Z); Vptr (fb, 0%Z)];;
       rb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr.rec)?;;
       Ret (Vptr (rb, 0%Z)).
 
@@ -18,14 +18,14 @@ Module KnotI. Section KnotI.
     λ varg,
       n <- (pargs [Tint] varg)?;;
       blk <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr._f)?;;
-      'fb: val <- ccallU MemHdr.load [Vptr (blk, 0%Z)];; fb <- (unblk fb)?;;
+      'fb: val <- ccallU (cftyp _ _) MemHdr.load [Vptr (blk, 0%Z)];; fb <- (unblk fb)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
       rb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotHdr.rec)?;;
-      ccallU fn [Vptr (rb, 0%Z); Vint n].
+      ccallU (cftyp _ _) fn [Vptr (rb, 0%Z); Vint n].
 
   Definition fnsems (genv : GEnv.t) : fnsemmap :=
-    {[fid KnotHdr.rec # (msk_scp scopes msk_true, (None, cfunU (recF genv)));
-      fid KnotHdr.knot # (msk_scp scopes msk_true, (None, cfunU (knotF genv)))]}.
+    {[fid KnotHdr.rec # (msk_scp scopes msk_true, (None, cfunU (cftyp _ _) (recF genv)));
+      fid KnotHdr.knot # (msk_scp scopes msk_true, (None, cfunU (cftyp _ _) (knotF genv)))]}.
   
   Program Definition smod genv : SMod.t := {|
     SMod.scopes := scopes;

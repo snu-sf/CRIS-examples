@@ -126,10 +126,10 @@ Module MemI. Section MemI.
   Definition cas: list val → itree crisE val :=
     λ arg,
       '(bofs, (v_old, v_new)) : _ <- (pargs [Tptr; Tuntyped; Tuntyped] arg)?;;
-      'v_cur : val <- ccallU MemHdr.load [Vptr bofs];;
-      'succ : val <- ccallU MemHdr.cmp [v_cur; v_old];;
+      'v_cur : val <- ccallU imp_fun_t MemHdr.load [Vptr bofs];;
+      'succ : val <- ccallU imp_fun_t MemHdr.cmp [v_cur; v_old];;
       (if (bool_decide (succ = (Vint 1)))
-       then ccallU MemHdr.store [Vptr bofs; v_new]
+       then ccallU imp_fun_t MemHdr.store [Vptr bofs; v_new]
        else Ret Vundef);;;
       Ret v_cur.
 
@@ -137,12 +137,12 @@ Module MemI. Section MemI.
     msk_real (msk_scp scopes (CFilter.msk_filter_in MemHdr.exports msk_true)).
 
   Definition fnsems : fnsemmap :=
-    {[fid MemHdr.alloc # (mask, (None, (cfunU alloc)));
-      fid MemHdr.free  # (mask, (None, (cfunU free)));
-      fid MemHdr.load  # (mask, (None, (cfunU load)));
-      fid MemHdr.store # (mask, (None, (cfunU store)));
-      fid MemHdr.cmp   # (mask, (None, (cfunU cmp)));
-      fid MemHdr.cas   # (mask, (None, (cfunU cas)))]}.
+    {[fid MemHdr.alloc # (mask, (None, (cfunU imp_fun_t alloc)));
+      fid MemHdr.free  # (mask, (None, (cfunU imp_fun_t free)));
+      fid MemHdr.load  # (mask, (None, (cfunU imp_fun_t load)));
+      fid MemHdr.store # (mask, (None, (cfunU imp_fun_t store)));
+      fid MemHdr.cmp   # (mask, (None, (cfunU imp_fun_t cmp)));
+      fid MemHdr.cas   # (mask, (None, (cfunU imp_fun_t cas)))]}.
 
   Program Definition smod genv : SMod.t := {|
     SMod.scopes := scopes;

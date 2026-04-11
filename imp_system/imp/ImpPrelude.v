@@ -179,3 +179,5 @@ Proof.
 Defined.
 
 Arguments pargs : simpl never.
+
+Definition imp_fun_t := cftyp (list val) val.

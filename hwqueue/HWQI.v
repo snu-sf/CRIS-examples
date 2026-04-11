@@ -6,15 +6,15 @@ Module HWQI. Section HWQI.
 
   Definition new_queue : list val → itree crisE val := λ sz,
     𝒴;;; sz <- (pargs [Tint] sz)?;;
-    𝒴;;; 'q : val <- ccallU MemHdr.alloc [Vint (2 + sz)];;
+    𝒴;;; 'q : val <- ccallU (cftyp _ _) MemHdr.alloc [Vint (2 + sz)];;
     𝒴;;; '(qblk, qofs) : _ <- (pargs [Tptr] [q])?;;
-    𝒴;;; '_ : val <- ccallU MemHdr.store [Vptr (qblk, qofs); Vint sz];; (* size of the queue *)
-    𝒴;;; '_ : val <- ccallU MemHdr.store [Vptr (qblk, qofs + 1)%Z; Vint 0];; (* first free cell *)
+    𝒴;;; '_ : val <- ccallU (cftyp _ _) MemHdr.store [Vptr (qblk, qofs); Vint sz];; (* size of the queue *)
+    𝒴;;; '_ : val <- ccallU (cftyp _ _) MemHdr.store [Vptr (qblk, qofs + 1)%Z; Vint 0];; (* first free cell *)
     𝒴;;; ITree.iter (λ (x : nat), (* initialization *)
       𝒴;;;
         if Nat.ltb x (Z.to_nat sz) 
         then 
-          '_ : val <- ccallU MemHdr.store [Vptr (qblk, qofs + 2 + x)%Z; Vint 0];; Ret (inl (S x))
+          '_ : val <- ccallU (cftyp _ _) MemHdr.store [Vptr (qblk, qofs + 2 + x)%Z; Vint 0];; Ret (inl (S x))
         else
           Ret (inr ())
     ) 0;;;
@@ -30,14 +30,14 @@ Module HWQI. Section HWQI.
     } *)
   Definition enqueue : list val → itree crisE val := λ q,
     𝒴;;; '(qblk, qofs, v) : mblock * ptrofs * _ <- (pargs [Tptr; Tuntyped] q)?;;
-    𝒴;;; 'sz : val <- ccallU MemHdr.load [Vptr (qblk, qofs)];;
+    𝒴;;; 'sz : val <- ccallU (cftyp _ _) MemHdr.load [Vptr (qblk, qofs)];;
     𝒴;;; 'sz : Z <- (pargs [Tint] [sz])?;;
     𝒴;;; 'back : val <- MemHdr.faa [Vptr (qblk, qofs + 1)%Z];;
     𝒴;;; 'back : Z <- (pargs [Tint] [back])?;;
     𝒴;;;
       if (Z.ltb back sz)
       then
-        𝒴;;; '_ : val <- ccallU MemHdr.store [Vptr (qblk, qofs + 2 + back)%Z; v];;
+        𝒴;;; '_ : val <- ccallU (cftyp _ _) MemHdr.store [Vptr (qblk, qofs + 2 + back)%Z; v];;
         𝒴;;; Ret Vundef
       else
         𝒴;;; ITree.iter (λ _, 𝒴;;; Ret (inl ())) ().
@@ -72,12 +72,12 @@ Module HWQI. Section HWQI.
         else
           let j := range - i in
           𝒴;;; '(blk, ofs) : mblock * ptrofs <- (pargs [Tptr] [q])?;;
-          𝒴;;; 'x : val <- ccallU MemHdr.load [Vptr (blk, ofs + 2 + j)%Z];;
+          𝒴;;; 'x : val <- ccallU (cftyp _ _) MemHdr.load [Vptr (blk, ofs + 2 + j)%Z];;
           match x with
           | Vint 0 => 𝒴;;; Ret (inl (i - 1))
           | Vptr (xblk, xofs) =>
-              𝒴;;; 'c : val <- ccallU MemHdr.cas [Vptr (blk, ofs + 2 + j)%Z; x; Vint 0];;
-              𝒴;;; 'succ : val <- ccallU MemHdr.cmp [c; x];;
+              𝒴;;; 'c : val <- ccallU (cftyp _ _) MemHdr.cas [Vptr (blk, ofs + 2 + j)%Z; x; Vint 0];;
+              𝒴;;; 'succ : val <- ccallU (cftyp _ _) MemHdr.cmp [c; x];;
               𝒴;;;
                 match succ with
                 | Vint 0 => 𝒴;;; Ret (inl (i - 1))
@@ -91,9 +91,9 @@ Module HWQI. Section HWQI.
     𝒴;;; '(qblk, qofs) : mblock * ptrofs <- (pargs [Tptr] q)?;;
     𝒴;;;
       ITree.iter (λ _ : unit,
-        𝒴;;; 'sz : val <- ccallU MemHdr.load [Vptr (qblk, qofs)];;
+        𝒴;;; 'sz : val <- ccallU (cftyp _ _) MemHdr.load [Vptr (qblk, qofs)];;
         𝒴;;; 'sz : Z <- (pargs [Tint] [sz])?;;
-        𝒴;;; 'back : val <- ccallU MemHdr.load [Vptr (qblk, qofs + 1)%Z];;
+        𝒴;;; 'back : val <- ccallU (cftyp _ _) MemHdr.load [Vptr (qblk, qofs + 1)%Z];;
         𝒴;;; 'back : Z <- (pargs [Tint] [back])?;;
         𝒴;;; let range := Z.to_nat (Z.min sz back) in
         dequeue_aux (Vptr (qblk, qofs)) range range) ().
@@ -102,9 +102,9 @@ Module HWQI. Section HWQI.
     CFilter.msk_filter_in (MemHdr.exports ∪ SchHdr.exports) (msk_real (msk_scp [] msk_true)).
 
   Definition fnsems : fnsemmap :=
-    {[fid HWQHdr.new_queue # (msk, (None, cfunU new_queue));
-      fid HWQHdr.enqueue   # (msk, (None, cfunU enqueue));
-      fid HWQHdr.dequeue   # (msk, (None, cfunU dequeue))]}.
+    {[fid HWQHdr.new_queue # (msk, (None, cfunU (cftyp _ _) new_queue));
+      fid HWQHdr.enqueue   # (msk, (None, cfunU (cftyp _ _) enqueue));
+      fid HWQHdr.dequeue   # (msk, (None, cfunU (cftyp _ _) dequeue))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := [];

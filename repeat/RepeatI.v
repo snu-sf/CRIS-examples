@@ -17,11 +17,11 @@ Module RepeatI. Section RepeatI.
       then Ret (Vint x)
       else
         fn <- (cenv.(CEnv.blk2id) fb)?;;
-        v <- ccallU fn [Vint x];;
-        ccallU RepeatHdr.repeat [Vptr (fb, 0%Z); Vint (n - 1); v].
+        v <- ccallU (cftyp _ _) fn [Vint x];;
+        ccallU (cftyp _ _) RepeatHdr.repeat [Vptr (fb, 0%Z); Vint (n - 1); v].
 
   Definition fnsems (genv: GEnv.t) : fnsemmap :=
-    {[fid RepeatHdr.repeat # (msk_scp scopes msk_true, (None, cfunU (repeat (CEnv.load_genv genv: CEnv.t))))]}.
+    {[fid RepeatHdr.repeat # (msk_scp scopes msk_true, (None, cfunU (cftyp _ _) (repeat (CEnv.load_genv genv: CEnv.t))))]}.
 
   Program Definition smod (genv: GEnv.t) : SMod.t := {|
     SMod.scopes := scopes;

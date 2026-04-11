@@ -17,6 +17,7 @@ Module MainIA. Section MainIA.
   Lemma simF_cb : ISim.sim_fun open MainA (MainI.t ★ CellioAMod) IstFull (fid MainHdr.input_cb).
   Proof using.
     cStartFunSim. unfold MainA.input_cb, MainI.input_cb.
+    destruct Any.downcast; cStepsS; des_ifs.
     cStepsS. cStepsT. cStep. cStep. cStep. iSplit; et.
   Qed. 
 

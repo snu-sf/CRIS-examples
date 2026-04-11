@@ -33,8 +33,7 @@ Module MainIA. Section MainIA.
 
     cStepsT. cInlineT.
     (* Give cell(0) *)
-    cForcesT. iSplit; et. unfold set. cForcesT.
-    iSplitL "CELL"; et.
+    cStepsT. cForcesT. iSplitL "CELL"; et.
 
     (* Call Input() simultaneously *)
     cStepsT. rewrite sp_input.
@@ -42,7 +41,7 @@ Module MainIA. Section MainIA.
     destruct Any.downcast as [v|]; [|cStepsS; ss].
 
     (* Take cell(i) *)
-    cStepsT. iDestruct "GRT'" as "<-". iRename "GRT" into "CELL".
+    cStepsT. iRename "GRT" into "CELL".
 
     (* Call Foo.foo() simultaneously *)
     cStepsT. cStepsS. rewrite sp_foo.
@@ -50,11 +49,10 @@ Module MainIA. Section MainIA.
     destruct Any.downcast; [|cStepsS; ss].
     cStepsT. cInlineT.
     (* Give cell(i) *)
-    cForcesT. iSplitL ""; eauto. unfold get.
-    cForcesT. iSplitL "CELL"; eauto.
+    cStepsT. cForcesT. iSplitL "CELL"; eauto.
 
     (* Take cell(i) *)
-    cStepsT. iDestruct "GRT'" as "<-". iRename "GRT" into "CELL".
+    cStepsT. iRename "GRT" into "CELL".
 
     (* Call Print(i) simultaneously *)
     cStepsT. cStepsS. cStep.

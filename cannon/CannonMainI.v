@@ -12,7 +12,7 @@ Module MainI. Section MainI.
     match n with
     | 0 => Ret tt
     | S n' =>
-      'r : Z <- ccallU CannonHdr.fire ([] : list val);;
+      r <- ccallU CannonHdr.fire_t CannonHdr.fire ([] : list val);;
       trigger (@IO _ void "print" [r]↑);;;
       main_repeat n'
     end.
@@ -21,7 +21,7 @@ Module MainI. Section MainI.
     λ _, main_repeat num_fire.
 
   Definition fnsems : fnsemmap :=
-    {[entry # (msk_scp scopes msk_true, (None, cfunU main))]}.
+    {[entry # (msk_scp scopes msk_true, (None, cfunU (_,_) main))]}.
   
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

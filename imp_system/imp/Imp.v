@@ -1,7 +1,7 @@
 (** * The Imp language  *)
 Require Import CRIS.
 
-Require Import ImpPrelude LModTr.
+Require Import ImpPrelude LModTr MemHeader.
 
 Set Implicit Arguments.
 
@@ -237,7 +237,7 @@ Record function : Type := mk_function {
 
 (* prohibited names for Callfun/Ptr *)
 Definition call_ban f :=
-  rel_dec f "alloc" || rel_dec f "free" || rel_dec f "load" || rel_dec f "store" || rel_dec f "cmp" || rel_dec f "main".
+  rel_dec f MemHdr.alloc || rel_dec f MemHdr.free || rel_dec f MemHdr.load || rel_dec f MemHdr.store || rel_dec f MemHdr.cmp.
 
 
 (** ** Supported System Calls by Imp *)
@@ -396,14 +396,14 @@ Section Denote.
     | CallFun x f args =>
       (if (call_ban f) then triggerUB else Ret tt);;;
       eval_args <- denote_exprs args;;
-      v <- ccallU f eval_args;;
+      v <- ccallU imp_fun_t f eval_args;;
       trigger (SetVar x v);;; tau;; Ret Vundef
 
     | CallPtr x e args =>
       (if (match e with | Var _ => true | _ => false end) then Ret tt else triggerUB);;;
       p <- denote_expr e;; f <- trigger (GetName p);;
       eval_args <- denote_exprs args;;
-      v <- ccallU f eval_args;;
+      v <- ccallU imp_fun_t f eval_args;;
       trigger (SetVar x v);;; tau;; Ret Vundef
 
     | CallSys x f args =>
@@ -420,25 +420,25 @@ Section Denote.
       v <- trigger (GetPtr X);; trigger (SetVar x v);;; tau;; Ret Vundef
     | Malloc x se =>
       s <- denote_expr se;;
-      v <- ccallU "alloc" [s];;
+      v <- ccallU imp_fun_t MemHdr.alloc [s];;
       trigger (SetVar x v);;; tau;; Ret Vundef
     | Free pe =>
       p <- denote_expr pe;;
-      't : val <- ccallU "free" [p];; tau;; Ret Vundef
+      't : val <- ccallU imp_fun_t MemHdr.free [p];; tau;; Ret Vundef
     | Load x pe =>
       p <- denote_expr pe;;
       (if (wf_val p) then Ret tt else triggerUB);;;
-      v <- ccallU "load" [p];;
+      v <- ccallU imp_fun_t MemHdr.load [p];;
       trigger (SetVar x v);;; tau;; Ret Vundef
     | Store pe ve =>
       p <- denote_expr pe;;
       (if (wf_val p) then Ret tt else triggerUB);;;
       v <- denote_expr ve;;
-      't:val <- ccallU "store" [p; v];; tau;; Ret Vundef
+      't:val <- ccallU imp_fun_t MemHdr.store [p; v];; tau;; Ret Vundef
     | Cmp x ae be =>
       a <- denote_expr ae;; b <- denote_expr be;;
       (if (wf_val a && wf_val b) then Ret tt else triggerUB);;;
-      v <- ccallU "cmp" [a; b];;
+      v <- ccallU imp_fun_t MemHdr.cmp [a; b];;
       trigger (SetVar x v);;; tau;; Ret Vundef
 
     end.

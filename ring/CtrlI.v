@@ -32,7 +32,7 @@ Module CtrlI. Section CtrlI.
       'tl : nat <- cgetU v_tl;;
       if (hd - tl <? max_size)
       then
-        'u: () <- ccallU (CellHdr.set (hd mod max_size)) x;;
+        'u: () <- ccallU (cftyp _ _) (CellHdr.set (hd mod max_size)) x;;
         cput v_hd (hd+1)
       else
         trigger (@IO _ void "error" "enqueue failed: queue reached its maximum capacity");;; Ret tt
@@ -44,7 +44,7 @@ Module CtrlI. Section CtrlI.
       'tl : nat <- cgetU v_tl;;
       if (0 <? hd - tl)
       then
-        x <- ccallU (CellHdr.get (tl mod max_size)) tt;;
+        x <- ccallU (cftyp _ _) (CellHdr.get (tl mod max_size)) tt;;
         cput v_tl (tl+1);;;
         Ret x
       else
@@ -52,10 +52,10 @@ Module CtrlI. Section CtrlI.
   .
 
   Definition fnsems : fnsemmap :=
-    {[fid RingHdr.init     # (msk_real (msk_scp scopes msk_true), (None, cfunU init));
-      fid RingHdr.get_size # (msk_real (msk_scp scopes msk_true), (None, cfunU get_size));
-      fid RingHdr.enqueue  # (msk_real (msk_scp scopes msk_true), (None, cfunU enqueue));
-      fid RingHdr.dequeue  # (msk_real (msk_scp scopes msk_true), (None, cfunU dequeue))]}.
+    {[fid RingHdr.init     # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) init));
+      fid RingHdr.get_size # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) get_size));
+      fid RingHdr.enqueue  # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) enqueue));
+      fid RingHdr.dequeue  # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) dequeue))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

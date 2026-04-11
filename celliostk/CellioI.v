@@ -1,6 +1,6 @@
 Require Import CRIS.
 From CRIS.imp_system Require Import mem.MemA.
-From CRIS.celliostk Require Import CellioHeader.
+From CRIS.celliostk Require Import CellioHeader CtxHeader.
 
 Set Implicit Arguments.
 
@@ -24,11 +24,11 @@ Module CellioI. Section CellioI.
 
   Definition push: string * val -> itree crisE val :=
     λ '(cb,p),
-      'i: Z <- ccallU cb tt;;
-      'pnew: val <- ccallU MemHdr.alloc [Vint 2];;
+      'i: Z <- ccallU CtxHdr.cb_t cb tt;;
+      'pnew: val <- ccallU imp_fun_t MemHdr.alloc [Vint 2];;
       'pnew1: val <- (vadd pnew (Vint 8))?;;
-      '_: val <- ccallU MemHdr.store [pnew; Vint i];;
-      '_: val <- ccallU MemHdr.store [pnew1; p];;
+      '_: val <- ccallU imp_fun_t MemHdr.store [pnew; Vint i];;
+      '_: val <- ccallU imp_fun_t MemHdr.store [pnew1; p];;
       Ret pnew.
 
   Definition pop: val -> itree crisE (option Z * val) :=
@@ -36,17 +36,17 @@ Module CellioI. Section CellioI.
       if decide (p = Vnullptr) then Ret (None, p)
       else
         'p1: val <- (vadd p (Vint 8))?;;
-        'i: val <- ccallU MemHdr.load [p];;
-        'pnew: val <- ccallU MemHdr.load [p1];;
-        '_: val <- ccallU MemHdr.free [p];;
-        '_: val <- ccallU MemHdr.free [p1];;
+        'i: val <- ccallU imp_fun_t MemHdr.load [p];;
+        'pnew: val <- ccallU imp_fun_t MemHdr.load [p1];;
+        '_: val <- ccallU imp_fun_t MemHdr.free [p];;
+        '_: val <- ccallU imp_fun_t MemHdr.free [p1];;
         'z: Z  <- (unint i)?;;
         Ret (Some z, pnew).
 
   Definition fnsems : fnsemmap :=
-    {[fid CellioHdr.new  # (msk_scp scopes msk_true, (None, cfunU new));
-      fid CellioHdr.push # (msk_scp scopes msk_true, (None, cfunU push));
-      fid CellioHdr.pop  # (msk_scp scopes msk_true, (None, cfunU pop))]}.
+    {[fid CellioHdr.new  # (msk_scp scopes msk_true, (None, cfunU CellioHdr.new_t new));
+      fid CellioHdr.push # (msk_scp scopes msk_true, (None, cfunU CellioHdr.push_t push));
+      fid CellioHdr.pop  # (msk_scp scopes msk_true, (None, cfunU CellioHdr.pop_t pop))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

@@ -7,20 +7,20 @@ Module CellioI. Section CellioI.
   Definition scopes := [CellioHdr.mn].
   Definition v_cv := (CellioHdr.mn) ↯ "cv".
 
-  Definition set: Any.t -> itree crisE Any.t :=
+  Definition set: () -> itree crisE () :=
     λ _,
-      'i : Z <- ccallU CtxHdr.input tt;;
+      'i : Z <- ccallU CtxHdr.input_t CtxHdr.input tt;;
       cput v_cv i;;;
-      Ret tt↑.
+      Ret tt.
 
-  Definition get: Any.t -> itree crisE Any.t :=
+  Definition get: () -> itree crisE Z :=
     λ _,
       i <- cgetU v_cv;;
-      Ret (i : Z)↑.
+      Ret i.
 
   Definition fnsems : fnsemmap :=
-    {[fid CellioHdr.set # (msk_real (msk_scp scopes msk_true), (fsp_none, set));
-      fid CellioHdr.get # (msk_real (msk_scp scopes msk_true), (fsp_none, get))]}.
+    {[fid CellioHdr.set # (msk_real (msk_scp scopes msk_true), (fsp_none, cfunU CellioHdr.set_t set));
+      fid CellioHdr.get # (msk_real (msk_scp scopes msk_true), (fsp_none, cfunU CellioHdr.get_t get))]}.
 
   Program Definition smod: SMod.t := {|
     SMod.scopes := scopes;

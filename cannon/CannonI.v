@@ -20,7 +20,7 @@ Module CannonI. Section CannonI.
       Ret r.
 
   Definition fnsems : fnsemmap :=
-    {[fid CannonHdr.fire # (msk_scp scopes msk_true, (None, cfunU fire))]}.
+    {[fid CannonHdr.fire # (msk_scp scopes msk_true, (None, cfunU CannonHdr.fire_t fire))]}.
   
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

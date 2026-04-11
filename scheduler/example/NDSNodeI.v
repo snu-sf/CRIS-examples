@@ -11,27 +11,27 @@ Module NDSNodeI. Section NDSNodeI.
 
   Definition f_main : SAny.t → itree crisE SAny.t :=
     λ _,
-      'x: val <- ccallU MemHdr.alloc [Vint 1];; 𝒩𝒴;;;
-      '_: val <- ccallU MemHdr.store [x; Vint 0];; 𝒩𝒴;;;
-      'tid: nat <- ccallU NDSHdr.spawn (NDSNodeHdr.f, x↑↑);; 𝒩𝒴;;; 𝒩𝒩;;;
-      'v: val <- ccallU MemHdr.load [x];; 𝒩𝒴;;;
+      'x: val <- ccallU (cftyp _ _) MemHdr.alloc [Vint 1];; 𝒩𝒴;;;
+      '_: val <- ccallU (cftyp _ _) MemHdr.store [x; Vint 0];; 𝒩𝒴;;;
+      'tid: nat <- ccallU (cftyp _ _) NDSHdr.spawn (NDSNodeHdr.f, x↑↑);; 𝒩𝒴;;; 𝒩𝒩;;;
+      'v: val <- ccallU (cftyp _ _) MemHdr.load [x];; 𝒩𝒴;;;
       nx <- (vadd v (Vint 1))?;; 𝒩𝒴;;;
-      '_: val <- ccallU MemHdr.store [x; nx];; 𝒩𝒴;;;
+      '_: val <- ccallU (cftyp _ _) MemHdr.store [x; nx];; 𝒩𝒴;;;
       trigger (@IO _ unit "print" v);;; 𝒩𝒴;;; 𝒩𝒩;;;
       Ret (tt↑↑).
 
   Definition f : SAny.t → itree crisE SAny.t :=
     λ arg,
       'x: val <- (arg↓↓)?;; 𝒩𝒴;;;
-      'v: val <- ccallU MemHdr.load [x];; 𝒩𝒴;;;
+      'v: val <- ccallU (cftyp _ _) MemHdr.load [x];; 𝒩𝒴;;;
       nx <- (vadd v (Vint 1))?;; 𝒩𝒴;;;
-      '_: val <- ccallU MemHdr.store [x; nx];; 𝒩𝒴;;;
+      '_: val <- ccallU (cftyp _ _) MemHdr.store [x; nx];; 𝒩𝒴;;;
       trigger (@IO _ unit "print" v);;; 𝒩𝒴;;; 𝒩𝒩;;; 
       Ret (tt↑↑).
 
   Definition fnsems : fnsemmap :=
-    {[fid NDSNodeHdr.f_main # (msk_real (msk_scp scopes msk_true), (None, cfunU f_main));
-      fid NDSNodeHdr.f      # (msk_real (msk_scp scopes msk_true), (None, cfunU f))]}.
+    {[fid NDSNodeHdr.f_main # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) f_main));
+      fid NDSNodeHdr.f      # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) f))]}.
 
   Program Definition smod: SMod.t :=
   {|

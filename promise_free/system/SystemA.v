@@ -241,23 +241,23 @@ Module SystemA. Section SystemA.
   Definition alloc : nat → itree crisE Val.t :=
     λ sz,
       'tid : Ident.t <- get_tid ();;
-      ccallN PFMemHdr.alloc (tid, Z.of_nat sz).
+      ccallN (cftyp _ _) PFMemHdr.alloc (tid, Z.of_nat sz).
 
   Definition write : Loc.t * Val.t * Ordering.t → itree crisE Val.t :=
     λ '(loc, val, ord),
       'tid : Ident.t <- get_tid ();;
-      ccallN PFMemHdr.write (tid, loc, val, ord).
+      ccallN (cftyp _ _) PFMemHdr.write (tid, loc, val, ord).
 
   Definition read : Loc.t * Ordering.t → itree crisE Val.t :=
     λ '(loc, ord),
       'tid : Ident.t <- get_tid ();;
-      ccallN PFMemHdr.read (tid, loc, ord).
+      ccallN (cftyp _ _) PFMemHdr.read (tid, loc, ord).
 
   Definition fnsems (E : coPset) : fnsemmap :=
-    {[fid SystemHdr._spawn  # (msk_scp scopes msk_true, (fsp_some (_spawn_spec), cfunN _spawn));
-      fid SystemHdr.spawn   # (msk_scp scopes msk_true, (fsp_some (spawn_spec), cfunN spawn));
-      fid SystemHdr.yield   # (msk_scp scopes msk_true, (fsp_some (yield_spec E), cfunN yield));
-      fid SystemHdr.get_tid # (msk_scp scopes msk_true, (fsp_some get_tid_spec, cfunN get_tid));
+    {[fid SystemHdr._spawn  # (msk_scp scopes msk_true, (fsp_some (_spawn_spec), cfunN (cftyp _ _) _spawn));
+      fid SystemHdr.spawn   # (msk_scp scopes msk_true, (fsp_some (spawn_spec), cfunN (cftyp _ _) spawn));
+      fid SystemHdr.yield   # (msk_scp scopes msk_true, (fsp_some (yield_spec E), cfunN (cftyp _ _) yield));
+      fid SystemHdr.get_tid # (msk_scp scopes msk_true, (fsp_some get_tid_spec, cfunN (cftyp _ _) get_tid));
       fid SystemHdr.alloc   # (msk_scp scopes msk_true, (fsp_some alloc_spec, fbody_trivial));
       fid SystemHdr.write   # (msk_scp scopes msk_true, (fsp_some write_spec, fbody_trivial));
       fid SystemHdr.read    # (msk_scp scopes msk_true, (fsp_some read_spec, fbody_trivial))]}.

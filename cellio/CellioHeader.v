@@ -7,6 +7,9 @@ Module CellioHdr.
     mn +:+ "." +:+ method.
 
   Definition set := fn "set".
+  Definition set_t := cftyp () ().
+  
   Definition get := fn "get".
+  Definition get_t := cftyp () Z.
 End CellioHdr.
 

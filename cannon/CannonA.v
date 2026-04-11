@@ -38,9 +38,9 @@ Module CannonA. Section CannonA.
   Qed.
 
   Definition fire_spec : fspec :=
-    fspec_simple (λ _ : unit,
-      ((λ arg, (⌜arg = ([]: list val)↑⌝ ∗ Ball)),
-       (λ ret, (⌜ret = (1: Z)%Z↑⌝)))
+    fspec_simple_typ CannonHdr.fire_t (λ _ : unit,
+      ((λ arg, ⌜arg = []⌝ ∗ Ball),
+       (λ ret, ⌜ret = 1%Z⌝))
     )%I.
 
   Definition sp : specmap := {[fid CannonHdr.fire @ fire_spec]}.
@@ -55,7 +55,7 @@ Module CannonA. Section CannonA.
       Ret r.
 
   Definition fnsems : fnsemmap :=
-    {[fid CannonHdr.fire # (msk_scp scopes msk_true, (fsp_some fire_spec, cfunU fire))]}.
+    {[fid CannonHdr.fire # (msk_scp scopes msk_true, (fsp_some fire_spec, cfunU CannonHdr.fire_t fire))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

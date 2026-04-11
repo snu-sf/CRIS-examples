@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.celliocb Require Import CellioHeader.
+From CRIS.celliocb Require Import CellioHeader CtxHeader.
 
 Set Implicit Arguments.
 
@@ -17,21 +17,20 @@ Module CellioI. Section CellioI.
 (* For convenience we use a string callback identifier here.
    The actual function-pointer implementation and Landin’s knot reasoning
    live in KnotI.v — please see that file. *)
-  Definition set : string → itree crisE unit :=
+  Definition set : string → itree crisE () :=
     λ cb,
-      'i: Z <- ccallU cb tt;;
+      i <- ccallU CtxHdr.cb_t cb tt;;
       cput v_cv i;;;
       Ret tt.
 
-  Definition get : Any.t → itree crisE Any.t :=
+  Definition get : () → itree crisE Z :=
     λ _,
       i <- cgetU v_cv;;
-      Ret (i : Z)↑.
-
+      Ret i.
 
   Definition fnsems : fnsemmap :=
-    {[fid CellioHdr.set # ((msk_scp scopes msk_true), (None, cfunU set));
-      fid CellioHdr.get # ((msk_scp scopes msk_true), (None, get))]}.
+    {[fid CellioHdr.set # ((msk_scp scopes msk_true), (None, cfunU CellioHdr.set_t set));
+      fid CellioHdr.get # ((msk_scp scopes msk_true), (None, cfunU CellioHdr.get_t get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

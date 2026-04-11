@@ -38,7 +38,7 @@ Module NDSI. Section NDSI.
 
   Definition inner_spawn : string * SAny.t → itree crisE unit :=
     λ '(fn, arg),
-      'rv : SAny.t <- ccallU fn arg;;
+      'rv : SAny.t <- ccallU (cftyp _ _) fn arg;;
       'ths : thpool <- cgetU v_ths;;
       'tid : nat <- cgetU v_tid;;
       match ths !! tid with
@@ -84,7 +84,7 @@ Module NDSI. Section NDSI.
         match ths !! tid with
         | None => Ret (inr None)
         | Some (_, Some rv) => Ret (inr (Some rv))
-        | Some (_, None) => '() : _ <- ccallU NDSHdr.yield tt;; Ret (inl tt)
+        | Some (_, None) => '() : _ <- ccallU (cftyp _ _) NDSHdr.yield tt;; Ret (inl tt)
         end
       ) tt);;
       Ret orv.
@@ -93,13 +93,13 @@ Module NDSI. Section NDSI.
     λ _, cgetU v_tid.
 
   Definition fnsems : fnsemmap :=
-    {[fid NDSHdr.init # (msk_real (msk_scp scp msk_true), (None, cfunU init));
-      fid NDSHdr._spawn # (msk_real (msk_scp scp msk_true), (None, cfunU inner_spawn));
-      fid NDSHdr.spawn # (msk_real (msk_scp scp msk_true), (None, cfunU spawn));
-      fid NDSHdr.yield # (msk_real (msk_scp scp msk_true), (None, cfunU yield));
-      fid NDSHdr.yield_global # (msk_real (msk_scp scp msk_true), (None, cfunU yield_global));
-      fid NDSHdr.join # (msk_real (msk_scp scp msk_true), (None, cfunU join));
-      fid NDSHdr.get_tid # (msk_real (msk_scp scp msk_true), (None, cfunU get_tid))]}.
+    {[fid NDSHdr.init # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) init));
+      fid NDSHdr._spawn # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) inner_spawn));
+      fid NDSHdr.spawn # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) spawn));
+      fid NDSHdr.yield # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) yield));
+      fid NDSHdr.yield_global # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) yield_global));
+      fid NDSHdr.join # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) join));
+      fid NDSHdr.get_tid # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) get_tid))]}.
 
   Program Definition smod: SMod.t :=
   {|

@@ -50,7 +50,7 @@ Module KnotMainA. Section KnotMainA.
 
   Definition fnsems : fnsemmap :=
     {[fid KnotMainHdr.fib # (msk_scp scopes msk_true, (fsp_some fib_spec, pure_body));
-      entry # (msk_scp scopes msk_true, (fsp_some main_spec, cfunU main_body))]}.
+      entry # (msk_scp scopes msk_true, (fsp_some main_spec, cfunU (cftyp _ _) main_body))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

@@ -77,12 +77,12 @@ Module RRSI. Section RRSI.
     λ _, cgetU v_tid.
 
   Definition fnsems : fnsemmap :=
-    {[fid RRSHdr.init # (msk_real (msk_scp scp msk_true), (None, cfunU init));
-      fid RRSHdr._spawn # (msk_real (msk_scp scp msk_true), (None, cfunU inner_spawn));
-      fid RRSHdr.spawn # (msk_real (msk_scp scp msk_true), (None, cfunU spawn));
-      fid RRSHdr.yield # (msk_real (msk_scp scp msk_true), (None, cfunU yield));
-      fid RRSHdr.yield_global # (msk_real (msk_scp scp msk_true), (None, cfunU yield_global));
-      fid RRSHdr.get_tid # (msk_real (msk_scp scp msk_true), (None, cfunU get_tid))]}.
+    {[fid RRSHdr.init # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) init));
+      fid RRSHdr._spawn # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) inner_spawn));
+      fid RRSHdr.spawn # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) spawn));
+      fid RRSHdr.yield # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) yield));
+      fid RRSHdr.yield_global # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) yield_global));
+      fid RRSHdr.get_tid # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) get_tid))]}.
 
   Program Definition smod: SMod.t :=
   {|

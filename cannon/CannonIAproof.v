@@ -19,7 +19,7 @@ Module CannonIA. Section CannonIA.
     cStartFunSim. rewrite /CannonI.fire /fire.
 
     (* SRC: precondition *)
-    cStepsS. iDestruct "ASM" as "(-> & -> & B)". cSimpl.
+    cStepsS. iDestruct "ASM" as "[-> [% [-> [-> B]]]]". cSimpl.
     iDestruct "IST" as "[[% R] | F]"; des; subst; cycle 1. 
     (* already fired *)
     { iExFalso. iApply FiredBall; iFrame. }

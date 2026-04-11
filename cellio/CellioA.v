@@ -46,26 +46,26 @@ Module CellioA. Section CellioA.
     rewrite comm; apply excl_auth_update.
   Qed.
 
-  Definition set: Any.t -> itree crisE Any.t :=
+  Definition set: () -> itree crisE () :=
     λ _,
       x <- trigger (Take Z);;
       trigger (Assume (CellioA.cell x));;;
-      'i: Z <- ccallU CtxHdr.input tt;;
+      'i: Z <- ccallU CtxHdr.input_t CtxHdr.input tt;;
       trigger (Guarantee (CellioA.cell i));;;
-      Ret tt↑.
+      Ret tt.
   
-  Definition get: Any.t -> itree crisE Any.t :=
+  Definition get: () -> itree crisE Z :=
     λ _,
       x <- trigger (Take Z);;
       trigger (Assume (CellioA.cell x));;;
       trigger (Guarantee (CellioA.cell x));;;
-      Ret x↑.
+      Ret x.
 
   Definition scopes := [CellioHdr.mn].
 
   Definition fnsems : fnsemmap :=
-    {[fid CellioHdr.set # (msk_scp scopes msk_true, (fsp_some fspec_trivial, set));
-      fid CellioHdr.get # (msk_scp scopes msk_true, (fsp_some fspec_trivial, get))]}.
+    {[fid CellioHdr.set # (msk_scp scopes msk_true, (None, cfunU CellioHdr.set_t set));
+      fid CellioHdr.get # (msk_scp scopes msk_true, (None, cfunU CellioHdr.get_t get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

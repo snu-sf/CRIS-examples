@@ -42,7 +42,7 @@ Module NDSNodeA. Section NDSNodeA.
   Definition f_main : SAny.t -> itree crisE SAny.t :=
     fun _ =>
       𝒩𝒴;;;
-      'tid: nat <- ccallU NDSHdr.spawn (NDSNodeHdr.f, tt↑↑);; 𝒩𝒴;;; 𝒩𝒩;;;
+      'tid: nat <- ccallU (cftyp _ _) NDSHdr.spawn (NDSNodeHdr.f, tt↑↑);; 𝒩𝒴;;; 𝒩𝒩;;;
       n <- trigger (Choose nat);; 𝒩𝒴;;;
       trigger (@IO _ unit "print" (Vint (Z.of_nat n)));;; 𝒩𝒴;;; 𝒩𝒩;;;
       Ret (tt↑↑).
@@ -55,8 +55,8 @@ Module NDSNodeA. Section NDSNodeA.
       Ret (tt↑↑).
 
   Definition fnsems (E : coPset) : fnsemmap :=
-    {[fid NDSNodeHdr.f_main # (msk_scp scopes msk_true, (fsp_some (f_main_spec E), cfunN f_main));
-      fid NDSNodeHdr.f      # (msk_scp scopes msk_true, (fsp_some (f_spec E), cfunN f))]}.
+    {[fid NDSNodeHdr.f_main # (msk_scp scopes msk_true, (fsp_some (f_main_spec E), cfunN (cftyp _ _) f_main));
+      fid NDSNodeHdr.f      # (msk_scp scopes msk_true, (fsp_some (f_spec E), cfunN (cftyp _ _) f))]}.
 
   Program Definition smod E : SMod.t := {|
     SMod.scopes := scopes;

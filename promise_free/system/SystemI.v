@@ -19,7 +19,7 @@ Module SystemI. Section SystemI.
     λ '(fn, arg),
       'my_tid : Ident.t <- cgetU v_tid;;
       'tids : tidmap <- cgetU v_tids;;
-      'new_mtid : Ident.t <- ccallU PFMemHdr.spawn my_tid;;
+      'new_mtid : Ident.t <- ccallU (cftyp _ _) PFMemHdr.spawn my_tid;;
       new_stid <- trigger (Spawn SystemHdr._spawn (new_mtid, fn, arg)↑);;
       let newtids : tidmap := <[new_mtid := new_stid]> tids in
       cput v_tids newtids.
@@ -37,26 +37,26 @@ Module SystemI. Section SystemI.
   Definition alloc : nat → itree crisE Val.t :=
     λ sz,
       'tid : Ident.t <- get_tid ();;
-      ccallU PFMemHdr.alloc (tid, Z.of_nat sz).
+      ccallU (cftyp _ _) PFMemHdr.alloc (tid, Z.of_nat sz).
 
   Definition write : Loc.t * Val.t * Ordering.t → itree crisE Val.t :=
     λ '(loc, val, ord),
       'tid : Ident.t <- get_tid ();;
-      ccallU PFMemHdr.write (tid, loc, val, ord).
+      ccallU (cftyp _ _) PFMemHdr.write (tid, loc, val, ord).
 
   Definition read : Loc.t * Ordering.t → itree crisE Val.t :=
     λ '(loc, ord),
       'tid : Ident.t <- get_tid ();;
-      ccallU PFMemHdr.read (tid, loc, ord).
+      ccallU (cftyp _ _) PFMemHdr.read (tid, loc, ord).
 
   Definition fnsems : fnsemmap :=
-    {[fid SystemHdr._spawn  # (msk_real (msk_scp scopes msk_true), (None, cfunU _spawn));
-      fid SystemHdr.spawn   # (msk_real (msk_scp scopes msk_true), (None, cfunU spawn));
-      fid SystemHdr.get_tid # (msk_real (msk_scp scopes msk_true), (None, cfunU get_tid));
-      fid SystemHdr.yield   # (msk_real (msk_scp scopes msk_true), (None, cfunU yield));
-      fid SystemHdr.alloc   # (msk_real (msk_scp scopes msk_true), (None, cfunU alloc));
-      fid SystemHdr.write   # (msk_real (msk_scp scopes msk_true), (None, cfunU write));
-      fid SystemHdr.read    # (msk_real (msk_scp scopes msk_true), (None, cfunU read))]}.
+    {[fid SystemHdr._spawn  # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) _spawn));
+      fid SystemHdr.spawn   # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) spawn));
+      fid SystemHdr.get_tid # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) get_tid));
+      fid SystemHdr.yield   # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) yield));
+      fid SystemHdr.alloc   # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) alloc));
+      fid SystemHdr.write   # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) write));
+      fid SystemHdr.read    # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) read))]}.
 
   Program Definition Mod: SMod.t := {|
     SMod.scopes := scopes;

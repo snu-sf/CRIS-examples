@@ -47,7 +47,7 @@ Module CellioIA. Section CellioIA.
     cStartFunSim. unfold get, CellioI.get. cHideS. cHideT. cHideR.
 
     (* Take (x:Z) & cell(x) *)
-    cStepsS. 
+    cStepsS. destruct Any.downcast; cStepsS; des_ifs.
     iDestruct "IST" as (v) "(% & AUTH)". subst.
 
     iPoseProof (cell_auth_get with "ASM AUTH") as "%"; subst.

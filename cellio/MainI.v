@@ -13,10 +13,10 @@ Module MainI. Section MainI.
 
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
-      ccallU (Y:=unit) CellioHdr.set tt;;;
-      ccallU (Y:=unit) CtxHdr.foo tt;;;
-      x <- ccallU (Y:=Z) CellioHdr.get tt;;
-      trigger (@IO _ unit "Print" x);;;
+      ccallU (_,unit:Type) CellioHdr.set tt;;;
+      ccallU CtxHdr.foo_t CtxHdr.foo tt;;;
+      x <- ccallU (_,_) CellioHdr.get tt;;
+      trigger (@IO Z unit "Print" x);;;
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=

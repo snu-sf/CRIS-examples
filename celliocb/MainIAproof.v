@@ -17,13 +17,13 @@ Module MainIA. Section MainIA.
   Lemma simF_cb : ISim.sim_fun open MainA (MainI.t ★ CellioAMod) IstFull (fid MainHdr.input_cb).
   Proof using.
     cStartFunSim. unfold MainA.input_cb, MainI.input_cb.
+    destruct Any.downcast; cStepsS; des_ifs.
     cStepsS. cStepsT. cStep. cStep. cStep. iSplit; et.
   Qed. 
 
   Lemma simF_main : ISim.sim_fun open MainA (MainI.t ★ CellioAMod) IstFull entry.
   Proof using sp_foo sp_cb.
-    cStartFunSim.
-    unfold MainA.main, MainI.main.
+    cStartFunSim. unfold MainA.main, MainI.main.
     
     (* Take cell(0) *)
     cStepsS.
@@ -33,14 +33,12 @@ Module MainIA. Section MainIA.
     cStepsT. cInlineT. cStepsT. cForcesT. iFrame.
     
     (* sync callback *)
-    cStepsT. cInlineT. cStepsT. unfold MainI.input_cb.
+    cStepsT. cInlineT. cStepsT.
     rewrite sp_cb. cInlineS. cStepsS. unfold MainA.input_cb.
     cStep. cStep. cStepsS. cStepsT. 
      
-    
     (* sync foo *)
-    rewrite sp_foo.
-    cCall "IST" as (???) "IST".
+    des_ifs. cCall "IST" as (???) "IST".
 
     (* TGT : inline get *)
     cStepsT. cInlineT.
@@ -50,6 +48,7 @@ Module MainIA. Section MainIA.
     cForcesT. iFrame.
 
     cStepsT. cStepsS. 
+    cStepsS. destruct Any.downcast; cStepsS; des_ifs.
     
     (* sync print *)
     cStep. cStepsS. cStepsT. cForcesS. iSplit; et. cStep. iFrame; et. 

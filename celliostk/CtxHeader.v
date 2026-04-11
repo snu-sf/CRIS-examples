@@ -8,5 +8,8 @@ Module CtxHdr.
     mn +:+ "." +:+ method.
   
   Definition foo := fn "foo".
-  
+  Definition foo_t := cftyp () ().
+
+  Definition cb_t := cftyp () Z.
+
 End CtxHdr.

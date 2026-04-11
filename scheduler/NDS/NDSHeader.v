@@ -39,7 +39,7 @@ Module NDS. Section NDS.
   Context `{E : Type → Type, coreE -< E, callE -< E}.
 
   Definition spawn (fnarg : string * SAny.t) : itree E nat :=
-    'tid : nat <- ccallU NDSHdr.spawn fnarg;; Ret tid.
+    'tid : nat <- ccallU (cftyp _ _) NDSHdr.spawn fnarg;; Ret tid.
 
   Definition yield : itree E unit :=
     Seal.sealing NDS
@@ -73,7 +73,7 @@ Module NDS. Section NDS.
       )) tt).
 
   Definition join (tid : nat) : itree E SAny.t :=
-    'ors: option SAny.t <- ccallU NDSHdr.join tid;;
+    'ors: option SAny.t <- ccallU (cftyp _ _) NDSHdr.join tid;;
     rs <- ors?;;
     Ret rs.
 End NDS. End NDS.

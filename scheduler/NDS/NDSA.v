@@ -546,7 +546,7 @@ Module NDSA. Section NDSA.
 
   Definition inner_spawn : string * SAny.t → itree crisE unit :=
     λ '(fn, arg),
-      'rv : SAny.t <- ccallN fn arg;;
+      'rv : SAny.t <- ccallN (cftyp _ _) fn arg;;
       'ths : thpool <- cgetN v_ths;;
       'tid : nat <- cgetN v_tid;;
       match ths !! tid with
@@ -592,7 +592,7 @@ Module NDSA. Section NDSA.
         match ths !! tid with
         | None => Ret (inr None)
         | Some (_, Some rv) => Ret (inr (Some rv))
-        | Some (_, None) => '() : _ <- ccallN NDSHdr.yield tt;; Ret (inl tt)
+        | Some (_, None) => '() : _ <- ccallN (cftyp _ _) NDSHdr.yield tt;; Ret (inl tt)
         end
       ) tt);;
       Ret orv.
@@ -601,13 +601,13 @@ Module NDSA. Section NDSA.
     λ _, cgetN v_tid.
 
   Definition fnsems (E : coPset) (sp_user: specmap) (T: Type) (get_stid: T → nat) (PYIP: T → iProp Σ): fnsemmap:=
-    {[fid NDSHdr.init # (msk_scp scp msk_true, (fsp_some (init_spec sp_user E T get_stid PYIP), cfunN init));
-      fid NDSHdr._spawn # (msk_scp scp msk_true, (fsp_some (inner_spawn_spec sp_user E), cfunN inner_spawn));
-      fid NDSHdr.spawn # (msk_scp scp msk_true, (fsp_some (spawn_spec sp_user E), cfunN spawn));
-      fid NDSHdr.yield # (msk_scp scp msk_true, (fsp_some (yield_spec E), cfunN yield));
-      fid NDSHdr.yield_global # (msk_scp scp msk_true, (fsp_some (yield_global_spec E), cfunN yield_global));
-      fid NDSHdr.join # (msk_scp scp msk_true, (fsp_some (join_spec E), cfunN join));
-      fid NDSHdr.get_tid # (msk_scp scp msk_true, (fsp_some (get_tid_spec), cfunN get_tid))]}.
+    {[fid NDSHdr.init # (msk_scp scp msk_true, (fsp_some (init_spec sp_user E T get_stid PYIP), cfunN (cftyp _ _) init));
+      fid NDSHdr._spawn # (msk_scp scp msk_true, (fsp_some (inner_spawn_spec sp_user E), cfunN (cftyp _ _) inner_spawn));
+      fid NDSHdr.spawn # (msk_scp scp msk_true, (fsp_some (spawn_spec sp_user E), cfunN (cftyp _ _) spawn));
+      fid NDSHdr.yield # (msk_scp scp msk_true, (fsp_some (yield_spec E), cfunN (cftyp _ _) yield));
+      fid NDSHdr.yield_global # (msk_scp scp msk_true, (fsp_some (yield_global_spec E), cfunN (cftyp _ _) yield_global));
+      fid NDSHdr.join # (msk_scp scp msk_true, (fsp_some (join_spec E), cfunN (cftyp _ _) join));
+      fid NDSHdr.get_tid # (msk_scp scp msk_true, (fsp_some (get_tid_spec), cfunN (cftyp _ _) get_tid))]}.
 
   Program Definition smod E sp_user T get_stid PYIP : SMod.t := {|
     SMod.scopes := scp;

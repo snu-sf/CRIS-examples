@@ -6,22 +6,22 @@ Module MainI. Section MainI.
 
   Definition scopes : list string := [].
 
-  Definition input_cb: Any.t -> itree crisE Any.t :=
+  Definition input_cb: () -> itree crisE Z :=
     λ _,
       trigger (@IO _ unit "Output_stdout" 42);;;
       i <- trigger (@IO _ Z "Input_db" tt);;
-      Ret i↑.
+      Ret i.
 
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
-      ccallU (Y:=unit) CellioHdr.set MainHdr.input_cb;;;
+      ccallU CellioHdr.set_t CellioHdr.set MainHdr.input_cb;;;
       trigger (Call CtxHdr.foo tt↑);;;
-      x <- ccallU (Y:=Z) CellioHdr.get tt;;
+      x <- ccallU CellioHdr.get_t CellioHdr.get tt;;
       trigger (@IO _ unit "Print" x);;;
       Ret tt↑.
 
   Definition fnsems : fnsemmap :=
-    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, input_cb));
+    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, cfunU MainHdr.input_cb_t input_cb));
       entry  # ((msk_scp scopes msk_true), (None, main))]}.
 
   Program Definition smod: SMod.t := {|

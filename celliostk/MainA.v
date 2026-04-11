@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.celliostk Require Import CellioA CtxHeader CellioHeader MainHeader.
+From CRIS.celliostk Require Import CellioA MainI CtxHeader CellioHeader MainHeader.
 
 Module MainA. Section MainA.
   Import CellioA.
@@ -7,11 +7,7 @@ Module MainA. Section MainA.
                 
   Definition scopes : list string := [].
 
-  Definition input_cb: Any.t -> itree crisE Any.t :=
-    λ _,
-      trigger (@IO _ unit "Output_stdout" 42);;;
-      i <- trigger (@IO _ Z "Input_db" tt);;
-      Ret i↑.
+  Definition input_cb: () -> itree crisE Z := MainI.input_cb.
 
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
@@ -20,7 +16,7 @@ Module MainA. Section MainA.
       'stk: list Z <- ITree.iter (λ '(i,stk),
         if (i <=? 0)%Z then Ret (inr stk)
         else
-          'z: Z <- ccallU MainHdr.input_cb tt;;
+          'z: Z <- ccallU MainHdr.input_cb_t MainHdr.input_cb tt;;
            Ret (inl ((i - 1)%Z, z :: stk))
         ) (i, stk);;
       trigger (Call CtxHdr.foo tt↑);;;
@@ -32,7 +28,7 @@ Module MainA. Section MainA.
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=
-    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, input_cb));  
+    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, cfunU MainHdr.input_cb_t input_cb));  
       entry # ((msk_scp scopes msk_true), (None, main))]}.
 
   Program Definition smod : SMod.t := {|

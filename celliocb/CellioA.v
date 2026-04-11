@@ -1,5 +1,5 @@
 Require Import CRIS.
-From CRIS.celliocb Require Import CellioHeader.
+From CRIS.celliocb Require Import CellioHeader CtxHeader.
 
 Local Definition RA := authUR (optionUR (exclR ZO)).
 
@@ -48,26 +48,26 @@ Module CellioA. Section CellioA.
     rewrite comm; apply excl_auth_update.
   Qed.
 
-  Definition set: string -> itree crisE unit :=
+  Definition set: string -> itree crisE () :=
     λ cb,
       x <- trigger (Take Z);;
       trigger (Assume (CellioA.cell x));;;
-      'i: Z <- ccallU cb tt;;
+      i <- ccallU CtxHdr.cb_t cb tt;;
       trigger (Guarantee (CellioA.cell i));;;
       Ret tt.
   
-  Definition get: Any.t -> itree crisE Any.t :=
+  Definition get: () -> itree crisE Z :=
     λ _,
       x <- trigger (Take Z);;
       trigger (Assume (CellioA.cell x));;;
       trigger (Guarantee (CellioA.cell x));;;
-      Ret x↑.
+      Ret x.
 
   Definition scopes := [CellioHdr.mn].
   
   Definition fnsems : fnsemmap :=
-    {[fid CellioHdr.set # (msk_scp scopes msk_true, (None, cfunU set));
-      fid CellioHdr.get # (msk_scp scopes msk_true, (None, get))]}.
+    {[fid CellioHdr.set # (msk_scp scopes msk_true, (None, cfunU CellioHdr.set_t set));
+      fid CellioHdr.get # (msk_scp scopes msk_true, (None, cfunU CellioHdr.get_t get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

@@ -181,13 +181,13 @@ Module MapA. Section MapA.
     λ varg,
       k <- (pargs [Tint] varg)!;;
       v <- trigger (IO "input" ());;
-      ccallN MapHdr.set [Vint k; Vint v].
+      ccallN (cftyp _ _) MapHdr.set [Vint k; Vint v].
 
   Definition fnsems : fnsemmap :=
     {[fid MapHdr.init # (msk_scp scopes msk_true, (fsp_some init_spec, fbody_trivial));
-      fid MapHdr.get  # (msk_scp scopes msk_true, (fsp_some get_spec, cfunN get));
-      fid MapHdr.set  # (msk_scp scopes msk_true, (fsp_some set_spec, cfunN set));
-      fid MapHdr.set_by_user # (msk_scp scopes msk_true, (fsp_some set_by_user_spec, cfunN set_by_user))]}.
+      fid MapHdr.get  # (msk_scp scopes msk_true, (fsp_some get_spec, cfunN (cftyp _ _) get));
+      fid MapHdr.set  # (msk_scp scopes msk_true, (fsp_some set_spec, cfunN (cftyp _ _)set));
+      fid MapHdr.set_by_user # (msk_scp scopes msk_true, (fsp_some set_by_user_spec, cfunN (_,_) set_by_user))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

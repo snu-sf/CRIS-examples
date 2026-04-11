@@ -7,25 +7,25 @@ Module MainI. Section MainI.
 
   Definition scopes : list string := [].
 
-  Definition input_cb: Any.t -> itree crisE Any.t :=
+  Definition input_cb: () -> itree crisE Z :=
     λ _,
       trigger (@IO _ unit "Output_stdout" 42);;;
       i <- trigger (@IO _ Z "Input_db" tt);;
-      Ret i↑.
+      Ret i.
 
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
-      'stk: val <- ccallU CellioHdr.new ();;
+      'stk: val <- ccallU CellioHdr.new_t CellioHdr.new ();;
       i <- trigger (@IO _ Z "Input_stdin" tt);;
       'stk: val <- ITree.iter (λ '(i,stk),
         if (i <=? 0)%Z then Ret (inr stk)
         else
-          'stk: val <- ccallU CellioHdr.push (MainHdr.input_cb, stk);;
+          'stk: val <- ccallU CellioHdr.push_t CellioHdr.push (MainHdr.input_cb, stk);;
            Ret (inl ((i - 1)%Z, stk))
         ) (i, stk);;
       trigger (Call CtxHdr.foo tt↑);;;
       ITree.iter (λ stk,
-        '(x, stk): option Z * val <- ccallU CellioHdr.pop stk;;
+        '(x, stk): option Z * val <- ccallU CellioHdr.pop_t CellioHdr.pop stk;;
         match x with
         | None => Ret (inr ())
         | Some z => trigger (@IO _ unit "Print" z);;; Ret (inl stk)
@@ -33,7 +33,7 @@ Module MainI. Section MainI.
       Ret tt↑.
 
   Definition fnsems : fnsemmap :=
-    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, input_cb));
+    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, cfunU MainHdr.input_cb_t input_cb));
       entry                    # ((msk_scp scopes msk_true), (None, main))]}.
 
   Program Definition smod: SMod.t := {|

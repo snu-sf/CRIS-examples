@@ -73,7 +73,7 @@ Module ClientA. Section ClientA.
       𝒴;;; Ret (tt↑).
 
   Definition fnsems (N : namespace) : fnsemmap :=
-    {[fid ClientHdr.thread # (msk_scp scopes msk_true, (fsp_some (incr_spec N), cfunN (sfunN incr)));
+    {[fid ClientHdr.thread # (msk_scp scopes msk_true, (fsp_some (incr_spec N), cfunN (cftyp _ _) (sfunN (_, _) incr)));
       entry # (msk_scp scopes msk_true, (fsp_some (fspec_sch (↑N) fspec_trivial), main))]}.
 
   Program Definition smod N : SMod.t := {|

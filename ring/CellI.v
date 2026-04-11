@@ -25,8 +25,8 @@ Module CellI. Section CellI.
       Ret ().
 
   Definition fnsems : fnsemmap :=
-    {[fid (CellHdr.get idx) # (msk_real (msk_scp scopes msk_true), (None, cfunU get));
-      fid (CellHdr.set idx) # (msk_real (msk_scp scopes msk_true), (None, cfunU set))]}.
+    {[fid (CellHdr.get idx) # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) get));
+      fid (CellHdr.set idx) # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) set))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

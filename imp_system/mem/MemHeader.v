@@ -14,9 +14,9 @@ Module MemHdr.
 
   Definition faa {E : Type → Type} `{callE -< E, coreE -< E} : list val → itree E val :=
     λ l,
-    'v_raw : val <- ccallU MemHdr.load l;;
+    'v_raw : val <- ccallU imp_fun_t MemHdr.load l;;
     'v : Z <- (pargs [Tint] [v_raw])?;;
-    'r : val <- ccallU MemHdr.store (l ++ [Vint (v + 1)%Z]);;
+    'r : val <- ccallU imp_fun_t MemHdr.store (l ++ [Vint (v + 1)%Z]);;
     Ret v_raw.
 End MemHdr.
 

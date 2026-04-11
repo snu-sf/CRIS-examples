@@ -124,21 +124,21 @@ Module HybMem. Section HybMem.
         trigger (Guarantee (loc ⤇ (if bool_decide (succ = 1) then v_new else v_cur) ∗ val_r v_cur q0 v0 ∗ val_r v_old q1 v1));;;
         Ret v_cur
       else
-        'v_cur: val <- ccallU MemHdr.load [Vint loc];;
-        'succ: val <- ccallU MemHdr.cmp [v_cur; v_old];;
+        'v_cur: val <- ccallU imp_fun_t MemHdr.load [Vint loc];;
+        'succ: val <- ccallU imp_fun_t MemHdr.cmp [v_cur; v_old];;
         (if (bool_decide (succ = (Vint 1)))
-        then ccallU MemHdr.store [Vint loc; v_new]
+        then ccallU imp_fun_t MemHdr.store [Vint loc; v_new]
         else Ret Vundef);;;
         Ret v_cur
   .
 
   Definition fnsems : fnsemmap :=
-    {[fid MemHdr.alloc # (msk_scp scopes msk_true, (None, cfunU alloc));
-      fid MemHdr.free  # (msk_scp scopes msk_true, (None, cfunU free));
-      fid MemHdr.load  # (msk_scp scopes msk_true, (None, cfunU load));
-      fid MemHdr.store # (msk_scp scopes msk_true, (None, cfunU store));
-      fid MemHdr.cmp   # (msk_scp scopes msk_true, (None, cfunU cmp));
-      fid MemHdr.cas   # (msk_scp scopes msk_true, (None, cfunU cas))]}.
+    {[fid MemHdr.alloc # (msk_scp scopes msk_true, (None, cfunU imp_fun_t alloc));
+      fid MemHdr.free  # (msk_scp scopes msk_true, (None, cfunU imp_fun_t free));
+      fid MemHdr.load  # (msk_scp scopes msk_true, (None, cfunU imp_fun_t load));
+      fid MemHdr.store # (msk_scp scopes msk_true, (None, cfunU imp_fun_t store));
+      fid MemHdr.cmp   # (msk_scp scopes msk_true, (None, cfunU imp_fun_t cmp));
+      fid MemHdr.cas   # (msk_scp scopes msk_true, (None, cfunU imp_fun_t cas))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
