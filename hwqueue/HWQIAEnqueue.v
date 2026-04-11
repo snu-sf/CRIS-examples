@@ -74,6 +74,7 @@ Section HWQPM.
       cForceS false. cStepsS. cStep.
       rewrite /= app_nil_r map_imap_helped_nil. iFrame.
     }
+    cHideR.
     aUnfoldS. cNormS. case_match; cStepsS; ss. cForceS true. cStepsS.
     destruct orb; ss. destruct msks; cStepsS; ss.
     cInlineS. cStepsS.
@@ -97,7 +98,7 @@ Section HWQPM.
       last first.
     { iCombine "Hs● He●2" gives %WF%auth_auth_op_valid; ss. }
     iMod ("Hist" with "●Help") as "$".
-    iApply fupd_mask_intro; [solve_ndisj|iIntros "_"].
+    iApply fupd_mask_intro; [solve_ndisj|iIntros "_"]. cHideR.
     cStepsS. iRename "ASM" into "He◯".
     iDestruct (sync_elts with "He● He◯") as %<-.
     iMod (update_elts _ _ _ (ls ++ [l]) with "He● He◯") as "[He● He◯]".
@@ -106,14 +107,14 @@ Section HWQPM.
     iMod (Ist_help with "IST") as "[%st_src' [%reqmap [-> [Help● HelpClose]]]]".
     iPoseProof (helping_auth_split (1/2) with "Help●") as "[Help● Help●2]"; first done.
     iMod ("Close" with "[Help●]") as "_"; first iFrame. { set_solver. }
-    iApply fupd_mask_intro; first solve_ndisj; iIntros "_ TID". cStepsS.
+    iApply fupd_mask_intro; first solve_ndisj; iIntros "_ TID". cHideR. cStepsS.
     iMod (use_pending_tok with "Hs● Hpending_tok_n")
       as "[Hs● Hcommitted_wit_n]"; first by rewrite Hn.
     iDestruct (big_sepM_insert _ (delete e slots) e (l, Help γ, w)
       with "[Done Hval_wit_n Hwritten_n Hcommitted_wit_n Hbig Hq]")
       as "Hbig"; first by apply lookup_delete.
     { iClear "IH". iFrame "Hbig". rewrite /per_slot_own /=. iFrame. }
-    cShowR. rewrite insert_delete_insert /update_slot Hn insert_delete_insert.
+    cShowR. rewrite insert_delete_insert /update_slot Hn insert_delete_insert. cHideR.
     assert (∀ i : nat, i ∈ p → was_committed <$> <[e:=(l, Help γ, w)]> slots !! i = Some false) as HHH.
     { intros i Hi. rewrite lookup_insert_ne; [ by apply Ha1 | by set_solver ]. }
     iSpecialize ("IH" $! _ st_tgt2 true false _ _ HNoDup HHH with "Hinv [Help●2 HelpClose]").
@@ -144,8 +145,6 @@ Section HWQPM.
   Proof.
     cStartFunSim. rewrite /HWQM.enqueue /HWQI.enqueue. cStepS. aStepS.
     iIntros (mtid stid [γq v]) "TID [%qblk [%qofs [%q [%n [%sz [[-> ->] [#Inv HQ]]]]]]]". cStepsT.
-    (* cStepsS. destruct _q as [[mtid stid] [[[[n sz] γq] q] v]].
-    iDestruct "ASM" as "[TID [_ [%qblk [%qofs [[-> ->] [#INV Hq]]]]]]". cStepsT. *)
     iDestruct "Inv" as (γb γi γc γs blk ->) "#Inv".
     cStepsS. iApply (wsim_helping_run with "IST"); [exact Ist_help|simpl_map; s; f_equal|..].
     clear st_src; iIntros (st_src req_id) "IST Tkn".

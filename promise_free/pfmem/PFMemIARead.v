@@ -16,7 +16,7 @@ Section read.
 
   Lemma simF_read : ISim.sim_fun open MA MI PFMemIA.Ist (fid PFMemHdr.read).
   Proof.
-    cStartFunSim.
+    cStartFunSim. cHideS. cHideT.
     cStepS. destruct _q as [f|[f|[]]].
     { (* non-atomic read *)
       cStepsS.

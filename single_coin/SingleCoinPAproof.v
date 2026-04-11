@@ -89,7 +89,7 @@ Module SingleCoinPA. Section SingleCoinPA.
 
   Lemma simF_read : ISim.sim_fun open MA MI Ist (fid SingleCoinHdr.read).
   Proof.
-    cStartFunSim. rewrite /read.
+    cStartFunSim. rewrite /read. cHideS. cHideT.
     cStepsS. destruct _q as [idx b]. iDestruct "ASM" as "[-> [-> C]]".
     iDestruct "IST" as (l_s l_t) "[[-> %EQ] [F [AU PL]]]".
     iPoseProof (coin_both_valid with "AU C") as "%NTH".

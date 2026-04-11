@@ -140,7 +140,7 @@ Module MPIA. Section MPIA.
       iEval (solve_base_sl_red) in "H"; iPoseProof "H" as "->".
       cForceT (meta1 (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, _, z1))%cris.
       cForcesT.
-      iFrame "TV SN ↦flag". rewrite shift_0. iSplit; et.
+      iFrame "TV SN ↦flag". iSplit; et.
       cStepsT.
       iDestruct "GRT" as "[-> [% [% [% [% [% [% [%V4 [[-> %] [#SN2 [↦flag TV]]]]]]]]]]]".
       cStepsT.
@@ -169,10 +169,7 @@ Module MPIA. Section MPIA.
       cStepsT.
 
       iApply wsim_system_yield_src. cForceS false. cStepsS.
-      iApply wsim_progress.
-      iApply wsim_base.
-      iIntros "W".
-      iApply ((CIH st_src st_tgt V4) with "[-]"); iFrame. iFrame "I".
+      cByCoind CIH. iFrame. iFrame "I".
       ss. iModIntro. iEval (rewrite H3) in "SN". done.
       Unshelve. all: try exact ⊤; try exact 1%Qp.
     }
@@ -185,7 +182,7 @@ Module MPIA. Section MPIA.
       iDestruct "↦flag" as "[% ↦flag]".
       cForceT (meta1 (1%positive, 0, loc, Ordering.acqrel, _, _, _, γx, _, _, V3, z1))%cris.
       (* iPoseProof (AtomicSWriter_AtomicSeen with "SW") as "#SN". *)
-      cForcesT. iFrame "TV SN ↦flag". rewrite shift_0. iSplit; eauto.
+      cForcesT. iFrame "TV SN ↦flag". iSplit; eauto.
       cStepsT.
       iDestruct "GRT" as "[-> [% [% [% [% [% [% [% [[-> %Hres] [#SN2 [↦flag TV]]]]]]]]]]]".
       destruct Hres as [Hval [Hcell1 [Hcell2 [Hget [Hvle Hvle2]]]]].
@@ -277,11 +274,7 @@ Module MPIA. Section MPIA.
         cStepsT.
 
         iApply wsim_system_yield_src. cForceS false. cStepsS.
-        iApply wsim_progress.
-        iApply wsim_base.
-        iIntros "W".
-
-        iApply ((CIH st_src st_tgt _) with "[-]"); iFrame. iFrame "I".
+        cByCoind CIH. iFrame. iFrame "I".
         iEval (rewrite Hvle) in "SN"; s; iModIntro; done.
       }
     }

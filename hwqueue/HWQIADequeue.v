@@ -42,9 +42,9 @@ Section HWQPM.
       ((HWQM ★ HelpOn) ★ MemA ★ ProphA) ((HWQP ★ HelpDummy) ★ MemA ★ ProphA)
       IstFull (fid HWQHdr.dequeue).
   Proof.
-    cStartFunSim. rewrite /HWQA.dequeue /HWQP.dequeue; cStepsS; cStepsT.
-    aStepS. iIntros (mtid stid γq) "TID [%q [%n [%sz [-> #Hinv]]]]".
-    iDestruct "Hinv" as (γb γi γc γs blk ->) "#Inv". cStepsT. aAddY.
+    cStartFunSim. rewrite /HWQA.dequeue /HWQP.dequeue.
+    cStepsS; cStepsT. aStepS. iIntros (mtid stid γq) "TID [%q [%n [%sz [-> #Hinv]]]]".
+    iDestruct "Hinv" as (γb γi γc γs blk ->) "#Inv". cStepsT. aAddY. cHideS; cHideT.
 
     sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     iApply wsim_reset.
@@ -107,6 +107,7 @@ Section HWQPM.
     { unfoldIterT; rewrite {1}/tgt_in. cStepsT. sYieldIR "IST" "TID".
       cByCoind CIH. iFrame. eauto.
     }
+    cHideS; cHideT.
     unfoldIterT; rewrite {2}/tgt_in. cStepsT.
     sYieldIR "IST" "TID". sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     (* Now the induction case: we need to open the invariant for the load. *)

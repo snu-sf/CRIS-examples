@@ -137,8 +137,8 @@ Module PQueueIA. Section PQueueIA.
 
   Lemma new_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.new).
   Proof.
-    cStartFunSim. rewrite /PQueueI.new /PQueueA.new. cStepsS.
-    aStepS. iIntros (mtid stid [n range]) "TID [-> %Hrange]".
+    cStartFunSim. rewrite /PQueueI.new /PQueueA.new. cHideS. cHideT.
+    cStepsS. aStepS. iIntros (mtid stid [n range]) "TID [-> %Hrange]".
 
     cStepsT. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
     mAllocT as (queueb) "↦queue". { lia. }

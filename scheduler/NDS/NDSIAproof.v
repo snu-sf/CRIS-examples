@@ -617,7 +617,7 @@ Module NDSIA. Section sim.
       iExists fn. rewrite length_fmap. subst mtid_new. iFrame. iPureIntro; esplits; eauto. }
     cStepsS. cForceS (mtid_new↑). cStepsS.
     cForceS. iSplitL "JoinF2 T Y TidF S C PubF".
-    { iExists _; iSplit; eauto. rewrite length_fmap. iFrame; eauto. }
+    { iExists _; iSplit; eauto. iFrame; eauto. }
     cStepS. cStep.
 
     iSplit; eauto.

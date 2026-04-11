@@ -139,7 +139,7 @@ Module HWQIP. Section HWQIP.
       replace (S (Z.to_nat sz - S n)) with (Z.to_nat sz - n) by lia.
       iApply "IH_loop"; iFrame. by iPureIntro; lia.
     }
-    { cStartFunSim. rewrite /HWQI.enqueue /MemHdr.faa.
+    { cStartFunSim. rewrite /HWQI.enqueue /MemHdr.faa. cHideS. cHideT.
       cStepsS. cStepsT. destruct Any.downcast; cStepsS; ss. cStepsT.
       sYieldRR "IST".
       sYieldS. cStepsS. destruct pargs as [[[? ?] v]|]; last cStepsS; ss.

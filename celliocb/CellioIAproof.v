@@ -44,21 +44,18 @@ Module CellioIA. Section CellioIA.
   
   Lemma simF_get : ISim.sim_fun open CellioAMod CellioIMod Ist (fid CellioHdr.get).
   Proof using.
-    cStartFunSim.
-    unfold get, CellioI.get.
+    cStartFunSim. unfold get, CellioI.get. cHideS. cHideT. cHideR.
 
     (* Take (x:Z) & cell(x) *)
     cStepsS. 
     iDestruct "IST" as (v) "(% & AUTH)". subst.
 
     iPoseProof (cell_auth_get with "ASM AUTH") as "%"; subst.
-    cStepsT. cStepsT.
+    cStepsT.
 
     (* Give cell(x) *)
     cForcesS. iFrame. 
     
-    cStepsS.
-
     cStep. iSplit; eauto.
     iExists _. iFrame; eauto.
   (*SLOW*)Qed.

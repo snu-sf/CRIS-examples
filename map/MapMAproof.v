@@ -114,7 +114,7 @@ Module MapMA. Section MapMA.
 
   Lemma simF_set_by_user : ISim.sim_fun open MapA MapM Ist (fid MapHdr.set_by_user).
   Proof using MapInSpS MapInSpT.
-    cStartFunSim. rewrite /MapM.set_by_user /set_by_user.
+    cStartFunSim. rewrite /MapM.set_by_user /set_by_user. cHideS. cHideT.
 
     (* SRC: handle the IST of Map and the precond of set_by_user *)
     do 2 cStepS. destruct _q as [k w]. cStepsS.
