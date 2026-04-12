@@ -82,13 +82,13 @@ Module KnotIA. Section KnotIA.
 
     (* SRC: unfold APC *)
     rewrite /pure_body.
-    cStepsS. simpl_sp. cForceS. cForcesS. iSplit; eauto. cStepsS.
+    cStepsS. cSimpl. cForceS. cForcesS. iSplit; eauto. cStepsS.
     cInlineS. cStepsS. iDestruct "ASM" as "[-> <-]".
     cStepsS. unfold apc_body, APC. cForceS 1. cStepsS. 
 
     (* cCall apc with fn *)
     pose proof SPEC as SPEC1. inv SPEC1.
-    iApply wsim_apc_src_call_tgt_weaker; [ | | |simpl_sp| | |iSplitL "FL FG VF"]; eauto.
+    iApply wsim_apc_src_call_tgt_weaker; [ | | |cSimpl| | |iSplitL "FL FG VF"]; eauto.
     { instantiate (1 := 0). apply OrdArith.lt_from_nat. nia. }
     { instantiate (1:= (2 * o)). eapply Ord.lt_le_lt; et.
       rewrite -OrdArith.mult_from_nat -OrdArith.add_from_nat. apply OrdArith.lt_from_nat. nia.
@@ -97,12 +97,12 @@ Module KnotIA. Section KnotIA.
       - ss. iFrame. iSplit.
         + iPureIntro. eexists; esplits; et. econs; et.
           { eapply GEnvWF; eauto. }
-          econs; [simpl_sp; eauto|].
+          econs; [cSimpl; eauto|].
           iIntros (??) "%"; iExists _, _; iSplit; [done|iIntros "%% $ !> %%$//"].
         + iPureIntro. eexists; esplits; et. rewrite -OrdArith.mult_from_nat. apply OrdArith.le_from_nat. nia. 
       - iExists _, _, _, _. repeat (iSplit; et). iExists (Some f), _. iSplit.
         + iPureIntro. intros ? temp; inv temp; esplits; et. econs; eauto.
-        + unfold var_points_to. rewrite SKINCL_F EQ. iFrame.
+        + unfold var_points_to. rewrite SKINCL_F. iFrame.
     }
     clear_st. iIntros (st_src st_tgt ret) "IST".
     iDestruct "IST" as "[IST [-> FG]]". cStepsT.
@@ -154,7 +154,7 @@ Module KnotIA. Section KnotIA.
     cForceS. cStepsS. cForceS. cForceS.
     iSplitL "FG".
     { iSplitR; et. iSplitR; eauto. iPureIntro. eexists. esplit; et. econs; et.
-      econs; [simpl_sp; ss|].
+      econs; [cSimpl; ss|].
       iIntros (??) "%"; iExists _, _; iSplit; [done|iIntros "%% $ !> %%$//"].
     }
     cStep. iSplit; et.

@@ -36,7 +36,7 @@ Module NDSNodeIA. Section NDSNodeIA.
     cStepsT. cForcesT. iSplitL "PT"; et.
     cStepsT. ndsYieldGlobalIR "IST" "tidF". ndsYieldGlobalS.
 
-    cStepsS. cStepsT. simpl_sp.
+    cStepsS. cStepsT. cSimpl.
     cForceS (mtid, stid, ssch,
              (λ varg arg, ⌜varg = (tt↑↑) ∧ arg = ((Vint blk)↑↑)⌝ ∗ inv_x_points_to blk)%I,
              (λ vret ret, existT 0 (⌜vret = tt↑↑ ∧ ret = tt↑↑⌝%SAT))).
@@ -46,7 +46,7 @@ Module NDSNodeIA. Section NDSNodeIA.
     cForcesS. iSplitL "tidF".
     { iExists _. iSplit; eauto. do 3 iExists _. iSplit; eauto. iSplitR "tidF"; eauto.
       rewrite /NDSA.fn_spawnable. iExists _; iSplit; eauto.
-      { iPureIntro. simpl_sp; et. }
+      { iPureIntro. cSimpl; et. }
       rewrite /NDSA.fspec_spawnable. iIntros (??) "[%x [%Hpre %Hpost]]"; ss.
       destruct x as [[mtid' stid'] ssch'].
       set (m := (mtid', stid', ssch', blk) : meta (f_spec ⊤)).

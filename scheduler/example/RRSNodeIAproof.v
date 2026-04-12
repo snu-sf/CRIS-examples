@@ -29,7 +29,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     ⊢ RRSAS.fn_spawnable_rr sp_user ⊤ RRSNodeHdr.f n (f_precond (b, 0%Z)) Invs.
   Proof using Hnode.
     iIntros. rewrite /RRSAS.fn_spawnable_rr. iExists _. iSplit; eauto.
-    { iPureIntro. simpl_sp; et. }
+    { iPureIntro. cSimpl; et. }
     rewrite /RRSAS.fspec_spawnable_rr. iIntros (??) "[%x [%Hpre %Hpost]]"; ss.
     destruct x as [[mtid stid] ssch].
     rewrite /precond /fspec_winv /fspec_virtual /= /precond /= in Hpre.
@@ -86,7 +86,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     ss. cStepsT. iDestruct "GRT" as "[% [PT ->]]".
     rewrite <-H0. cStepsT.
 
-    rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS. simpl_sp.
+    rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS. cSimpl.
 
     (** invariant *)
     iPoseProof (full_merge with "F") as "[H H0]".
@@ -100,7 +100,7 @@ Module RRSNodeIA. Section RRSNodeIA.
       do 3 iExists _. iSplit; eauto. iSplit; eauto.
       iApply f_spawnable; eauto.
       i. assert (m = 0 ∨ m = 1).
-      { vm_compute in H1. nia. }
+      { vm_compute in H. nia. }
       { des; subst; ss. }
     }
 
@@ -109,7 +109,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     iDestruct "ASM" as (?) "[% [tidF [RRI [% %]]]]"; des; subst; cSimpl.
     cStepsS. cStepsT.
 
-    rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS. simpl_sp.
+    rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS. cSimpl.
 
     (** 2nd spawn **)
     cStepsS; cStepsT. set (Invs := _ : gmap nat InvO).
@@ -132,7 +132,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     rrsYieldIR "IST" "tidF". rrsYieldS. cStepsS.
 
     (** Round-Robin yield *)
-    unfold RRS.yield. unseal "RRS". cStepsT. cStepsS. simpl_sp.
+    unfold RRS.yield. unseal "RRS". cStepsT. cStepsS. cSimpl.
 
     set (Invs := _ : gmap nat InvO).
     cForceS (0, stid, ssch, Invs). subst Invs. cForcesS. iSplitL "RRI tidF H".
@@ -227,7 +227,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     replace (S mtid - mtid)%Z with 1%Z by nia.
     cStep. rrsYieldIR "IST" "tidF". rrsYieldS.
 
-    unfold RRS.yield. unseal "RRS". cStepsS. simpl_sp.
+    unfold RRS.yield. unseal "RRS". cStepsS. cSimpl.
     cForceS (mtid + 1, stid, ssch, Invs').
     cForcesS. iSplitL "tidF RRI HALF".
     { replace (mtid + 1)%Z with (Z.of_nat (S mtid)) by nia.

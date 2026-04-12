@@ -33,7 +33,7 @@ Module MutMainIA. Section MutMainIA.
 
     (* SRC: handle pure (APC) *)
     rewrite /MutMainI.mainF /MutMainA.main_body /pure.
-    cForceS 11. cStepsS. simpl_sp.
+    cForceS 11. cStepsS. cSimpl.
     cForcesS. iSplitR; eauto.
     
     (* SRC: inlining APC *)
@@ -87,7 +87,7 @@ Module MutMainIA. Section MutMainIA.
       cStepsS. cForcesT.
       iDestruct "IST" as "%"; des; cSimpl. cStepsT.
       rewrite /MutMainA.main_body /pure /SModTr.trans_fnsem /SModTr.HoareFun. cStepsT.
-      simpl_sp. cStepsT. cInlineT. cForcesT.
+      cSimpl. cStepsT. cInlineT. cForcesT.
       iDestruct "GRT" as "(% & %)". subst. cSimpl. iSplitR; et.
       cStepsT. cForcesT. iSplitR; et.
       cStepsT. cStepsS. cStep. rewrite /ist_with_eq /IstProd. iSplit; eauto.

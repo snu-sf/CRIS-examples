@@ -38,7 +38,7 @@ Module MutFIA. Section MutFIA.
     destruct _q; s.
     { (* f(0) *)
       rewrite /pure_body /cfunN.
-      cStepsT. cStepsS. simpl_sp.
+      cStepsT. cStepsS. cSimpl.
       cForcesS. iSplitR; et. cStepsS. 
 
       (* SRC: inlining APC *)
@@ -55,7 +55,7 @@ Module MutFIA. Section MutFIA.
 
     (* f(S n) *)
     replace (S _q - 1)%Z with (Z.of_nat _q) by nia.
-    rewrite /pure_body /cfunN. cStepsS. simpl_sp.
+    rewrite /pure_body /cfunN. cStepsS. cSimpl.
     cForceS vo. cStepsS. cForcesS. iSplitR; eauto.
 
     (* SRC: inlining APC in order to cCall mutg *)

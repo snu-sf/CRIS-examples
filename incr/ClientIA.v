@@ -27,7 +27,7 @@ Module ClientIA. Section ClientIA.
         existT 0 ((⌜vret = ret ∧ vret = tt↑↑⌝ ∗ counter_syn γ (1/2) (v + 2))%SAT)).
   Proof using Hclient.
     iExists _; iSplitL.
-    { simpl_sp. eauto. }
+    { cSimpl. }
     iApply SchA.fspec_sch_spawnable; first done.
     iIntros "%P1 %Q1 [% [-> ->]]"; iExists _, _; iSplit; first (iPureIntro).
     { exists (bofs, v, γ); split; ss. }
@@ -102,7 +102,7 @@ Module ClientIA. Section ClientIA.
     { rewrite -Qp.half_half -{2}(Z.add_0_r 0%Z). iApply "F". }
 
     (* src/tgt spawns *)
-    rewrite /Sch.spawn; cStepsT; cStepsS. simpl_sp.
+    rewrite /Sch.spawn; cStepsT; cStepsS. cSimpl.
     cForceS (_, _); cForcesS; iSplitL "F1".
     { iExists _, _, _; iSplit; eauto.
       iSplitR; first iApply f_spawnable.
@@ -113,7 +113,7 @@ Module ClientIA. Section ClientIA.
     sYieldIR "IST" "TID".
     sYieldS.
 
-    rewrite /Sch.spawn; cStepsT; cStepsS. simpl_sp.
+    rewrite /Sch.spawn; cStepsT; cStepsS. cSimpl.
     cForceS (_, _); cForcesS; iSplitL "F2".
     { iExists _, _, _; iSplit; eauto.
       iSplitR; first iApply f_spawnable.
@@ -124,7 +124,7 @@ Module ClientIA. Section ClientIA.
     sYieldIR "IST" "TID".
     sYieldS.
 
-    rewrite /Sch.join; cStepsT; cStepsS. simpl_sp.
+    rewrite /Sch.join; cStepsT; cStepsS. cSimpl.
     cForceS (_, _, _); cForcesS. iFrame "TID Handle"; iSplit; [eauto|]. cStepsS.
     cCall "IST" as (ret ??) "IST".
     cStepsS. iDestruct "ASM" as "[TID [% [% [[-> ->] ASM]]]]".
@@ -133,7 +133,7 @@ Module ClientIA. Section ClientIA.
     sYieldIR "IST" "TID".
     sYieldS.
 
-    rewrite /Sch.join; cStepsT; cStepsS. simpl_sp.
+    rewrite /Sch.join; cStepsT; cStepsS. cSimpl.
     cForceS (_, _, _); cForcesS. iFrame "TID Handle2"; iSplit; [eauto|]. cStepsS.
     cCall "IST" as (ret ??) "IST".
     cStepsS. iDestruct "ASM" as "[TID [% [% [[-> ->] ASM]]]]".

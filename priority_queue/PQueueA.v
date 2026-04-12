@@ -322,7 +322,7 @@ Module PQueueIA. Section PQueueIA.
 
     cInlineT. rewrite /StackA.pop. cStepsT. sYieldS. cStepsS.
     iApply (atomic_update_sem_both with "IST TID []");
-      [ simpl_map; simpl_sp; ss | simpl_map; simpl_sp; ss
+      [ simpl_map; cSimpl; ss | simpl_map; cSimpl; ss
       | ss | ss | try solve_ndisj | .. ].
     { eauto. }
     iExists (S n). iAuIntro. iInv "queue_inv" as "[◯ inv]".

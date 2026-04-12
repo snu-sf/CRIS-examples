@@ -104,7 +104,7 @@ Module HWQMA. Section HWQMA.
       aStepS; iIntros (???) "??"; aForceT with "[$]"; iExists _; iSplit; first eauto.
       appendRetS.
       iApply (atomic_update_sem_both2);
-        [ simpl_map; simpl_sp; ss | simpl_map; simpl_sp; ss
+        [ simpl_map; cSimpl; ss | simpl_map; cSimpl; ss
         | ss | ss | try (solve_ndisj || set_solver) | try (solve_ndisj || set_solver) | | ].
       { eauto. }
       iExists _; iAuIntro; iAaccIntro "% $ !>" with ""; iSplit.

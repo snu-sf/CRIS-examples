@@ -112,9 +112,9 @@ Module MainIA. Section MainIA.
     iDestruct "W" as "[W1 W2]".
 
     (* spawn thread 1 - incr *)
-    cStepsS. simpl_sp. cForceS (_,_). cForcesS. iSplitL "W1".
+    cStepsS. cSimpl. cForceS (_,_). cForcesS. iSplitL "W1".
     { iExists _, _, _. iSplit; et. iSplitR.
-      - iExists _; iSplit; [iPureIntro; simpl_sp|]; ss. iApply incr_spawnable.
+      - iExists _; iSplit; [iPureIntro; cSimpl|]; ss. iApply incr_spawnable.
       - iFrame "W1"; eauto. repeat iSplit; eauto. iExists _; iFrame "Lock"; auto.
     }
     cCall "IST" as (ret st_src st_tgt) "IST".
@@ -123,9 +123,9 @@ Module MainIA. Section MainIA.
     sYieldIR "IST" "TID". sYieldS.
 
     (* spawn thread 2 - incr *)
-    cStepsS. simpl_sp. cForceS (_,_). cForcesS. iSplitL "W2".
+    cStepsS. cSimpl. cForceS (_,_). cForcesS. iSplitL "W2".
     { iExists _, _, _. iSplit; et. iSplitR.
-      - iExists _; iSplit; [iPureIntro; simpl_sp|]; ss. iApply incr_spawnable.
+      - iExists _; iSplit; [iPureIntro; cSimpl|]; ss. iApply incr_spawnable.
       - iFrame "W2"; eauto. repeat iSplit; eauto. iExists _; iFrame "Lock"; auto.
     }
     cCall "IST" as (ret st_src st_tgt) "IST".
@@ -134,12 +134,12 @@ Module MainIA. Section MainIA.
     sYieldIR "IST" "TID". sYieldS.
 
     (* join thread 1 - incr *)
-    cStepsS. simpl_sp. cForceS (_,_,_). cForcesS. iSplitL "TKN1 TID".
+    cStepsS. cSimpl. cForceS (_,_,_). cForcesS. iSplitL "TKN1 TID".
     { iFrame. eauto. }
     cStepsT. cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[TID [% [% [[-> ->] W1]]]]". solve_base_sl_red.
     cStepsS; cStepsT.
-    sYieldIR "IST" "TID". sYieldS. cStepsT. cStepsS. simpl_sp.
+    sYieldIR "IST" "TID". sYieldS. cStepsT. cStepsS. cSimpl.
 
     (* join thread 2 - incr *)
     cForceS (stid, mtid, _). cForcesS. iSplitL "TID TKN2".

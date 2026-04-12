@@ -40,7 +40,7 @@ Module KnotMainIA. Section KnotMainIA.
     unfold assume. unshelve cForceT; eauto. cStepsT.
     des_ifs.
     { (* base case *)
-      rewrite /APC.pure_body. cStepsS. simpl_sp. cForcesS. iSplitR; et. cStepsS.
+      rewrite /APC.pure_body. cStepsS. cSimpl. cForcesS. iSplitR; et. cStepsS.
       cInlineS. cStepsS.
       iDestruct "ASM" as "[-> <-]". cStepsS.
       unfold APC. cForceS 0. cStepsS.
@@ -53,7 +53,7 @@ Module KnotMainIA. Section KnotMainIA.
       rewrite Hn. cStep. iSplit; et.
     }
     { (* recursive cCall *)
-      cStepsT. rewrite /pure_body. cStepsS. simpl_sp. cForcesS. iSplitR; et. cStepsS.
+      cStepsT. rewrite /pure_body. cStepsS. cSimpl. cForcesS. iSplitR; et. cStepsS.
       cInlineS. cStepsS.
       iDestruct "ASM" as "[-> <-]". cStepsS. unfold APC.
       cForceS 2. cStepsS.
@@ -128,7 +128,7 @@ Module KnotMainIA. Section KnotMainIA.
     { (* prove the precondition of "fib" *)
       iFrame. iSplit; et. iPureIntro. eexists. esplits; et. econs; esplits; et.
       econs.
-      { simpl_sp; ss. }
+      { cSimpl; ss. }
       iIntros (P Q) "[% [-> ->]]"; iExists _, _; iSplit.
       { iPureIntro; exists (x, knot_frag (Some Fib)); split; ss. }
       iIntros (? ?) "[[% $] %] !>"; iSplit; eauto; iPureIntro; des; subst; esplits; eauto.
@@ -151,7 +151,7 @@ Module KnotMainIA. Section KnotMainIA.
     
     (* SRC: handle pure (APC) *)
     unfold pure. cStepsS.
-    cForceS 30%ord. cStepsS. simpl_sp. cForceS.
+    cForceS 30%ord. cStepsS. cSimpl. cForceS.
     cForcesS. iSplitR; et. cStepsS.
 
     (* SRC: inlining APC *)
@@ -207,11 +207,11 @@ Module KnotMainIA. Section KnotMainIA.
     cStartModSim.
     { cStartFunSim. rewrite /pure_body.
       cStepsS. case_match. iDestruct "ASM" as "[[% PRE] %]"; des; cSimpl.
-      rewrite /pure_body. cStepsS. simpl_sp. cForcesS.
+      rewrite /pure_body. cStepsS. cSimpl. cForcesS.
       iSplitR; eauto. cStepsS. cForceT (n, u).
       cForcesT. iSplitL "PRE".
       { iFrame; iPureIntro; esplits; eauto. }
-      cStepsT. simpl_sp. cStepsT. iDestruct "GRT" as "%"; des; cSimpl.
+      cStepsT. cSimpl. cStepsT. iDestruct "GRT" as "%"; des; cSimpl.
       cCall "IST" as (???) "IST".
       cStepsS. cStepsT. cForcesT. iSplitL "ASM"; eauto.
       cStepsT. iDestruct "GRT" as "[% POST]". cForcesS.
@@ -221,7 +221,7 @@ Module KnotMainIA. Section KnotMainIA.
     { cStartFunSim. rewrite /main_body.
       cStepsS. iDestruct "ASM" as "[% [% ?]]"; des; cSimpl.
       cStepsS. cForcesT. iFrame. iSplit; eauto. cStepsT.
-      rewrite /pure. cStepsT. simpl_sp. cStepsT. cInlineT. cForcesT. iSplit; eauto. cStepsT.
+      rewrite /pure. cStepsT. cSimpl. cStepsT. cInlineT. cForcesT. iSplit; eauto. cStepsT.
       iDestruct "GRT" as "(% & %)". cSimpl. cForcesT. iSplitR; et.
       cStepsT. cForcesS. iSplit; eauto. cStep.
       iSplit; eauto.

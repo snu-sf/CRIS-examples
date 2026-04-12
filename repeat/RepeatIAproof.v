@@ -42,7 +42,7 @@ Module RepeatIA. Section RepeatIA.
     cStepsS.
 
     (* SRC: find apc in sp *)
-    simpl_sp.
+    cSimpl.
 
     (* TGT: handle input *)
     cStepsT. unfold assume. cForceT. cStepsT.

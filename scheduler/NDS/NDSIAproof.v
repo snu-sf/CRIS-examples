@@ -107,8 +107,7 @@ Module NDSIA. Section sim.
       iExFalso. iApply (PendingShot_false with "[P S]"); iFrame. }
 
     iDestruct "IST_init" as "(% & P' & Pub)"; des; subst; cSimpl.
-    cStepsS. cStepsT. simpl_sp.
-    rewrite ConcInSp.
+    cStepsS. cStepsT. cSimpl.
     
     cForceS ((fn, tt↑↑)↑).
     cStepsS. cSpawn as (stid_new).
@@ -154,7 +153,7 @@ Module NDSIA. Section sim.
 
     cBind (λ _ _, False%I) as (????) "F"; ss.
 
-    clear H1. iClear "Rs". iApply wsim_reset.
+    clear H1. iApply wsim_reset.
     cCoind CIH g Hg with x st_s' st_t'.
     iIntros "(PYIP & S & PubF & IST & T & Y & WI)"; subst.
     unfoldIterCS. unfoldIterCT.
@@ -271,7 +270,7 @@ Module NDSIA. Section sim.
         case_decide; clarify; by iPoseProof (YieldToken_both with "YIELD YIELD2") as "%". }
       rewrite !list_lookup_fmap H in Hmtid0. inv Hmtid0.
 
-      iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)". simpl_sp.
+      iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)". cSimpl.
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (mtid, stid, ssch); split; done. }
 
@@ -382,7 +381,7 @@ Module NDSIA. Section sim.
       unfoldIterCS. unfoldIterCT.
 
       iApply wsim_unfold; iIntros "W".
-      cStepsS. simpl_sp.
+      cStepsS. cSimpl.
       cForceS (mtid, stid, ssch0). cForceS (tt↑). cStepsS.
       iApply wsim_guarantee_src; iFrame "W TidF TID YIELD C PubA S". iSplit; eauto.
 
@@ -433,7 +432,7 @@ Module NDSIA. Section sim.
       rewrite !list_lookup_fmap H in Hmtid0. inv Hmtid0.
       iCombine "tidF TidF" as "TidF". rewrite agree_idemp.
 
-      iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)". simpl_sp.
+      iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)". cSimpl.
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (0, stid, ssch); split; done. }
 
@@ -539,7 +538,7 @@ Module NDSIA. Section sim.
       unfoldIterCS. unfoldIterCT.
 
       iApply wsim_unfold; iIntros "W".
-      cStepsS. simpl_sp.
+      cStepsS. cSimpl.
       cForceS (0, stid, ssch0). cForceS (tt↑). cStepsS.
       iApply wsim_guarantee_src; iFrame "W TidF TID YIELD C PubA S". iSplit; eauto.
 
@@ -581,10 +580,9 @@ Module NDSIA. Section sim.
       case_decide; clarify; by iPoseProof (YieldToken_both with "Y YIELD2") as "%". }
     rewrite !list_lookup_fmap H in Hmtid0. inv Hmtid0.
 
-    cStepsS. cStepsT. simpl_sp.
+    cStepsS. cStepsT. cSimpl.
 
     (* System spawn precondition *)
-    rewrite ConcInSp.
     cForceS ((fn, farg)↑). cStepsS.
     cStepsT. cSpawn as (tid_new). cStepsS. cForceS (true, user_pre, user_post). cStepsS.
     cStepsT. rewrite ?length_fmap /=. set (mtid_new := length ths).
@@ -935,7 +933,7 @@ Module NDSIA. Section sim.
       cStep. iSplit; eauto.
       iFrame. do 3 iExists _. iSplit; eauto. do 2 iRight. iLeft. iFrame. eauto.
     }
-    { cStepsS. cStepsT. simpl_sp.
+    { cStepsS. cStepsT. cSimpl.
       cForceS (mtid, stid, ssch0). cStepsS. cForceS. cForceS. iFrame "Tid T Y S C PubF". iSplit; eauto.
       cStepsS. cCall "JoinA TidA Rs Ys Ysch S' PubA" as (???) "IST".
       { do 4 iExists _. iFrame. iSplit; eauto. do 2 iRight. iLeft. iFrame; eauto. }

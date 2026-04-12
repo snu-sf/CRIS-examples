@@ -20,7 +20,7 @@ Module CannonMainIA. Section CannonMainIA.
     cStartFunSim.
 
     (* SRC: precondition *)
-    cStepsS. iDestruct "ASM" as "[-> B]". destruct Any.downcast; cStepsS; ss. simpl_sp.
+    cStepsS. iDestruct "ASM" as "[-> B]". destruct Any.downcast; cStepsS; ss. cSimpl.
 
     (* SRC: prove the precondition of "fire" *)
     cStepsT. cForceS (). cForcesS. iFrame; iSplit; eauto.

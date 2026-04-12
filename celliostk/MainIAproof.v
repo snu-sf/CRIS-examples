@@ -43,7 +43,7 @@ Module MainIA. Section MainIA.
       generalize ([]: list Z) as ls, Vnullptr as stk. i.
       iStopProof. revert ls stk st_src st_tgt. induction n; i; iIntros "[IST PT]".
       { rewrite !unfold_iter_eq. cStepsS. cStepsT. cStep. et. }
-      rewrite !unfold_iter_eq. cStepsT. cStepsS. rewrite sp_cb.
+      rewrite !unfold_iter_eq. cStepsT. cStepsS. cSimpl.
 
       cInlineT. cStepsT. cForceT ls. cStepsT. cForceT. iSplitL "PT"; et. cStepsT.
       cCall "IST" as (ret ? ?) "IST".
@@ -53,7 +53,7 @@ Module MainIA. Section MainIA.
       rewrite -IHn. iFrame. et.
     }
 
-    cStepsT. cStepsS. rewrite sp_foo. cCall "IST" as (? ? ?) "IST". cStepsS. cStepsT.
+    cStepsT. cStepsS. cSimpl. cCall "IST" as (? ? ?) "IST". cStepsS. cStepsT.
     iStopProof. clear_st. revert r_t st_s' st_t'. induction r_s; i; iIntros "[PT IST]".
     { rewrite !unfold_iter_eq. cStepsS. cStepsT. cInlineT. cStepsT.
       cForceT []. cStepsT. cForceT. iFrame. cStepsT. cStep. iFrame. et. }

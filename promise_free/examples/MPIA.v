@@ -19,7 +19,7 @@ Module MPIA. Section MPIA.
 
   Lemma mp2_spawnable : ⊢ SystemA.fspec_spawnable sp_user MPHdr.mp2 MPA.mp2_precondition.
   Proof.
-    iExists MPA.mp2_spec; iSplit; [iPureIntro; by simpl_sp|].
+    iExists MPA.mp2_spec; iSplit; [iPureIntro; by cSimpl|].
     iIntros "%P %Q [%x [-> ->]]"; iExists _, _; iSplit; [iPureIntro; exists x; split; ss|].
     unfoldPrePost. destruct x.
     iIntros (varg arg) "[$ [% [-> [% [$ [% [% $]]]]]]] /= !>"; iSplitL; eauto.
@@ -31,7 +31,7 @@ Module MPIA. Section MPIA.
     cStepsS. iDestruct "ASM" as "[-> TV]". rewrite /MPA.mp /MPI.mp; cStepsS; cStepsT.
 
     iApply wsim_system_yield_ir; ss.
-    { simpl_sp; auto. }
+    { cSimpl; auto. }
     iFrame "TV IST".
     iIntros (??) "IST TV".
 
@@ -43,14 +43,14 @@ Module MPIA. Section MPIA.
 
     (* yield *)
     iApply wsim_system_yield_ir; ss.
-    { simpl_sp; auto. }
+    { cSimpl; auto. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
     iIntros (??) "IST TV". cStepsT.
 
     (* yield *)
     iApply wsim_system_yield_ir; ss.
-    { simpl_sp; auto. }
+    { cSimpl; auto. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
     iIntros (??) "IST TV". cStepsT.
@@ -68,7 +68,7 @@ Module MPIA. Section MPIA.
 
     (* yield *)
     iApply wsim_system_yield_ir; ss.
-    { simpl_sp; auto. }
+    { cSimpl; auto. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
     iIntros (??) "IST TV".
@@ -84,7 +84,7 @@ Module MPIA. Section MPIA.
 
     (* yield *)
     iApply wsim_system_yield_ir; ss.
-    { simpl_sp; auto. }
+    { cSimpl; auto. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
     iIntros (??) "IST TV".
@@ -103,7 +103,7 @@ Module MPIA. Section MPIA.
 
     (* source yield *)
     iApply wsim_system_yield_src.
-    cForceS (Val.Vptr loc). cStepsS. simpl_sp.
+    cForceS (Val.Vptr loc). cStepsS. cSimpl.
 
     (* spawn *)
     cForceS (1%positive, 0, MPA.mp2_precondition, V3). cForcesS.
@@ -124,7 +124,7 @@ Module MPIA. Section MPIA.
 
     (* yield *)
     cStepsT.
-    iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
+    iApply wsim_system_yield_ir; ss. { cSimpl; auto. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
     iIntros (??) "IST TV".
@@ -150,7 +150,7 @@ Module MPIA. Section MPIA.
         solve_base_sl_red.
       }
 
-      iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
+      iApply wsim_system_yield_ir; ss. { cSimpl; auto. }
       iFrame "TV IST".
       clear dependent st_src st_tgt.
       iIntros (??) "IST TV".
@@ -162,7 +162,7 @@ Module MPIA. Section MPIA.
       apply Z.eqb_eq in H; subst.
       cStepsT.
 
-      iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
+      iApply wsim_system_yield_ir; ss. { cSimpl; auto. }
       iFrame "TV IST".
       clear dependent st_src st_tgt.
       iIntros (??) "IST TV".
@@ -201,21 +201,21 @@ Module MPIA. Section MPIA.
         }
 
         (* yield *)
-        iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
+        iApply wsim_system_yield_ir; ss. { cSimpl; auto. }
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
         cStepsT.
 
         (* yield *)
-        iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
+        iApply wsim_system_yield_ir; ss. { cSimpl; auto. }
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
         cStepsT.
 
         (* yield *)
-        iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
+        iApply wsim_system_yield_ir; ss. { cSimpl; auto. }
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
@@ -232,7 +232,7 @@ Module MPIA. Section MPIA.
         cStepsT. iDestruct "GRT" as "[-> [% [% [[-> %Hval'] [↦data TV]]]]]".
 
         cStepsT.
-        iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
+        iApply wsim_system_yield_ir; ss. { cSimpl; auto. }
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
@@ -260,14 +260,14 @@ Module MPIA. Section MPIA.
         }
 
         (* yield *)
-        iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
+        iApply wsim_system_yield_ir; ss. { cSimpl; auto. }
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
         cStepsT.
 
         (* yield *)
-        iApply wsim_system_yield_ir; ss. { simpl_sp; auto. }
+        iApply wsim_system_yield_ir; ss. { cSimpl; auto. }
         iFrame "TV IST".
         clear dependent st_src st_tgt.
         iIntros (??) "IST TV".
@@ -294,14 +294,14 @@ Module MPIA. Section MPIA.
     rewrite /MPI.mp2.
 
     (* yield *)
-    iApply wsim_system_yield_ir; ss. { simpl_sp; ss. }
+    iApply wsim_system_yield_ir; ss. { cSimpl; ss. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
     iIntros (??) "IST TV".
     cStepsT.
 
     (* yield *)
-    iApply wsim_system_yield_ir; ss. { simpl_sp; ss. }
+    iApply wsim_system_yield_ir; ss. { cSimpl; ss. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
     iIntros (??) "IST TV".
@@ -317,7 +317,7 @@ Module MPIA. Section MPIA.
     cStepsT.
 
     (* yield *)
-    iApply wsim_system_yield_ir; ss. { simpl_sp; ss. }
+    iApply wsim_system_yield_ir; ss. { cSimpl; ss. }
     iFrame "TV IST".
     clear dependent st_src st_tgt.
     iIntros (??) "IST TV".
@@ -360,7 +360,7 @@ Module MPIA. Section MPIA.
       apply View.join_l.
     }
 
-    iApply wsim_system_yield_ir; ss. { simpl_sp; ss. }
+    iApply wsim_system_yield_ir; ss. { cSimpl; ss. }
     iFrame "tv IST". clear dependent st_src st_tgt; iIntros (st_src st_tgt) "IST TID".
     cStepsT.
 

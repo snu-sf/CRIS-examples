@@ -193,7 +193,7 @@ Ltac rrsYieldRR IST :=
 
 Ltac rrsYieldIR H1 H2 :=
   let H2' := eval compute in (H1 ++ " " ++ H2)%string in
-  cNormS; cNormT; iApply (wsim_yield_tgt_ir); [simpl_sp; ss|simpl_sp; ss|ss|ss|iFrame H2'];
+  cNormS; cNormT; iApply (wsim_yield_tgt_ir); [cSimpl; ss|cSimpl; ss|ss|ss|iFrame H2'];
   clear_st; iIntros (??) H2'; cShowT; cNormT; cHideT.
 
 Ltac rrsYieldS :=

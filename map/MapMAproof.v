@@ -127,10 +127,10 @@ Module MapMA. Section MapMA.
     cStepsT. cStep.
 
     (* TGT: handle the precond of set *)
-    cStepsT. simpl_sp. cStepsT. destruct _q as [? ?]; iDestruct "GRT" as "%". des; cSimpl.
+    cStepsT. cSimpl. cStepsT. destruct _q as [? ?]; iDestruct "GRT" as "%". des; cSimpl.
     
     (* SRC: prove the precond of set *)
-    cStepsS. simpl_sp. cForceS (_,_,_). cForceS. cForceS.
+    cStepsS. cSimpl. cForceS (_,_,_). cForceS. cForceS.
     iSplitL "MAP". { iFrame. eauto. }
 
     (* make a cCall to set *)

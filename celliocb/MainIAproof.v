@@ -26,7 +26,7 @@ Module MainIA. Section MainIA.
     cStartFunSim. unfold MainA.main, MainI.main.
     
     (* Take cell(0) *)
-    cStepsS.
+    cStepsS. cSimpl.
     iDestruct "ASM" as "[-> ASM]".
 
     (* Give cell(0) *)
@@ -34,8 +34,8 @@ Module MainIA. Section MainIA.
     
     (* sync callback *)
     cStepsT. cInlineT. cStepsT.
-    rewrite sp_cb. cInlineS. cStepsS. unfold MainA.input_cb.
-    cStep. cStep. cStepsS. cStepsT. 
+    cInlineS. cStepsS. unfold MainA.input_cb.
+    cStep. cStep. cStepsS. cStepsT. cSimpl.
      
     (* sync foo *)
     des_ifs. cCall "IST" as (???) "IST".

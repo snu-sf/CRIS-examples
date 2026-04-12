@@ -92,8 +92,7 @@ Module RRSIA. Section RRSIA.
     iDestruct "IST_init" as "(% & RRIA & PubA)"; subst.
     rewrite map_size_empty in INVWF. destruct ths; ss.
 
-    cStepsT. cStepsS. simpl_sp.
-    rewrite ConcInSp.
+    cStepsT. cStepsS. cSimpl.
     cForceS. cStepsS.
     cSpawn as (stid_0).
 
@@ -247,7 +246,7 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = mtid)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
         case_decide; clarify; by iPoseProof (YieldToken_both with "Y YIELD2") as "%". }
-      rewrite STID in Hmtid0. inv Hmtid0. simpl_sp.
+      rewrite STID in Hmtid0. inv Hmtid0. cSimpl.
 
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (mtid, stid, ssch); split; done. }
@@ -319,7 +318,7 @@ Module RRSIA. Section RRSIA.
       iPoseProof (rrinv_wf with "RRI") as "%WF".
       iPoseProof (rrinv_match with "[RRIA RRI]") as "%"; first iFrame. subst.
       iPoseProof (rrinv_prev_gen with "RRI") as "[RRI RRIP]".
-      iCombine "TidF TidF'" as "TidF". rewrite agree_idemp. simpl_sp.
+      iCombine "TidF TidF'" as "TidF". rewrite agree_idemp. cSimpl.
 
       iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
       { iPureIntro; exists (0, stid, ssch); split; done. }
@@ -421,7 +420,7 @@ Module RRSIA. Section RRSIA.
 
     iMod (Public_alloc with "PubA") as "[PubA PubF']"; eauto.
 
-    cStepsT. cStepsS. cShowS. simpl_sp.
+    cStepsT. cStepsS. cShowS. cSimpl.
 
     cForceS (true, mtid_new, pre). cStepsS.
     cForcesS. iSplitL "PRE RRIP TidF' PubF' Spawn"; first iFrame.

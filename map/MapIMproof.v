@@ -233,7 +233,7 @@ Module MapIM. Section MapIM.
     cStepsT. cStep.
     
     (* SRC: prove the precond of set *)
-    cStepsS. simpl_sp. cForceS (_,_); s. cForceS. cForceS. iSplit; first eauto.
+    cStepsS. cSimpl. cForceS (_,_); s. cForceS. cForceS. iSplit; first eauto.
 
     (* make a cCall to set *)
     cStepsT. cCall "IST" as (ret2 st_src st_tgt) "IST".

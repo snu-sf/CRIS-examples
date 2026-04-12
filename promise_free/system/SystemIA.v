@@ -36,7 +36,7 @@ Module SystemIA. Section SystemIA.
       "[%stid [%tid [%𝓥 [%pre [%fvarg [%farg [%fn [[-> ->] [W [[%fsp [% Spawn]] [TV PRE]]]]]]]]]]]".
     iDestruct "IST" as (????) "[[-> ->] [[% IST] ->]]".
     iDestruct "IST" as "[%tid_cur [%tids [[-> ->] [TA TVS]]]]".
-    cStepsS. simpl_sp.
+    cStepsS. cSimpl.
     iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
     { iPureIntro; exists (tid, stid); split; done. }
     iPoseProof ("Hspawn" with "[W PRE TV]") as "> [Pre Post]".
@@ -54,7 +54,7 @@ Module SystemIA. Section SystemIA.
     cCoind CIH g' __ with st_src st_tgt. iIntros "[IST [W TV]]".
     iPoseProof (winv_split_empty with "W") as "[W We]".
 
-    unfoldIterCS. cStepsS. simpl_sp.
+    unfoldIterCS. cStepsS. cSimpl.
     iDestruct "TV" as "[%V TV]".
     cForceS (tid, stid, V). cStepsS. cForceS (tt↑). cStepsS.
     iApply wsim_fold; iFrame "W".
@@ -106,7 +106,7 @@ Module SystemIA. Section SystemIA.
 
     unshelve (cForceS (exist _ tid_new _)).
     { ss; rewrite lookup_fmap Hnew //. }
-    cStepsS. simpl_sp. rewrite ConcInGlobal. cForcesS. cStepsS.
+    cStepsS. cSimpl. cForcesS. cStepsS.
     cSpawn as (nths). cStepsS. cForceS. cStepsS. cStepsT.
 
     iMod (own_update with "TA") as "TA".
