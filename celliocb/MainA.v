@@ -22,13 +22,13 @@ Module MainA. Section MainA.
 
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
-      'i: Z <- ccallU MainHdr.input_cb_t MainHdr.input_cb tt;;
-      ccallU CtxHdr.foo_t CtxHdr.foo tt;;;
+      'i: Z <- ccallU MainHdr.input_cb tt;;
+      ccallU CtxHdr.foo tt;;;
       trigger (@IO _ unit "Print" i);;;
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=
-    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, cfunU MainHdr.input_cb_t input_cb));  
+    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, cfunU MainHdr.input_cb input_cb));  
       entry # ((msk_scp scopes msk_true), (fsp_some main_spec, main))]}.
 
   Program Definition smod : SMod.t := {|

@@ -12,8 +12,8 @@ Module SCHMainI. Section SCHMainI.
   Definition main : Any.t → itree crisE Any.t :=
     λ _,
       (** Initializing nodes **)
-      trigger (Call SchHdr.spawn (RRSHdr.init, RRSNodeHdr.f_main↑↑)↑);;;
-      trigger (Call SchHdr.spawn (NDSHdr.init, NDSNodeHdr.f_main↑↑)↑);;;
+      ccallU SchHdr.spawn (RRSHdr.init.1, RRSNodeHdr.f_main.1↑↑);;;
+      ccallU SchHdr.spawn (NDSHdr.init.1, NDSNodeHdr.f_main.1↑↑);;;
       (** Starting nodes **)
       𝒴;;;
       Ret tt↑.
@@ -31,4 +31,3 @@ Module SCHMainI. Section SCHMainI.
 
   Definition t := SMod.to_mod ∅ smod.
 End SCHMainI. End SCHMainI.
-

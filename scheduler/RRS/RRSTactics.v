@@ -28,7 +28,7 @@ Section wsim.
       (k_s : () → itree crisE R_s) (k_t : () → itree crisE R_t)
       (msk_s msk_t : emask) (sp_s sp_t : specmap) :
     (∀ X, msk_t _ (subevent _ (Choose X))) →
-    (msk_t _ (subevent _ (Call RRSHdr.yield_global ()↑))) →
+    (msk_t _ (subevent _ (Call RRSHdr.yield_global.1 ()↑))) →
     sp_s.1 !! fid RRSHdr.yield_global = None →
     sp_t.1 !! fid RRSHdr.yield_global = None →
     Ist st_src st_tgt ∗
@@ -62,7 +62,7 @@ Section wsim.
     cStepsS. destruct (msk_s _); cStepS; ss.
     cStepsT. rewrite Hcall; cStepsT.
     cCall "IST" as (? st_s st_t) "IST".
-    cStepsT. cStepsS.
+    destruct Any.downcast; [|cStepsS; ss]. cStepsT. cStepsS.
     cByCoind CIH. iFrame.
   (*SLOW*)Qed.
 
@@ -76,7 +76,7 @@ Section wsim.
     sp_s.1 !! fid RRSHdr.yield_global = fsp_some (RRSAS.yield_global_spec Es) →
     sp_t.1 !! fid RRSHdr.yield_global = None →
     (∀ X, msk_t _ (subevent _ (Choose X))) →
-    (msk_t _ (subevent _ (Call RRSHdr.yield_global ()↑))) →
+    (msk_t _ (subevent _ (Call RRSHdr.yield_global.1 ()↑))) →
     Ist st_src st_tgt ∗ RRSAS.Tid mtid stid ssch ∗
     (∀ st_src st_tgt,
       Ist st_src st_tgt -∗ RRSAS.Tid mtid stid ssch -∗
@@ -110,9 +110,9 @@ Section wsim.
     cStepsS. des_if; cStepS; ss. cForceS; iFrame; iSplit; eauto.
     cStepsS. des_if; cStepS; ss. cStepsT. rewrite Hcall; cStepsT.
     cCall "IST" as (? st_s st_t) "IST".
-    cStepsT.
-    cStepsS. des_if; cStepS; ss. cStepsS. des_if; cStepsS; ss.
-    cByCoind CIH. iFrame. iDestruct "ASM" as "(? & ? & $)".
+    cStepsT. des_if; cStepS; ss. des_if; cStepsS; ss.
+    iDestruct "ASM" as "(-> & -> & TID)". cStepsS. cStepsT.
+    cByCoind CIH. iFrame. 
   (*SLOW*)Qed.
 
   Lemma wsim_yield_tgt_ii
@@ -163,9 +163,8 @@ Section wsim.
     cForceS. iFrame; iSplit; eauto.
     cStepsS. des_if; cStepS; ss.
     cCall "IST" as (? st_s st_t) "IST".
-    cStepsT.
-    cStepsS. des_if; cStepS; ss. cStepsS. des_if; cStepsS; ss.
-    rewrite Ht. cForceT _q. cStepsT. rewrite Ha. cForceT. iFrame. cStepsT.
+    rewrite Ht. do 2 (des_if; cStepS; ss). iDestruct "ASM" as "[-> [-> TID]]".
+    cStepsS. cForceT. rewrite Ha. cForceT. iFrame. iSplit; et. cStepsT.
     cByCoind CIH. iFrame.
   (*SLOW*)Qed.
 

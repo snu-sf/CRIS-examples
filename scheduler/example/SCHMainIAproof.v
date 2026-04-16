@@ -42,12 +42,12 @@ Module SCHMainIA. Section SCHMainIA.
     cSimpl.
 
     rewrite /SchA.spawn_spec.
-    set (pre := (λ svarg sarg, ⌜svarg = RRSNodeHdr.f_main↑↑ ∧ svarg = sarg⌝ ∗ RRSAS.InitRRS ∗ RRSNodeAS.full_val (Vint 0))%I).
+    set (pre := (λ svarg sarg, ⌜svarg = RRSNodeHdr.f_main.1↑↑ ∧ svarg = sarg⌝ ∗ RRSAS.InitRRS ∗ RRSNodeAS.full_val (Vint 0))%I).
     set (postS := (λ (svret sret : SAny.t), existT 0 (⌜False⌝)%SAT)%I).
     cForceS (pre, postS). subst pre postS.
     cStepsS. cForcesS. iSplitL "RI RV".
     { do 3 iExists _. iSplit; eauto. iFrame. rewrite /SchA.fn_spawnable. iSplit; eauto. iExists _. iSplit; eauto.
-      { iPureIntro. cSimpl. }
+      { iPureIntro. cSimpl. et. }
       rewrite /SchA.fspec_spawnable. iIntros (??) "%".
       destruct H as [x [Hpre Hpost]]; ss. rewrite /precond /= /precond in Hpre. rewrite /postcond /= /postcond in Hpost.
       destruct x as [[stid mtid] []].
@@ -89,8 +89,8 @@ Module SCHMainIA. Section SCHMainIA.
     iDestruct "ASM" as "(% & % & Join)"; des; subst; cSimpl. cSimpl.
     cStepsT. cStepsS.
 
-    rewrite /SchA.spawn_spec.
-    set (pre := (λ svarg sarg, ⌜svarg = NDSNodeHdr.f_main↑↑ ∧ svarg = sarg⌝ ∗ NDSA.InitNDS)%I).
+    cSimpl.
+    set (pre := (λ svarg sarg, ⌜svarg = NDSNodeHdr.f_main.1↑↑ ∧ svarg = sarg⌝ ∗ NDSA.InitNDS)%I).
     set (postS := (λ svret sret, existT 0 (⌜svret = tt↑↑ ∧ svret = sret⌝)%SAT)%I).
     cForceS (pre, postS). subst pre postS.
     cStepsS. cForcesS. iSplitL "NI Join".

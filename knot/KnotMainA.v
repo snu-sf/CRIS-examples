@@ -39,7 +39,6 @@ Module KnotMainA. Section KnotMainA.
        (λ vret, emp)))%I.
 
   Definition main_fun_sp : specmap :=  {[fid KnotMainHdr.fib @ fib_spec]}.
-  Definition main_sp : specmap := {[fid "fib" @ fib_spec]}.
 
   Definition scopes := ["KnotMain"].
 
@@ -50,7 +49,7 @@ Module KnotMainA. Section KnotMainA.
 
   Definition fnsems : fnsemmap :=
     {[fid KnotMainHdr.fib # (msk_scp scopes msk_true, (fsp_some fib_spec, pure_body));
-      entry # (msk_scp scopes msk_true, (fsp_some main_spec, cfunU (cftyp _ _) main_body))]}.
+      entry # (msk_scp scopes msk_true, (fsp_some main_spec, cfunU (fntyp _ _) main_body))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

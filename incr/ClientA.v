@@ -65,15 +65,15 @@ Module ClientA. Section ClientA.
   Definition main : Any.t → itree crisE Any.t :=
     λ _,
       𝒴;;; 'ptr_raw : val <- trigger (Choose val);;
-      𝒴;;; tid1 <- Sch.spawn (ClientHdr.thread, [ptr_raw]↑↑);;
-      𝒴;;; tid2 <- Sch.spawn (ClientHdr.thread, [ptr_raw]↑↑);;
+      𝒴;;; tid1 <- Sch.spawn (ClientHdr.thread.1, [ptr_raw]↑↑);;
+      𝒴;;; tid2 <- Sch.spawn (ClientHdr.thread.1, [ptr_raw]↑↑);;
       𝒴;;; Sch.join tid1;;;
       𝒴;;; Sch.join tid2;;;
       𝒴;;; trigger (IO (I:=val) "OUT" 4%Z);;;
       𝒴;;; Ret (tt↑).
 
   Definition fnsems (N : namespace) : fnsemmap :=
-    {[fid ClientHdr.thread # (msk_scp scopes msk_true, (fsp_some (incr_spec N), cfunN (cftyp _ _) (sfunN (_, _) incr)));
+    {[fid ClientHdr.thread # (msk_scp scopes msk_true, (fsp_some (incr_spec N), cfunN (fntyp _ _) (sfunN ClientHdr.thread incr)));
       entry # (msk_scp scopes msk_true, (fsp_some (fspec_sch (↑N) fspec_trivial), main))]}.
 
   Program Definition smod N : SMod.t := {|

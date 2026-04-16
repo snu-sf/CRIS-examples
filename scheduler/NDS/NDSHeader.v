@@ -3,13 +3,13 @@ Require Export SMod Mod.
 Require Import ImpPrelude.
 
 Module NDSHdr.
-  Definition init := "NDS.init".
-  Definition _spawn := "NDS._spawn".
-  Definition spawn := "NDS.spawn".
-  Definition yield := "NDS.yield".
-  Definition yield_global := "NDS.yield_global".
-  Definition join := "NDS.join".
-  Definition get_tid := "NDS.get_tid".
+  Definition init         := fnsig "NDS.init" (fntyp (SAny.t) ()).
+  Definition _spawn       := fnsig "NDS._spawn" (fntyp (string * SAny.t) ()).
+  Definition spawn        := fnsig "NDS.spawn" (fntyp (string * SAny.t) nat).
+  Definition yield        := fnsig "NDS.yield" (fntyp () ()).
+  Definition yield_global := fnsig "NDS.yield_global" (fntyp () ()).
+  Definition join         := fnsig "NDS.join" (fntyp (nat) (option SAny.t)).
+  Definition get_tid      := fnsig "NDS.get_tid" (fntyp () nat).
 End NDSHdr.
 
 Definition NDS : string := "NDS".
@@ -39,7 +39,7 @@ Module NDS. Section NDS.
   Context `{E : Type → Type, coreE -< E, callE -< E}.
 
   Definition spawn (fnarg : string * SAny.t) : itree E nat :=
-    'tid : nat <- ccallU (cftyp _ _) NDSHdr.spawn fnarg;; Ret tid.
+    'tid : nat <- ccallU NDSHdr.spawn fnarg;; Ret tid.
 
   Definition yield : itree E unit :=
     Seal.sealing NDS
@@ -49,7 +49,7 @@ Module NDS. Section NDS.
         | None => Ret (inr tt: () + ())
         | Some false => Ret (inl tt: () + ())
         | Some true => 
-            trigger (Call NDSHdr.yield tt↑);;;
+            ccallU NDSHdr.yield tt;;;
             Ret (inl tt: () + ())
         end)) tt).
 
@@ -61,19 +61,19 @@ Module NDS. Section NDS.
         | None => Ret (inr tt: () + ())
         | Some false => Ret (inl tt: () + ())
         | Some true => 
-            trigger (Call NDSHdr.yield_global tt↑);;;
+            ccallU NDSHdr.yield_global tt;;;
             Ret (inl tt: () + ())
         end)) tt).
 
   Definition terminate : itree E unit :=
     Seal.sealing NDS
       (iterC ((λ (_: unit),
-        trigger (Call NDSHdr.yield tt↑);;;
+        ccallU NDSHdr.yield tt;;;
         Ret (inl tt: () + ())
       )) tt).
 
   Definition join (tid : nat) : itree E SAny.t :=
-    'ors: option SAny.t <- ccallU (cftyp _ _) NDSHdr.join tid;;
+    'ors: option SAny.t <- ccallU NDSHdr.join tid;;
     rs <- ors?;;
     Ret rs.
 End NDS. End NDS.
@@ -87,7 +87,7 @@ Lemma yield_global_unfold `{E : Type → Type, coreE -< E, callE -< E} :
   match b with
   | None => Ret tt
   | Some false => NDS.yield_global
-  | Some true => trigger (Call NDSHdr.yield_global tt↑);;; NDS.yield_global
+  | Some true => ccallU NDSHdr.yield_global tt;;; NDS.yield_global
   end.
 Proof using.
   rewrite {1}/NDS.yield_global; unseal NDS; rewrite unfold_iterC.
@@ -103,7 +103,7 @@ Lemma yield_unfold `{E : Type → Type, coreE -< E, callE -< E} :
   match b with
   | None => Ret tt
   | Some false => NDS.yield
-  | Some true => trigger (Call NDSHdr.yield tt↑);;; NDS.yield
+  | Some true => ccallU NDSHdr.yield tt;;; NDS.yield
   end.
 Proof using.
   rewrite {1}/NDS.yield; unseal NDS; rewrite unfold_iterC.

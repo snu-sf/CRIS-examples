@@ -435,7 +435,7 @@ Module NDSA. Section NDSA.
     Definition fn_spawnable fn
         (pre : SAny.t -d> SAny.t -d> iProp Σ)
         (postS : SAny.t -d> SAny.t -d> leibnizO {n & GTerm.t n}) : iProp Σ :=
-      (∃ fsp, ⌜sp_user.1 !! (fid fn) = Some fsp⌝ ∗ fspec_spawnable fsp pre postS)%I.
+      (∃ fsp, ⌜sp_user.1 !! (funid fn) = Some fsp⌝ ∗ fspec_spawnable fsp pre postS)%I.
 
     Definition init_spec : fspec :=
       fspec_winv E
@@ -529,7 +529,7 @@ Module NDSA. Section NDSA.
       stid <- trigger GetTid;;
       cput v_sch stid;;;
       'ths: thpool <- cgetN v_ths;;
-      new_stid <- trigger (Spawn NDSHdr._spawn (fn, tt↑↑)↑);;
+      new_stid <- trigger (Spawn NDSHdr._spawn.1 (fn, tt↑↑)↑);;
       cput v_ths (ths ++ [(new_stid, None)]);;;
       cput v_tid (length ths);;;
       trigger (Yield new_stid);;;
@@ -546,7 +546,7 @@ Module NDSA. Section NDSA.
 
   Definition inner_spawn : string * SAny.t → itree crisE unit :=
     λ '(fn, arg),
-      'rv : SAny.t <- ccallN (cftyp _ _) fn arg;;
+      'rv : SAny.t <- ccallN (fnsig fn (fntyp SAny.t SAny.t)) arg;;
       'ths : thpool <- cgetN v_ths;;
       'tid : nat <- cgetN v_tid;;
       match ths !! tid with
@@ -560,7 +560,7 @@ Module NDSA. Section NDSA.
   Definition spawn : string * SAny.t → itree crisE nat :=
     λ '(fn, arg),
       'ths : thpool <- cgetN v_ths;;
-      new_stid <- trigger (Spawn NDSHdr._spawn (fn, arg)↑);;
+      new_stid <- trigger (Spawn NDSHdr._spawn.1 (fn, arg)↑);;
       cput v_ths (ths ++ [(new_stid, None)]);;;
       Ret (length ths).
 
@@ -592,7 +592,7 @@ Module NDSA. Section NDSA.
         match ths !! tid with
         | None => Ret (inr None)
         | Some (_, Some rv) => Ret (inr (Some rv))
-        | Some (_, None) => '() : _ <- ccallN (cftyp _ _) NDSHdr.yield tt;; Ret (inl tt)
+        | Some (_, None) => '() : _ <- ccallN NDSHdr.yield tt;; Ret (inl tt)
         end
       ) tt);;
       Ret orv.
@@ -601,13 +601,13 @@ Module NDSA. Section NDSA.
     λ _, cgetN v_tid.
 
   Definition fnsems (E : coPset) (sp_user: specmap) (T: Type) (get_stid: T → nat) (PYIP: T → iProp Σ): fnsemmap:=
-    {[fid NDSHdr.init # (msk_scp scp msk_true, (fsp_some (init_spec sp_user E T get_stid PYIP), cfunN (cftyp _ _) init));
-      fid NDSHdr._spawn # (msk_scp scp msk_true, (fsp_some (inner_spawn_spec sp_user E), cfunN (cftyp _ _) inner_spawn));
-      fid NDSHdr.spawn # (msk_scp scp msk_true, (fsp_some (spawn_spec sp_user E), cfunN (cftyp _ _) spawn));
-      fid NDSHdr.yield # (msk_scp scp msk_true, (fsp_some (yield_spec E), cfunN (cftyp _ _) yield));
-      fid NDSHdr.yield_global # (msk_scp scp msk_true, (fsp_some (yield_global_spec E), cfunN (cftyp _ _) yield_global));
-      fid NDSHdr.join # (msk_scp scp msk_true, (fsp_some (join_spec E), cfunN (cftyp _ _) join));
-      fid NDSHdr.get_tid # (msk_scp scp msk_true, (fsp_some (get_tid_spec), cfunN (cftyp _ _) get_tid))]}.
+    {[fid NDSHdr.init # (msk_scp scp msk_true, (fsp_some (init_spec sp_user E T get_stid PYIP), cfunN (fntyp _ _) init));
+      fid NDSHdr._spawn # (msk_scp scp msk_true, (fsp_some (inner_spawn_spec sp_user E), cfunN (fntyp _ _) inner_spawn));
+      fid NDSHdr.spawn # (msk_scp scp msk_true, (fsp_some (spawn_spec sp_user E), cfunN (fntyp _ _) spawn));
+      fid NDSHdr.yield # (msk_scp scp msk_true, (fsp_some (yield_spec E), cfunN (fntyp _ _) yield));
+      fid NDSHdr.yield_global # (msk_scp scp msk_true, (fsp_some (yield_global_spec E), cfunN (fntyp _ _) yield_global));
+      fid NDSHdr.join # (msk_scp scp msk_true, (fsp_some (join_spec E), cfunN (fntyp _ _) join));
+      fid NDSHdr.get_tid # (msk_scp scp msk_true, (fsp_some (get_tid_spec), cfunN (fntyp _ _) get_tid))]}.
 
   Program Definition smod E sp_user T get_stid PYIP : SMod.t := {|
     SMod.scopes := scp;

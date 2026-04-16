@@ -2,6 +2,5 @@ Require Import CRIS.
 Require Import ImpPrelude.
 
 Module CannonHdr.
-  Definition fire : string := "Cannon.fire".
-  Definition fire_t := cftyp (list val) Z.
+  Definition fire := fnsig "Cannon.fire" (fntyp (list val) Z).
 End CannonHdr.

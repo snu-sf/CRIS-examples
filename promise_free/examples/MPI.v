@@ -6,7 +6,7 @@ Notation flag := 0 (only parsing).
 Notation data := 1 (only parsing).
 
 Module MPHdr.
-  Definition mp2 : string := "mp2".
+  Definition mp2 := fnsig "mp2" (fntyp Val.t Val.t).
 End MPHdr.
 
 (* Message passing - implementation *)
@@ -17,22 +17,22 @@ Module MPI. Section MPI.
   Definition mp : Any.t → itree crisE Any.t :=
     λ _,
       (* alloc *)
-      𝒴;;; 'm: Val.t <- ccallU (cftyp _ _) SystemHdr.alloc 2;;
+      𝒴;;; 'm: Val.t <- ccallU SystemHdr.alloc 2;;
       𝒴;;; loc <- parse_loc m;;
       (* store *)
-      𝒴;;; '_ : Val.t <- ccallU (cftyp _ _) SystemHdr.write (loc >> flag, Val.Vnum 0, Ordering.na);;
-      𝒴;;; '_ : Val.t <- ccallU (cftyp _ _) SystemHdr.write (loc >> data, Val.Vnum 0, Ordering.na);;
+      𝒴;;; '_ : Val.t <- ccallU SystemHdr.write (loc >> flag, Val.Vnum 0, Ordering.na);;
+      𝒴;;; '_ : Val.t <- ccallU SystemHdr.write (loc >> data, Val.Vnum 0, Ordering.na);;
       (* spawn *)
-      𝒴;;; '_ : () <- ccallU (cftyp _ _) SystemHdr.spawn (MPHdr.mp2, m↑↑);;
+      𝒴;;; '_ : () <- ccallU SystemHdr.spawn (MPHdr.mp2.1, m↑↑);;
       (* loop *)
       iterC (λ _,
-        𝒴;;; r <- ccallU (cftyp _ _) SystemHdr.read (loc >> flag, Ordering.acqrel);;
+        𝒴;;; r <- ccallU SystemHdr.read (loc >> flag, Ordering.acqrel);;
         𝒴;;; n <- parse_num r;;
         𝒴;;;
           if (decide (n = 0))
           then Ret (inl tt)
           else 
-            𝒴;;; r <- ccallU (cftyp _ _) SystemHdr.read (loc >> data, Ordering.acqrel);;
+            𝒴;;; r <- ccallU SystemHdr.read (loc >> data, Ordering.acqrel);;
             𝒴;;; n <- parse_num r;;
             Ret (inr (Val.Vnum n)↑)
       ) ().
@@ -40,12 +40,12 @@ Module MPI. Section MPI.
   Definition mp2 : Val.t → itree crisE Val.t :=
     λ m,
       𝒴;;; loc <- parse_loc m;;
-      𝒴;;; '_ : Val.t <- ccallU (cftyp _ _) SystemHdr.write (loc >> data, Val.Vnum 42, Ordering.relaxed);;
-      𝒴;;; '_ : Val.t <- ccallU (cftyp _ _) SystemHdr.write (loc >> flag, Val.Vnum 1, Ordering.acqrel);;
+      𝒴;;; '_ : Val.t <- ccallU SystemHdr.write (loc >> data, Val.Vnum 42, Ordering.relaxed);;
+      𝒴;;; '_ : Val.t <- ccallU SystemHdr.write (loc >> flag, Val.Vnum 1, Ordering.acqrel);;
       𝒴;;; Ret Val.zero.
 
   Definition fnsems : fnsemmap :=
-    {[fid MPHdr.mp2 # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) (sfunU mp2)));
+    {[fid MPHdr.mp2 # (msk_real (msk_scp scopes msk_true), (None, cfunU (fntyp _ _) (sfunU MPHdr.mp2 mp2)));
       entry         # (msk_real (msk_scp scopes msk_true), (None, mp))]}.
 
   Program Definition Mod : SMod.t := {|

@@ -16,10 +16,10 @@ Module MainA. Section MainA.
       'stk: list Z <- ITree.iter (λ '(i,stk),
         if (i <=? 0)%Z then Ret (inr stk)
         else
-          'z: Z <- ccallU MainHdr.input_cb_t MainHdr.input_cb tt;;
+          'z: Z <- ccallU MainHdr.input_cb tt;;
            Ret (inl ((i - 1)%Z, z :: stk))
         ) (i, stk);;
-      trigger (Call CtxHdr.foo tt↑);;;
+      ccallU CtxHdr.foo tt;;;
       ITree.iter (λ stk,
         match stk with
         | [] => Ret (inr ())
@@ -28,7 +28,7 @@ Module MainA. Section MainA.
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=
-    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, cfunU MainHdr.input_cb_t input_cb));  
+    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, cfunU MainHdr.input_cb input_cb));  
       entry # ((msk_scp scopes msk_true), (None, main))]}.
 
   Program Definition smod : SMod.t := {|

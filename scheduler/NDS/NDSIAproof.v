@@ -7,14 +7,12 @@ Module NDSIA. Section sim.
   Context `{_crisG: !crisG Γ Σ α β τ _S _I}.
   Context `{_ndsG: !ndsGS}.
 
-  Context (sp (* sp_sch_user *) sp_nds_user : specmap).
+  Context (sp sp_nds_user : specmap).
   Context (parent_yield: string).
   Context (parent_yield_fsp: fspec).
   Context (T: Type) (get_stid: T → nat) (PYIP: T → iProp Σ).
-  Context (SchInSp : sp.1 !! (fid parent_yield) = fsp_some parent_yield_fsp).
+  Context (SchInSp : sp.1 !! (funid parent_yield) = fsp_some parent_yield_fsp).
   Context (NDSInSp :(NDSA.sp sp_nds_user ⊤ T get_stid PYIP) ⊆ sp).
-  (* Context (SpSchInSp : sp_sch_user ⊆ sp). *)
-  (* Context (NdsInSchSp : sp_nds_user ⊆ sp_sch_user). *)
   Context (NdsInSchSp : sp_nds_user ⊆ sp).
   Context (YieldSpec :
               ⊢ fspec_imply parent_yield_fsp
@@ -84,7 +82,7 @@ Module NDSIA. Section sim.
   Local Definition NDSIMod := NDSI.t parent_yield.
 
   Lemma simF_init : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.init).
-  Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
+  Proof using SchInSp NDSInSp NdsInSchSp YieldSpec ConcInSp.
     cStartFunSim. rewrite /NDSI.init /init.
 
     cStepS. destruct _q as [[x pre] post].
@@ -218,7 +216,7 @@ Module NDSIA. Section sim.
   (*SLOW*)Qed.
 
   Lemma simF_inner_spawn : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr._spawn).
-  Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
+  Proof using SchInSp NDSInSp NdsInSchSp YieldSpec ConcInSp.
     cStartFunSim. rewrite /NDSI.inner_spawn /inner_spawn.
 
     cStepsS. destruct _q as [[b pre] postS].
@@ -387,8 +385,7 @@ Module NDSIA. Section sim.
 
       cStepsT. cCall "IST" as (???) "IST".
       cStepsS. iDestruct "ASM" as "(% & % & (TidF & TID & YIELD & S & C & PubF))".
-      cStepsS.
-      cStepsT.
+      subst. cStepsS. cStepsT.
       cByCoind CIH; eauto. iFrame.
     }
     { (* CASE 2 : init case *)
@@ -543,15 +540,14 @@ Module NDSIA. Section sim.
       iApply wsim_guarantee_src; iFrame "W TidF TID YIELD C PubA S". iSplit; eauto.
 
       cStepsT. cCall "IST" as (???) "IST".
-      cStepsS. iDestruct "ASM" as "(WI & % & (TidF & TID & YIELD & S & C & PubF))".
-      cStepsS.
-      cStepsT.
+      cStepsS. iDestruct "ASM" as "(<- & % & (TidF & TID & YIELD & S & C & PubF))".
+      subst. cStepsS. cStepsT.
       cByCoind CIH; eauto. iFrame.
     }
   (*SLOW*)Qed.
 
   Lemma simF_spawn : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.spawn).
-  Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
+  Proof using SchInSp NDSInSp NdsInSchSp YieldSpec ConcInSp.
     cStartFunSim. rewrite /NDSI.spawn /spawn.
 
     (* preprocess source precondition *)
@@ -646,7 +642,7 @@ Module NDSIA. Section sim.
   (*SLOW*)Qed.
 
   Lemma simF_yield : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.yield).
-  Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
+  Proof using SchInSp NDSInSp NdsInSchSp YieldSpec ConcInSp.
     cStartFunSim. rewrite /NDSI.yield /yield.
 
     cStepsS. destruct _q as [[mtid stid] ssch].
@@ -779,7 +775,7 @@ Module NDSIA. Section sim.
   (*SLOW*)Qed.
 
   Lemma simF_yield_global : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.yield_global).
-  Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
+  Proof using SchInSp NDSInSp NdsInSchSp YieldSpec ConcInSp.
     cStartFunSim. rewrite /NDSI.yield_global /yield_global.
 
     cStepS. destruct _q as [[mtid stid] ssch].
@@ -881,7 +877,7 @@ Module NDSIA. Section sim.
   (*SLOW*)Qed.
 
   Lemma simF_join : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.join).
-  Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
+  Proof using SchInSp NDSInSp NdsInSchSp YieldSpec ConcInSp.
     cStartFunSim. rewrite /NDSI.join /join.
 
     cStepS. destruct _q as [[[[mtid stid] ssch] tid] postS].
@@ -948,7 +944,7 @@ Module NDSIA. Section sim.
   (*SLOW*)Qed.
 
   Lemma simF_get_tid : ISim.sim_fun open NDSAMod NDSIMod Ist (fid NDSHdr.get_tid).
-  Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
+  Proof using SchInSp NDSInSp NdsInSchSp YieldSpec ConcInSp.
     cStartFunSim. rewrite /NDSI.get_tid /get_tid.
 
     cStepS. destruct _q as [[mtid stid] ssch].
@@ -988,7 +984,7 @@ Module NDSIA. Section sim.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open NDSAMod NDSIMod NDSA.init_cond Ist.
-  Proof using SchInSp NDSInSp (* SpSchInSp *) NdsInSchSp YieldSpec ConcInSp.
+  Proof using SchInSp NDSInSp NdsInSchSp YieldSpec ConcInSp.
     cStartModSim.
     - rewrite /init_cond.
       iIntros "[TiA [JoinA [P PubA]]]". iExists [], 0, 0, 0.
@@ -1011,11 +1007,9 @@ Section ctxr.
   Context (parent_yield_fsp: fspec).
   Context (T: Type) (get_stid: T → nat) (PYIP: T → iProp Σ).
 
-  Lemma ctxr sp (* sp_sch_user *) sp_nds_user
-    (SchInSp : sp.1 !! (fid parent_yield) = fsp_some parent_yield_fsp)
+  Lemma ctxr sp sp_nds_user
+    (SchInSp : sp.1 !! (funid parent_yield) = fsp_some parent_yield_fsp)
     (NDSInSp :(NDSA.sp sp_nds_user ⊤ T get_stid PYIP) ⊆ sp)
-    (* (SpSchInSp : sp_sch_user ⊆ sp) *)
-    (* (NdsInSchSp : sp_nds_user ⊆ sp_sch_user) *)
     (NdsInSchSp : sp_nds_user ⊆ sp)
     (YieldSpec :
               ⊢ fspec_imply parent_yield_fsp

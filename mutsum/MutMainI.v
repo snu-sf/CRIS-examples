@@ -13,7 +13,7 @@ Module MutMainI. Section MutMainI.
   ***)
   Definition mainF: Any.t -> itree crisE Any.t :=
     fun _ =>
-      'r: val <- ccallU (cftyp _ _) MutHdr.mutf [Vint 10];;
+      'r: val <- ccallU MutHdr.mutf [Vint 10];;
       Ret (r↑)
   .
 

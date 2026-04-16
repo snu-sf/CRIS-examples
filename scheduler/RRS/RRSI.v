@@ -21,7 +21,7 @@ Module RRSI. Section RRSI.
       stid <- trigger GetTid;;
       cput v_sch stid;;;
       'ths: thpool <- cgetU v_ths;;
-      new_stid <- trigger (Spawn RRSHdr._spawn (fn, tt↑↑)↑);;
+      new_stid <- trigger (Spawn RRSHdr._spawn.1 (fn, tt↑↑)↑);;
       cput v_ths (ths ++ [new_stid]);;;
       cput v_tid (List.length ths);;;
       trigger (Yield new_stid);;;
@@ -45,7 +45,7 @@ Module RRSI. Section RRSI.
   Definition spawn : string * SAny.t → itree crisE nat :=
     λ '(fn, arg),
       'ths : thpool <- cgetU v_ths;;
-      new_stid <- trigger (Spawn RRSHdr._spawn (fn, arg)↑);;
+      new_stid <- trigger (Spawn RRSHdr._spawn.1 (fn, arg)↑);;
       cput v_ths (ths ++ [new_stid]);;;
       Ret (List.length ths).
 
@@ -77,12 +77,12 @@ Module RRSI. Section RRSI.
     λ _, cgetU v_tid.
 
   Definition fnsems : fnsemmap :=
-    {[fid RRSHdr.init # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) init));
-      fid RRSHdr._spawn # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) inner_spawn));
-      fid RRSHdr.spawn # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) spawn));
-      fid RRSHdr.yield # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) yield));
-      fid RRSHdr.yield_global # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) yield_global));
-      fid RRSHdr.get_tid # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) get_tid))]}.
+    {[fid RRSHdr.init # (msk_real (msk_scp scp msk_true), (None, cfunU RRSHdr.init init));
+      fid RRSHdr._spawn # (msk_real (msk_scp scp msk_true), (None, cfunU RRSHdr._spawn inner_spawn));
+      fid RRSHdr.spawn # (msk_real (msk_scp scp msk_true), (None, cfunU RRSHdr.spawn spawn));
+      fid RRSHdr.yield # (msk_real (msk_scp scp msk_true), (None, cfunU RRSHdr.yield yield));
+      fid RRSHdr.yield_global # (msk_real (msk_scp scp msk_true), (None, cfunU RRSHdr.yield_global yield_global));
+      fid RRSHdr.get_tid # (msk_real (msk_scp scp msk_true), (None, cfunU RRSHdr.get_tid get_tid))]}.
 
   Program Definition smod: SMod.t :=
   {|

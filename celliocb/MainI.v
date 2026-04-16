@@ -14,14 +14,14 @@ Module MainI. Section MainI.
 
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
-      ccallU CellioHdr.set_t CellioHdr.set MainHdr.input_cb;;;
-      trigger (Call CtxHdr.foo tt↑);;;
-      x <- ccallU CellioHdr.get_t CellioHdr.get tt;;
+      ccallU CellioHdr.set MainHdr.input_cb.1;;;
+      ccallU CtxHdr.foo tt;;;
+      x <- ccallU CellioHdr.get tt;;
       trigger (@IO _ unit "Print" x);;;
       Ret tt↑.
 
   Definition fnsems : fnsemmap :=
-    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, cfunU MainHdr.input_cb_t input_cb));
+    {[fid MainHdr.input_cb     # ((msk_scp scopes msk_true), (None, cfunU MainHdr.input_cb input_cb));
       entry  # ((msk_scp scopes msk_true), (None, main))]}.
 
   Program Definition smod: SMod.t := {|
@@ -33,4 +33,3 @@ Module MainI. Section MainI.
   
   Definition t := SMod.to_mod ∅ smod.
 End MainI. End MainI.
-

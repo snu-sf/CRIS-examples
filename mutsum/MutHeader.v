@@ -2,8 +2,8 @@ Require Import CRIS.
 Require Export ImpPrelude.
 
 Module MutHdr.
-  Definition mutf := "MutF.f".
-  Definition mutg := "MutG.g".
+  Definition mutf := fnsig "MutF.f" imp_fun_t.
+  Definition mutg := fnsig "MutG.g" imp_fun_t.
 End MutHdr.
 
 Module MutAUX. Section MutAUX.

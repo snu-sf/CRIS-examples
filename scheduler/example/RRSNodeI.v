@@ -12,28 +12,28 @@ Module RRSNodeI. Section RRSNodeI.
 
   Definition f_main : SAny.t -> itree crisE SAny.t :=
     fun _ =>
-      'x: val <- ccallU (cftyp _ _) MemHdr.alloc [Vint 1];; ℛ𝒴;;;
-      '_: val <- ccallU (cftyp _ _) MemHdr.store [x; Vint 0];; ℛ𝒴;;;
-      'tid1: nat <- ccallU (cftyp _ _) RRSHdr.spawn (RRSNodeHdr.f, x↑↑);; ℛ𝒴;;;
-      'tid2: nat <- ccallU (cftyp _ _) RRSHdr.spawn (RRSNodeHdr.f, x↑↑);; ℛ𝒴;;; ℛℛ;;;
+      'x: val <- ccallU MemHdr.alloc [Vint 1];; ℛ𝒴;;;
+      '_: val <- ccallU MemHdr.store [x; Vint 0];; ℛ𝒴;;;
+      'tid1: nat <- ccallU RRSHdr.spawn (RRSNodeHdr.f.1, x↑↑);; ℛ𝒴;;;
+      'tid2: nat <- ccallU RRSHdr.spawn (RRSNodeHdr.f.1, x↑↑);; ℛ𝒴;;; ℛℛ;;;
       Ret (tt↑↑)
   .
 
   Definition f : SAny.t -> itree crisE SAny.t :=
     fun arg =>
       'x: val <- (arg↓↓)?;; ℛ𝒴;;;
-      'v: val <- ccallU (cftyp _ _) MemHdr.load [x];; ℛ𝒴;;;
-      'tid : nat <- ccallU (cftyp _ _) RRSHdr.get_tid tt;; ℛ𝒴;;;
+      'v: val <- ccallU MemHdr.load [x];; ℛ𝒴;;;
+      'tid : nat <- ccallU RRSHdr.get_tid tt;; ℛ𝒴;;;
       o <- (vsub (Vint tid) v)?;; ℛ𝒴;;;
       nx <- (vadd v (Vint 1))?;; ℛ𝒴;;;
-      '_: val <- ccallU (cftyp _ _) MemHdr.store [x; nx];; ℛ𝒴;;;
+      '_: val <- ccallU MemHdr.store [x; nx];; ℛ𝒴;;;
       trigger (@IO _ unit "print" o);;; ℛ𝒴;;; ℛℛ;;; 
       Ret (tt↑↑)
   .
   
   Definition fnsems : fnsemmap :=
-    {[fid RRSNodeHdr.f_main # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) f_main));
-      fid RRSNodeHdr.f      # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) f))]}.
+    {[fid RRSNodeHdr.f_main # (msk_real (msk_scp scopes msk_true), (None, cfunU RRSNodeHdr.f_main f_main));
+      fid RRSNodeHdr.f      # (msk_real (msk_scp scopes msk_true), (None, cfunU RRSNodeHdr.f f))]}.
 
   Program Definition smod: SMod.t :=
   {|

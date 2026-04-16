@@ -4,12 +4,7 @@ Module CtxHdr.
 
   Definition mn := "Ctx".
     
-  Definition fn (method: string) :=
-    mn +:+ "." +:+ method.
-  
-  Definition foo := fn "foo".
-  Definition foo_t := cftyp () ().
-
-  Definition cb_t := cftyp () Z.
+  Definition foo := fnsig "foo" (fntyp () ()).
+  Definition cb_t := fntyp () Z.
 
 End CtxHdr.

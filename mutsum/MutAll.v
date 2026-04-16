@@ -106,9 +106,9 @@ Section MutAll.
       { eapply pure_in_sp. }
       { i; ss.
         rewrite /sp_pure lookup_union in H.
-        destruct (String.eq_dec fn MutHdr.mutf).
+        destruct (String.eq_dec fn MutHdr.mutf.1).
         { subst. rewrite lookup_insert lookup_insert_ne // lookup_empty in H. inv H. esplits; eauto. }
-        destruct (String.eq_dec fn MutHdr.mutg).
+        destruct (String.eq_dec fn MutHdr.mutg.1).
         { subst. rewrite lookup_insert lookup_insert_ne // lookup_empty in H. inv H. esplits; eauto. }
         rewrite !lookup_insert_ne // in H; ii; inv H.
       }

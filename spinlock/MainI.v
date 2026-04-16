@@ -15,33 +15,33 @@ Module SpinLockMainI. Section SpinLockMainI.
 
   Definition main : Any.t → itree crisE Any.t :=
     λ _,
-      𝒴;;; 'v : val <- ccallU (cftyp _ _) MemHdr.alloc [Vint 1];;
-      𝒴;;; '_ : val <- ccallU (cftyp _ _) MemHdr.store [v; Vint 0];;
-      𝒴;;; 'l : val <- ccallU (cftyp _ _) SpinLockHdr.newlock ([] : list val);;
+      𝒴;;; 'v : val <- ccallU MemHdr.alloc [Vint 1];;
+      𝒴;;; '_ : val <- ccallU MemHdr.store [v; Vint 0];;
+      𝒴;;; 'l : val <- ccallU SpinLockHdr.newlock ([] : list val);;
       𝒴;;; 't1 : nat <- Sch.spawn ("incr", [l; v]↑↑);;
       𝒴;;; 't2 : nat <- Sch.spawn ("incr", [l; v]↑↑);;
       𝒴;;; '_ : SAny.t <- Sch.join t1;;
       𝒴;;; '_ : SAny.t <- Sch.join t2;;
-      𝒴;;; '_ : val <- ccallU (cftyp _ _) SpinLockHdr.acquire [l];;
-      𝒴;;; 'x : val <- ccallU (cftyp _ _) MemHdr.load [v];;
+      𝒴;;; '_ : val <- ccallU SpinLockHdr.acquire [l];;
+      𝒴;;; 'x : val <- ccallU MemHdr.load [v];;
       𝒴;;; 'x : Z <- (pargs [Tint] [x])?;;
-      𝒴;;; '_ : val <- ccallU (cftyp _ _) SpinLockHdr.release [l];;
+      𝒴;;; '_ : val <- ccallU SpinLockHdr.release [l];;
       𝒴;;; '_ : unit <- trigger (IO "printf" x);;
       𝒴;;; Ret tt↑.
 
   Definition incr : list val → itree crisE val :=
     λ arg,
       𝒴;;; '(l, v): _ <- (pargs [Tptr; Tptr] arg)?;;
-      𝒴;;; '_ : val <- ccallU (cftyp _ _) SpinLockHdr.acquire [Vptr l];;
-      𝒴;;; 'x : val <- ccallU (cftyp _ _) MemHdr.load [Vptr v];;
+      𝒴;;; '_ : val <- ccallU SpinLockHdr.acquire [Vptr l];;
+      𝒴;;; 'x : val <- ccallU MemHdr.load [Vptr v];;
       𝒴;;; 'x : Z <- (pargs [Tint] [x])?;;
-      𝒴;;; '_ : val <- ccallU (cftyp _ _) MemHdr.store [Vptr v; Vint (x + 1)];;
-      𝒴;;; '_ : val <- ccallU (cftyp _ _) SpinLockHdr.release [Vptr l];;
+      𝒴;;; '_ : val <- ccallU MemHdr.store [Vptr v; Vint (x + 1)];;
+      𝒴;;; '_ : val <- ccallU SpinLockHdr.release [Vptr l];;
       𝒴;;; Ret Vundef.
 
   Definition fnsems : fnsemmap :=
     {[entry # (msk_real (msk_scp scopes msk_true), (None, main));
-      fid SpinLockMainHdr.incr # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) (sfunU (_, _) incr)))]}.
+      fid SpinLockMainHdr.incr # (msk_real (msk_scp scopes msk_true), (None, cfunU (fntyp _ _) (sfunU SpinLockMainHdr.incr incr)))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

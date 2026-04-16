@@ -23,7 +23,7 @@ Module CellioA. Section CellioA.
     λ '(cb,p),
       l <- trigger (Take (list Z));;
       trigger (Assume (ll_points_to p l));;;
-      'i: Z <- ccallU CtxHdr.cb_t cb tt;;
+      'i: Z <- ccallU (fnsig cb CtxHdr.cb_t) tt;;
       p' <- trigger (Choose val);;
       trigger (Guarantee (ll_points_to p' (i::l)));;;
       Ret p'.
@@ -39,9 +39,9 @@ Module CellioA. Section CellioA.
   Definition scopes := [CellioHdr.mn].
   
   Definition fnsems : fnsemmap :=
-    {[fid CellioHdr.new  # (msk_scp scopes msk_true, (None, cfunU CellioHdr.new_t new));
-      fid CellioHdr.push # (msk_scp scopes msk_true, (None, cfunU CellioHdr.push_t push));
-      fid CellioHdr.pop  # (msk_scp scopes msk_true, (None, cfunU CellioHdr.pop_t pop))]}.
+    {[fid CellioHdr.new  # (msk_scp scopes msk_true, (None, cfunU CellioHdr.new new));
+      fid CellioHdr.push # (msk_scp scopes msk_true, (None, cfunU CellioHdr.push push));
+      fid CellioHdr.pop  # (msk_scp scopes msk_true, (None, cfunU CellioHdr.pop pop))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

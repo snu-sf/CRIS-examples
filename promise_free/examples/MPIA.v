@@ -1,6 +1,6 @@
 Require Import CRIS.
 Require Import PFMemHeader PFMemA base HistoryRA AtomicRA.
-Require Import SystemHeader SystemA SystemTactics.
+Require Import SchHeader SystemHeader SystemA SystemTactics.
 Require Import MPI MPA.
 
 Module MPIA. Section MPIA.
@@ -17,7 +17,7 @@ Module MPIA. Section MPIA.
   Local Definition MI := (MPI.t      ★ SystemA.t sp_user ⊤ sp_s ★ PFMemA.t sp_s).
   Local Definition IstFull := (IstProd (IstSB (Mod.scopes (MPA.t sp_s)) Ist) IstEq).
 
-  Lemma mp2_spawnable : ⊢ SystemA.fspec_spawnable sp_user MPHdr.mp2 MPA.mp2_precondition.
+  Lemma mp2_spawnable : ⊢ SystemA.fspec_spawnable sp_user MPHdr.mp2.1 MPA.mp2_precondition.
   Proof.
     iExists MPA.mp2_spec; iSplit; [iPureIntro; by cSimpl|].
     iIntros "%P %Q [%x [-> ->]]"; iExists _, _; iSplit; [iPureIntro; exists x; split; ss|].

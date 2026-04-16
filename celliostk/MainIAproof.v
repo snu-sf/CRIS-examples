@@ -45,7 +45,7 @@ Module MainIA. Section MainIA.
       { rewrite !unfold_iter_eq. cStepsS. cStepsT. cStep. et. }
       rewrite !unfold_iter_eq. cStepsT. cStepsS. cSimpl.
 
-      cInlineT. cStepsT. cForceT ls. cStepsT. cForceT. iSplitL "PT"; et. cStepsT.
+      cInlineT. cStepsT. cForceT ls. cStepsT. cForceT. iSplitL "PT"; et. cStepsT. cSimpl.
       cCall "IST" as (ret ? ?) "IST".
       cStepsS. cStepsT. destruct Any.downcast; [|cStepsS; ss].
       cStepsS. cStepsT. iDestruct "GRT" as (??) "[-> [PH PT]]".
@@ -54,6 +54,7 @@ Module MainIA. Section MainIA.
     }
 
     cStepsT. cStepsS. cSimpl. cCall "IST" as (? ? ?) "IST". cStepsS. cStepsT.
+    destruct Any.downcast; [|cStepsS; ss]. cStepsS. cStepsT.
     iStopProof. clear_st. revert r_t st_s' st_t'. induction r_s; i; iIntros "[PT IST]".
     { rewrite !unfold_iter_eq. cStepsS. cStepsT. cInlineT. cStepsT.
       cForceT []. cStepsT. cForceT. iFrame. cStepsT. cStep. iFrame. et. }

@@ -43,10 +43,10 @@ Module RingA. Section RingA.
       end.
 
   Definition fnsems : fnsemmap :=
-    {[fid RingHdr.init     # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) init));
-      fid RingHdr.get_size # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) get_size));
-      fid RingHdr.enqueue  # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) enqueue));
-      fid RingHdr.dequeue  # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) dequeue))]}.
+    {[fid RingHdr.init     # (msk_real (msk_scp scopes msk_true), (None, cfunU RingHdr.init init));
+      fid RingHdr.get_size # (msk_real (msk_scp scopes msk_true), (None, cfunU RingHdr.get_size get_size));
+      fid RingHdr.enqueue  # (msk_real (msk_scp scopes msk_true), (None, cfunU RingHdr.enqueue enqueue));
+      fid RingHdr.dequeue  # (msk_real (msk_scp scopes msk_true), (None, cfunU RingHdr.dequeue dequeue))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

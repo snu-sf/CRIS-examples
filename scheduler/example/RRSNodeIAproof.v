@@ -20,13 +20,13 @@ Module RRSNodeIA. Section RRSNodeIA.
 
   Local Definition IstFull := (IstProd (IstSB (RRSNodeA.t sp).(Mod.scopes) IstTrue) IstEq).
   Local Definition init_cond := RRSNodeA.init_cond.
-  Local Definition MA := (RRSNodeA.t sp ★ (MemA.t sp) ★ (RRSA.t SchHdr.yield sp sp_user get_stid PYIP)).
-  Local Definition MI := (RRSNodeI.t ★ (MemA.t sp) ★ (RRSA.t SchHdr.yield sp sp_user get_stid PYIP)).
+  Local Definition MA := (RRSNodeA.t sp ★ (MemA.t sp) ★ (RRSA.t SchHdr.yield.1 sp sp_user get_stid PYIP)).
+  Local Definition MI := (RRSNodeI.t ★ (MemA.t sp) ★ (RRSA.t SchHdr.yield.1 sp sp_user get_stid PYIP)).
 
   Lemma f_spawnable n b Invs
     (RNG: 0 < n < size Invs)
     (INV: forall m, m < size Invs -> Invs !! m = Some (existT 0 (x_value_tid m))) :
-    ⊢ RRSAS.fn_spawnable_rr sp_user ⊤ RRSNodeHdr.f n (f_precond (b, 0%Z)) Invs.
+    ⊢ RRSAS.fn_spawnable_rr sp_user ⊤ RRSNodeHdr.f.1 n (f_precond (b, 0%Z)) Invs.
   Proof using Hnode.
     iIntros. rewrite /RRSAS.fn_spawnable_rr. iExists _. iSplit; eauto.
     { iPureIntro. cSimpl; et. }
@@ -265,8 +265,8 @@ Section ctxr.
     (Hrrs: (RRSAS.sp sp_user ⊤ get_stid PYIP) ⊆ sp)
     (Hnode: (RRSNodeAS.sp ⊤) ⊆ sp_user) :
     ctx_refines
-      ((RRSNodeI.t    ★ (MemA.t sp) ★ (RRSA.t SchHdr.yield sp sp_user get_stid PYIP)), emp%I)
-      ((RRSNodeA.t sp ★ (MemA.t sp) ★ (RRSA.t SchHdr.yield sp sp_user get_stid PYIP)), RRSNodeA.init_cond).
+      ((RRSNodeI.t    ★ (MemA.t sp) ★ (RRSA.t SchHdr.yield.1 sp sp_user get_stid PYIP)), emp%I)
+      ((RRSNodeA.t sp ★ (MemA.t sp) ★ (RRSA.t SchHdr.yield.1 sp sp_user get_stid PYIP)), RRSNodeA.init_cond).
   Proof using. eapply main_adequacy, (RRSNodeIA.sim sp sp_user); eauto. Qed.
 
 End ctxr.

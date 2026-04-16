@@ -13,7 +13,7 @@ Section wsim.
     sp_src.1 !! fid SystemHdr.yield = fsp_some (SystemA.yield_spec E) →
     sp_tgt.1 !! fid SystemHdr.yield = None →
     (∀ X, msk_tgt _ (subevent _ (Choose X))) →
-    (msk_tgt _ (subevent _ (Call SystemHdr.yield ()↑))) →
+    (msk_tgt _ (subevent _ (Call SystemHdr.yield.1 ()↑))) →
     Ist st_src st_tgt ∗
     (tview_sys tid stid V) ∗
     (∀ st_src st_tgt,
@@ -51,8 +51,8 @@ Section wsim.
       cStepS. des_if; cStepS; ss.
       cCall "IST" as (ret st_src st_tgt) "IST".
       cStepS. des_if; cStepS; ss.
-      cStepS. des_if; cStepsS; ss. cStepsT.
-      cByCoind CIH. iFrame. iDestruct "ASM" as "[? [? $]]".
+      cStepS. des_if; cStepsS; ss. iDestruct "ASM" as "[-> [-> V]]".
+      cStepsS. cStepsT. cByCoind CIH. iFrame.
     }
     unfoldIterCS.
     cStepsS. des_if; cStepS; ss. cForceS (Some false). cStepsS. cStepsT.

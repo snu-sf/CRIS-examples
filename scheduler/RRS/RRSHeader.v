@@ -3,12 +3,12 @@ Require Export SMod Mod.
 Require Import ImpPrelude.
 
 Module RRSHdr.
-  Definition init := "RRS.init".
-  Definition _spawn := "RRS._spawn".
-  Definition spawn := "RRS.spawn".
-  Definition yield := "RRS.yield".
-  Definition yield_global := "RRS.yield_global".
-  Definition get_tid := "RRS.get_tid".
+  Definition init         := fnsig "RRS.init" (fntyp (SAny.t) ()).
+  Definition _spawn       := fnsig "RRS._spawn" (fntyp (string * SAny.t) ()).
+  Definition spawn        := fnsig "RRS.spawn" (fntyp (string * SAny.t) nat).
+  Definition yield        := fnsig "RRS.yield" (fntyp () ()).
+  Definition yield_global := fnsig "RRS.yield_global" (fntyp () ()).
+  Definition get_tid      := fnsig "RRS.get_tid" (fntyp () nat).
 End RRSHdr.
 
 Definition RRS : string := "rrs".
@@ -22,7 +22,7 @@ Module RRS. Section RRS.
 
   Definition yield : itree E Any.t :=
     Seal.sealing "RRS"
-      (trigger (Call RRSHdr.yield tt↑)).
+      (trigger (Call RRSHdr.yield.1 tt↑)).
 
   Definition yield_global : itree E unit :=
     Seal.sealing "RRS"
@@ -32,7 +32,7 @@ Module RRS. Section RRS.
         | None => Ret (inr tt: () + ())
         | Some false => Ret (inl tt: () + ())
         | Some true => 
-            trigger (Call RRSHdr.yield_global tt↑);;;
+            ccallU RRSHdr.yield_global tt;;;
             Ret (inl tt: () + ())
         end)) tt).
 
@@ -104,7 +104,7 @@ Lemma yield_unfold `{E : Type → Type, coreE -< E, callE -< E} :
   match b with
   | None => Ret tt
   | Some false => RRS.yield_global
-  | Some true => trigger (Call RRSHdr.yield_global tt↑);;; RRS.yield_global
+  | Some true => ccallU RRSHdr.yield_global tt;;; RRS.yield_global
   end.
 Proof using.
   rewrite {1}/RRS.yield_global; unseal "RRS"; rewrite unfold_iterC.

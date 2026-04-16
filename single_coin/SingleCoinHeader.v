@@ -1,6 +1,6 @@
 Require Import Common.
 
 Module SingleCoinHdr.
-  Definition new := "SingleCoin.new".
-  Definition read := "SingleCoin.read".
+  Definition new := fnsig "SingleCoin.new" (fntyp () nat).
+  Definition read := fnsig "SingleCoin.read" (fntyp nat bool).
 End SingleCoinHdr.

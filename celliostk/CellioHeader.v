@@ -7,13 +7,8 @@ Module CellioHdr.
   Definition fn (method: string) :=
     mn +:+ "." +:+ method.
 
-  Definition new := fn "new".
-  Definition new_t := cftyp () val.
-
-  Definition push := fn "push".
-  Definition push_t := cftyp (string * val) val.
-
-  Definition pop := fn "pop".
-  Definition pop_t := cftyp val (option Z * val).
+  Definition new := fnsig (fn "new") (fntyp () val).
+  Definition push := fnsig (fn "push") (fntyp (string * val) val).
+  Definition pop := fnsig (fn "pop") (fntyp val (option Z * val)).
 End CellioHdr.
 

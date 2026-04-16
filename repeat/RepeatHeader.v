@@ -7,5 +7,5 @@ Module RepeatHdr.
   Definition fn (method: string) :=
     mn +:+ "." +:+ method.
 
-  Definition repeat := fn "repeat".
+  Definition repeat := fnsig (fn "repeat") imp_fun_t.
 End RepeatHdr.

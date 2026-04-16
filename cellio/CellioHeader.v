@@ -6,10 +6,7 @@ Module CellioHdr.
   Definition fn (method: string) :=
     mn +:+ "." +:+ method.
 
-  Definition set := fn "set".
-  Definition set_t := cftyp () ().
-  
-  Definition get := fn "get".
-  Definition get_t := cftyp () Z.
+  Definition set := fnsig (fn "set") (fntyp () ()).
+  Definition get := fnsig (fn "get") (fntyp () Z).
 End CellioHdr.
 

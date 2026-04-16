@@ -8,7 +8,7 @@ Module MainIA. Section MainIA.
   Context `{!crisG Γ Σ α β τ _S _I, _CELLIO: !cellioGS}.
 
   Context (sp: specmap).
-  Context (sp_start: sp.1 !! (fid MainAS.main) = Some (MainAS.main_spec: fspec_rel)).
+  Context (sp_start: sp.1 !! (funid MainAS.main) = Some (MainAS.main_spec: fspec_rel)).
   Context (sp_input: sp.1 !! (fid CtxHdr.input) = None).
   Context (sp_foo: sp.1 !! (fid CtxHdr.foo) = None).
 
@@ -24,7 +24,7 @@ Module MainIA. Section MainIA.
     cStepsS. cForcesS. iSplit; et. cStepsT. cStep. iSplit; et.
   Qed.
   
-  Lemma simF_main : ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull (fid MainAS.main).
+  Lemma simF_main : ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull (funid MainAS.main).
   Proof using sp_input sp_foo.
     cStartFunSim. unfold MainI.main, MainA.main.
 

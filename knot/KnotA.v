@@ -110,7 +110,7 @@ Module KnotA. Section KnotA.
   |}.
   Solve All Obligations with mod_tac.
 
-  Definition init_cond : iProp Σ := (var_points_to KnotHdr._f (Vint 0) ∗ knot_full None)%I.
+  Definition init_cond : iProp Σ := (var_points_to KnotHdr._f.1 (Vint 0) ∗ knot_full None)%I.
 
   Definition t sp := SMod.to_mod sp smod.
 End KnotA. End KnotA.

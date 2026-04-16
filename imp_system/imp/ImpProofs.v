@@ -125,7 +125,7 @@ Section PROOFS.
     :
       interp_imp ge (denote_stmt (Malloc x se)) le0 =
       interp_imp ge (s <- denote_expr se;;
-      v <- ccallU imp_fun_t MemHdr.alloc [s];;
+      v <- ccallU MemHdr.alloc [s];;
       trigger (SetVar x v);;; tau;; Ret Vundef) le0.
   Proof using. reflexivity. Qed.
 
@@ -134,7 +134,7 @@ Section PROOFS.
     :
       interp_imp ge (denote_stmt (Free pe)) le0 =
       interp_imp ge (p <- denote_expr pe;;
-      't : val <- ccallU imp_fun_t MemHdr.free [p];; tau;; Ret Vundef) le0.
+      't : val <- ccallU MemHdr.free [p];; tau;; Ret Vundef) le0.
   Proof using. reflexivity. Qed.
 
   Lemma denote_stmt_Load
@@ -144,7 +144,7 @@ Section PROOFS.
       interp_imp ge (
                    ' p : val <- denote_expr pe;;
                          (if wf_val p then Ret tt else triggerUB);;;
-                         v0 <- ccallU imp_fun_t MemHdr.load [p];;
+                         v0 <- ccallU MemHdr.load [p];;
                          trigger (SetVar x v0);;; (tau;; Ret Vundef)) le0.
   Proof using. reflexivity. Qed.
 
@@ -156,7 +156,7 @@ Section PROOFS.
                    ' p : val <- denote_expr pe;;
                          (if wf_val p then Ret tt else triggerUB);;;
                           ' v : val <- denote_expr ve;;
-                              't : val <- ccallU imp_fun_t MemHdr.store [p; v];; tau;; Ret Vundef
+                              't : val <- ccallU MemHdr.store [p; v];; tau;; Ret Vundef
                           ) le0.
   Proof using. reflexivity. Qed.
 
@@ -166,7 +166,7 @@ Section PROOFS.
       interp_imp ge (denote_stmt (Cmp x ae be)) le0 =
       interp_imp ge ( a <- denote_expr ae;; b <- denote_expr be;;
                       (if (wf_val a && wf_val b) then Ret tt else triggerUB);;;
-                        v <- ccallU imp_fun_t MemHdr.cmp [a; b];;
+                        v <- ccallU MemHdr.cmp [a; b];;
                         trigger (SetVar x v);;; tau;; Ret Vundef) le0.
   Proof using. reflexivity. Qed.
 
@@ -177,7 +177,7 @@ Section PROOFS.
       interp_imp ge (
       (if (call_ban f) then triggerUB else Ret tt);;;
       eval_args <- (denote_exprs args);;
-      v <- ccallU imp_fun_t f eval_args;;
+      v <- ccallU (fnsig f imp_fun_t) eval_args;;
       trigger (SetVar x v);;; tau;; Ret Vundef) le0.
   Proof using. reflexivity. Qed.
 
@@ -192,7 +192,7 @@ Section PROOFS.
           end then Ret () else triggerUB);;;
       ' p : val <- denote_expr e;;
       ' f : string <- trigger (GetName p);;
-      ' eval_args : list val <- denote_exprs args;; ' v : val <- ccallU imp_fun_t f eval_args;; trigger (SetVar x v);;; (tau;; Ret Vundef)) le0.
+      ' eval_args : list val <- denote_exprs args;; ' v : val <- ccallU (fnsig f imp_fun_t) eval_args;; trigger (SetVar x v);;; (tau;; Ret Vundef)) le0.
   Proof using. reflexivity. Qed.
 
   Lemma denote_stmt_CallSys
@@ -363,7 +363,7 @@ Section PROOFS.
   Lemma interp_imp_ccallU
         ge le0 f (args : list val)
     :
-      (interp_imp ge (ccallU imp_fun_t f args) le0 : itree _ (_ * val)) =
+      (interp_imp ge (ccallU (fnsig f imp_fun_t) args) le0 : itree _ (_ * val)) =
       v <- trigger (Call f (args↑));; tau;; tau;; v <- (v↓)?;; Ret (le0, v).
   Proof using.
     unfold interp_imp, interp_GlobEnv, interp_ImpState, ccallU, trivial_Handler. grind.
@@ -588,7 +588,7 @@ Section PROOFS.
     :
       interp_imp ge (denote_stmt (Malloc x se)) le0 =
       '(le1, s):_ <- interp_imp ge (denote_expr se) le0;;
-      v <- trigger (Call MemHdr.alloc ([s]↑));;
+      v <- trigger (Call MemHdr.alloc.1 ([s]↑));;
       tau;; tau;; v <- unwrapU (v↓);;
       tau;; tau;; tau;; Ret (alist_add x v le1, Vundef).
   Proof using.
@@ -603,7 +603,7 @@ Section PROOFS.
     :
       interp_imp ge (denote_stmt (Free pe)) le0 =
       '(le1, p):_ <- interp_imp ge (denote_expr pe) le0;;
-      v <- trigger (Call MemHdr.free ([p]↑));;
+      v <- trigger (Call MemHdr.free.1 ([p]↑));;
       tau;; tau;; 'v:val <- unwrapU (v↓);; tau;; Ret (le1, Vundef).
   Proof using.
     rewrite denote_stmt_Free. rewrite interp_imp_bind. grind.
@@ -617,7 +617,7 @@ Section PROOFS.
       interp_imp ge (denote_stmt (Load x pe)) le0 =
       '(le1, p):_ <- interp_imp ge (denote_expr pe) le0;;
       (if (wf_val p) then Ret tt else triggerUB);;;
-      v <- trigger (Call MemHdr.load ([p]↑));;
+      v <- trigger (Call MemHdr.load.1 ([p]↑));;
       tau;; tau;; v <- unwrapU (v↓);;
       tau;; tau;; tau;; Ret (alist_add x v le1, Vundef).
   Proof using.
@@ -637,7 +637,7 @@ Section PROOFS.
       '(le1, p):_ <- interp_imp ge (denote_expr pe) le0;;
       (if (wf_val p) then Ret tt else triggerUB);;;
       '(le2, v):_ <- interp_imp ge (denote_expr ve) le1;;
-      v <- trigger (Call MemHdr.store ([p ; v]↑));;
+      v <- trigger (Call MemHdr.store.1 ([p ; v]↑));;
       tau;; tau;; 'v:val <- (v↓)?;; tau;; Ret (le2, Vundef).
   Proof using.
     rewrite denote_stmt_Store. rewrite interp_imp_bind. grind.
@@ -657,7 +657,7 @@ Section PROOFS.
       '(le1, a):_ <- interp_imp ge (denote_expr ae) le0;;
       '(le2, b):_ <- interp_imp ge (denote_expr be) le1;;
       (if (wf_val a && wf_val b) then Ret tt else triggerUB);;;
-          v <- trigger (Call MemHdr.cmp ([a ; b]↑));;
+          v <- trigger (Call MemHdr.cmp.1 ([a ; b]↑));;
           tau;; tau;; v <- unwrapU (v↓);;
           tau;; tau;; tau;; Ret (alist_add x v le2, Vundef).
   Proof using.
@@ -676,7 +676,7 @@ Section PROOFS.
     :
       interp_imp ge (
                    eval_args <- (denote_exprs args);;
-                   v <- ccallU imp_fun_t f eval_args;;
+                   v <- ccallU (fnsig f imp_fun_t) eval_args;;
                    trigger (SetVar x v);;; tau;; Ret Vundef) le0
       =
       '(le1, vals):_ <- interp_imp ge (denote_exprs args) le0;;

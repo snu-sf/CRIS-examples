@@ -26,16 +26,16 @@ Section SCHMainAux.
   Local Definition smod_src : SMod.t :=
     (SCHMainA.smod ⊤)
       ☆ (SchA.smod sp_sch ⊤)
-      ☆ (RRSA.smod SchHeader.SchHdr.yield sp_rrs ⊤ snd SchA.PYIP)
-      ☆ (NDSA.smod SchHeader.SchHdr.yield ⊤ sp_nds _ snd SchA.PYIP)
+      ☆ (RRSA.smod SchHeader.SchHdr.yield.1 sp_rrs ⊤ snd SchA.PYIP)
+      ☆ (NDSA.smod SchHeader.SchHdr.yield.1 ⊤ sp_nds _ snd SchA.PYIP)
       ☆ (RRSNodeA.smod ⊤)
       ☆ (NDSNodeA.smod ⊤).
   Local Definition mod_top : Mod.t := (SMod.to_mod ∅ (SMod.cancel smod_src)).
   Local Definition mod_tgt : Mod.t :=
     SCHMainI.t
       ★ SchI.t
-      ★ (RRSI.t SchHeader.SchHdr.yield)
-      ★ (NDSI.t SchHeader.SchHdr.yield)
+      ★ (RRSI.t SchHeader.SchHdr.yield.1)
+      ★ (NDSI.t SchHeader.SchHdr.yield.1)
       ★ RRSNodeI.t
       ★ NDSNodeI.t
       ★ (MemI.t genv)

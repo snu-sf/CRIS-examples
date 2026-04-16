@@ -21,7 +21,7 @@ Module NDSI. Section NDSI.
       stid <- trigger GetTid;;
       cput v_sch stid;;;
       'ths: thpool <- cgetU v_ths;;
-      new_stid <- trigger (Spawn NDSHdr._spawn (fn, tt↑↑)↑);;
+      new_stid <- trigger (Spawn NDSHdr._spawn.1 (fn, tt↑↑)↑);;
       cput v_ths (ths ++ [(new_stid, None)]);;;
       cput v_tid (List.length ths);;;
       trigger (Yield new_stid);;;
@@ -38,7 +38,7 @@ Module NDSI. Section NDSI.
 
   Definition inner_spawn : string * SAny.t → itree crisE unit :=
     λ '(fn, arg),
-      'rv : SAny.t <- ccallU (cftyp _ _) fn arg;;
+      'rv : SAny.t <- ccallU (fnsig fn (fntyp _ _)) arg;;
       'ths : thpool <- cgetU v_ths;;
       'tid : nat <- cgetU v_tid;;
       match ths !! tid with
@@ -52,7 +52,7 @@ Module NDSI. Section NDSI.
   Definition spawn : string * SAny.t → itree crisE nat :=
     λ '(fn, arg),
       'ths : thpool <- cgetU v_ths;;
-      new_stid <- trigger (Spawn NDSHdr._spawn (fn, arg)↑);;
+      new_stid <- trigger (Spawn NDSHdr._spawn.1 (fn, arg)↑);;
       cput v_ths (ths ++ [(new_stid, None)]);;;
       Ret (List.length ths).
 
@@ -84,7 +84,7 @@ Module NDSI. Section NDSI.
         match ths !! tid with
         | None => Ret (inr None)
         | Some (_, Some rv) => Ret (inr (Some rv))
-        | Some (_, None) => '() : _ <- ccallU (cftyp _ _) NDSHdr.yield tt;; Ret (inl tt)
+        | Some (_, None) => '() : _ <- ccallU NDSHdr.yield tt;; Ret (inl tt)
         end
       ) tt);;
       Ret orv.
@@ -93,13 +93,13 @@ Module NDSI. Section NDSI.
     λ _, cgetU v_tid.
 
   Definition fnsems : fnsemmap :=
-    {[fid NDSHdr.init # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) init));
-      fid NDSHdr._spawn # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) inner_spawn));
-      fid NDSHdr.spawn # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) spawn));
-      fid NDSHdr.yield # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) yield));
-      fid NDSHdr.yield_global # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) yield_global));
-      fid NDSHdr.join # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) join));
-      fid NDSHdr.get_tid # (msk_real (msk_scp scp msk_true), (None, cfunU (cftyp _ _) get_tid))]}.
+    {[fid NDSHdr.init # (msk_real (msk_scp scp msk_true), (None, cfunU NDSHdr.init init));
+      fid NDSHdr._spawn # (msk_real (msk_scp scp msk_true), (None, cfunU NDSHdr._spawn inner_spawn));
+      fid NDSHdr.spawn # (msk_real (msk_scp scp msk_true), (None, cfunU NDSHdr.spawn spawn));
+      fid NDSHdr.yield # (msk_real (msk_scp scp msk_true), (None, cfunU NDSHdr.yield yield));
+      fid NDSHdr.yield_global # (msk_real (msk_scp scp msk_true), (None, cfunU NDSHdr.yield_global yield_global));
+      fid NDSHdr.join # (msk_real (msk_scp scp msk_true), (None, cfunU NDSHdr.join join));
+      fid NDSHdr.get_tid # (msk_real (msk_scp scp msk_true), (None, cfunU NDSHdr.get_tid get_tid))]}.
 
   Program Definition smod: SMod.t :=
   {|

@@ -3,16 +3,15 @@ Require Export Basic Loc Val Ordering Event Local Configuration PFConfiguration.
 Require Export View TView.
 
 Module PFMemHdr.
-  Definition alloc := "PFMem.alloc".
-  Definition free  := "PFMem.free".
-  Definition read  := "PFMem.read".
-  Definition write := "PFMem.write".
-  Definition cmp   := "PFMem.cmp".
-  Definition cas   := "PFMem.cas".
-  Definition faa   := "PFMem.faa".
-  Definition fence := "PFMem.fence".
-  Definition init  := "PFMem.init".
-  Definition spawn := "PFMem.spawn".
+  Definition alloc := fnsig "PFMem.alloc" (fntyp (Ident.t * Z) Val.t).
+  Definition free  := fnsig "PFMem.free" (fntyp (Ident.t * Loc.t) Val.t).
+  Definition read  := fnsig "PFMem.read" (fntyp (Ident.t * Loc.t * Ordering.t) Val.t).
+  Definition write := fnsig "PFMem.write" (fntyp (Ident.t * Loc.t * Val.t * Ordering.t) Val.t).
+  Definition cmp   := fnsig "PFMem.cmp" (fntyp (Ident.t * Val.t * Val.t) Val.t).
+  Definition cas   := fnsig "PFMem.cas" (fntyp (Ident.t * Loc.t * Val.t * Val.t * Ordering.t * Ordering.t) Val.t).
+  Definition faa   := fnsig "PFMem.faa" (fntyp (Ident.t * Loc.t * Val.t * Ordering.t * Ordering.t) Val.t).
+  Definition fence := fnsig "PFMem.fence" (fntyp (Ident.t * Ordering.t * Ordering.t) Val.t).
+  Definition spawn := fnsig "PFMem.spawn" (fntyp Ident.t Ident.t).
 End PFMemHdr.
 
 Definition parse_loc `{Σ : GRA} : Val.t → itree crisE Loc.t :=

@@ -81,7 +81,7 @@ Module MPA. Section MPA.
     λ _,
       𝒴;;;
         m <- trigger (Choose Val.t);;
-        '_ : () <- ccallU (cftyp _ _) SystemHdr.spawn (MPHdr.mp2, m↑↑);;
+        '_ : () <- ccallU SystemHdr.spawn (MPHdr.mp2.1, m↑↑);;
       iterC (λ _,
         𝒴;;;
         'b : bool <- trigger (Choose bool);;
@@ -89,7 +89,7 @@ Module MPA. Section MPA.
       Ret (Val.Vnum 42)↑.
 
   Definition fnsems : fnsemmap :=
-    {[fid MPHdr.mp2 # (msk_scp scopes msk_true, (fsp_some mp2_spec, (cfunN (cftyp _ _) (sfunN mp2))));
+    {[fid MPHdr.mp2 # (msk_scp scopes msk_true, (fsp_some mp2_spec, (cfunN (fntyp _ _) (sfunN MPHdr.mp2 mp2))));
       entry         # (msk_scp scopes msk_true, (fsp_some main_spec, mp))]}.
 
   Program Definition Mod : SMod.t := {|

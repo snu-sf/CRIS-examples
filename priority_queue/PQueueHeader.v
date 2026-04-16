@@ -1,7 +1,7 @@
-Require Import CRIS.
+Require Import CRIS ImpPrelude.
 
 Module PQueueHdr.
-  Definition new := "PQueue.new".
-  Definition add := "PQueue.add".
-  Definition remove_min := "PQueue.remove_min".
+  Definition new := fnsig "PQueue.new" imp_fun_t.
+  Definition add := fnsig "PQueue.add" imp_fun_t.
+  Definition remove_min := fnsig "PQueue.remove_min" imp_fun_t.
 End PQueueHdr.

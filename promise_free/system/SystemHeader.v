@@ -5,32 +5,14 @@ Require Export PFMemHeader.
 Require Export Basic Val.
 
 Module SystemHdr.
-  Definition _spawn := "System._spawn".
-  Definition spawn := "System.spawn".
-  Definition yield := "System.yield".
-  Definition get_tid := "System.get_tid".
-  Definition alloc := "System.alloc".
-  Definition write := "System.write".
-  Definition read := "System.read".
+  Definition _spawn  := fnsig "System._spawn" (fntyp (Ident.t * string * SAny.t) ()).
+  Definition spawn   := fnsig "System.spawn" (fntyp (string * SAny.t) ()).
+  Definition yield   := fnsig "System.yield" (fntyp () ()).
+  Definition get_tid := fnsig "System.get_tid" (fntyp () Ident.t).
+  Definition alloc   := fnsig "System.alloc" (fntyp nat Val.t).
+  Definition write   := fnsig "System.write" (fntyp (Loc.t * Val.t * Ordering.t) Val.t).
+  Definition read    := fnsig "System.read" (fntyp (Loc.t * Ordering.t) Val.t).
 End SystemHdr.
-
-(* Wrapping fspecs *)
-Section FSpec.
-  Context `{!crisG Γ Σ α β τ _S _I}.
-
-  Definition sfunN {X Y} `{coreE -< E} `{callE -< E} `{pgE -< E}
-      (body : X -> itree E Y) : SAny.t -> itree E SAny.t :=
-    λ varg, varg <- varg↓↓!;; vret <- body varg;; Ret vret↑↑.
-
-  Definition sfunU {X Y} `{coreE -< E} `{callE -< E} `{pgE -< E}
-      (body : X -> itree E Y) : SAny.t -> itree E SAny.t :=
-    λ varg, varg <- varg↓↓?;; vret <- body varg;; Ret vret↑↑.
-
-  Definition interp_cond (s : {n & GTerm.t n}) :=
-    match s with
-    | existT n p => ⟦ p ⟧
-    end.
-End FSpec.
 
 Module System. Section System.
   Import Events.
@@ -46,31 +28,31 @@ Module System. Section System.
         | None => Ret (inr tt: () + ())
         | Some false => Ret (inl tt: () + ())
         | Some true => 
-            trigger (Call SystemHdr.yield tt↑);;;
+            ccallU SystemHdr.yield tt;;;
             Ret (inl tt: () + ())
         end)) tt).
 
   Definition terminate : itree E unit :=
     Seal.sealing "System"
       (iterC ((λ _,
-        '() : _ <- ccallU (cftyp _ _) SystemHdr.yield tt;;
+        '() : _ <- ccallU SystemHdr.yield tt;;
         Ret (inl tt: () + ())
       )) tt).
 
   Definition alloc : nat → itree E Val.t :=
     λ sz,
-      'tid : Ident.t <- ccallU (cftyp _ _) SystemHdr.get_tid ();;
-      ccallU (cftyp _ _) PFMemHdr.alloc (tid, sz).
+      'tid : Ident.t <- ccallU SystemHdr.get_tid ();;
+      ccallU PFMemHdr.alloc (tid, sz: Z).
 
   Definition write : Loc.t * Val.t * Ordering.t → itree E Val.t :=
     λ '(loc, val, ord),
-      'tid : Ident.t <- ccallU (cftyp _ _) SystemHdr.get_tid ();;
-      ccallU (cftyp _ _) PFMemHdr.write (tid, loc, val, ord).
+      'tid : Ident.t <- ccallU SystemHdr.get_tid ();;
+      ccallU PFMemHdr.write (tid, loc, val, ord).
 
   Definition read : Loc.t * Ordering.t → itree E Val.t :=
     λ '(loc, ord),
-      'tid : Ident.t <- ccallU (cftyp _ _) SystemHdr.get_tid ();;
-      ccallU (cftyp _ _) PFMemHdr.read (tid, loc, ord).
+      'tid : Ident.t <- ccallU SystemHdr.get_tid ();;
+      ccallU PFMemHdr.read (tid, loc, ord).
 End System. End System.
 
 Notation 𝒴 := (System.yield).

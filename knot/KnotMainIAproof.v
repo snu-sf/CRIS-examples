@@ -109,13 +109,13 @@ Module KnotMainIA. Section KnotMainIA.
     pose proof (@CEnv.incl_incl_env KnotMainGEnv.t genv) as INCLENV.
     unfold KnotMainGEnv.t in GEnvIncl; ss.
     eapply INCLENV in GEnvIncl; et. unfold CEnv.incl_env in GEnvIncl.
-    specialize (@GEnvIncl KnotMainHdr.fib Gfun↑) as SF.
+    specialize (@GEnvIncl KnotMainHdr.fib.1 Gfun↑) as SF.
     hexploit SF; [left; ss|intro SKINCL_F].
     des. clear SF INCLENV.
 
     (* SKWF *)
     apply CEnv.load_genv_wf in GEnvWF. unfold CEnv.wf in GEnvWF.
-    specialize (GEnvWF KnotMainHdr.fib blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDF.
+    specialize (GEnvWF KnotMainHdr.fib.1 blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDF.
 
     (* SRC: precondition *)
     cStepsS. iDestruct "ASM" as "[-> [-> FG]]". cStepsS.

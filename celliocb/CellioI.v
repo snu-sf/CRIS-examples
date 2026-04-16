@@ -19,7 +19,7 @@ Module CellioI. Section CellioI.
    live in KnotI.v — please see that file. *)
   Definition set : string → itree crisE () :=
     λ cb,
-      i <- ccallU CtxHdr.cb_t cb tt;;
+      i <- ccallU (fnsig cb CtxHdr.cb_t) tt;;
       cput v_cv i;;;
       Ret tt.
 
@@ -29,8 +29,8 @@ Module CellioI. Section CellioI.
       Ret i.
 
   Definition fnsems : fnsemmap :=
-    {[fid CellioHdr.set # ((msk_scp scopes msk_true), (None, cfunU CellioHdr.set_t set));
-      fid CellioHdr.get # ((msk_scp scopes msk_true), (None, cfunU CellioHdr.get_t get))]}.
+    {[fid CellioHdr.set # ((msk_scp scopes msk_true), (None, cfunU CellioHdr.set set));
+      fid CellioHdr.get # ((msk_scp scopes msk_true), (None, cfunU CellioHdr.get get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

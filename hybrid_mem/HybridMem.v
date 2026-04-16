@@ -124,10 +124,10 @@ Module HybMem. Section HybMem.
         trigger (Guarantee (loc ⤇ (if bool_decide (succ = 1) then v_new else v_cur) ∗ val_r v_cur q0 v0 ∗ val_r v_old q1 v1));;;
         Ret v_cur
       else
-        'v_cur: val <- ccallU imp_fun_t MemHdr.load [Vint loc];;
-        'succ: val <- ccallU imp_fun_t MemHdr.cmp [v_cur; v_old];;
+        'v_cur: val <- ccallU MemHdr.load [Vint loc];;
+        'succ: val <- ccallU MemHdr.cmp [v_cur; v_old];;
         (if (bool_decide (succ = (Vint 1)))
-        then ccallU imp_fun_t MemHdr.store [Vint loc; v_new]
+        then ccallU MemHdr.store [Vint loc; v_new]
         else Ret Vundef);;;
         Ret v_cur
   .

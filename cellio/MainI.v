@@ -13,15 +13,15 @@ Module MainI. Section MainI.
 
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
-      ccallU (_,unit:Type) CellioHdr.set tt;;;
-      ccallU CtxHdr.foo_t CtxHdr.foo tt;;;
-      x <- ccallU (_,_) CellioHdr.get tt;;
+      ccallU CellioHdr.set tt;;;
+      ccallU CtxHdr.foo tt;;;
+      x <- ccallU CellioHdr.get tt;;
       trigger (@IO Z unit "Print" x);;;
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=
-    {[entry           # (msk_real (msk_scp scopes msk_true), (fsp_none, start));
-      fid MainAS.main # (msk_real (msk_scp scopes msk_true), (fsp_none, main))
+    {[entry             # (msk_real (msk_scp scopes msk_true), (fsp_none, start));
+      funid MainAS.main # (msk_real (msk_scp scopes msk_true), (fsp_none, main))
     ]}.
 
   Program Definition smod: SMod.t := {|

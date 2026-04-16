@@ -14,18 +14,18 @@ Module MainA. Section MainA.
     match n with
     | 0 => Ret tt
     | S n' =>
-      'r : Z <- ccallU CannonHdr.fire_t CannonHdr.fire ([] : list val);;
+      'r : Z <- ccallU CannonHdr.fire ([] : list val);;
       _ <- trigger (@IO _ void "print" [r]↑);;
       main_repeat n'
     end.
 
-  Definition main : list val → itree crisE unit :=
-    λ _, main_repeat num_fire.
+  Definition main : Any.t → itree crisE Any.t :=
+    λ _, main_repeat num_fire;;; ret ()↑.
 
   Definition main_spec : fspec := fspec_simple (λ _ : unit, ((λ _, Ball), (λ _, True%I))).
 
   Definition fnsems : fnsemmap :=
-    {[entry # (msk_scp scopes msk_true, (fsp_some main_spec, cfunU (_,_) main))]}.
+    {[entry # (msk_scp scopes msk_true, (fsp_some main_spec, main))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

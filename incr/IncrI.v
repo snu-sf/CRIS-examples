@@ -12,9 +12,9 @@ Module IncrI. Section IncrI.
       𝒴;;; bofs <- (pargs [Tptr] arg)?;;
       𝒴;;;
         iterC (λ _ : unit,
-          𝒴;;; 'v_raw : val <- ccallU (cftyp _ _) MemHdr.load [Vptr bofs];;
+          𝒴;;; 'v_raw : val <- ccallU MemHdr.load [Vptr bofs];;
           𝒴;;; 'v : Z <- (pargs [Tint] [v_raw])?;;
-          𝒴;;; 's_raw : val <- ccallU (cftyp _ _) MemHdr.cas [Vptr bofs; Vint v; Vint (v + 1)];;
+          𝒴;;; 's_raw : val <- ccallU MemHdr.cas [Vptr bofs; Vint v; Vint (v + 1)];;
           𝒴;;; 's : Z <- (pargs [Tint] [s_raw])?;;
           𝒴;;;
             if (decide (s = v))
@@ -23,7 +23,7 @@ Module IncrI. Section IncrI.
         ) ().
 
   Definition fnsems : fnsemmap :=
-    {[fid IncrHdr.incr # (msk_scp scopes msk_true, (None, cfunU (cftyp _ _) incr))]}.
+    {[fid IncrHdr.incr # (msk_scp scopes msk_true, (None, cfunU IncrHdr.incr incr))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

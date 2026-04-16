@@ -17,10 +17,10 @@ Module CannonMainIA. Section CannonMainIA.
   
   Lemma simF_main : ISim.sim_fun open MainAMod MainIMod Ist entry.
   Proof using CannonInMain.
-    cStartFunSim.
+    cStartFunSim. rewrite /MainA.main /MainI.main.
 
     (* SRC: precondition *)
-    cStepsS. iDestruct "ASM" as "[-> B]". destruct Any.downcast; cStepsS; ss. cSimpl.
+    cStepsS. iDestruct "ASM" as "[-> B]". cSimpl.
 
     (* SRC: prove the precondition of "fire" *)
     cStepsT. cForceS (). cForcesS. iFrame; iSplit; eauto.

@@ -18,7 +18,7 @@ Module ClientIA. Section ClientIA.
   Local Definition MI := ((ClientI.t ★ IncrA.t (N.@"a")) ★ MemA.t sp).
 
   Lemma f_spawnable γ v bofs :
-    ⊢ SchA.fn_spawnable sp_user (ClientHdr.thread)
+    ⊢ SchA.fn_spawnable sp_user (ClientHdr.thread).1
       (λ varg arg,
         ⌜varg = arg ∧ varg = ([Vptr bofs]↑↑)⌝
         ∗ counter γ (1/2) v
@@ -27,7 +27,7 @@ Module ClientIA. Section ClientIA.
         existT 0 ((⌜vret = ret ∧ vret = tt↑↑⌝ ∗ counter_syn γ (1/2) (v + 2))%SAT)).
   Proof using Hclient.
     iExists _; iSplitL.
-    { cSimpl. }
+    { cSimpl. et. }
     iApply SchA.fspec_sch_spawnable; first done.
     iIntros "%P1 %Q1 [% [-> ->]]"; iExists _, _; iSplit; first (iPureIntro).
     { exists (bofs, v, γ); split; ss. }

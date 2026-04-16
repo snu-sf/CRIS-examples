@@ -58,11 +58,11 @@ Section CellioAux.
     des. rewrite !lookup_fmap FIND. ss. destruct x, p. et.
   (*SLOW*)Qed.
 
-  Lemma sp_main: sp.1 !! fid MainAS.main = Some (MainAS.main_spec: fspec_rel).
+  Lemma sp_main: sp.1 !! funid MainAS.main = Some (MainAS.main_spec: fspec_rel).
   Proof.
     rewrite lookup_omap !lookup_fmap lookup_omap lookup_union_with. simpl_map.
-    destruct (SMod.fnsems Ctx_filtered !! fid MainAS.main) eqn: Lctxf_main; et.
-    exfalso. eapply (ctx_main_disj (fid MainAS.main)); rewrite elem_of_dom; et.
+    destruct (SMod.fnsems Ctx_filtered !! funid MainAS.main) eqn: Lctxf_main; et.
+    exfalso. eapply (ctx_main_disj (funid MainAS.main)); rewrite elem_of_dom; et.
     rewrite !lookup_fmap in Lctxf_main.
     destruct (SMod.fnsems _ !! _) eqn: Lctx_main; ss.
   Qed.

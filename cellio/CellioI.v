@@ -9,7 +9,7 @@ Module CellioI. Section CellioI.
 
   Definition set: () -> itree crisE () :=
     λ _,
-      'i : Z <- ccallU CtxHdr.input_t CtxHdr.input tt;;
+      'i : Z <- ccallU CtxHdr.input tt;;
       cput v_cv i;;;
       Ret tt.
 
@@ -19,8 +19,8 @@ Module CellioI. Section CellioI.
       Ret i.
 
   Definition fnsems : fnsemmap :=
-    {[fid CellioHdr.set # (msk_real (msk_scp scopes msk_true), (fsp_none, cfunU CellioHdr.set_t set));
-      fid CellioHdr.get # (msk_real (msk_scp scopes msk_true), (fsp_none, cfunU CellioHdr.get_t get))]}.
+    {[fid CellioHdr.set # (msk_real (msk_scp scopes msk_true), (fsp_none, cfunU CellioHdr.set set));
+      fid CellioHdr.get # (msk_real (msk_scp scopes msk_true), (fsp_none, cfunU CellioHdr.get get))]}.
 
   Program Definition smod: SMod.t := {|
     SMod.scopes := scopes;

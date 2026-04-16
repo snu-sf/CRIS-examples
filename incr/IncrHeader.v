@@ -1,9 +1,9 @@
-Require Import Common.
+Require Import Common ImpPrelude.
 
 Module IncrHdr.
-  Definition incr := "incr".
+  Definition incr := fnsig "incr" imp_fun_t.
 End IncrHdr.
 
 Module ClientHdr.
-  Definition thread := "thread".
+  Definition thread := fnsig "thread" (fntyp (list val) ()).
 End ClientHdr.

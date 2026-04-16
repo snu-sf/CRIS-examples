@@ -88,7 +88,7 @@ Module MainA. Section MainA.
 
   Definition fnsems (N : namespace) : fnsemmap :=
     {[entry # (msk_scp scopes msk_true, (fsp_some (main_spec N), main));
-      fid SpinLockMainHdr.incr # (msk_scp scopes msk_true, (fsp_some (incr_spec (↑N)), cfunN (cftyp _ _) (sfunN (_,_) incr)))]}.
+      fid SpinLockMainHdr.incr # (msk_scp scopes msk_true, (fsp_some (incr_spec (↑N)), cfunN (fntyp _ _) (sfunN SpinLockMainHdr.incr incr)))]}.
 
   Program Definition smod N : SMod.t := {|
     SMod.scopes := scopes;

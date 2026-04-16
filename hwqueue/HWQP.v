@@ -8,18 +8,18 @@ Module HWQP. Section HWQP.
 
   Definition new_queue : list val → itree crisE val := λ sz,
     𝒴;;; sz <- (pargs [Tint] sz)?;;
-    𝒴;;; 'q : val <- ccallU (cftyp _ _) MemHdr.alloc [Vint (2 + sz)];;
+    𝒴;;; 'q : val <- ccallU MemHdr.alloc [Vint (2 + sz)];;
     𝒴;;; '(qblk, qofs) : _ <- (pargs [Tptr] [q])?;;
-    𝒴;;; '_ : val <- ccallU (cftyp _ _) MemHdr.store [Vptr (qblk, qofs); Vint sz];;
-    𝒴;;; '_ : val <- ccallU (cftyp _ _) MemHdr.store [Vptr (qblk, qofs + 1)%Z; Vint 0];;
+    𝒴;;; '_ : val <- ccallU MemHdr.store [Vptr (qblk, qofs); Vint sz];;
+    𝒴;;; '_ : val <- ccallU MemHdr.store [Vptr (qblk, qofs + 1)%Z; Vint 0];;
     𝒴;;; ITree.iter (λ (x : nat), (* initialization *)
       𝒴;;;
         if Nat.ltb x (Z.to_nat sz) 
         then 
-          '_ : val <- ccallU (cftyp _ _) MemHdr.store [Vptr (qblk, qofs + 2 + x)%Z; Vint 0];; Ret (inl (S x))
+          '_ : val <- ccallU MemHdr.store [Vptr (qblk, qofs + 2 + x)%Z; Vint 0];; Ret (inl (S x))
         else
           Ret (inr ())) 0;;;
-    𝒴;;; trigger (Call (Prophecy.new mn) ("hwq", q↑↑)↑);;; Ret q.
+    𝒴;;; ccallU (Prophecy.new mn) ("hwq", q↑↑);;; Ret q.
 
   Definition dequeue_aux (q : val) (range : nat) (i : nat) : itree crisE (() + val) :=
     𝒴;;;
@@ -30,15 +30,15 @@ Module HWQP. Section HWQP.
         else
           let j := range - i in
           𝒴;;; '(blk, ofs) : mblock * ptrofs <- (pargs [Tptr] [q])?;;
-          𝒴;;; 'x : val <- ccallU (cftyp _ _) MemHdr.load [Vptr (blk, ofs + 2 + j)%Z];;
+          𝒴;;; 'x : val <- ccallU MemHdr.load [Vptr (blk, ofs + 2 + j)%Z];;
           match x with
           | Vint 0 => 𝒴;;; Ret (inl (i - 1))
           | Vptr (xblk, xofs) =>
               𝒴;;;
-                'c : val <- ccallU (cftyp _ _) MemHdr.cas [Vptr (blk, ofs + 2 + j)%Z; x; Vint 0];;
-                trigger (Call (Prophecy.resolve mn)
-                  (("hwq", q↑↑), (j, bool_decide (c = x))↑↑)↑);;;
-              𝒴;;; 'succ : val <- ccallU (cftyp _ _) MemHdr.cmp [c; x];;
+                'c : val <- ccallU MemHdr.cas [Vptr (blk, ofs + 2 + j)%Z; x; Vint 0];;
+                ccallU (Prophecy.resolve mn)
+                  (("hwq", q↑↑), (j, bool_decide (c = x))↑↑);;;
+              𝒴;;; 'succ : val <- ccallU MemHdr.cmp [c; x];;
               𝒴;;;
                 match succ with
                 | Vint 0 => 𝒴;;; Ret (inl (i - 1))
@@ -52,9 +52,9 @@ Module HWQP. Section HWQP.
     𝒴;;; '(qblk, qofs) : mblock * ptrofs <- (pargs [Tptr] q)?;;
     𝒴;;;
       ITree.iter (λ _ : unit,
-        𝒴;;; 'sz : val <- ccallU (cftyp _ _) MemHdr.load [Vptr (qblk, qofs)];;
+        𝒴;;; 'sz : val <- ccallU MemHdr.load [Vptr (qblk, qofs)];;
         𝒴;;; 'sz : Z <- (pargs [Tint] [sz])?;;
-        𝒴;;; 'back : val <- ccallU (cftyp _ _) MemHdr.load [Vptr (qblk, qofs + 1)%Z];;
+        𝒴;;; 'back : val <- ccallU MemHdr.load [Vptr (qblk, qofs + 1)%Z];;
         𝒴;;; 'back : Z <- (pargs [Tint] [back])?;;
         𝒴;;; let range := Z.to_nat (Z.min sz back) in
         dequeue_aux (Vptr (qblk, qofs)) range range) ().
@@ -64,9 +64,9 @@ Module HWQP. Section HWQP.
       (msk_real (msk_scp [] msk_true)).
 
   Definition fnsems : fnsemmap :=
-    {[fid HWQHdr.new_queue # (msk, (None, cfunU (cftyp _ _) new_queue));
-      fid HWQHdr.enqueue   # (msk, (None, cfunU (cftyp _ _) (HWQI.enqueue)));
-      fid HWQHdr.dequeue   # (msk, (None, cfunU (cftyp _ _) dequeue))]}.
+    {[fid HWQHdr.new_queue # (msk, (None, cfunU HWQHdr.new_queue new_queue));
+      fid HWQHdr.enqueue   # (msk, (None, cfunU HWQHdr.enqueue (HWQI.enqueue)));
+      fid HWQHdr.dequeue   # (msk, (None, cfunU HWQHdr.dequeue dequeue))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := [];

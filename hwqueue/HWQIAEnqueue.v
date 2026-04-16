@@ -39,7 +39,7 @@ Section HWQPM.
 
   Lemma big_lemma γe γs (ls : list val) slots (p : list nat)
     msks mtid stid n sz blk γc γi γb fl_s fl_t r g ps pt st_src st_tgt :
-  fl_s !! fid (Helping.help mnh) =
+  fl_s !! funid (Helping.help mnh) =
     Some (Some (SB.sandbox_body
       (msk_scp (HelpingOn.scopes mnh) msk_true,
       (SModTr.trans_fnsem (SchA.sp ∅ (↑N))

@@ -7,6 +7,6 @@ Module CellHdr.
   Definition fn (idx : nat) (method : string) :=
     mn idx +:+ "." +:+ method.
 
-  Definition get idx := fn idx "get".
-  Definition set idx := fn idx "set".
+  Definition get idx := fnsig (fn idx "get") (fntyp () Z).
+  Definition set idx := fnsig (fn idx "set") (fntyp Z ()).
 End CellHdr.

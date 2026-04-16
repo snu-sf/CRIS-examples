@@ -1,6 +1,5 @@
 Require Import CRIS.
 
 Module MainHdr.
-  Definition input_cb : string := "Input_cb".
-  Definition input_cb_t := cftyp () Z.
+  Definition input_cb := fnsig "Input_cb" (fntyp () Z).
 End MainHdr.

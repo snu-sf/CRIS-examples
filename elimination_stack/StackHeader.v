@@ -1,7 +1,7 @@
-Require Import CRIS.
+Require Import CRIS ImpPrelude.
 
 Module StackHdr.
-  Definition new_stack := "Stack.new_stack".
-  Definition push := "Stack.push".
-  Definition pop := "Stack.pop".
+  Definition new_stack := fnsig "Stack.new_stack" imp_fun_t.
+  Definition push := fnsig "Stack.push" imp_fun_t.
+  Definition pop := fnsig "Stack.pop" imp_fun_t.
 End StackHdr.

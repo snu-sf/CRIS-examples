@@ -18,14 +18,14 @@ Module MutFI. Section MutFI.
       if dec n 0%Z
       then Ret (Vint 0)
       else (
-        m <- ccallU (cftyp _ _) MutHdr.mutg [Vint (n - 1)];;
+        m <- ccallU MutHdr.mutg [Vint (n - 1)];;
         r <- (vadd (Vint n) m)?;;
         Ret r
       )
   .
 
   Definition fnsems : fnsemmap :=
-    {[fid MutHdr.mutf # (msk_scp scopes msk_true, (None, cfunU (cftyp _ _) fF))]}.
+    {[fid MutHdr.mutf # (msk_scp scopes msk_true, (None, cfunU imp_fun_t fF))]}.
   
   Program Definition smod: SMod.t :=
   {|

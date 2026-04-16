@@ -39,6 +39,7 @@ Module MainIA. Section MainIA.
      
     (* sync foo *)
     des_ifs. cCall "IST" as (???) "IST".
+    destruct Any.downcast; [|cStepsS; ss].
 
     (* TGT : inline get *)
     cStepsT. cInlineT.
@@ -46,9 +47,7 @@ Module MainIA. Section MainIA.
     
     (* TGT : get cell ret *)
     cForcesT. iFrame.
-
     cStepsT. cStepsS. 
-    cStepsS. destruct Any.downcast; cStepsS; des_ifs.
     
     (* sync print *)
     cStep. cStepsS. cStepsT. cForcesS. iSplit; et. cStep. iFrame; et. 

@@ -699,10 +699,10 @@ Module RRSAS. Section RRSAS.
     .
 
     Definition fn_spawnable_rr fn (my_tid: nat) (pre : SAny.t → SAny.t → iProp Σ) Invs : iProp Σ :=
-      (∃ fsp, ⌜sp_user.1 !! (fid fn) = Some fsp⌝ ∧ fspec_spawnable_rr fsp my_tid pre Invs)%I.
+      (∃ fsp, ⌜sp_user.1 !! (funid fn) = Some fsp⌝ ∧ fspec_spawnable_rr fsp my_tid pre Invs)%I.
     
     Definition fn_spawnable_rr_init fn (my_tid: nat) (pre : SAny.t → SAny.t → iProp Σ) Inv : iProp Σ :=
-      (∃ fsp, ⌜sp_user.1 !! (fid fn) = Some fsp⌝ ∧
+      (∃ fsp, ⌜sp_user.1 !! (funid fn) = Some fsp⌝ ∧
        fspec_spawnable_rr_init fsp my_tid pre Inv).
 
     Definition init_spec : fspec :=
@@ -806,7 +806,7 @@ Module RRSA. Section RRSA.
       stid <- trigger GetTid;;
       cput v_sch stid;;;
       'ths: thpool <- cgetN v_ths;;
-      new_stid <- trigger (Spawn RRSHdr._spawn (fn, tt↑↑)↑);;
+      new_stid <- trigger (Spawn RRSHdr._spawn.1 (fn, tt↑↑)↑);;
       cput v_ths (ths ++ [new_stid]);;;
       cput v_tid (length ths);;;
       trigger (Yield new_stid);;;
@@ -831,7 +831,7 @@ Module RRSA. Section RRSA.
   Definition spawn : string * SAny.t → itree crisE nat :=
     λ '(fn, arg),
       'ths : thpool <- cgetN v_ths;;
-      new_stid <- trigger (Spawn RRSHdr._spawn (fn, arg)↑);;
+      new_stid <- trigger (Spawn RRSHdr._spawn.1 (fn, arg)↑);;
       cput v_ths (ths ++ [new_stid]);;;
       Ret (length ths).
 
@@ -866,12 +866,12 @@ Module RRSA. Section RRSA.
     λ _, cgetN v_tid.
   
   Definition fnsems (E: coPset) (sp_user: specmap) (T: Type) (get_stid : T → nat) (PYIP: T → iProp Σ): fnsemmap :=
-    {[fid RRSHdr.init # (msk_scp scp msk_true, (fsp_some (RRSAS.init_spec sp_user E get_stid PYIP), cfunN (cftyp _ _) init));
-      fid RRSHdr._spawn # (msk_scp scp msk_true, (fsp_some (RRSAS.inner_spawn_spec sp_user E), cfunN (cftyp _ _) inner_spawn));
-      fid RRSHdr.spawn # (msk_scp scp msk_true, (fsp_some (RRSAS.spawn_spec sp_user E), cfunN (cftyp _ _) spawn));
-      fid RRSHdr.yield # (msk_scp scp msk_true, (fsp_some (RRSAS.yield_spec E), cfunN (cftyp _ _) yield));
-      fid RRSHdr.yield_global # (msk_scp scp msk_true, (fsp_some (RRSAS.yield_global_spec E), cfunN (cftyp _ _) yield_global));
-      fid RRSHdr.get_tid # (msk_scp scp msk_true, (fsp_some (RRSAS.get_tid_spec), cfunN (cftyp _ _) get_tid))]}.
+    {[fid RRSHdr.init # (msk_scp scp msk_true, (fsp_some (RRSAS.init_spec sp_user E get_stid PYIP), cfunN (fntyp _ _) init));
+      fid RRSHdr._spawn # (msk_scp scp msk_true, (fsp_some (RRSAS.inner_spawn_spec sp_user E), cfunN (fntyp _ _) inner_spawn));
+      fid RRSHdr.spawn # (msk_scp scp msk_true, (fsp_some (RRSAS.spawn_spec sp_user E), cfunN (fntyp _ _) spawn));
+      fid RRSHdr.yield # (msk_scp scp msk_true, (fsp_some (RRSAS.yield_spec E), cfunN (fntyp _ _) yield));
+      fid RRSHdr.yield_global # (msk_scp scp msk_true, (fsp_some (RRSAS.yield_global_spec E), cfunN (fntyp _ _) yield_global));
+      fid RRSHdr.get_tid # (msk_scp scp msk_true, (fsp_some (RRSAS.get_tid_spec), cfunN (fntyp _ _) get_tid))]}.
 
   Program Definition smod sp_user (E: coPset) (T: Type) (get_stid: T → nat) (PYIP : T → iProp Σ): SMod.t := {|
     SMod.scopes := scp;

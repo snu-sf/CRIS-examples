@@ -1,12 +1,11 @@
-Require Import Common.
+Require Import Common ImpPrelude.
 
 Module SpinLockHdr.
-  Definition newlock := "newlock".
-  Definition acquire := "acquire".
-  Definition release := "release".
+  Definition newlock := fnsig "newlock" imp_fun_t.
+  Definition acquire := fnsig "acquire" imp_fun_t.
+  Definition release := fnsig "release" imp_fun_t.
 End SpinLockHdr.
 
 Module SpinLockMainHdr.
-  Definition main := "CRIS_init".
-  Definition incr := "incr".
+  Definition incr := fnsig "incr" imp_fun_t.
 End SpinLockMainHdr.

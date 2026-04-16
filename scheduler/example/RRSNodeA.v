@@ -162,8 +162,8 @@ Module RRSNodeA. Section RRSNodeA.
   Definition f_main : SAny.t -> itree crisE SAny.t :=
     fun _ =>
       ℛ𝒴;;;
-      'tid1: nat <- ccallU (cftyp _ _) RRSHdr.spawn (RRSNodeHdr.f, tt↑↑);; ℛ𝒴;;;
-      'tid2: nat <- ccallU (cftyp _ _) RRSHdr.spawn (RRSNodeHdr.f, tt↑↑);; ℛ𝒴;;; ℛℛ;;;
+      'tid1: nat <- ccallU RRSHdr.spawn (RRSNodeHdr.f.1, tt↑↑);; ℛ𝒴;;;
+      'tid2: nat <- ccallU RRSHdr.spawn (RRSNodeHdr.f.1, tt↑↑);; ℛ𝒴;;; ℛℛ;;;
       Ret (tt↑↑)
   .
 
@@ -174,8 +174,8 @@ Module RRSNodeA. Section RRSNodeA.
       Ret (tt↑↑).
   
   Definition fnsems (E : coPset) : fnsemmap :=
-    {[fid RRSNodeHdr.f_main # (msk_scp scopes msk_true, (fsp_some (RRSNodeAS.f_main_spec E), cfunN (cftyp _ _) f_main));
-      fid RRSNodeHdr.f      # (msk_scp scopes msk_true, (fsp_some (RRSNodeAS.f_spec E), cfunN (cftyp _ _) f))]}.
+    {[fid RRSNodeHdr.f_main # (msk_scp scopes msk_true, (fsp_some (RRSNodeAS.f_main_spec E), cfunN (fntyp _ _) f_main));
+      fid RRSNodeHdr.f      # (msk_scp scopes msk_true, (fsp_some (RRSNodeAS.f_spec E), cfunN (fntyp _ _) f))]}.
 
   Program Definition smod E : SMod.t := {|
     SMod.scopes := scopes;

@@ -32,7 +32,7 @@ Module KnotIA. Section KnotIA.
               (<<BLK: fb' = Vptr (fb, 0%Z)>>) /\
               (<<FN: fb_has_spec_in genv sp_fun fb (fun_gen genv sp_rec f)>>)⌝)
           ∗ (knot_full f')
-          ∗ (var_points_to genv KnotHdr._f fb'))%I.
+          ∗ (var_points_to genv KnotHdr._f.1 fb'))%I.
 
   Local Notation APCA := (APCA.t sp_pure sp).
   Local Notation MemA := (MemA.t ∅).
@@ -50,8 +50,8 @@ Module KnotIA. Section KnotIA.
     (* unfold KnotIMod in GEnvIncl; ss. apply (incl_app_inv KnotGEnv _) in GEnvIncl. des. *)
     unfold KnotGEnv.t in GEnvIncl.
     eapply INCLENV in GEnvIncl; et. unfold CEnv.incl_env in GEnvIncl.
-    specialize (@GEnvIncl KnotHdr._f (Gvar 0%Z)↑) as SF.
-    specialize (@GEnvIncl KnotHdr.rec Gfun↑) as SR.
+    specialize (@GEnvIncl KnotHdr._f.1 (Gvar 0%Z)↑) as SF.
+    specialize (@GEnvIncl KnotHdr.rec.1 Gfun↑) as SR.
     hexploit SF; [right; right; left; ss|intros [blk_sf SKINCL_F]].
     hexploit SR; [right; left; ss|intros [blk_sr SKINCL_REC]]. clear SF SR INCLENV.
 
@@ -121,14 +121,14 @@ Module KnotIA. Section KnotIA.
     (* SKINCL *)
     pose proof (@CEnv.incl_incl_env KnotGEnv.t genv) as INCLENV.
     unfold KnotGEnv.t in GEnvIncl. eapply INCLENV in GEnvIncl; et. unfold CEnv.incl_env in GEnvIncl.
-    specialize (@GEnvIncl KnotHdr._f (Gvar 0%Z)↑) as SF.
-    specialize (@GEnvIncl KnotHdr.rec Gfun↑) as SR.
+    specialize (@GEnvIncl KnotHdr._f.1 (Gvar 0%Z)↑) as SF.
+    specialize (@GEnvIncl KnotHdr.rec.1 Gfun↑) as SR.
     hexploit SF; [right; right; left; ss|intro SKINCL_F].
     hexploit SR; [right; left; ss|intro SKINCL_REC]. des. clear SF SR INCLENV.
 
     (* SKWF *)
     apply CEnv.load_genv_wf in GEnvWF. unfold CEnv.wf in GEnvWF.
-    specialize (GEnvWF KnotHdr.rec blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDR.
+    specialize (GEnvWF KnotHdr.rec.1 blk). apply GEnvWF in FIND; et. apply GEnvWF in FIND as FINDR.
 
     (* SRC: precondition *)
     cStepsS. rename _q into new_spec.

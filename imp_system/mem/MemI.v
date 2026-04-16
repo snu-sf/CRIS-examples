@@ -126,10 +126,10 @@ Module MemI. Section MemI.
   Definition cas: list val → itree crisE val :=
     λ arg,
       '(bofs, (v_old, v_new)) : _ <- (pargs [Tptr; Tuntyped; Tuntyped] arg)?;;
-      'v_cur : val <- ccallU imp_fun_t MemHdr.load [Vptr bofs];;
-      'succ : val <- ccallU imp_fun_t MemHdr.cmp [v_cur; v_old];;
+      'v_cur : val <- ccallU MemHdr.load [Vptr bofs];;
+      'succ : val <- ccallU MemHdr.cmp [v_cur; v_old];;
       (if (bool_decide (succ = (Vint 1)))
-       then ccallU imp_fun_t MemHdr.store [Vptr bofs; v_new]
+       then ccallU MemHdr.store [Vptr bofs; v_new]
        else Ret Vundef);;;
       Ret v_cur.
 

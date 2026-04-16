@@ -14,20 +14,20 @@ Module KnotMainI. Section KnotMainI.
       if(Z_le_gt_dec n 1)
       then Ret (Vint 1)
       else
-        'n0: val <- ccallU (cftyp _ _) fn [Vint (n - 1)];; 'n0: Z <- (unint n0)?;;
-        'n1: val <- ccallU (cftyp _ _) fn [Vint (n - 2)];; 'n1: Z <- (unint n1)?;;
+        'n0: val <- ccallU (fnsig fn imp_fun_t) [Vint (n - 1)];; 'n0: Z <- (unint n0)?;;
+        'n1: val <- ccallU (fnsig fn imp_fun_t) [Vint (n - 2)];; 'n1: Z <- (unint n1)?;;
         Ret (Vint (n0 + n1)).
 
   Definition mainF genv : () → itree crisE val :=
     λ '(),
-      fibb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotMainHdr.fib)?;;
-      'fb: val <- ccallU (cftyp _ _) KnotHdr.knot [Vptr (fibb, 0%Z)];; 'fb: mblock <- (unblk fb)?;;
+      fibb <- ((CEnv.load_genv genv).(CEnv.id2blk) KnotMainHdr.fib.1)?;;
+      'fb: val <- ccallU KnotHdr.knot [Vptr (fibb, 0%Z)];; 'fb: mblock <- (unblk fb)?;;
       fn <- ((CEnv.load_genv genv).(CEnv.blk2id) fb)?;;
-      ccallU (cftyp _ _) fn [Vint 10].
+      ccallU (fnsig fn imp_fun_t) [Vint 10].
 
   Definition fnsems (genv : GEnv.t) : fnsemmap :=
-    {[fid KnotMainHdr.fib # (msk_scp scopes msk_true, (None, cfunU (cftyp _ _) (fibF genv)));
-      entry # (msk_scp scopes msk_true, (None, cfunU (cftyp _ _) (mainF genv)))]}.
+    {[fid KnotMainHdr.fib # (msk_scp scopes msk_true, (None, cfunU KnotMainHdr.fib (fibF genv)));
+      entry # (msk_scp scopes msk_true, (None, cfunU (fntyp _ _) (mainF genv)))]}.
 
   Program Definition smod genv : SMod.t := {|
     SMod.scopes := scopes;

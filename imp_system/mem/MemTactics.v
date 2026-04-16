@@ -31,7 +31,7 @@ Section mem.
       (st_tgt, k_t (Vptr (blk, 0%Z))↑)) ⊢
     wsim fl_s fl_t Ist (E1, E2) r g R_s R_t RR ps pt
       (st_src, k_s)
-      (st_tgt, x <- (trigger (Call MemHdr.alloc [Vint sz]↑));; k_t x).
+      (st_tgt, x <- (trigger (Call MemHdr.alloc.1 [Vint sz]↑));; k_t x).
   Proof using.
     intros Hin [Ht [Hc [Ha [Har Hg]]]] Hsz.
     iIntros "K". cInlineT.
@@ -56,7 +56,7 @@ Section mem.
         (st_tgt, k_t (Vint 0)↑)) -∗
     wsim fl_s fl_t Ist (E1, E2) r g R_s R_t RR ps pt
       (st_src, k_s)
-      (st_tgt, x <- trigger (Call MemHdr.free [Vptr (b, ofs)]↑);; k_t x).
+      (st_tgt, x <- trigger (Call MemHdr.free.1 [Vptr (b, ofs)]↑);; k_t x).
   Proof using.
     intros Hin [Ht [Hc [Ha [Har Hg]]]].
     iIntros "↦ K".
@@ -78,7 +78,7 @@ Section mem.
         (st_tgt, k_t (Vint 0)↑)) -∗
     wsim fl_s fl_t Ist (E1, E2) r g R_s R_t RR ps pt
       (st_src, k_s)
-      (st_tgt, x <- trigger (Call MemHdr.store [Vptr (b, ofs); v]↑);; k_t x).
+      (st_tgt, x <- trigger (Call MemHdr.store.1 [Vptr (b, ofs); v]↑);; k_t x).
   Proof using.
     intros Hin [Ht [Hc [Ha [Har Hg]]]].
     iIntros "↦ K".
@@ -100,7 +100,7 @@ Section mem.
         (st_tgt, k_t v↑)) -∗
     wsim fl_s fl_t Ist (E1, E2) r g R_s R_t RR ps pt
       (st_src, k_s)
-      (st_tgt, x <- trigger (Call MemHdr.load [Vptr (b, ofs)]↑);; k_t x).
+      (st_tgt, x <- trigger (Call MemHdr.load.1 [Vptr (b, ofs)]↑);; k_t x).
   Proof using.
     intros Hin [Ht [Hc [Ha [Har Hg]]]].
     iIntros "↦ K".
@@ -127,7 +127,7 @@ Section mem.
         (st_tgt, k_t v↑)) -∗
     wsim fl_s fl_t Ist (E1, E2) r g R_s R_t RR ps pt
       (st_src, k_s)
-      (st_tgt, x <- trigger (Call MemHdr.cas [Vptr (b, ofs); v_old; v_new]↑);; k_t x).
+      (st_tgt, x <- trigger (Call MemHdr.cas.1 [Vptr (b, ofs); v_old; v_new]↑);; k_t x).
   Proof using.
     intros Hin [Ht [Hc [Ha [Har Hg]]]] Hcmp.
     iIntros "↦ E HE K".
@@ -154,7 +154,7 @@ Section mem.
     wsim fl_s fl_t Ist (E1, E2) r g R_s R_t RR ps pt
       (st_src, k_s)
       (st_tgt,
-        x <- trigger (Call MemHdr.cmp [v1; v2]↑);;
+        x <- trigger (Call MemHdr.cmp.1 [v1; v2]↑);;
         k_t x).
   Proof using.
     intros Hin [Ht [Hc [Ha [Har Hg]]]] Hcmp.

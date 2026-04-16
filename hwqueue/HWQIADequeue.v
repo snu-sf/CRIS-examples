@@ -364,7 +364,7 @@ Section HWQPM.
               rewrite /= Hp2 decide_True in HC3; last by (split; try lia).
               by inversion HC3.
         }
-        sYieldIR "IST" "TID". rewrite Hi.
+        cStepsT. sYieldIR "IST" "TID". rewrite Hi.
         iApply (wsim_mem_cmp with "Hi2 []"); [simpl_map; s; f_equal|ss|..].
         { ss; case_bool_decide; first refl; naive_solver. }
         { ss; iIntros "[$ $] !> [Ha Hb]". iSplitL "Ha"; by iFrame. }
@@ -414,7 +414,7 @@ Section HWQPM.
         intros x2 i2 Hi2sz Hi2deq Hi2lookup. specialize (Hpvs (S x2) i2); ss.
         rewrite Hp2 in Hpvs; apply Hpvs; eauto.
       }
-      sYieldIR "IST" "TID".
+      cStepsT. sYieldIR "IST" "TID".
       iApply (wsim_mem_cmp with "Hi2 []"); [simpl_map; s; f_equal|ss|..].
       { ss. }
       { ss; iIntros "$ !>"; iExists 1%Qp, Vundef; iIntros "[_ $] !> //". }

@@ -50,7 +50,7 @@ Module CellioA. Section CellioA.
     λ _,
       x <- trigger (Take Z);;
       trigger (Assume (CellioA.cell x));;;
-      'i: Z <- ccallU CtxHdr.input_t CtxHdr.input tt;;
+      'i: Z <- ccallU CtxHdr.input tt;;
       trigger (Guarantee (CellioA.cell i));;;
       Ret tt.
   
@@ -64,8 +64,8 @@ Module CellioA. Section CellioA.
   Definition scopes := [CellioHdr.mn].
 
   Definition fnsems : fnsemmap :=
-    {[fid CellioHdr.set # (msk_scp scopes msk_true, (None, cfunU CellioHdr.set_t set));
-      fid CellioHdr.get # (msk_scp scopes msk_true, (None, cfunU CellioHdr.get_t get))]}.
+    {[fid CellioHdr.set # (msk_scp scopes msk_true, (None, cfunU CellioHdr.set set));
+      fid CellioHdr.get # (msk_scp scopes msk_true, (None, cfunU CellioHdr.get get))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

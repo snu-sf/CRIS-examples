@@ -13,7 +13,7 @@ Module RRSIA. Section RRSIA.
   Context (parent_yield: string).
   Context (parent_yield_fsp: fspec).
   Context (T: Type) (get_stid: T → nat) (PYIP: T → iProp Σ).
-  Context (SchInSp : sp.1 !! fid parent_yield = fsp_some parent_yield_fsp).
+  Context (SchInSp : sp.1 !! funid parent_yield = fsp_some parent_yield_fsp).
   Context (RRSInSp : RRSAS.sp sp_rrs_user ⊤ get_stid PYIP ⊆ sp).
   (* Context (FunInSchSp : sp_sch_user ⊆ sp). *)
   (* Context (FunInRrsSp : sp_rrs_user ⊆ sp_sch_user). *)
@@ -740,7 +740,7 @@ Section ctxr.
   Context (T: Type) (get_stid : T → nat) (PYIP: T → iProp Σ).
 
   Lemma ctxr sp sp_rrs_user
-    (SchInSp : sp.1 !! fid parent_yield = fsp_some parent_yield_fsp)
+    (SchInSp : sp.1 !! funid parent_yield = fsp_some parent_yield_fsp)
     (RRSInSp : RRSAS.sp sp_rrs_user ⊤ get_stid PYIP ⊆ sp)
     (FunInRrsSp : sp_rrs_user ⊆ sp)
     (YieldSpec :

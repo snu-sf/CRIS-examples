@@ -15,15 +15,15 @@ Module SpinLockI. Section SpinLockI.
 
   Definition newlock : list val → itree crisE val :=
     λ _,
-      𝒴;;; 'loc : val <- ccallU (cftyp _ _) MemHdr.alloc [Vint 1];;
-      𝒴;;; '_ : val <- ccallU (cftyp _ _) MemHdr.store [loc; Vint 0];;
+      𝒴;;; 'loc : val <- ccallU MemHdr.alloc [Vint 1];;
+      𝒴;;; '_ : val <- ccallU MemHdr.store [loc; Vint 0];;
       𝒴;;; Ret loc.
 
   Definition acquire : list val → itree crisE val :=
     λ x,
       (iterC
         (λ _,
-          𝒴;;; 'b_raw : val <- ccallU (cftyp _ _) MemHdr.cas (x ++ [Vint 0; Vint 1]);;
+          𝒴;;; 'b_raw : val <- ccallU MemHdr.cas (x ++ [Vint 0; Vint 1]);;
           𝒴;;; 'b : Z <- (pargs [Tint] [b_raw])?;;
           𝒴;;;
             if (decide (b = 1)) then Ret (inl tt)
@@ -34,13 +34,13 @@ Module SpinLockI. Section SpinLockI.
 
   Definition release : list val → itree crisE val :=
     λ x,
-      𝒴;;; '_ : val <- ccallU (cftyp _ _) MemHdr.store (x ++ [Vint 0]);;
+      𝒴;;; '_ : val <- ccallU MemHdr.store (x ++ [Vint 0]);;
       𝒴;;; Ret Vundef.
 
   Definition fnsems : fnsemmap :=
-    {[fid SpinLockHdr.newlock # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) newlock));
-      fid SpinLockHdr.acquire # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) acquire));
-      fid SpinLockHdr.release # (msk_real (msk_scp scopes msk_true), (None, cfunU (cftyp _ _) release))]}.
+    {[fid SpinLockHdr.newlock # (msk_real (msk_scp scopes msk_true), (None, cfunU SpinLockHdr.newlock newlock));
+      fid SpinLockHdr.acquire # (msk_real (msk_scp scopes msk_true), (None, cfunU SpinLockHdr.acquire acquire));
+      fid SpinLockHdr.release # (msk_real (msk_scp scopes msk_true), (None, cfunU SpinLockHdr.release release))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

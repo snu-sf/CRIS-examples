@@ -27,14 +27,14 @@ Module MainA. Section MainA.
   
   Definition main: Any.t -> itree crisE Any.t :=
     λ _,
-      'i: Z <- ccallU CtxHdr.input_t CtxHdr.input tt;;
-      '_: unit <- ccallU CtxHdr.foo_t CtxHdr.foo tt;;
+      'i: Z <- ccallU CtxHdr.input tt;;
+      '_: unit <- ccallU CtxHdr.foo tt;;
       '_: unit <- trigger (IO "Print" i);;
       Ret tt↑.
   
   Definition fnsems : fnsemmap :=
-    {[entry           # (msk_scp scopes msk_true, (fsp_some MainAS.main_spec, start));
-      fid MainAS.main # (msk_scp scopes msk_true, (fsp_some MainAS.main_spec, main))
+    {[entry             # (msk_scp scopes msk_true, (fsp_some MainAS.main_spec, start));
+      funid MainAS.main # (msk_scp scopes msk_true, (fsp_some MainAS.main_spec, main))
     ]}.
 
   Program Definition smod : SMod.t := {|
