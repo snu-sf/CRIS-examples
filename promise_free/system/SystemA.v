@@ -241,17 +241,17 @@ Module SystemA. Section SystemA.
   Definition alloc : nat → itree crisE Val.t :=
     λ sz,
       'tid : Ident.t <- get_tid ();;
-      ccallN PFMemHdr.alloc (tid, Z.of_nat sz).
+      ccallN (PFMemHdr.alloc) (tid, Z.of_nat sz).
 
   Definition write : Loc.t * Val.t * Ordering.t → itree crisE Val.t :=
     λ '(loc, val, ord),
       'tid : Ident.t <- get_tid ();;
-      ccallN PFMemHdr.write (tid, loc, val, ord).
+      ccallN (PFMemHdr.write) (tid, loc, val, ord).
 
   Definition read : Loc.t * Ordering.t → itree crisE Val.t :=
     λ '(loc, ord),
       'tid : Ident.t <- get_tid ();;
-      ccallN PFMemHdr.read (tid, loc, ord).
+      ccallN (PFMemHdr.read) (tid, loc, ord).
 
   Definition fnsems (E : coPset) : fnsemmap :=
     {[fid SystemHdr._spawn  # (msk_scp scopes msk_true, (fsp_some (_spawn_spec), cfunN (fntyp _ _) _spawn));

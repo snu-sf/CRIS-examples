@@ -160,23 +160,20 @@ Module NDSIA. Section sim.
     destruct parent_yield_fsp; ss.
     iPoseProof (YieldSpec with "") as "SPEC".
     unfold fspec_imply; ss.
-    iSpecialize ("SPEC" with "[]").
+    iSpecialize ("SPEC" with "[] [T Y WI PYIP]").
     { iPureIntro. rr; ss. exists x. esplits; eauto. }
-    iDestruct "SPEC" as (??) "[%SPEC0 SPEC1]".
-    destruct SPEC0 as [x0 [pre0 post0]].
-    cForceS x0. cStepsS.
-    iSpecialize ("SPEC1" $! tt↑ tt↑).
-    iPoseProof ("SPEC1" with "[T Y WI PYIP]") as ">[PRE POST]".
     { rewrite /FSpec.precond /fspec_winv /= /FSpec.precond. iFrame. iSplit; eauto. }
-    cForcesS. iSplitL "PRE".
+    iMod "SPEC" as (??) "[%SPEC0 [PRE POST]]".
+    destruct SPEC0 as [x0 [pre0 post0]].
+    cForceS x0. cForcesS. iSplitL "PRE".
     { instantiate (1:=tt↑). subst P0. iFrame. }
-    
+    unfoldPrePost.
+
     cStepsS. cCall "IST" as (???) "IST". cStepsS. cStepsT. 
 
     iSpecialize ("POST" $! _q ret).
     iMod ("POST" with "[ASM]") as "(WI & (T & Y & PYIP & %))"; des; subst.
     { iFrame. }
-    iClear "SPEC1".
 
     iDestruct "IST" as "[% [% [% [% [[-> -> ] [JoinA [TidA [Rs
         [IST_init | [IST_private | [IST_public | [IST_global_in | IST_global_out]]]]]]]]]]]]"; cycle 4.
@@ -269,15 +266,14 @@ Module NDSIA. Section sim.
       rewrite !list_lookup_fmap H in Hmtid0. inv Hmtid0.
 
       iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)". cSimpl.
-      iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
-      { iPureIntro; exists (mtid, stid, ssch); split; done. }
 
       iPoseProof (Public_update_public with "PubA PubF") as ">[PubA PubF]"; eauto.
       { rewrite !list_lookup_fmap H /=. eauto. }
 
       iPoseProof (Shot_dup with "S'") as "[S S']".
 
-      iPoseProof ("Hspawn" with "[WI PRE TidF TID YIELD S' C' PubF]") as ">[Hpre Hpost]".
+      iDestruct ("Spawn" with "[] [WI PRE TidF TID YIELD S' C' PubF]") as "> [% [% [%Hfsp [Hpre Hpost]]]]".
+      { iPureIntro; exists (mtid, stid, ssch); split; done. }
       { rewrite /precond /fspec_winv. iFrame. iSplit; eauto. }
       cForceS (FSpec_mk _ _ Hfsp).
       cForcesS. iFrame "Hpre".
@@ -430,15 +426,14 @@ Module NDSIA. Section sim.
       iCombine "tidF TidF" as "TidF". rewrite agree_idemp.
 
       iDestruct "Spawn" as "(%fsp & %Hspawn & Spawn)". cSimpl.
-      iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
-      { iPureIntro; exists (0, stid, ssch); split; done. }
 
       iPoseProof (Public_update_public with "PubA PubF") as ">[PubA PubF]"; eauto.
       { rewrite !list_lookup_fmap H /=. eauto. }
 
       iPoseProof (Shot_dup with "S'") as "[S S']".
 
-      iPoseProof ("Hspawn" with "[W PRE TidF TID YIELD S' C PubF]") as ">[P Hpost]".
+      iDestruct ("Spawn" with "[] [W PRE TidF TID YIELD S' C PubF]") as "> [% [% [%Hfsp [P Hpost]]]]".
+      { iPureIntro; exists (0, stid, ssch); split; done. }
       { rewrite /precond /fspec_winv. iFrame. iSplit; eauto. }
       cForceS (FSpec_mk _ _ Hfsp).
       cForcesS. iFrame "P".

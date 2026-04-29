@@ -144,14 +144,12 @@ Module RRSIA. Section RRSIA.
     destruct parent_yield_fsp; ss.
     iPoseProof (YieldSpec with "") as "SPEC".
     unfold fspec_imply; ss.
-    iSpecialize ("SPEC" with "[]").
+    iSpecialize ("SPEC" with "[] [WI Tsch Ysch PYIP]").
     { iPureIntro. rr; ss. exists x. esplits; eauto. }
-    iDestruct "SPEC" as (??) "[%SPEC0 SPEC1]".
+    { iFrame; eauto. }
+    iDestruct "SPEC" as "> [% [% [%SPEC0 [PRE POST]]]]".
     destruct SPEC0 as [x0 [pre0 post0]].
-    cForceS x0. cStepsS.
-    iSpecialize ("SPEC1" $! tt↑ tt↑).
-    iPoseProof ("SPEC1" with "[Tsch Ysch WI PYIP]") as ">[PRE POST]".
-    { rewrite /FSpec.precond /fspec_winv /= /FSpec.precond. iFrame. iSplit; eauto. }
+    cForceS x0.
     cForcesS. iSplitL "PRE".
     { instantiate (1:=tt↑). subst P0. iFrame. }
     
@@ -160,7 +158,6 @@ Module RRSIA. Section RRSIA.
     iSpecialize ("POST" $! _q ret).
     iMod ("POST" with "[ASM]") as "(WI & (Tsch & Ysch & PYIP & %))"; des; subst.
     { iFrame. }
-    iClear "SPEC1".
 
     iDestruct "IST" as (??????) "(% & TidA & [IST_init | [IST_private | [IST_public | [IST_global_in | IST_global_out]]]])"; des; subst; cycle 4.
     { iExFalso. iDestruct "IST_global_out" as "(% & Ys & RRIA & TidF & Ysch' & S' & PubA)".
@@ -246,11 +243,8 @@ Module RRSIA. Section RRSIA.
       destruct (decide (tid = mtid)); subst; cycle 1.
       { iPoseProof (big_sepL_lookup_acc _ _ mtid with "Ys") as "[YIELD2 _]"; eauto.
         case_decide; clarify; by iPoseProof (YieldToken_both with "Y YIELD2") as "%". }
-      rewrite STID in Hmtid0. inv Hmtid0. cSimpl.
+      rewrite STID in Hmtid0. inv Hmtid0.
 
-      iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
-      { iPureIntro; exists (mtid, stid, ssch); split; done. }
-      
       iPoseProof (rrinv_merge with "RRIA") as "[RRIA RRI]".
       iPoseProof (rrinv_wf with "RRIA") as "%WF".
       hexploit gmap_wf_lookup_size_none; eauto; intros LKN.
@@ -261,13 +255,14 @@ Module RRSIA. Section RRSIA.
 
       iPoseProof (Public_update_public with "PubA PubF") as ">[PubA PubF]"; eauto.
 
-      iPoseProof ("Hspawn" $! fvarg↑ farg↑ with "[WI TidF Y RRIP PRE S' RRI Inv' C' PubF T]") as "> [Pre Post]".
+      iDestruct ("Spawn" with "[] [WI TidF Y RRIP PRE S' RRI Inv' C' PubF T]") as "> [% [% [%Hfsp [PRE Post]]]]".
+      { iPureIntro; exists (mtid, stid, ssch); split; done. }
       { iFrame; eauto. }
       cForceS (FSpec_mk _ _ Hfsp); eauto. cForcesS. iFrame.
 
       cStepsS. cCall "TidA Ys RRIA S NschY PubA" as (???) "IST".
       { do 6 iExists _. iSplit; eauto. iFrame "TidA". do 2 iRight. iLeft. iFrame; eauto. }
-      
+
       cStepsT. cStepsS.
 
       cBind (λ _ _, False%I) as (????) "F"; ss.
@@ -318,10 +313,7 @@ Module RRSIA. Section RRSIA.
       iPoseProof (rrinv_wf with "RRI") as "%WF".
       iPoseProof (rrinv_match with "[RRIA RRI]") as "%"; first iFrame. subst.
       iPoseProof (rrinv_prev_gen with "RRI") as "[RRI RRIP]".
-      iCombine "TidF TidF'" as "TidF". rewrite agree_idemp. cSimpl.
-
-      iDestruct ("Spawn" with "[]") as "[% [% [%Hfsp Hspawn]]]".
-      { iPureIntro; exists (0, stid, ssch); split; done. }
+      iCombine "TidF TidF'" as "TidF". rewrite agree_idemp.
 
       hexploit gmap_wf_lookup_size_none; eauto; intros LKN.
       remember {[0 := Inv]} as rrinvO.
@@ -332,8 +324,9 @@ Module RRSIA. Section RRSIA.
 
       iPoseProof (Public_update_public with "PubA PubF") as ">[PubA PubF]"; eauto.
       
-      iPoseProof ("Hspawn" $! fvarg↑ farg↑ with "[WI TidF Y RRIP PRE S' C RRI PubF T]") as "> [Pre Post]".
-      { iFrame; eauto. }
+      iDestruct ("Spawn" with "[] [WI TidF Y RRIP PRE S' C RRI PubF T]") as "> [% [% [%Hfsp [Pre Post]]]]".
+      { iPureIntro; exists (0, stid, ssch); split; done. }
+      { subst; iFrame; eauto. }
       cForceS (FSpec_mk _ _ Hfsp); eauto. cForcesS. iFrame.
 
       cStepsS. cCall "TidA Ys RRIA S Ysch' PubA" as (???) "IST".

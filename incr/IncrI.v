@@ -23,7 +23,7 @@ Module IncrI. Section IncrI.
         ) ().
 
   Definition fnsems : fnsemmap :=
-    {[fid IncrHdr.incr # (msk_scp scopes msk_true, (None, cfunU IncrHdr.incr incr))]}.
+    {[fid IncrHdr.incr # (msk_scp scopes msk_true, (None, cfunU imp_fun_t incr))]}.
 
   Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;

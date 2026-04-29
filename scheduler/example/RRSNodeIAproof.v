@@ -30,17 +30,18 @@ Module RRSNodeIA. Section RRSNodeIA.
   Proof using Hnode.
     iIntros. rewrite /RRSAS.fn_spawnable_rr. iExists _. iSplit; eauto.
     { iPureIntro. cSimpl; et. }
-    rewrite /RRSAS.fspec_spawnable_rr. iIntros (??) "[%x [%Hpre %Hpost]]"; ss.
+    rewrite /RRSAS.fspec_spawnable_rr. iIntros (??) "[%x [%Hpre %Hpost]] %arg %varg Pre"; ss.
     destruct x as [[mtid stid] ssch].
     rewrite /precond /fspec_winv /fspec_virtual /= /precond /= in Hpre.
     rewrite /postcond /fspec_winv /fspec_virtual /= /postcond /= in Hpost.
     set (m := (existT n (mtid, stid, ssch, (b, 0%Z), Invs)) : meta (f_spec ⊤)).
     iExists (precond (f_spec ⊤) m), (postcond (f_spec ⊤) m).
-    iSplit; eauto.
+    iModIntro; iSplit; eauto.
     { iPureIntro. exists m. esplits; eauto. }
-    iIntros (??) "PRE". iModIntro. iSplitL; eauto.
-    { subst P1 m. rewrite /precond /f_spec /fspec_rrsch /per_tid_fspec /precond /per_tid_fspec_rrsch /fspec_winv /precond /=.
-      iDestruct "PRE" as "(W & % & % & RT & RP & (% & % & RI & % & INV) & % & % & PRE)"; des; subst; cSimpl.
+    subst.
+    iDestruct "Pre" as "(W & % & % & RT & RP & (% & % & RI & % & INV) & % & % & PRE)"; des; subst; cSimpl.
+    iSplitL; eauto.
+    { subst m. rewrite /precond /f_spec /fspec_rrsch /per_tid_fspec /precond /per_tid_fspec_rrsch /fspec_winv /precond /=.
       iPoseProof (RRSAS.rrinv_prev_subset with "[RP RI]") as "%SUB"; iFrame.
       destruct mtid; try nia.
       hexploit (INV (pred_rr (S mtid) (size Invs'))).
@@ -54,7 +55,7 @@ Module RRSNodeIA. Section RRSNodeIA.
       rewrite SUB0 in H2. inv H2.
       iFrame; eauto.
     }
-    iIntros (??) "POST". iModIntro. subst Q1.
+    iIntros (??) "POST". iModIntro.
     rewrite /postcond /f_spec /fspec_rrsch /per_tid_fspec /precond /per_tid_fspec_rrsch /fspec_winv /postcond /=.
     iDestruct "POST" as "(W & % & T & % & % & % & POST)"; des; subst; cSimpl.
     iFrame; eauto.

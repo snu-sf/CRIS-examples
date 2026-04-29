@@ -41,25 +41,31 @@ Definition contUR := csumR (exclR unitR) (agreeR (prodO natO natO)).
 Definition slotUR := authR $ gmapUR nat per_slot.
 Definition backUR := authR max_natUR.
 
-Class hwqG `{!crisG Γ Σ α β τ Hsub Hinv} :=
-  HwqG {
+Class hwqGpreS `{!crisG Γ Σ α β τ Hsub Hinv} :=
+  HwqGpreS {
     hwq_arG   :: inG eltsUR Γ; (** Logical contents of the queue. *)
     hwq_contG :: inG contUR Γ; (** One-shot for contradiction states. *)
     hwq_slotG :: inG slotUR Γ; (** State data for used array slots. *)
     hwq_back  :: inG backUR Γ; (** Used to show that back only increases. *)
-    hwq_help  :: inG (helpingR (val * gname) val) Γ; (** Added : helping resource *)
+    hwq_help  :: helpingGpreS; (** Added : helping resource *)
   }.
-
-Definition hwqΓ : HRA := #[eltsUR; contUR; slotUR; backUR; helpingR (val * gname) val].
-Global Instance subG_hwqG `{!crisG Γ Σ α β τ Hsub Hinb} : subG hwqΓ Γ → hwqG.
+Local Existing Instance helpingG.
+Definition hwqΓ : HRA := ##[#[eltsUR; contUR; slotUR; backUR]; helpingΓ].
+Global Instance subG_hwqG `{!crisG Γ Σ α β τ Hsub Hinv} : subG hwqΓ Γ → hwqGpreS.
 Proof. solve_inG. Qed.
+
+Class hwqGS `{!crisG Γ Σ α β τ Hsub Hinv} :=
+  HwqGS {
+    hwqG :: hwqGpreS;
+    helpGS :: helpingGS;
+  }.
 
 (** * The specifiaction... **************************************************)
 
 Section herlihy_wing_queue.
 
-Context `{!crisG Γ Σ α β τ Hsub Hinb, !memGS, !hwqG, !prophGS}.
-Context (N : namespace).
+Context `{!crisG Γ Σ α β τ Hsub Hinv, !memGS, !hwqGS, !prophGS}.
+(* Context (N : namespace). *)
 Notation iProp := (iProp Σ).
 Implicit Types γe γc γs : gname.
 Implicit Types sz : nat.
@@ -829,12 +835,12 @@ Qed.
 
 (* Wrapper for the Iris [proph] proposition, using our data abstraction. *)
 Definition hwq_proph (blk : nat) sz (deq : gset nat) pvs :=
-  (∃ p str rs, has_proph ("hwq", (Vptr (blk, 0%Z))↑↑) (existT hwq_prophecy (p, rs)) ∗
+  (∃ p str rs, proph ("hwq", (Vptr (blk, 0%Z))↑↑) (existT hwq_prophecy (p, rs)) ∗
   ⌜p = list_stream_app (reverse rs) str⌝ ∗
   ∃ fuel, ⌜enough_fuel sz deq str fuel ∧ pvs = proph_data fuel sz deq str⌝)%I.
 Definition syn_hwq_proph {n} (blk : nat) sz (deq : gset nat) pvs : GTerm.t n :=
   (∃ (p str : τ{stream (nat * bool)}) (rs : τ{list (nat * bool)}),
-    syn_has_proph ("hwq", (Vptr (blk, 0%Z))↑↑) (existT hwq_prophecy (p, rs)) ∗
+    syn_proph ("hwq", (Vptr (blk, 0%Z))↑↑) (existT hwq_prophecy (p, rs)) ∗
     ⌜p = list_stream_app (reverse rs) str⌝ ∗
     ∃ (fuel : τ{nat}), ⌜enough_fuel sz deq str fuel ∧ pvs = proph_data fuel sz deq str⌝)%SAT.
 
@@ -1241,11 +1247,8 @@ Definition per_slot_own γe γs i d :=
   slot_val_wit γs i (val_of d) ∗
   (if was_written d then slot_written_wit γs i else emp) ∗
   match state_of d with
-  (* | Pend γ => slot_pending_tok γs i ∗
-              ∃ Q, saved_prop_own γ DfracDiscarded Q ∗ enqueue_AU γe (val_of d) Q *)
-  | Pend γ => slot_pending_tok γs i ∗ helping_token γ (val_of d, γe)
-  (* | Help γ => slot_committed_wit γs i ∗ ∃ Q, saved_prop_own γ DfracDiscarded Q ∗ ▷ Q *)
-  | Help γ => slot_committed_wit γs i ∗ helping_done γ Vundef
+  | Pend γ => ∃ N, slot_pending_tok γs i ∗ HelpPend γ (Some N) (val_of d, γe)↑↑
+  | Help γ => slot_committed_wit γs i ∗ HelpDone γ Vundef↑↑
   | Done   => slot_committed_wit γs i ∗ slot_token γs i
   end)%I.
 Definition syn_per_slot_own {n} γe γs i d : GTerm.t n :=
@@ -1256,11 +1259,8 @@ Definition syn_per_slot_own {n} γe γs i d : GTerm.t n :=
   syn_slot_val_wit γs i (val_of d) ∗
   (if was_written d then syn_slot_written_wit γs i else emp) ∗
   match state_of d with
-  (* | Pend γ => syn_slot_pending_tok γs i ∗
-              ∃ Q, saved_prop_own γ DfracDiscarded Q ∗ enqueue_AU γe (val_of d) Q *)
-  | Pend γ => syn_slot_pending_tok γs i ∗ syn_helping_token _ γ (val_of d, γe)
-  (* | Help γ => syn_slot_committed_wit γs i ∗ ∃ Q, saved_prop_own γ DfracDiscarded Q ∗ ▷ Q *)
-  | Help γ => syn_slot_committed_wit γs i ∗ syn_helping_done _ γ Vundef
+  | Pend γ => ∃ (N : τ{namespace}), syn_slot_pending_tok γs i ∗ syn_HelpPend _ γ (Some N) (val_of d, γe)↑↑
+  | Help γ => syn_slot_committed_wit γs i ∗ syn_HelpDone _ γ Vundef↑↑
   | Done   => syn_slot_committed_wit γs i ∗ syn_slot_token γs i
   end)%SAT.
 Instance per_slot_own_red {n} γe γs i d :
@@ -1269,7 +1269,6 @@ Proof. solve_sl_red. Qed.
 
 Definition syn_inv_hwq
     {n} (sz : nat) (γb γi γe γc γs : gname) blk : GTerm.t n :=
-  (∃ X : τ{gmap nat _}, syn_helping_auth _ (1/2) X)%SAT ∨
   (∃ (back  : τ{nat})                (** Physical value of [q.back]. *)
      (pvs   : τ{list nat})           (** Full contents of the prophecy. *)
      (pref  : τ{list nat})           (** Commit prefix of the prophecy *)
@@ -1278,7 +1277,7 @@ Definition syn_inv_hwq
      (slots : τ{gmap nat slot_data}) (** Per-slot data for used indices. *)
      (deqs  : τ{gset nat}),          (** Dequeued indices. *)
   (** Physical data. *)
-  (blk, 0%Z) ↦ Vint sz ∗ (blk, 1%Z) ↦ Vint back ∗
+  (blk, 0%Z) ↦{1/2} Vint sz ∗ (blk, 1%Z) ↦ Vint back ∗
   ([∗ list] i ↦ v ∈ array_content sz slots deqs, (blk, i + 2)%Z ↦ v) ∗
   (** Logical contents of the queue and prophecy contents. *)
   syn_back_value γb back ∗
@@ -1314,9 +1313,8 @@ Definition syn_inv_hwq
   end ∧
   (∀ i v, val_of <$> slots !! i = Some v → v = Vint 0 ∨ ∃ blk ofs, v = Vptr (blk, ofs))⌝)%SAT.
 
-Definition inv_hwq `{!inG (helpingR (val * gname) val) Γ}
+Definition inv_hwq
     (sz : nat) (γb γi γe γc γs : gname) blk : iProp :=
-  (∃ X, helping_auth (1/2) X) ∨
   (∃ (back  : nat)                (** Physical value of [q.back]. *)
      (pvs   : list nat)           (** Full contents of the prophecy. *)
      (pref  : list nat)           (** Commit prefix of the prophecy *)
@@ -1325,7 +1323,7 @@ Definition inv_hwq `{!inG (helpingR (val * gname) val) Γ}
      (slots : gmap nat slot_data) (** Per-slot data for used indices. *)
      (deqs  : gset nat),          (** Dequeued indices. *)
   (** Physical data. *)
-  (blk, 0%Z) ↦ Vint sz ∗ (blk, 1%Z) ↦ Vint back ∗
+  (blk, 0%Z) ↦{1/2} Vint sz ∗ (blk, 1%Z) ↦ Vint back ∗
   ([∗ list] i ↦ v ∈ array_content sz slots deqs, (blk, i + 2)%Z ↦ v) ∗
   (** Logical contents of the queue and prophecy contents. *)
   back_value γb back ∗
@@ -1365,8 +1363,8 @@ Global Instance inv_hwq_red {n} sz γb γi γe γc γs blk :
   SLRed n (syn_inv_hwq sz γb γi γe γc γs blk) (inv_hwq sz γb γi γe γc γs blk).
 Proof. solve_sl_red. Qed.
 
-Definition is_hwq (n : nat) sz γe v : iProp :=
-  ∃ γb γi γc γs blk, ⌜v = Vptr (blk, 0%Z)⌝ ∗ inv n N (syn_inv_hwq sz γb γi γe γc γs blk).
+Definition is_hwq (n : nat) (N : namespace) sz γe v : iProp :=
+  ∃ γb γi γc γs γh blk, ⌜v = Vptr (blk, 0%Z)⌝ ∗ hinv N γh (syn_inv_hwq sz γb γi γe γc γs blk : GTerm.t n).
 
 (** * Some useful instances *************************************************)
 

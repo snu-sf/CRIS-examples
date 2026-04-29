@@ -4,40 +4,34 @@ Require Import ImpPrelude MemHeader MemA MemTactics.
 Require Import IncrHeader IncrI IncrA.
 
 Module IncrIA. Section IncrIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !concGS, !schGS}.
-  Context (sp : specmap) (N : namespace).
+  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !concGS}.
+  Context (sp_m : specmap).
 
-  Local Definition IstFull := (IstProd (IstSB (Mod.scopes (IncrA.t N)) IstTrue) IstEq).
-  Local Notation MA := (IncrA.t N ★ (MemA.t sp)).
-  Local Notation MI := (IncrI.t ★ (MemA.t sp)).
+  Local Definition IstFull := (IstProd (IstSB [] IstTrue) IstEq).
+  Local Notation MA := (IncrA.t ★ MemA.t sp_m).
+  Local Notation MI := (IncrI.t ★ MemA.t sp_m).
 
   Lemma incr_simF : ISim.sim_fun open MA MI IstFull (fid IncrHdr.incr).
   Proof.
     cStartFunSim. rewrite /IncrA.incr /IncrI.incr. cStepsS. cStepsT.
-    aStepS. iIntros (mtid stid [blk ofs]) "TID ->". cStepsT. aAddY.
+    aStepS (N [blk ofs]) "->". cStepsT. aAddY. sYields.
 
-    sYieldIR "IST" "TID". sYieldIR "IST" "TID". sYieldS.
-
-    iApply wsim_reset. cCoind CIH g __ with st_src st_tgt. iIntros "[TID IST] /=".
-    aUnfoldT. aUnfoldS. cStepsT.
-    sYieldIR "IST" "TID". sYieldS. cStepsS.
+    iApply wsim_reset. cCoind CIH g __ with st_src st_tgt. iIntros "? /=".
+    aUnfoldT. sYields. sYieldS. aUnfoldS. sYieldS. cStepsS.
     rename _q into v; iRename "ASM" into "↦".
     mLoadT "↦". cForceS (inl tt); cForcesS; iFrame "↦". cStepsS.
 
-    aUnfoldS. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
-    sYieldS; cStepsS. rename _q into v2; iRename "ASM" into "↦".
-
+    aUnfoldS. sYields. sYieldS. cStepsS. rename _q into v2; iRename "ASM" into "↦".
     iApply (wsim_mem_cas with "↦"); [prove_inline_cond|ss|eauto| | | ].
     { rewrite /MemA.compare_val; des_ifs. }
     { instantiate (1:=emp%I); done. }
     { iIntros "_"; iExists 1%Qp, 1%Qp, Vundef, Vundef; ss. }
     iIntros "↦ _". cStepsT. case_bool_decide.
     { case_bool_decide; subst; ss. cForceS (inr _); cForcesS; iFrame "↦".
-      cStepsS. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
-      rewrite decide_True //. cStepsT. sYieldS. cStep; iFrame; iModIntro; iSplit; ss.
+      sYields. rewrite decide_True //. cStepsT. sYieldS. cStep; iFrame; iModIntro; iSplit; ss.
     }
     case_bool_decide; ss. cForceS (inl tt). cForcesS; iFrame. cStepsS.
-    aAddY. sYieldIR "IST" "TID". sYieldIR "IST" "TID". case_decide; ss. cStepsT. sYieldS.
+    aAddY. sYields. case_decide; ss. cStepsT. sYieldS. aAddY.
     cByCoind CIH. iFrame.
-  (*SLOW*)Qed.
+  Qed.
 End IncrIA. End IncrIA.

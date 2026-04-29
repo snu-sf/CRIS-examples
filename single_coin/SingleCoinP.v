@@ -1,6 +1,5 @@
 Require Import CRIS.
 Require Import SingleCoinHeader ProphecyHeader.
-(* From stdpp Require Import strings. *)
 
 Module SingleCoinP. Section SingleCoinP.
   Context `{!crisG Γ Σ α β τ _S _I}.

@@ -14,6 +14,16 @@ Module SystemHdr.
   Definition read    := fnsig "System.read" (fntyp (Loc.t * Ordering.t) Val.t).
 End SystemHdr.
 
+(* Wrapping fspecs *)
+Section FSpec.
+  Context `{!crisG Γ Σ α β τ _S _I}.
+
+  Definition interp_cond (s : {n & GTerm.t n}) :=
+    match s with
+    | existT n p => ⟦ p ⟧
+    end.
+End FSpec.
+
 Module System. Section System.
   Import Events.
 
@@ -28,7 +38,7 @@ Module System. Section System.
         | None => Ret (inr tt: () + ())
         | Some false => Ret (inl tt: () + ())
         | Some true => 
-            ccallU SystemHdr.yield tt;;;
+            trigger (Call SystemHdr.yield.1 tt↑);;;
             Ret (inl tt: () + ())
         end)) tt).
 
@@ -42,17 +52,17 @@ Module System. Section System.
   Definition alloc : nat → itree E Val.t :=
     λ sz,
       'tid : Ident.t <- ccallU SystemHdr.get_tid ();;
-      ccallU PFMemHdr.alloc (tid, sz: Z).
+      ccallU (PFMemHdr.alloc) (tid, sz : Z).
 
   Definition write : Loc.t * Val.t * Ordering.t → itree E Val.t :=
     λ '(loc, val, ord),
       'tid : Ident.t <- ccallU SystemHdr.get_tid ();;
-      ccallU PFMemHdr.write (tid, loc, val, ord).
+      ccallU (PFMemHdr.write) (tid, loc, val, ord).
 
   Definition read : Loc.t * Ordering.t → itree E Val.t :=
     λ '(loc, ord),
       'tid : Ident.t <- ccallU SystemHdr.get_tid ();;
-      ccallU PFMemHdr.read (tid, loc, ord).
+      ccallU (PFMemHdr.read) (tid, loc, ord).
 End System. End System.
 
 Notation 𝒴 := (System.yield).

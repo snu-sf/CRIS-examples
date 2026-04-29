@@ -20,9 +20,10 @@ Module MPIA. Section MPIA.
   Lemma mp2_spawnable : ⊢ SystemA.fspec_spawnable sp_user MPHdr.mp2.1 MPA.mp2_precondition.
   Proof.
     iExists MPA.mp2_spec; iSplit; [iPureIntro; by cSimpl|].
-    iIntros "%P %Q [%x [-> ->]]"; iExists _, _; iSplit; [iPureIntro; exists x; split; ss|].
-    unfoldPrePost. destruct x.
-    iIntros (varg arg) "[$ [% [-> [% [$ [% [% $]]]]]]] /= !>"; iSplitL; eauto.
+    iIntros "%P %Q [%x [-> ->]] % % [W [% [-> A]]]".
+    iModIntro; iExists _, _; iSplit; [iPureIntro; exists x; split; ss|].
+    unfoldPrePost. destruct x. ss. iDestruct "A" as "[% [$ [% [-> $]]]]".
+    iFrame. iSplit; [done|iIntros (??) "[$ [% [-> [% $]]]]"]; eauto.
   Qed.
 
   Lemma simF_mp : ISim.sim_fun open MA MI IstFull entry.

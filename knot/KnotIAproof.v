@@ -98,7 +98,7 @@ Module KnotIA. Section KnotIA.
         + iPureIntro. eexists; esplits; et. econs; et.
           { eapply GEnvWF; eauto. }
           econs; [cSimpl; eauto|].
-          iIntros (??) "%"; iExists _, _; iSplit; [done|iIntros "%% $ !> %%$//"].
+          iIntros (??) "% %% F !>"; iExists _, _; iSplit; [done|iSplitL "F"; [done|iIntros "%% $//"]].
         + iPureIntro. eexists; esplits; et. rewrite -OrdArith.mult_from_nat. apply OrdArith.le_from_nat. nia. 
       - iExists _, _, _, _. repeat (iSplit; et). iExists (Some f), _. iSplit.
         + iPureIntro. intros ? temp; inv temp; esplits; et. econs; eauto.
@@ -155,7 +155,7 @@ Module KnotIA. Section KnotIA.
     iSplitL "FG".
     { iSplitR; et. iSplitR; eauto. iPureIntro. eexists. esplit; et. econs; et.
       econs; [cSimpl; ss|].
-      iIntros (??) "%"; iExists _, _; iSplit; [done|iIntros "%% $ !> %%$//"].
+      iIntros (??) "% %% F !>"; iExists _, _; iSplit; [done|iSplitL "F"; [done|iIntros "%% $//"]].
     }
     cStep. iSplit; et.
 

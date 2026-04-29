@@ -43,7 +43,7 @@ Module MainIA. Section MainIA.
     iFrame "TID Lock". iSplit; eauto. cStepsT.
     sYieldII "IST". cStepsT.
 
-    (* (* success case *) *)
+    (* success case *)
     iDestruct "GRT" as "[TID [<- [_ [TKN P]]]]". cStepsT.
     sYieldIR "IST" "TID".
 
@@ -61,8 +61,7 @@ Module MainIA. Section MainIA.
     cForceT (_, _, (γ_l, Vptr (blk_l, ofs_l), existT 0 (lock_P (blk_v, ofs_v) γ_v))). cForcesT.
     iSplitL "TID F PT TKN".
     { solve_base_sl_red. iFrame. iSplit; eauto. }
-    cStepsT.
-    sYieldII "IST". cStepsT.
+    cStepsT. sYieldII "IST". cStepsT.
     
     (* tgt inline - lock acquire - restore lock protected proposition *)
     iDestruct "GRT" as "[TID [<- _]]". cStepsT.
@@ -76,19 +75,23 @@ Module MainIA. Section MainIA.
 
   Lemma main_simF : ISim.sim_fun open MA MI IstFull entry.
   Proof using SchInSp_s SchInSp_t MainInSp.
-    cStartFunSim. rewrite /SpinLockMainI.main /main /sfunN /sfunU /Sch.spawn /Sch.join.
+    cStartFunSim. rewrite /SpinLockMainI.main /main /sfunN /sfunU.
+    
+    cStepsS. destruct _q as [[stid mtid] []]. iDestruct "ASM" as "[TID ->]".
 
-    cStepsS. cStepsT. destruct _q as [[stid mtid] []]. iDestruct "ASM" as "[TID ->]".
+    rewrite /main. cStepsS.
+    cStepsT. rewrite /SpinLockMainI.main. cStepsT.
+    rewrite /Sch.spawn.
 
     (* tgt yield *)
     sYieldIR "IST" "TID".
 
     (* tgt inline - mem alloc - counter allocation *)
-    mAllocT as (blk) "[↦ _]". cStepsT.
+    iApply wsim_mem_alloc; ss. iIntros (blk) "[↦ _]". cStepsT.
     sYieldIR "IST" "TID".
 
     (* tgt inline - mem store - counter initialization *)
-    mStoreT "↦".
+    iApply (wsim_mem_store with "[↦]"); ss. iIntros"↦". cStepsT.
     sYieldIR "IST" "TID".
 
     (* create lock-guarded proposition *)
@@ -101,8 +104,8 @@ Module MainIA. Section MainIA.
     cStepsT.
 
     (* src/tgt yields *)
-    sYieldII "IST". cStepsT.
-    iDestruct "GRT" as "[TID [-> [%val [%γl [-> [%bofs_l [-> #Lock]]]]]]]".
+    sYieldII "IST".
+    cStepsT. iDestruct "GRT" as "[TID [-> [%val [%γl [-> [%bofs_l [-> #Lock]]]]]]]".
     cStepsT.
     sYieldIR "IST" "TID".
 
@@ -112,34 +115,36 @@ Module MainIA. Section MainIA.
     iDestruct "W" as "[W1 W2]".
 
     (* spawn thread 1 - incr *)
-    cStepsS. cSimpl. cForceS (_,_). cForcesS. iSplitL "W1".
+    rewrite /Sch.spawn. cStepsS. simpl_sp. cForceS (_,_). cForcesS. iSplitL "W1".
     { iExists _, _, _. iSplit; et. iSplitR.
-      - iExists _; iSplit; [iPureIntro; cSimpl|]; ss. iApply incr_spawnable.
+      - iExists _; iSplit; [iPureIntro; simpl_sp|]; ss. iApply incr_spawnable.
       - iFrame "W1"; eauto. repeat iSplit; eauto. iExists _; iFrame "Lock"; auto.
     }
-    cCall "IST" as (ret st_src st_tgt) "IST".
+    cStepsT. cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[% [[-> ->] TKN1]]". 
     cStepsT. cStepsS.
     sYieldIR "IST" "TID". sYieldS.
 
     (* spawn thread 2 - incr *)
-    cStepsS. cSimpl. cForceS (_,_). cForcesS. iSplitL "W2".
+    rewrite /Sch.spawn.
+    cStepsS. simpl_sp. cForceS (_,_). cForcesS. iSplitL "W2".
     { iExists _, _, _. iSplit; et. iSplitR.
-      - iExists _; iSplit; [iPureIntro; cSimpl|]; ss. iApply incr_spawnable.
+      - iExists _; iSplit; [iPureIntro; simpl_sp|]; ss. iApply incr_spawnable.
       - iFrame "W2"; eauto. repeat iSplit; eauto. iExists _; iFrame "Lock"; auto.
     }
-    cCall "IST" as (ret st_src st_tgt) "IST".
+    cStepsT. cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[% [[-> ->] TKN2]]". 
     cStepsT. cStepsS.
     sYieldIR "IST" "TID". sYieldS.
 
     (* join thread 1 - incr *)
-    cStepsS. cSimpl. cForceS (_,_,_). cForcesS. iSplitL "TKN1 TID".
+    rewrite /Sch.join.
+    cStepsS. simpl_sp. cForceS (_,_,_). cForcesS. iSplitL "TKN1 TID".
     { iFrame. eauto. }
     cStepsT. cCall "IST" as (ret st_src st_tgt) "IST".
     cStepsS. iDestruct "ASM" as "[TID [% [% [[-> ->] W1]]]]". solve_base_sl_red.
     cStepsS; cStepsT.
-    sYieldIR "IST" "TID". sYieldS. cStepsT. cStepsS. cSimpl.
+    sYieldIR "IST" "TID". sYieldS. rewrite /Sch.join. cStepsT. cStepsS. simpl_sp.
 
     (* join thread 2 - incr *)
     cForceS (stid, mtid, _). cForcesS. iSplitL "TID TKN2".

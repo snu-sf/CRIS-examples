@@ -2,7 +2,7 @@ Require Import CRIS.
 From CRIS Require Export ImpPrelude MemHeader MemA.
 
 Section mem.
-  Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memGS}.
 
   Local Definition state : Type := gmap key (option Any.t).
   Local Definition post (R_s R_t : Type) : Type := state * R_s → state * R_t → iProp Σ.
@@ -164,6 +164,33 @@ Section mem.
     iFrame "E HE"; iSplit; eauto.
     cStepsT. rewrite Hc. cStepsT. rewrite Hc. cStepsT. rewrite Hg. cStepsT.
     iDestruct "GRT" as "[-> [-> E]]". iApply ("K" with "E"); iFrame.
+  Qed.
+
+  Lemma wsim_mem_cmp_int n1 n2 (msk : emask) k_s k_t E1 E2 r g :
+    fl_t !! (fid MemHdr.cmp) =
+      Some (Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some (MemA.cmp), fbody_trivial)))) →
+    img_msk msk →
+    (wsim fl_s fl_t Ist (E1, E2) r g R_s R_t RR ps true
+        (st_src, k_s)
+        (st_tgt, k_t (Vint (if decide (n1 = n2) then 1 else 0)%Z)↑)) -∗
+    wsim fl_s fl_t Ist (E1, E2) r g R_s R_t RR ps pt
+      (st_src, k_s)
+      (st_tgt,
+        x <- trigger (Call MemHdr.cmp.1 [Vint n1; Vint n2]↑);;
+        k_t x).
+  Proof using.
+    iIntros (Hin [Ht [Hc [Ha [Har Hg]]]]) "K".
+    cInlineT. rewrite Ht.
+    cForceT (Vint n1, Vint n2, (if decide (n1 = n2) then 1 else 0)%Z, emp%I).
+    rewrite Ht. cForcesT. rewrite Ha. cForceT.
+    iSplitR; [iSplitR; first eauto|].
+    { iSplit; [iPureIntro; split; [auto|]|iSplit; ss].
+      { case_decide; case_bool_decide; case_match; ss. }
+      iIntros "_ !>"; iExists 1%Qp, 1%Qp, Vundef, Vundef; repeat iSplit; eauto.
+    }
+    cStepsT. rewrite Hc. cStepsT. rewrite Hc. cStepsT. rewrite Hg. cStepsT.
+    iDestruct "GRT" as "[-> [-> _]]". iFrame.
   Qed.
 End mem.
 

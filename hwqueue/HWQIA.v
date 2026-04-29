@@ -7,31 +7,19 @@ Require Import HelpingTactics HelpingFacts SchI SchTactics.
 Require Import HWQI HWQP HWQA HWQIANewQueue HWQIAEnqueue HWQIADequeue.
 
 Module HWQPM. Section HWQPM.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !memGS, !prophGS, !hwqGS}.
   Context (mnh mnp : string).
-  Context (N : namespace) (sp_mem : specmap).
+  Context (sp_mem : specmap).
 
   Definition Ist : ist_type Σ := λ st_src st_tgt,
-    (IstHelp mnh st_src st_tgt ∗
-    ∃ (X : gset val),
-      free_id (λ x, (x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type) ∗
-      [∗ set] x ∈ X,
-        □ ∃ blk ofs nx, ⌜x = Vptr (blk, ofs)⌝ ∗
-          ∀ X, helping_auth 1 X =| nx, ↑N |={↑N, ∅}=∗ ∃ v, (blk, ofs) ↦ v)%I.
-  Definition IstFull : ist_type Σ :=
-    IstProd (IstSB (Mod.scopes (HWQP.t mnp) ++ Mod.scopes (HelpingDummy.t mnh)) Ist) IstEq.
-  Lemma Ist_help : Ist_helping mnh IstFull.
-  Proof.
-    iIntros (??) "[% [% [% [% [[-> ->] [[%Ha [[% [[-> ->] ?]] ?]] ->]]]]]]".
-    iModIntro; iExists _, _; iFrame; iSplit; auto.
-    iIntros (?) "$ !>"; iExists _, _, _, _; repeat iSplit; eauto.
-    iPureIntro. set_solver.
-  Qed.
+    (∃ (X : gset val),
+      free_id (λ x, x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type ∗
+      [∗ set] x ∈ X, ∃ ptr ofs, ⌜x = Vptr (ptr, ofs)⌝ ∗ ∃ v, (ptr, ofs) ↦{1/2} v)%I.
+  Definition IstFull : ist_type Σ := IstHelp_gen Ist mnh ⊤.
 
-  Notation sp := (SchA.sp ∅ (↑N)).
-  Notation HWQM := (HWQM.t N mnh).
+  Notation HWQM := (HWQM.t mnh).
   Notation HWQP := (HWQP.t mnp).
-  Notation HelpOn := (HelpingOn.t mnh HWQM.jobCode sp).
+  Notation HelpOn := (HelpingOn.t mnh HWQM.jobCode).
   Notation HelpDummy := (HelpingDummy.t mnh).
   Notation MemA := (MemA.t sp_mem).
   Notation ProphA := (ProphecyA.t mnp ∅).
@@ -39,7 +27,7 @@ Module HWQPM. Section HWQPM.
   Lemma ctxr :
     ctx_refines
       ((HWQP ★ HelpDummy) ★ MemA ★ ProphA, emp)%I
-      ((HWQM ★ HelpOn)    ★ MemA ★ ProphA, helping_auth 1 ∅ ∗ free_id top1)%I.
+      ((HWQM ★ HelpOn)    ★ MemA ★ ProphA, help_init_cond ∗ free_id top1)%I.
   Proof.
     eapply main_adequacy with (Ist := IstFull).
     cStartModSim.
@@ -48,13 +36,12 @@ Module HWQPM. Section HWQPM.
     { apply simF_dequeue. }
     { cStartFunSim. cStepsT; ss. }
     { cStartFunSim. cStepsT; ss. }
-    { iIntros "[H F]"; iExists _, _, _, _; repeat iSplit; eauto.
+    { iIntros "[[$ $] F]"; iExists _, _, _, _; repeat iSplit; eauto.
       { iPureIntro; set_unfold. intros x [[? ?] [-> Hx]]; ss.
         rewrite dom_union_with dom_empty left_id in Hx; set_unfold; inv Hx; left; done.
       }
-      iFrame. iSplit.
-      { iPureIntro; ss; splits; eauto. rewrite left_id //. }
       iExists ∅; iSplit; eauto.
+      iExists ∅; rewrite big_sepS_empty right_id.
       iPoseProof (free_id_split with "F") as "[F ?]"; last iApply (free_id_iff with "F"); cycle 1.
       { intros i; split; [intros Hi; split; first done; exact Hi|].
         intros [? ?]; ss.
@@ -69,72 +56,62 @@ Module HWQPM. Section HWQPM.
 End HWQPM. End HWQPM.
 
 Module HWQMA. Section HWQMA.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !memGS, !prophGS, !hwqGS}.
   Context (mnp mnh : string).
-  Context (N : namespace) (sp_user sp : specmap).
-  Context (SchSP : SchA.sp sp_user (↑N) ⊆ sp).
+  Context (sp : specmap).
 
   Lemma ctxr :
     ctx_refines
-      (HWQM.t N mnh ★ ProphecyA.t mnp ∅ ★ HelpingOff.t mnh HWQM.jobCode (SchA.sp ∅ (↑N)), emp%I)
-      (HWQA.t N sp, emp%I).
+      (HWQM.t mnh ★ ProphecyA.t mnp ∅ ★ HelpingOff.t mnh HWQM.jobCode, emp%I)
+      (HWQA.t, emp%I).
   Proof.
     eapply main_adequacy. instantiate (1:=λ _ _, True%I).
     cStartModSim; ss.
     { cStartFunSim. rewrite /HWQA.new_queue. cStepsS. cStepT.
-      aStepS. iIntros (mtid stid [n sz]) "TID [-> %Hsz]".
-      aForceT with "TID"; iExists (_, _); iSplit; first eauto. sYieldII "IST".
-      case_match; cStepsT; sYieldS; cForceS (_, tt); cStep; iFrame.
-      by iDestruct "GRT" as "[$ $]".
+      aStepS (N [n sz]) "[-> %Hsz]".
+      aForceT N with ""; first (instantiate (1:=(_, _)); eauto).
+      sYields. case_match; cStepsT; sYieldS; cForceS (_, tt); cStep; iFrame; ss.
     }
     { cStartFunSim. rewrite /HWQA.enqueue /HWQM.enqueue. cStepsS. cStepsT.
-      aStepS. iIntros (mtid stid [γq ?]) "TID ?".
-      aForceT with "TID"; iExists (_, _); iFrame. cStepsT.
-      cInlineT. cStepsT. rewrite /HelpingOff.run. cStepsT. aUnfoldS.
-      sYieldII "IST". sYieldS. cStepsS. cForcesT. iFrame. cStepsT.
-      cForceS (inr _). cForcesS. iFrame. sYieldII "IST".
+      aStepS (N [γq ?]) "A".
+      aForceT N with "A"; first (instantiate (1:=(_, _))); simpl; eauto with iFrame.
+      cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.run. cStepsT. aUnfoldS.
+      aUnfoldT. sYields. sYieldS. rewrite /HWQM.jobCode. cStepsS. cForcesT. iFrame. cStepsT.
+      cForceS (inr _). cForcesS. iFrame. sYields.
       iApply wsim_reset. cCoind CIH g' __ with st_src st_tgt. iIntros "IST".
       aUnfoldT. cStepsT. case_match.
       { cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.help. cStepsT.
-        sYieldII "IST". cStepsT. cByCoind CIH; iFrame.
+        sYields. cByCoind CIH; iFrame.
       }
-      cStepsT. sYieldII "IST". sYieldS. cStep; iFrame. iDestruct "GRT" as "[? ?]"; by iFrame.
+      cStepsT. sYields. sYieldS. cStep; iFrame. by iFrame.
     }
     { cStartFunSim. rewrite /HWQA.dequeue. cStepsS. cStepsT.
-      aStepS; iIntros (???) "??"; aForceT with "[$]"; iExists _; iSplit; first eauto.
-      appendRetS.
-      iApply (atomic_update_sem_both2);
-        [ simpl_map; cSimpl; ss | simpl_map; cSimpl; ss
-        | ss | ss | try (solve_ndisj || set_solver) | try (solve_ndisj || set_solver) | | ].
-      { eauto. }
-      iExists _; iAuIntro; iAaccIntro "% $ !>" with ""; iSplit.
-      { iIntros "$ !>"; iFrame. }
+      aStepS (N ?) "A". aForceT N with "A"; iFrame.
+      aStep. iExists 0; iAuIntro; iAaccIntro "% $ !>" with ""; iSplit.
+      { iIntros "$ !>"; by iFrame. }
       iIntros (ret_t) "[% [% [? ?]]] !>"; iExists _; iFrame.
       iModIntro; clear_st; iIntros (??) "_".
-      cStepsT. sYieldS. cStep; iFrame. iDestruct "GRT" as "[$ ?]"; done.
+      cStepsT. sYieldS. cStep; iFrame. done.
     }
-  Unshelve. try exact 0.
   Qed.
 End HWQMA. End HWQMA.
 
 Module HWQIA. Section HWQIA.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !schGS, !hwqG, !memGS, !prophGS}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !hwqGS, !memGS, !prophGS}.
 
-  Lemma ctxr (ctx : Mod.t) (N : namespace) (sp_user sp sp_mem : specmap) genv :
-    SchA.sp sp_user (↑N) ⊆ sp →
+  Lemma ctxr (ctx : Mod.t) (sp_mem : specmap) genv :
     real_mod ctx →
     refines
-      (HWQI.t      ★ MemI.t genv ★ SchI.t ★ ctx,
+      (HWQI.t ★ MemI.t genv   ★ SchI.t ★ ctx,
         emp%I)
-      (HWQA.t N sp ★ MemA.t sp_mem   ★ SchI.t ★ ctx,
-        MemA.init_cond genv ∗ ProphecyA.initial_cond ∗ helping_auth 1 ∅ ∗ free_id top1)%I.
+      (HWQA.t ★ MemA.t sp_mem ★ SchI.t ★ ctx,
+        MemA.init_cond genv ∗ ProphecyA.initial_cond ∗ help_init_cond ∗ free_id top1)%I.
   Proof.
-    intros Hsch Hreal.
-        set (allmds := HWQA.t N sp ★ MemA.t sp_mem ★ HWQI.t ★ MemI.t genv ★ SchI.t ★ ctx).
+    intros Hreal.
+        set (allmds := HWQA.t ★ MemA.t sp_mem ★ HWQI.t ★ MemI.t genv ★ SchI.t ★ ctx).
     set (sz := S (max
                  (maxlen (elements (get_fids (dom (Mod.fnsems allmds)))))
                  (maxlen (Mod.scopes allmds)))).
-
     etrans.
     { rewrite assoc.
       eapply prophecy_refines with (sz:=sz) (mdm := λ mn, HWQP.t mn ★ MemI.t genv).
@@ -151,8 +128,8 @@ Module HWQIA. Section HWQIA.
         etrans.
         { rewrite comm -assoc comm.
           eapply helping_refines
-            with (mA := HWQA.t N sp ★ MemA.t sp_mem)
-                 (mM := λ mnh, HWQM.t N mnh ★ MemA.t sp_mem ★ ProphecyA.t _ ∅).
+            with (mA := HWQA.t ★ MemA.t sp_mem)
+                 (mM := λ mnh, HWQM.t mnh ★ MemA.t sp_mem ★ ProphecyA.t _ ∅).
           - intros Q0 mnh. eapply ctxr_refines. etrans.
             { do 2 rewrite CFilter.filter_app.
               rewrite HWQP.filter_helping MemA.filter_helping ProphecyA.filter_helping.

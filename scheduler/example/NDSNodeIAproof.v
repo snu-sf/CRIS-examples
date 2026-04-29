@@ -47,13 +47,13 @@ Module NDSNodeIA. Section NDSNodeIA.
     { iExists _. iSplit; eauto. do 3 iExists _. iSplit; eauto. iSplitR "tidF"; eauto.
       rewrite /NDSA.fn_spawnable. iExists _; iSplit; eauto.
       { iPureIntro. cSimpl; et. }
-      rewrite /NDSA.fspec_spawnable. iIntros (??) "[%x [%Hpre %Hpost]]"; ss.
+      rewrite /NDSA.fspec_spawnable. iIntros (??) "[%x [%Hpre %Hpost]] %% PRE"; ss.
       destruct x as [[mtid' stid'] ssch'].
       set (m := (mtid', stid', ssch', blk) : meta (f_spec ⊤)).
       iExists (precond (f_spec ⊤) m), (postcond (f_spec ⊤) m).
-      iSplit; eauto.
+      iModIntro; iSplit; eauto.
       { iPureIntro. exists m. esplits; eauto. }
-      iIntros (??) "PRE". iModIntro. iSplitL "PRE"; eauto.
+      iSplitL "PRE"; eauto.
       { subst P1. rewrite /precond /fspec_winv /fspec_virtual /= /precond /=.
         iDestruct "PRE" as "(W & % & % & T & % & % & % & INV)"; des; subst; cSimpl.
         iFrame. iExists _; iSplit; eauto. }

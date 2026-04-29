@@ -102,9 +102,9 @@ Module HWQI. Section HWQI.
     CFilter.msk_filter_in (MemHdr.exports ∪ SchHdr.exports) (msk_real (msk_scp [] msk_true)).
 
   Definition fnsems : fnsemmap :=
-    {[fid HWQHdr.new_queue # (msk, (None, cfunU HWQHdr.new_queue new_queue));
-      fid HWQHdr.enqueue   # (msk, (None, cfunU HWQHdr.enqueue enqueue));
-      fid HWQHdr.dequeue   # (msk, (None, cfunU HWQHdr.dequeue dequeue))]}.
+    {[fid HWQHdr.new_queue # (msk, (None, cfunU imp_fun_t new_queue));
+      fid HWQHdr.enqueue   # (msk, (None, cfunU imp_fun_t enqueue));
+      fid HWQHdr.dequeue   # (msk, (None, cfunU imp_fun_t dequeue))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := [];

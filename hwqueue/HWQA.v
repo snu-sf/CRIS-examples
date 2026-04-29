@@ -9,26 +9,25 @@ From stdpp Require Import streams list.
 
 (* Specification of the queue operations *)
 Module HWQA. Section HWQA.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !schGS, !memGS, !prophGS, !hwqG}.
-  Context (N : namespace).
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !memGS, !prophGS, !hwqGS}.
 
   Definition scopes : list string := [].
 
   Definition new_queue : fbody := λ arg,
     {{{ ∀∀ '((n, sz) : nat * nat), ⌜arg = [Vint sz]↑ ∧ 0 < 8 * (2 + sz) < modulus_64⌝%Z }}}
-      𝒴;;; trigger (Choose (Any.t * ()))
-    {{{ RET ret, ∃ q γq, ⌜ret = q↑⌝ ∗ is_hwq N n sz γq q ∗ hwq_cont γq [] }}} @ N.
+      𝒴@{Some N};;; trigger (Choose (Any.t * ()))
+    {{{ RET ret, ∃ q γq, ⌜ret = q↑⌝ ∗ is_hwq n N sz γq q ∗ hwq_cont γq [] }}} @ N.
 
   Definition enqueue : fbody := λ arg,
     {{{ ∀∀ '((γq, l) : gname * val),
-        ∃ blk ofs q n sz, ⌜arg = [q; l]↑ ∧ l = Vptr (blk, ofs)⌝ ∗ is_hwq N n sz γq q ∗ ∃ v, (blk, ofs) ↦ v }}}
-      <<{ ∀∀ (ls : list valO), hwq_cont γq ls, hwq_cont γq (ls ++ [l]) }>>
+        ∃ blk ofs q n sz, ⌜arg = [q; l]↑ ∧ l = Vptr (blk, ofs)⌝ ∗ is_hwq n N sz γq q ∗ ∃ v, (blk, ofs) ↦ v }}}
+      <<{ ∀∀ (ls : list valO), hwq_cont γq ls, hwq_cont γq (ls ++ [l]) }>> @ N
     {{{ emp }}} @ N.
 
   Definition dequeue : fbody := λ arg,
     {{{ ∀∀ (γq : gname),
-        ∃ q n sz, ⌜arg = [q]↑⌝ ∗ is_hwq N n sz γq q }}}
-      <<{ ∀∀ (ls : list valO), hwq_cont γq ls, ∃∃ ret, ∃ l ls', ⌜ret = l↑ ∧ ls = l :: ls'⌝ ∗ hwq_cont γq ls' }>>
+        ∃ q n sz, ⌜arg = [q]↑⌝ ∗ is_hwq n N sz γq q }}}
+      <<{ ∀∀ (ls : list valO), hwq_cont γq ls, ∃∃ ret, ∃ l ls', ⌜ret = l↑ ∧ ls = l :: ls'⌝ ∗ hwq_cont γq ls' }>> @ N
     {{{ emp }}} @ N.
 
   Definition fnsems : fnsemmap :=
@@ -43,41 +42,39 @@ Module HWQA. Section HWQA.
   |}.
   Solve All Obligations with mod_tac.
 
-  Definition t sp := SMod.to_mod sp Mod.
+  Definition t := SMod.to_mod ∅ Mod.
 End HWQA. End HWQA.
 
 Module HWQM. Section HWQM.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
-  Context (N : namespace) (mn : string).
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !memGS, !prophGS, !hwqGS}.
+  Context (mn : string).
 
-  Notation jobID := (val * gname)%type. (* idx * gname *)
-  Notation retID := val.
-
-  Definition jobCode : jobID → itree crisE retID :=
-    λ '(v, γq),
-      ls <- trigger (Take (list valO));;
-      trigger (Assume (hwq_cont γq ls));;;
-      trigger (Guarantee (hwq_cont γq (ls ++ [v])));;;
-      Ret Vundef.
+  (* the job to help: enqueue *)
+  Definition jobCode : SAny.t → itree crisE (SAny.t + SAny.t) := λ arg,
+    '(v, γq) : val * gname <- (arg↓↓)?;;
+    ls <- trigger (Take (list valO));;
+    trigger (Assume (hwq_cont γq ls));;;
+    trigger (Guarantee (hwq_cont γq (ls ++ [v])));;;
+    Ret (inr Vundef↑↑).
 
   Definition scopes : list string := [].
 
   Definition enqueue : fbody := λ arg,
     {{{ ∀∀ '((γq, l) : gname * val), ∃ blk ofs q n sz,
-        ⌜arg = [q; l]↑ ∧ l = Vptr (blk, ofs)⌝ ∗ is_hwq N n sz γq q ∗ ∃ v, (blk, ofs) ↦ v }}}
-      ret <- trigger (Call (Helping.run mn) (l, γq)↑);;
+        ⌜arg = [q; l]↑ ∧ l = Vptr (blk, ofs)⌝ ∗ is_hwq n N sz γq q ∗ ∃ v, (blk, ofs) ↦ v }}}
+      trigger (Call (Helping.run mn) (Some N, (l, γq)↑↑)↑);;;
       ITree.iter (λ _,
-          'b : bool <- trigger (Choose bool);;
-          if b 
-          then trigger (Call (Helping.help mn) (()↑));;; Ret (inl ()) 
-          else Ret (inr ())) ();;;
-      𝒴;;; Ret (ret, tt)
+        'b : bool <- trigger (Choose bool);;
+        if b 
+        then trigger (Call (Helping.help mn) ((Some N)↑));;; Ret (inl ()) 
+        else Ret (inr ())) ();;;
+      𝒴@{Some N};;; Ret (Vundef↑, tt)
     {{{ emp }}} @ N.
 
   Definition fnsems : fnsemmap :=
-    {[fid HWQHdr.new_queue # (msk_scp scopes msk_true, (None, HWQA.new_queue N));
+    {[fid HWQHdr.new_queue # (msk_scp scopes msk_true, (None, HWQA.new_queue));
       fid HWQHdr.enqueue   # (msk_scp scopes msk_true, (None, enqueue));
-      fid HWQHdr.dequeue   # (msk_scp scopes msk_true, (None, HWQA.dequeue N))]}.
+      fid HWQHdr.dequeue   # (msk_scp scopes msk_true, (None, HWQA.dequeue))]}.
 
   Program Definition Mod : SMod.t := {|
     SMod.scopes := scopes;
@@ -86,5 +83,5 @@ Module HWQM. Section HWQM.
   |}.
   Solve All Obligations with mod_tac.
 
-  Definition t := SMod.to_mod (SchA.sp ∅ (↑N)) Mod.
+  Definition t := SMod.to_mod ∅ Mod.
 End HWQM. End HWQM.

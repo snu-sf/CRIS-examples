@@ -5,5 +5,5 @@ Module IncrHdr.
 End IncrHdr.
 
 Module ClientHdr.
-  Definition thread := fnsig "thread" (fntyp (list val) ()).
+  Definition thread := fnsig "thread" imp_fun_t.
 End ClientHdr.

@@ -379,14 +379,14 @@ Module MemIA. Section MemIA.
     iMod ("C3" with "[$]").
 
     (* Load *)
-    cInlineT. cStepsT. rewrite Hlookup. cStepsT.
+    cInlineT. cStepsT. rewrite /MemI.load. cStepsT. rewrite Hlookup. cStepsT.
 
     (* Cmp *)
-    cInlineT. cStepsT. rewrite Hcmp3. cStepsT.
+    cInlineT. cStepsT. rewrite /MemI.cmp. cStepsT. rewrite Hcmp3. cStepsT.
 
     repeat case_bool_decide; simplify_eq.
     { (* Store *)
-      cStepsT. cInlineT. cStepsT. rewrite Hlookup. cStepsT.
+      cStepsT. cInlineT. cStepsT. rewrite /MemI.store. cStepsT. rewrite Hlookup. cStepsT.
       iMod ((mem_ra_update v_upd) with "[B ↦]") as "[B ↦]"; et; [iFrame|].
 
       cForcesS. iFrame. iSplit; eauto. cStep. iFrame.

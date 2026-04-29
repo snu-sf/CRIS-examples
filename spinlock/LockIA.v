@@ -33,7 +33,8 @@ Module LockIA. Section LockIA.
     sYieldIR "IST" "TID".
 
     (* tgt inline - mem alloc *)
-    mAllocT as (blk) "[↦ _]".
+    iApply wsim_mem_alloc; ss.
+    iIntros (blk) "[↦ _]". cStepsT.
 
     (* tgt yield *)
     sYieldIR "IST" "TID".

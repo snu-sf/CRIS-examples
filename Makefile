@@ -45,6 +45,7 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-R single_coin $(CRISMODULE).single_coin"; \
 	 echo "-R spinlock $(CRISMODULE).spinlock"; \
 	 echo "-R hwqueue $(CRISMODULE).hwqueue"; \
+	 echo "-R IO_proxy $(CRISMODULE).IO_proxy"; \
 	 echo $(COQTHEORIES)) > _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 

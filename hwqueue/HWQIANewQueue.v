@@ -8,31 +8,19 @@ Require Import HWQI HWQP SchI HWQA SchTactics.
 From stdpp Require Import streams list.
 
 Section HWQPM.
-  Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS, !memGS, !prophGS, !schGS, !hwqG}.
+  Context `{!crisG Γ Σ α β τ Hinv Hsub, !memGS, !prophGS, !hwqGS}.
   Context (mnh mnp : string).
-  Context (N : namespace) (sp_mem : specmap).
+  Context (sp_mem : specmap).
 
   Definition Ist : ist_type Σ := λ st_src st_tgt,
-    (IstHelp mnh st_src st_tgt ∗
-    ∃ (X : gset val),
-      free_id (λ x, (x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type) ∗
-      [∗ set] x ∈ X,
-        □ ∃ blk ofs nx, ⌜x = Vptr (blk, ofs)⌝ ∗
-          ∀ X, helping_auth 1 X =| nx, ↑N |={↑N, ∅}=∗ ∃ v, (blk, ofs) ↦ v)%I.
-  Definition IstFull : ist_type Σ :=
-    IstProd (IstSB (Mod.scopes (HWQP.t mnp) ++ Mod.scopes (HelpingDummy.t mnh)) Ist) IstEq.
-  Lemma Ist_help : Ist_helping mnh IstFull.
-  Proof.
-    iIntros (??) "[% [% [% [% [[-> ->] [[%Ha [[% [[-> ->] ?]] ?]] ->]]]]]]".
-    iModIntro; iExists _, _; iFrame; iSplit; auto.
-    iIntros (?) "$ !>"; iExists _, _, _, _; repeat iSplit; eauto.
-    iPureIntro. set_solver.
-  Qed.
+    (∃ (X : gset val),
+      free_id (λ x, x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type ∗
+      [∗ set] x ∈ X, ∃ ptr ofs, ⌜x = Vptr (ptr, ofs)⌝ ∗ ∃ v, (ptr, ofs) ↦{1/2} v)%I.
+  Definition IstFull : ist_type Σ := IstHelp_gen Ist mnh ⊤.
 
-  Notation sp := (SchA.sp ∅ (↑N)).
-  Notation HWQM := (HWQM.t N mnh).
+  Notation HWQM := (HWQM.t mnh).
   Notation HWQP := (HWQP.t mnp).
-  Notation HelpOn := (HelpingOn.t mnh HWQM.jobCode sp).
+  Notation HelpOn := (HelpingOn.t mnh HWQM.jobCode).
   Notation HelpDummy := (HelpingDummy.t mnh).
   Notation MemA := (MemA.t sp_mem).
   Notation ProphA := (ProphecyA.t mnp ∅).
@@ -43,33 +31,28 @@ Section HWQPM.
       IstFull (fid HWQHdr.new_queue).
   Proof.
     cStartFunSim. rewrite /HWQA.new_queue /HWQP.new_queue. cStepsS.
-    aStepS. iIntros (mtid stid [n sz]) "TID [-> %Hsz]".
-    cStepsT. sYieldIR "IST" "TID". sYieldIR "IST" "TID".
-    mAllocT as (blk) "Q"; [lia|].
-    replace (Z.to_nat (2 + sz)) with (2 + sz) by lia.
-    rewrite replicate_add big_sepL_app. iDestruct "Q" as "[[sz [back _]] ar]".
-    sYieldIR "IST" "TID". sYieldIR "IST" "TID".
-    mStoreT "sz". sYieldIR "IST" "TID".
-    mStoreT "back". sYieldIR "IST" "TID".
+    aStepS (N [n sz]) "[-> %Hsz]".
+    cStepsT. sYields. 
+    mAllocT as (blk) "H"; first by lia.
+    replace (Z.to_nat (2 + sz)) with (2 + sz) by lia. s.
+    iDestruct "H" as "[sz [back ar]]".
+    sYields. mStoreT "sz". sYields. mStoreT "back". sYields.
     replace sz with ((sz - sz) + sz) at 1 by lia. rewrite replicate_add.
     replace (replicate (sz - sz) Vundef) with (replicate (sz - sz) (Vint 0))
       by rewrite Nat.sub_diag //=.
     rewrite -[X in ITree.iter _ X](Nat.sub_diag sz).
     assert (sz ≤ sz) as Hle by lia; revert Hle.
-    cShowR; generalize sz at 1 4 5 10 as i; intros i Hle.
+    generalize sz at 1 4 5 10 as i; intros i Hle.
     iInduction i as [|i] forall (Hle st_src st_tgt).
     { rewrite Nat.sub_0_r /= app_nil_r.
-      aUnfoldT. cStepsT. sYieldIR "IST" "TID".
-      rewrite Nat2Z.id Nat.ltb_irrefl. cStepsT. sYieldIR "IST" "TID".
-      iDestruct "IST" as "[% [% [% [% [[-> ->] [[% IST] ->]]]]]]".
-      iDestruct "IST" as "[IST [%X [free alloc]]]".
+      aUnfoldT. sYields. rewrite Nat2Z.id Nat.ltb_irrefl. cStepsT. sYields.
+      iDestruct "IST" as "[% [% [% [% [[-> ->] [[% [HE IST]] ->]]]]]]".
+      iDestruct "IST" as "[% [% [-> [HA [%X [free acc]]]]]]".
       destruct (decide (Vptr (blk, 0%Z) ∈ X)) as [HblkX|HblkX].
-      { iPoseProof (big_sepS_elem_of_acc with "alloc") as "[#acc _]"; auto using HblkX.
-        iDestruct "acc" as "[% [% [% [% acc]]]]"; clarify.
-        iDestruct "IST" as "[% [? IST]]".
-        iMod ("acc" with "IST") as "[% acc2]".
-        by iPoseProof (mem_points_to_singleton_valid with "acc2 sz") as "%".
+      { iPoseProof (big_sepS_elem_of_acc with "acc") as "[[% [% [% [% acc]]]] _]"; auto using HblkX.
+        clarify. by iPoseProof (mem_points_to_singleton_valid with "acc sz") as "%".
       }
+      iDestruct "sz" as "[sz1 sz2]".
       iPoseProof (free_id_split_singleton _ ("hwq", ((Vptr (blk, 0%Z))↑↑)) with "free") as "[tok free]".
       { split; ss. rewrite SAny.upcast_downcast //. }
       cStepsT. cInlineT. cForceT (_, hwq_prophecy). cForcesT. iSplitL "tok".
@@ -77,16 +60,16 @@ Section HWQPM.
       cStepsT. iDestruct "GRT" as "[-> [%p [-> Proph]]]".
       (* invariant construction *)
       iMod new_back as (γb) "Hb●".
-      iMod new_back as (γi) "Hi●". (* FIXME not about back. *)
+      iMod new_back as (γi) "Hi●".
       iMod (new_elts []) as (γe) "[He● He◯]".
       iMod new_no_contra as (γc) "HC".
       iMod new_slots as (γs) "Hs●".
-      iMod (inv_alloc (syn_inv_hwq sz γb γi γe γc γs blk) (n:=n) (S n) _ _ N
-        with "[ar sz back Proph Hb● Hi● He● HC Hs●]") as "#InvN"; auto.
+      iMod (hinv_alloc (syn_inv_hwq sz γb γi γe γc γs blk) (n:=n) _ _ N
+        with "[ar sz1 back Proph Hb● Hi● He● HC Hs●]") as "#[%γh InvN]"; auto.
       { pose proof (enough_fuel_exists sz ∅ p) as [fuel Hfuel].
         pose (pvs := proph_data fuel sz ∅ p).
         pose (cont := NoCont (map (λ i, (i, [])) pvs)).
-        rewrite inv_hwq_red. iRight.
+        rewrite inv_hwq_red.
         iExists 0, pvs, [], [], cont, ∅, ∅.
         rewrite array_content_empty fmap_empty /=.
         iFrame. iSplitL "ar".
@@ -104,9 +87,10 @@ Section HWQPM.
         - intros b. apply initial_block_valid.
         - simpl. apply flatten_blocks_initial. }
       sYieldS. cForceS ((Vptr (blk, 0%Z))↑, tt).
-      cIst "IST" with "[IST alloc free]".
+      cIst "IST" with "[- He◯]".
       { iExists _, _, _, _. repeat iSplit; des; eauto.
-        iFrame "IST". iExists (X ∪ {[Vptr (blk, 0%Z)]}). 
+        iFrame "HE HA". iExists _; iSplitR; first done.
+        iExists (X ∪ {[Vptr (blk, 0%Z)]}).
         iSplitL "free".
         { iApply (free_id_iff with "free").
           intros i; case_decide; subst; ss.
@@ -120,17 +104,12 @@ Section HWQPM.
           subst; destruct i; ss; cSimpl.
         }
         rewrite big_sepS_union; last set_solver.
-        iFrame. rewrite big_sepS_singleton; iModIntro.
-        iExists _, _, (S n); iSplit; eauto.
-        clear. iIntros (X) "X".
-        iInv "InvN" as "[[% X2]|[% [% [% [% [% [% [% [$ ?]]]]]]]]]" "close".
-        { iCombine "X X2" gives %[WF _]%gmap_view_auth_dfrac_op_valid. ss. }
-        iApply fupd_mask_intro; eauto. solve_ndisj.
+        iFrame. rewrite big_sepS_singleton; iExists _, _; iSplit; eauto.
       }
       cStep; iFrame "#∗". iModIntro; eauto.
     }
     (* inductive case *)
-    aUnfoldT. cStepsT. sYieldIR "IST" "TID".
+    aUnfoldT. cStepsT. sYields.
     destruct Nat.ltb eqn : Hltb; first clear Hltb; last first.
     { apply Nat.ltb_ge in Hltb; lia. }
     iPoseProof (big_sepL_insert_acc _ _ (sz - (S i)) with "ar") as "[↦ ar]".
@@ -142,7 +121,7 @@ Section HWQPM.
       by (rewrite length_replicate; lia).
     rewrite insert_app_r /=.
     replace (S (sz - S i)) with (sz - i) by lia.
-    iApply ("IHi" with "[] [ar] sz back IST TID"); first (iPureIntro; lia).
+    iApply ("IHi" with "[] IST [ar] sz back"); first (iPureIntro; lia).
     replace (sz - i) with ((sz - S i) + 1) by lia; rewrite replicate_add /=.
     rewrite -(assoc app) //=.
   Qed.

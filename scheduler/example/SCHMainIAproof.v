@@ -48,31 +48,32 @@ Module SCHMainIA. Section SCHMainIA.
     cStepsS. cForcesS. iSplitL "RI RV".
     { do 3 iExists _. iSplit; eauto. iFrame. rewrite /SchA.fn_spawnable. iSplit; eauto. iExists _. iSplit; eauto.
       { iPureIntro. cSimpl. et. }
-      rewrite /SchA.fspec_spawnable. iIntros (??) "%".
-      destruct H as [x [Hpre Hpost]]; ss. rewrite /precond /= /precond in Hpre. rewrite /postcond /= /postcond in Hpost.
+      rewrite /SchA.fspec_spawnable. iIntros (??) "% % % PRE".
+      destruct H as [x [Hpre Hpost]]; ss. rewrite /precond /= /precond in Hpre.
+      rewrite /postcond /= /postcond in Hpost.
       destruct x as [[stid mtid] []].
       set (m := (mtid, stid, (λ (svarg sarg : SAny.t), ⌜svarg = sarg ∧ sarg = tt↑↑⌝ ∗ RRSNodeAS.full_val (Vint 0))%I, existT 0 (RRSNodeAS.x_value_tid 0)%I)).
       iExists (precond (RRSAS.init_spec sp_rrs_user ⊤ snd SchA.PYIP) m).
       iExists (postcond (RRSAS.init_spec sp_rrs_user ⊤ snd SchA.PYIP) m).
-      iSplit; eauto.
+      iModIntro; iSplit; eauto.
       { iPureIntro. rewrite /RRSAS.init_spec /fspec_winv /fspec_virtual /precond /postcond; ss.
         eexists m; esplits; eauto. }
-      iIntros (??) "PRE". iModIntro. iSplitL "PRE".
+      iSplitL "PRE".
       { rewrite /RRSAS.init_spec /precond /= /fspec_virtual /precond /=. subst P1.
         iDestruct "PRE" as "(W & T & % & % & % & % & RI & RN)"; des; subst; cSimpl. iFrame "W".
         iExists _. iSplitR; eauto. iExists _. iSplitR; eauto. iFrame.
         iDestruct "T" as "(t & T & Y)". iFrame. iSplit; eauto.
         rewrite /RRSAS.fn_spawnable_rr_init. iExists _. iSplit; eauto.
         { iPureIntro. cSimpl; et. }
-        rewrite /RRSAS.fspec_spawnable_rr_init. iIntros (??) "%".
+        rewrite /RRSAS.fspec_spawnable_rr_init. iIntros (??) "% % % PRE".
         rewrite /fspec_winv /fspec_virtual in H; ss; destruct H as [x [Hpre Hpost]]; ss; rewrite /precond /= /precond in Hpre; rewrite /postcond /= /postcond in Hpost.
         destruct x as [[mtid0 stid0] ssch].
         set (m0 := (stid0, ssch)).
         iExists (precond (RRSNodeAS.f_main_spec ⊤) m0).
         iExists (postcond (RRSNodeAS.f_main_spec ⊤) m0).
-        iSplit; eauto.
+        iModIntro; iSplit; eauto.
         { iPureIntro. exists m0. esplits; eauto. }
-        iIntros (??) "PRE". iModIntro. iSplitL; eauto.
+        iSplitL; eauto.
         { rewrite /precond /RRSNodeAS.f_main_spec /=. subst P1.
           iDestruct "PRE" as "(W & % & % & T & RI & % & % & % & % & RN)"; des; subst; cSimpl.
           iFrame; eauto. }
@@ -96,31 +97,31 @@ Module SCHMainIA. Section SCHMainIA.
     cStepsS. cForcesS. iSplitL "NI Join".
     { do 3 iExists _. iSplit; eauto. iFrame. rewrite /SchA.fn_spawnable. iSplit; eauto. iExists _. iSplit; eauto.
       { iPureIntro. cSimpl; et. }
-      rewrite /SchA.fspec_spawnable. iIntros (??) "%".
+      rewrite /SchA.fspec_spawnable. iIntros (??) "%%% PRE".
       destruct H as [x [Hpre Hpost]]; ss. rewrite /precond /= /precond in Hpre. rewrite /postcond /= /postcond in Hpost.
       destruct x as [[stid mtid] []].
       set (m := ((mtid, stid), ((λ svarg sarg, (⌜svarg = tt↑↑ ∧ svarg = sarg⌝ : iProp Σ)%I) : SAny.t -d> SAny.t -d> iProp Σ), ((λ svarg sarg, existT 0 (⌜svarg = tt↑↑ ∧ svarg = sarg⌝))%SAT : SAny.t -d> SAny.t -d> {n : level & GTerm.t n}))).
       iExists (precond (NDSA.init_spec sp_nds_user ⊤ _ snd SchA.PYIP) m).
       iExists (postcond (NDSA.init_spec sp_nds_user ⊤ _ snd SchA.PYIP) m).
-      iSplit; eauto.
+      iModIntro; iSplit; eauto.
       { iPureIntro. rewrite /NDSA.init_spec /fspec_winv /fspec_virtual /precond /postcond; ss.
         eexists m; esplits; eauto. }
-      iIntros (??) "PRE". iModIntro. iSplitL "PRE".
+      iSplitL "PRE".
       { rewrite /NDSA.init_spec /precond /= /fspec_virtual /precond /=. subst P1.
         iDestruct "PRE" as "(W & T & % & % & % & % & NI)"; des; subst; cSimpl. iFrame "W".
         iExists _. iSplitR; eauto. iExists _. iSplitR; eauto. iFrame.
         iDestruct "T" as "(t & T & Y)". iFrame. iSplit; eauto.
         rewrite /NDSA.fn_spawnable. iExists _. iSplit; eauto.
         { iPureIntro. cSimpl; et. }
-        rewrite /NDSA.fspec_spawnable. iIntros (??) "%".
+        rewrite /NDSA.fspec_spawnable. iIntros (??) "%%% PRE".
         rewrite /fspec_winv /fspec_virtual in H; ss; destruct H as [x [Hpre Hpost]]; ss; rewrite /precond /= /precond in Hpre; rewrite /postcond /= /postcond in Hpost.
         destruct x as [[mtid0 stid0] ssch].
         set (m0 := (mtid0, stid0, ssch, tt)).
         iExists (precond (NDSNodeA.f_main_spec ⊤) m0).
         iExists (postcond (NDSNodeA.f_main_spec ⊤) m0).
-        iSplit; eauto.
+        iModIntro; iSplit; eauto.
         { iPureIntro. exists m0. esplits; eauto. }
-        iIntros (??) "PRE". iModIntro. iSplitL; eauto.
+        iSplitL; eauto.
         { rewrite /precond /NDSNodeA.f_main_spec /=. subst P1.
           iDestruct "PRE" as "(W & % & % & T & % & % & %)"; des; subst; cSimpl.
           iFrame; eauto. }
@@ -162,8 +163,6 @@ Section ctxr.
 
   Lemma ctxr sp sp_sch_user sp_rrs_user sp_nds_user
     (Hschglob: sp_sch_user ⊆ sp)
-    (* (Hschrrs: sp_rrs_user ⊆ sp_sch_user) *)
-    (* (Hschnds: sp_nds_user ⊆ sp_sch_user) *)
     (Hsch: (SchA.sp sp_sch_user ⊤) ⊆ sp)
     (Hrrs: (RRSAS.sp sp_rrs_user ⊤ snd SchA.PYIP) ⊆ sp_sch_user)
     (Hnds: (NDSA.sp sp_nds_user ⊤ _ snd SchA.PYIP) ⊆ sp_sch_user)

@@ -51,7 +51,7 @@ Module ClientA. Section ClientA.
       (fspec_mk
         (λ '(bofs, v, γ) varg arg,
           ⌜varg = ([Vptr bofs]↑↑)↑ ∧ arg = varg⌝ ∗ counter γ (1/2) v ∗ incr_inv 0 N γ bofs)
-        (λ '(bofs, v, γ) vret ret, ⌜vret = (tt↑↑)↑ ∧ ret = vret⌝ ∗ counter γ (1/2) (v + 2)))%I.
+        (λ '(bofs, v, γ) vret ret, ⌜vret = (Vundef↑↑)↑ ∧ ret = vret⌝ ∗ counter γ (1/2) (v + 2)))%I.
 
   Definition sp N : specmap :=
     {[fid ClientHdr.thread @ incr_spec (N)]}.
@@ -59,14 +59,14 @@ Module ClientA. Section ClientA.
   (* Module definition *)
   Definition scopes : list string := [].
 
-  Definition incr : list val → itree crisE unit :=
-    λ _, 𝒴;;; Ret tt.
+  Definition incr : list val → itree crisE val :=
+    λ _, 𝒴;;; Ret Vundef.
 
   Definition main : Any.t → itree crisE Any.t :=
     λ _,
       𝒴;;; 'ptr_raw : val <- trigger (Choose val);;
-      𝒴;;; tid1 <- Sch.spawn (ClientHdr.thread.1, [ptr_raw]↑↑);;
-      𝒴;;; tid2 <- Sch.spawn (ClientHdr.thread.1, [ptr_raw]↑↑);;
+      𝒴;;; tid1 <- Sch.spawn (fn_name ClientHdr.thread, [ptr_raw]↑↑);;
+      𝒴;;; tid2 <- Sch.spawn (fn_name ClientHdr.thread, [ptr_raw]↑↑);;
       𝒴;;; Sch.join tid1;;;
       𝒴;;; Sch.join tid2;;;
       𝒴;;; trigger (IO (I:=val) "OUT" 4%Z);;;

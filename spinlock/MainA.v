@@ -53,10 +53,10 @@ Module MainA. Section MainA.
     ⊢ SchA.fspec_spawnable (incr_spec E) (incr_pre bofs_l bofs_v γ_v) (incr_post γ_v).
   Proof.
     iApply SchA.fspec_sch_spawnable; first done.
-    iIntros "%P1 %Q1 [% [-> ->]]"; iExists _, _; iSplit; first (iPureIntro).
+    iIntros "%P1 %Q1 [% [-> ->]] %varg %arg [%va [%sarg [[-> ->] [-> [-> ?]]]]] !>"; des; clarify.
+    iExists _, _; iSplit; first (iPureIntro).
     { exists (bofs_l, bofs_v, γ_v); split; ss. }
-    iIntros (varg arg) "[%va [%sarg [[-> ->] [-> [-> ?]]]]]"; des; clarify.
-    iIntros "!>"; iSplitL; first iFrame; eauto.
+    iSplitL; first iFrame; eauto.
     iIntros "%% [-> [-> ?]] !>"; iExists _, _; iSplit; eauto.
     solve_base_sl_red; iSplit; done.
   Qed.

@@ -1,4 +1,4 @@
-Require Import CRIS ImpPrelude.
+Require Import Common ImpPrelude.
 
 Module StackHdr.
   Definition new_stack := fnsig "Stack.new_stack" imp_fun_t.

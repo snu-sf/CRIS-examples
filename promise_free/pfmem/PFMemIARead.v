@@ -16,7 +16,7 @@ Section read.
 
   Lemma simF_read : ISim.sim_fun open MA MI PFMemIA.Ist (fid PFMemHdr.read).
   Proof.
-    cStartFunSim. cHideS. cHideT.
+    cStartFunSim.
     cStepS. destruct _q as [f|[f|[]]].
     { (* non-atomic read *)
       cStepsS.
@@ -122,8 +122,7 @@ Section read.
 
       cForceS (val'↑). cForceS (val'↑). cForceS.
       iSplitR "IST".
-      { rewrite own_loc_na_eq /own_loc_na_def /view_at.
-        iFrame. iSplit; eauto. iExists val'.
+      { iSplit; first done. iFrame. iExists val'.
         iSplit; eauto.
         iSplit.
         { iSplit; eauto. 
@@ -299,7 +298,7 @@ Section read.
         }
         iClear "R".
 
-        set (lc2 := _: Local.t) at 3.
+        set (lc2 := _: Local.t) at 4.
         iAssert (@{TView.cur (Local.tview lc2)} loc sn⊒{γ} ζ'')%I with "[RR SEEN]" as "SEEN".
         { rewrite AtomicSeen_eq /AtomicSeen_def /=.
           iDestruct "SEEN" as "[[%SEENALLOC %SEEN] [_ [%GOODHIST [%Vna' [%VNATV NA]]]]]".

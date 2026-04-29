@@ -32,7 +32,7 @@ Module SingleCoinPA. Section SingleCoinPA.
         ∗ ProphecyRA.free_id (λ i, i.1 = "SingleCoin" ∧ ∃ n, i.2↓↓ = Some n ∧ n >= length l_t)%type
         ∗ coin_auth l_s
         ∗ [∗ list] i ↦ ob ∈ l_t,
-          ∃ b ol, ProphecyRA.has_proph (proph_coins i) (existT coin_proph (b, ol))
+          ∃ b ol, ProphecyRA.proph (proph_coins i) (existT coin_proph (b, ol))
           ∗ ⌜l_s !! i = Some b
             ∧ (match ob with Some b' => b' = b ∧ ol = [b] | None => ol = [] end)
             ∧ (Prophecy.consistent coin_proph ol b)⌝
@@ -89,7 +89,7 @@ Module SingleCoinPA. Section SingleCoinPA.
 
   Lemma simF_read : ISim.sim_fun open MA MI Ist (fid SingleCoinHdr.read).
   Proof.
-    cStartFunSim. rewrite /read. cHideS. cHideT.
+    cStartFunSim. rewrite /read.
     cStepsS. destruct _q as [idx b]. iDestruct "ASM" as "[-> [-> C]]".
     iDestruct "IST" as (l_s l_t) "[[-> %EQ] [F [AU PL]]]".
     iPoseProof (coin_both_valid with "AU C") as "%NTH".
@@ -130,8 +130,7 @@ Module SingleCoinPA. Section SingleCoinPA.
       { rewrite EQ ?length_app /= //. }
       iSplitL "F".
       { iApply ProphecyRA.free_id_iff; ss. rewrite ?length_app //. }
-      iFrame. rewrite Nat.add_0_r. iPureIntro; ss; esplits; eauto.
-      right; exists []; eauto.
+      iFrame. rewrite Nat.add_0_r. iFrame. iPureIntro; ss; esplits; eauto. right; exists []; eauto.
     }
   Qed.
 

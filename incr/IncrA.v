@@ -9,20 +9,20 @@ Module IncrA. Section IncrA.
 
   Definition scopes : list string := [].
 
-  Definition incr (N : namespace) : fbody := λ arg,
+  Definition incr : fbody := λ arg,
     {{{ ∀∀ bofs, ⌜arg = [Vptr bofs]↑⌝ }}}
-      <<{ ∀∀ v, bofs ↦ Vint v, bofs ↦ Vint (v + 1) }>>
+      <<{ ∀∀ v, bofs ↦ Vint v, bofs ↦ Vint (v + 1) }>> @ N
     {{{ ∀∀ v, RET ret, ⌜ret = (Vint v)↑⌝ }}} @ N.
 
-  Definition fnsems (N : namespace) : fnsemmap :=
-    {[fid IncrHdr.incr # (msk_scp scopes msk_true, (None, incr N))]}.
+  Definition fnsems : fnsemmap :=
+    {[fid IncrHdr.incr # (msk_scp scopes msk_true, (None, incr))]}.
 
-  Program Definition smod N : SMod.t := {|
+  Program Definition smod : SMod.t := {|
     SMod.scopes := scopes;
-    SMod.fnsems := fnsems N;
+    SMod.fnsems := fnsems;
     SMod.initial_st := ∅;
   |}.
   Solve All Obligations with mod_tac.
 
-  Definition t N : Mod.t := SMod.to_mod (SchA.sp ∅ (↑N)) (smod N).
+  Definition t : Mod.t := SMod.to_mod ∅ smod.
 End IncrA. End IncrA.

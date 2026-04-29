@@ -21,7 +21,7 @@ Module SingleCoinIP. Section SingleCoinIP.
     cStartFunSim. rewrite /SingleCoinI.new /SingleCoinP.new.
     iDestruct "IST" as "%"; des; subst.
     cStepsS. cStepsT. destruct Any.downcast; cStepsS; last case_match; cStepsS; ss.
-    cStepsT. cInlineS. cStepsS. rewrite /ProphecyI.new. cStepsS. cStep.
+    cStepsT. cInlineS. rewrite /ProphecyI.new. cStepsS. cStep.
     iSplit; eauto. do 4 iExists _. iSplit; eauto.
     do 2 (iSplit; eauto; ss).
   Qed.
@@ -37,7 +37,7 @@ Module SingleCoinIP. Section SingleCoinIP.
       do 2 (iSplit; eauto; ss).
     }
     { cStepsT. cForceS. cStepsS. rewrite /v_coins /SingleCoinP.v_coins.
-      cInlineS. cStepsS. rewrite /ProphecyI.new. cStepsS. cStep. iSplit; eauto.
+      cInlineS. rewrite /ProphecyI.new. cStepsS. cStep. iSplit; eauto.
       do 4 iExists _. iSplit; eauto.
       do 2 (iSplit; eauto; ss).
     }

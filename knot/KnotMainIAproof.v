@@ -129,18 +129,22 @@ Module KnotMainIA. Section KnotMainIA.
       iFrame. iSplit; et. iPureIntro. eexists. esplits; et. econs; esplits; et.
       econs.
       { cSimpl; ss. }
-      iIntros (P Q) "[% [-> ->]]"; iExists _, _; iSplit.
+      iIntros (P Q) "[% [-> ->]] %varg %arg PRE"; iExists _, _; iModIntro; iSplit.
       { iPureIntro; exists (x, knot_frag (Some Fib)); split; ss. }
-      iIntros (? ?) "[[% $] %] !>"; iSplit; eauto; iPureIntro; des; subst; esplits; eauto.
+      iDestruct "PRE" as "[[% $] %]"; iSplit; eauto; iPureIntro; des; subst; esplits; eauto.
       ltac2:(renames H into RGx, SPfb, LEvo).
       inv SPfb. econs; eauto.
       inv SPEC. econs; eauto.
-      iIntros (? ?) "[%m [-> ->]]". iPoseProof (WEAK with "[]") as "[% [% [%Hfsp I]]]".
+      iIntros (? ?) "[%m [-> ->]] %varg %arg PRE".
+      iPoseProof (WEAK with "[]") as "WSPEC".
       { iPureIntro. exists (Fib, m); split; ss. }
-      iExists _, _; iSplit; first eauto.
-      unfoldPrePost. iIntros (? ?) "[[% F] [% %]]"; iPoseProof ("I" with "[F]") as "?".
-      { iFrame. iSplit; eauto. }
-      eauto.
+      iSpecialize ("WSPEC" $! varg arg with "[PRE]").
+      { iDestruct "PRE" as "[[% F] [% %]]". unfoldPrePost. iFrame "F". iSplit; eauto. }
+      iMod "WSPEC" as "[% [% [%Hfsp [PRE0 POST]]]]".
+      iModIntro. iExists _, _; iSplit; first eauto.
+      iSplitL "PRE0"; first iAssumption.
+      iIntros (vret ret) "Q"; iPoseProof ("POST" $! vret ret with "Q") as "?".
+      done.
     }
 
     (* TGT: take a postcondition of "fib" *)
