@@ -24,7 +24,7 @@ Section wsim.
   Context (T: Type) (get_stid: T → nat) (PYIP: T → iProp Σ).
 
   Lemma wsim_yield_tgt_rr
-      (E : coPset) (r g : rel)
+      (E : coPset) (g : rel)
       (k_s : () → itree crisE R_s) (k_t : () → itree crisE R_t)
       (msk_s msk_t : emask) (sp_s sp_t : specmap) :
     (∀ X, msk_t _ (subevent _ (Choose X))) →
@@ -34,10 +34,10 @@ Section wsim.
     Ist st_src st_tgt ∗
     (∀ st_src st_tgt,
       Ist st_src st_tgt -∗
-      wsim fl_s fl_t Ist (E, E) r g R_s R_t RR true true
+      wsim fl_s fl_t Ist (E, E) g R_s R_t RR true true
         (st_src, (SB.sandbox msk_s (SModTr.trans sp_s ℛ𝒴)) >>= k_s)
         (st_tgt, k_t tt)) ⊢
-    wsim fl_s fl_t Ist (E, E) r g R_s R_t RR ps pt
+    wsim fl_s fl_t Ist (E, E) g R_s R_t RR ps pt
       (st_src, (SB.sandbox msk_s (SModTr.trans sp_s ℛ𝒴)) >>= k_s)
       (st_tgt, (SB.sandbox msk_t (SModTr.trans sp_t ℛ𝒴)) >>= k_t).
   Proof using.
@@ -49,9 +49,8 @@ Section wsim.
     cStepsT. rewrite Hchoose. cStepsT. destruct _q; cycle 1.
     { cForceS (Some false). cStepsS. cStepsT.
       iPoseProof ("SIM" $! _ _ with "IST") as "SIM".
-      iPoseProof (wsim_mono_knowledge with "SIM") as "SIM"; cycle 2.
+      iPoseProof (wsim_mono_knowledge with "SIM") as "SIM"; cycle 1.
       { iApply "SIM". }
-      { iIntros (???????) "$"; done. }
       { iIntros (???????) "P !>". iApply Hg; ss. }
     }
     destruct b; cycle 1.
@@ -67,7 +66,7 @@ Section wsim.
   (*SLOW*)Qed.
 
   Lemma wsim_yield_tgt_ir
-      (Es : coPset) (r g : rel)
+      (Es : coPset) (g : rel)
       (k_s : () → itree crisE R_s)
       (k_t : () → itree crisE R_t)
       (msk_s msk_t : emask)
@@ -80,10 +79,10 @@ Section wsim.
     Ist st_src st_tgt ∗ RRSAS.Tid mtid stid ssch ∗
     (∀ st_src st_tgt,
       Ist st_src st_tgt -∗ RRSAS.Tid mtid stid ssch -∗
-      wsim fl_s fl_t Ist (Es, Es) r g R_s R_t RR true true
+      wsim fl_s fl_t Ist (Es, Es) g R_s R_t RR true true
         (st_src, (SB.sandbox msk_s (SModTr.trans sp_s ℛ𝒴)) >>= k_s)
         (st_tgt, k_t tt)) ⊢
-    wsim fl_s fl_t Ist (Es, Es) r g R_s R_t RR ps pt
+    wsim fl_s fl_t Ist (Es, Es) g R_s R_t RR ps pt
       (st_src, (SB.sandbox msk_s (SModTr.trans sp_s ℛ𝒴)) >>= k_s)
       (st_tgt, (SB.sandbox msk_t (SModTr.trans sp_t ℛ𝒴)) >>= k_t).
   Proof using.
@@ -95,9 +94,8 @@ Section wsim.
     cStepsT. rewrite Hmsk. cStepsT. destruct _q; cycle 1.
     { cForceS (Some false). cStepsS. cStepsT.
       iPoseProof ("SIM" $! _ _ with "IST TID") as "SIM".
-      iPoseProof (wsim_mono_knowledge with "SIM") as "SIM"; cycle 2.
+      iPoseProof (wsim_mono_knowledge with "SIM") as "SIM"; cycle 1.
       { iApply "SIM". }
-      { iIntros (???????) "$"; done. }
       { iIntros (???????) "P !>". iApply Hg; ss. }
     }
     destruct b; cycle 1.
@@ -116,7 +114,7 @@ Section wsim.
   (*SLOW*)Qed.
 
   Lemma wsim_yield_tgt_ii
-      (E Es Et : coPset) (r g : rel)
+      (E Es Et : coPset) (g : rel)
       (k_s : () → itree crisE R_s)
       (k_t : () → itree crisE R_t)
       (msk_s msk_t : emask)
@@ -130,10 +128,10 @@ Section wsim.
     Ist st_src st_tgt ∗
     (∀ st_src st_tgt,
       Ist st_src st_tgt -∗
-      wsim fl_s fl_t Ist (E, E) r g R_s R_t RR true true
+      wsim fl_s fl_t Ist (E, E) g R_s R_t RR true true
         (st_src, (SB.sandbox msk_s (SModTr.trans sp_s ℛ𝒴)) >>= k_s)
         (st_tgt, k_t tt)) ⊢
-    wsim fl_s fl_t Ist (E, E) r g R_s R_t RR ps pt
+    wsim fl_s fl_t Ist (E, E) g R_s R_t RR ps pt
       (st_src, (SB.sandbox msk_s (SModTr.trans sp_s ℛ𝒴)) >>= k_s)
       (st_tgt, (SB.sandbox msk_t (SModTr.trans sp_t ℛ𝒴)) >>= k_t).
   Proof using.
@@ -145,9 +143,8 @@ Section wsim.
     cStepsT. rewrite Hc. cStepsT. destruct _q; cycle 1.
     { cForceS (Some false). cStepsS. cStepsT.
       iPoseProof ("SIM" $! _ _ with "IST") as "SIM".
-      iPoseProof (wsim_mono_knowledge with "SIM") as "SIM"; cycle 2.
+      iPoseProof (wsim_mono_knowledge with "SIM") as "SIM"; cycle 1.
       { iApply "SIM". }
-      { iIntros (???????) "$"; done. }
       { iIntros (???????) "P !>". iApply Hg'; ss. }
     }
     destruct b; cycle 1.
@@ -168,10 +165,10 @@ Section wsim.
     cByCoind CIH. iFrame.
   (*SLOW*)Qed.
 
-  Lemma wsim_yield_src Ep r g (msk_s : emask) sp_s k_s i_t :
+  Lemma wsim_yield_src Ep g (msk_s : emask) sp_s k_s i_t :
     msk_s _ (subevent _ (Choose (option bool))) →
-    wsim fl_s fl_t Ist Ep r g R_s R_t RR true pt (st_src, k_s tt) (st_tgt, i_t) ⊢
-    wsim fl_s fl_t Ist Ep r g R_s R_t RR true pt
+    wsim fl_s fl_t Ist Ep g R_s R_t RR true pt (st_src, k_s tt) (st_tgt, i_t) ⊢
+    wsim fl_s fl_t Ist Ep g R_s R_t RR true pt
       (st_src, (SB.sandbox msk_s (SModTr.trans sp_s ℛ𝒴)) >>= k_s) (st_tgt, i_t).
   Proof using.
     iIntros "%Hmsk SIM".

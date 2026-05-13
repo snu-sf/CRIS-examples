@@ -173,7 +173,10 @@ Module CtrlIA. Section CtrlIA.
 
     (* TGT: check the length of the queue *)
     cStepsT. rewrite Nat.add_sub'; des_ifs; cycle 1.
-    { cStep. ss. }
+    { cStep. cStep. iSplitL ""; eauto.
+      iExists _, _, st_tgtR, st_tgtR.
+      do 3 (iSplit; eauto).
+      iExists v, l, (tl + length v), tl. iFrame. eauto. }
 
     (* SRC: take cSteps *)
     cStepsS.
@@ -230,7 +233,10 @@ Module CtrlIA. Section CtrlIA.
     (* TGT: check the length of the queue *)
     cStepsS. cStepsT.
     destruct q; ss.
-    { rewrite Nat.add_0_r Nat.sub_diag. s. cStep. ss. }
+    { rewrite Nat.add_0_r Nat.sub_diag. s. cStep. cStep. iSplitL ""; eauto.
+      iExists _, _, st_tgtR, st_tgtR.
+      do 3 (iSplit; eauto).
+      iExists [], q', tl, tl. iFrame. eauto. }
     replace (tl + S(List.length q) - tl) with (S(List.length q)) by nia. s.
     rewrite !length_app in H4.
 

@@ -1,6 +1,22 @@
 Require Export CRIS ImpPrelude HWQHeader SchHeader MemHeader ProphecyHeader HelpingHeader HWQI.
 Require Import CallFilter ProphecyI SchTactics.
 
+Ltac unfoldIterEqS :=
+  let marker := fresh "MARKER" in
+  set_marker marker;
+  hide_ihyps;
+  only_itree_s;
+  rewrite unfold_iter;
+  show_until marker.
+
+Ltac unfoldIterEqT :=
+  let marker := fresh "MARKER" in
+  set_marker marker;
+  hide_ihyps;
+  only_itree_t;
+  rewrite unfold_iter;
+  show_until marker.
+
 (* Prophecy-inserted intermediate module, HWQP *)
 Module HWQP. Section HWQP.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS}.
@@ -125,14 +141,14 @@ Module HWQIP. Section HWQIP.
       revert Hsz. generalize (Z.to_nat sz) at 1 5 8 as n.
       clear_st. intros n Hn. iInduction n as [|n] "IH_loop" forall (Hn st_src st_tgt).
       { replace (Z.to_nat sz - 0) with (Z.to_nat sz) by lia.
-        unfoldIterS. unfoldIterT.
+        unfoldIterEqS. unfoldIterEqT.
         rewrite Nat.ltb_irrefl.
         cStepsT. sYieldRR "IST".
         sYieldRR "IST".
         sYieldS. cStepsS. sYieldS. cStepsS. cInlineS. rewrite /ProphecyI.new. cStepsS.
         cStep. iFrame. auto.
       }
-      unfoldIterS. unfoldIterT.
+      unfoldIterEqS. unfoldIterEqT.
       destruct Nat.ltb eqn : Heqb; last (apply Nat.ltb_ge in Heqb; lia).
       cStepsS. cStepsT.
       sYieldRR "IST".
@@ -174,7 +190,7 @@ Module HWQIP. Section HWQIP.
         iApply wsim_reset.
         iStopProof. revert st_src; combine_quant st_tgt; eapply wsim_coind.
         intros ??? []; iIntros "IST". destruct_quant CIH.
-        unfoldIterS; unfoldIterT.
+        unfoldIterEqS; unfoldIterEqT.
         cStepsS; cStepsT.
         sYieldRR "IST".
         sYieldS. cStepsS.
@@ -201,9 +217,9 @@ Module HWQIP. Section HWQIP.
       iApply wsim_reset. iStopProof. revert st_src. combine_quant st_tgt.
       eapply wsim_coind. iIntros (g _ CIH [st_tgt st_src]) "IST". destruct_quant CIH.
       match goal with | |- context [ITree.iter ?a ?b] => set (src := a) end.
-      unfoldIterS.
+      unfoldIterEqS.
       match goal with | |- context [ITree.iter ?a ?b] => set (tgt := a) end.
-      unfoldIterT. rewrite {1}/src {1}/tgt.
+      unfoldIterEqT. rewrite {1}/src {1}/tgt.
       cStepsS. cStepsT.
       sYieldRR "IST".
       sYieldS. cStepsS.
@@ -231,13 +247,13 @@ Module HWQIP. Section HWQIP.
       set (a := i) at 2.
       iEval (match goal with | |- context [ITree.iter ?a a] => set (tgt2 := a) end). subst a.
       iInduction i as [|i] "IH" forall (st_src st_tgt Hi).
-      { unfoldIterS; unfoldIterT.
+      { unfoldIterEqS; unfoldIterEqT.
         rewrite {1}/src2 {1}/tgt2.
         cStepsS; cStepsT.
         sYieldRR "IST".
         sYieldS. cStepsS. cByCoind CIH. iFrame.
       }
-      unfoldIterS. unfoldIterT. rewrite {2}/src2 {2}/tgt2.
+      unfoldIterEqS. unfoldIterEqT. rewrite {2}/src2 {2}/tgt2.
       cStepsS; cStepsT.
       sYieldRR "IST".
       sYieldS.

@@ -25,6 +25,7 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-arg -w -arg -cannot-define-projection"; \
 	 echo "-R $(CRISMODULE)/theories $(CRISMODULE)"; \
 	 echo "-R $(CRISMODULE)/library $(CRISMODULE)"; \
+	 echo "-R $(CRISMODULE)/itreeS ITreeS"; \
 	 echo "-R $(CRISMODULE)/extract $(CRISMODULE)"; \
 	 echo "-R imp_system $(CRISMODULE).imp_system"; \
 	 echo "-R promise_free $(CRISMODULE).promise_free"; \

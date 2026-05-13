@@ -71,9 +71,9 @@ Definition vadd (x y : val) : option val :=
   match x, y with
   | Vint n, Vint m => Some (Vint (Z.add n m))
   | Vptr (blk, ofs), Vint n =>
-    scaled_n ← scale_int n; ret (Vptr (blk, Z.add ofs scaled_n))
+    scaled_n ← scale_int n; Some (Vptr (blk, Z.add ofs scaled_n))
   | Vint n, Vptr (blk, ofs) =>
-    scaled_n ← scale_int n; ret (Vptr (blk, Z.add scaled_n ofs))
+    scaled_n ← scale_int n; Some (Vptr (blk, Z.add scaled_n ofs))
   | _, _ => None
   end
 .

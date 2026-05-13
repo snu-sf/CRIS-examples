@@ -15,12 +15,12 @@ Module MainA. Section MainA.
     | 0 => Ret tt
     | S n' =>
       'r : Z <- ccallU CannonHdr.fire ([] : list val);;
-      _ <- trigger (@IO _ void "print" [r]↑);;
+      _ <- trigger (@IO _ unit "print" [r]↑);;
       main_repeat n'
     end.
 
   Definition main : Any.t → itree crisE Any.t :=
-    λ _, main_repeat num_fire;;; ret ()↑.
+    λ _, main_repeat num_fire;;; Ret ()↑.
 
   Definition main_spec : fspec := fspec_simple (λ _ : unit, ((λ _, Ball), (λ _, True%I))).
 

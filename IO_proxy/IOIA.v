@@ -16,21 +16,21 @@ Lemma helping_iter_prepend_yield_src `{!crisG Γ Σ α β τ Hinv Hsub}
     (fl_s fl_t : gmap fname (option (Any.t → itree crisE Any.t)))
     (Ist : gmap key (option Any.t) → gmap key (option Any.t) → iProp Σ)
     (ps pt : bool) st_src st_tgt
-    (Es : coPset) r g
+    (Es : coPset) g
     {R_s R_t} (RR : WSim.post R_s R_t)
     (msk_s : emask)
     (sp_s : specmap)
     (ktr_s : R → itree crisE R_s)
     (itr_t : itree crisE R_t) :
-  wsim fl_s fl_t Ist (Es, Es) r g _ R_t RR ps pt
+  wsim fl_s fl_t Ist (Es, Es) g _ R_t RR ps pt
     (st_src, ⇓sbox(msk_s) (⇓smod(sp_s) 𝒴@{N});;;
       ⇓sbox(msk_s) (⇓smod(sp_s) (ITree.iter (λ a : I, 𝒴@{N};;; body a) arg)) >>= ktr_s)
     (st_tgt, itr_t) ⊢
-  wsim fl_s fl_t Ist (Es, Es) r g _ R_t RR ps pt
+  wsim fl_s fl_t Ist (Es, Es) g _ R_t RR ps pt
     (st_src, ⇓sbox(msk_s) (⇓smod(sp_s) (ITree.iter (λ a : I, 𝒴@{N};;; body a) arg)) >>= ktr_s)
     (st_tgt, itr_t).
 Proof.
-  iIntros "SIM". rewrite unfold_iter_eq. cNormS. iApply wsim_yy_y_namespace.
+  iIntros "SIM". rewrite unfold_iter. cNormS. iApply wsim_yy_y_namespace.
   eapply eq_ind; first iApply "SIM".
   repeat f_equal; extensionalities; etrans; first hnorm_itr; auto.
 Qed.

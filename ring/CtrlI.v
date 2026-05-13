@@ -35,7 +35,7 @@ Module CtrlI. Section CtrlI.
         'u: () <- ccallU (CellHdr.set (hd mod max_size)) x;;
         cput v_hd (hd+1)
       else
-        trigger (@IO _ void "error" "enqueue failed: queue reached its maximum capacity");;; Ret tt
+        trigger (@IO _ unit "error" "enqueue failed: queue reached its maximum capacity");;; Ret tt
   .
 
   Definition dequeue : unit -> itree crisE Z :=
@@ -48,7 +48,7 @@ Module CtrlI. Section CtrlI.
         cput v_tl (tl+1);;;
         Ret x
       else
-        trigger (@IO _ void "error" "dequeue failed: cannot dequeue from an empty queue");;; Ret 0%Z
+        trigger (@IO _ unit "error" "dequeue failed: cannot dequeue from an empty queue");;; Ret 0%Z
   .
 
   Definition fnsems : fnsemmap :=

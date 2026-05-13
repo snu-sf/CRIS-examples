@@ -289,7 +289,7 @@ Module PFConfiguration.
     exploit (@program_step_step
                ThreadEvent.get_machine_event_pf (Configuration.mk ths1 global)); eauto. s. i.
     exploit (IHSTEPS
-               (IdentMap.add tid (existT lang state1, local0) ths1));
+               (IdentMap.add tid (existT lang state0, local0) ths1));
       try apply IdentMap.gss.
     i. des.
     - rewrite IdentMap.add_add_eq in STEPS0.
@@ -319,12 +319,12 @@ Module PFConfiguration.
         (<<STEP: step ThreadEvent.get_machine_event_pf MachineEvent.failure tid c2 c3>>)).
   Proof.
     exploit rtc_program_step_rtc_step; eauto. i. des; eauto.
-    destruct th2. ss.
+    destruct th2 as [st2 lc2 gl2]. ss.
     exploit (@program_step_step
                ThreadEvent.get_machine_event_pf
                (Configuration.mk
-                  (IdentMap.add tid (existT lang state0, local) (Configuration.threads c1))
-                  global)); s; try apply IdentMap.gss; eauto.
+                  (IdentMap.add tid (existT lang st2, lc2) (Configuration.threads c1))
+                  gl2)); s; try apply IdentMap.gss; eauto.
     rewrite IdentMap.add_add_eq.
     i. destruct (classic (ThreadEvent.get_machine_event_pf e = MachineEvent.failure)).
     - right. rewrite H in x0. esplits; eauto.
@@ -352,11 +352,11 @@ Module PFConfiguration.
         (<<STEP: step ThreadEvent.get_machine_event_pf MachineEvent.failure tid c2 c3>>)).
   Proof.
     exploit rtc_program_step_rtc_step; eauto. i. des; eauto.
-    destruct th2. ss.
+    destruct th2 as [st2 lc2 gl2]. ss.
     exploit (@opt_program_step_opt_step
                (Configuration.mk
-                  (IdentMap.add tid (existT lang state0, local) (Configuration.threads c1))
-                  global)); s; try apply IdentMap.gss; eauto.
+                  (IdentMap.add tid (existT lang st2, lc2) (Configuration.threads c1))
+                  gl2)); s; try apply IdentMap.gss; eauto.
     rewrite IdentMap.add_add_eq.
     i. destruct (classic (ThreadEvent.get_machine_event_pf e = MachineEvent.failure)).
     - right. rewrite H in x0. inv x0. esplits; eauto.

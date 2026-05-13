@@ -26,7 +26,7 @@ Section HWQPM.
   Notation ProphA := (ProphecyA.t mnp ∅).
 
   Lemma big_lemma γe γs (ls : list val) slots (p : list nat) (N : namespace) F
-      msks n sz blk γh γc γi γb fl_s fl_t r g ps pt st_src st_tgt :
+      msks n sz blk γh γc γi γb fl_s fl_t g ps pt st_src st_tgt :
     fl_s !! funid (Helping.help mnh) =
       Some (Some (SB.sandbox_body
         (msk_scp (HelpingOn.scopes mnh) msk_true,
@@ -39,7 +39,7 @@ Section HWQPM.
     own γs (● (of_slot_data <$> slots) : slotUR) -∗
     ([∗ map] i ↦ d ∈ slots, per_slot_own γe γs i d) -∗
     own γe (● (Excl' ls)) -∗
-      wsim fl_s fl_t IstFull (↑N, ↑N) r g unit unit
+      wsim fl_s fl_t IstFull (↑N, ↑N) g unit unit
         (λ rs rt, winv (↑N, ↑N) ∗
           (IstHelp_gen Ist mnh F rs.1 rt.1) ∗
           own γs (● (of_slot_data <$> map_imap (helped p) slots) : slotUR) ∗

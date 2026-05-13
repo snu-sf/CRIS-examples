@@ -470,7 +470,11 @@ Section Interp.
       end.
 
   Definition interp_GlobEnv {eff} `{coreE -< eff} (ge : GEnv.t) : itree (GlobEnv +' eff) ~> (itree eff) :=
-    interp (case_ (handle_GlobEnv ge) trivial_Handler).
+    interp (fun _ e =>
+      match e with
+      | inl1 e => @handle_GlobEnv eff H ge _ e
+      | inr1 e => trigger e
+      end).
 
   (** function local environment *)
   Definition lenv := alist var val.

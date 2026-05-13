@@ -4,7 +4,7 @@ Section wsim.
   Context `{!crisG Γ Σ α β τ _S _I, _SYS: !sysGS}.
 
   Lemma wsim_system_yield_ir
-      fl_src fl_tgt Ist r g R_src R_tgt RR p_src p_tgt
+      fl_src fl_tgt Ist g R_src R_tgt RR p_src p_tgt
       st_src st_tgt itr_src itr_tgt
       (tid : Ident.t) (stid : nat) (V : TView.t)
       (E : coPset)
@@ -19,10 +19,10 @@ Section wsim.
     (∀ st_src st_tgt,
       Ist st_src st_tgt -∗
       (tview_sys tid stid V) -∗
-      wsim fl_src fl_tgt Ist (E, E) r g R_src R_tgt RR true true
+      wsim fl_src fl_tgt Ist (E, E) g R_src R_tgt RR true true
         (st_src, SB.sandbox msk_src (SModTr.trans sp_src 𝒴) >>= itr_src)
         (st_tgt, itr_tgt ())) ⊢
-    wsim fl_src fl_tgt Ist (E, E) r g R_src R_tgt RR p_src p_tgt
+    wsim fl_src fl_tgt Ist (E, E) g R_src R_tgt RR p_src p_tgt
       (st_src, SB.sandbox msk_src (SModTr.trans sp_src 𝒴) >>= itr_src)
       (st_tgt, SB.sandbox msk_tgt (SModTr.trans sp_tgt 𝒴) >>= itr_tgt).
   Proof.
@@ -36,9 +36,8 @@ Section wsim.
       unfoldIterCS.
       cStepsS. des_ifs; cStepS; ss.
       cForceS (Some false). cStepsS.
-      iApply wsim_mono_knowledge; cycle 2.
+      iApply wsim_mono_knowledge; cycle 1.
       { iApply ("KTR" with "IST TV"). }
-      { ii; iIntros "$ !> //". }
       { ii; iIntros "G"; iPoseProof (Hgg' with "G") as "$"; done. }
     }
     { cStepsT. rewrite Hspt. cStepsT. rewrite Hcall. cStepsT.
@@ -60,15 +59,15 @@ Section wsim.
   (*SLOW*)Qed.
 
   Lemma wsim_system_yield_src
-      fl_src fl_tgt Ist r g R_src R_tgt RR p_src p_tgt
+      fl_src fl_tgt Ist g R_src R_tgt RR p_src p_tgt
       st_src st_tgt itr_src itr_tgt
       (E : coPset)
       (msk_src : emask)
       sp_src :
-    wsim fl_src fl_tgt Ist (E, E) r g R_src R_tgt RR true p_tgt
+    wsim fl_src fl_tgt Ist (E, E) g R_src R_tgt RR true p_tgt
       (st_src, itr_src ())
       (st_tgt, itr_tgt) ⊢
-    wsim fl_src fl_tgt Ist (E, E) r g R_src R_tgt RR p_src p_tgt
+    wsim fl_src fl_tgt Ist (E, E) g R_src R_tgt RR p_src p_tgt
       (st_src, SB.sandbox msk_src (SModTr.trans sp_src 𝒴) >>= itr_src)
       (st_tgt, itr_tgt).
   Proof.

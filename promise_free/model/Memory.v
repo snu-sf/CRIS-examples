@@ -217,7 +217,7 @@ Definition accessible (ofs: Z) (blk: t): bool :=
     cut (exists blk_cap, forall ofs,
             (fun ofs cell => Cell.cap (blk ofs) cell) ofs (blk_cap ofs)).
     { i. des. exists (mk st blk_cap). splits; ss. refl. }
-    apply ClassicalChoice.choice. i. apply Cell.cap_exists.
+    eapply dependent_functional_choice. i. apply Cell.cap_exists.
   Qed.
 
   Lemma future_cap_exists b st_future
@@ -228,7 +228,7 @@ Definition accessible (ofs: Z) (blk: t): bool :=
     cut (exists blk_cap, forall ofs,
             (fun ofs cell => Cell.cap (blk ofs) cell) ofs (blk_cap ofs)).
     { i. des. exists (mk st_future blk_cap). splits; ss. }
-    apply ClassicalChoice.choice. i. apply Cell.cap_exists.
+    eapply dependent_functional_choice. i. apply Cell.cap_exists.
   Qed.
 
 End Block.
@@ -2382,7 +2382,7 @@ Qed.
                Block.state (blocks (fst tbid) (snd tbid)) = Block.state blk)
             tbid (blocks_cap_cur tbid)).
     { i. des. exists (fun tid bid => blocks_cap_cur (tid, bid)). i. eapply (H (tid, bid)). }
-    apply ClassicalChoice.choice. intros tbid. eapply Block.cap_exists.
+    eapply dependent_functional_choice. intros tbid. eapply Block.cap_exists.
   Qed.
 
   Definition cap_of_aux (mem: t):
@@ -2478,7 +2478,7 @@ Qed.
                Block.state blk = Block.state (blocks_future (fst tbid) (snd tbid)))
             tbid (blocks_cap_cur tbid)).
     { i. des. exists (fun tid bid => blocks_cap_cur (tid, bid)). i. eapply (H (tid, bid)). }
-    apply ClassicalChoice.choice. intros tbid. eapply Block.future_cap_exists.
+    eapply dependent_functional_choice. intros tbid. eapply Block.future_cap_exists.
     inv FUTURE. specialize (STATES (Loc.mk (fst tbid) (snd tbid) 0%Z)). ss.
   Qed.
 
@@ -2722,4 +2722,3 @@ End Memory.
 #[export] Hint Resolve Memory.le_PreOrder: core.
 #[export] Hint Resolve Memory.messages_le_PreOrder: core.
 #[export] Hint Resolve Memory.state_future_PreOrder: core.
-

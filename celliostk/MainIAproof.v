@@ -34,7 +34,7 @@ Module MainIA. Section MainIA.
       as (st_src ? st_tgt ?) "[IST PT]".
     {
       destruct (Z.le_dec 0 i); cycle 1.
-      { rewrite !unfold_iter_eq. case_match; try nia.
+      { rewrite !unfold_iter. case_match; try nia.
         cStepsS. cStepsT. cStep. et.
       }
       eapply Z_of_nat_complete in l. des; subst.
@@ -42,8 +42,8 @@ Module MainIA. Section MainIA.
       iRevert "PT". rewrite bi.intuitionistically_elim. iIntros "PT".
       generalize ([]: list Z) as ls, Vnullptr as stk. i.
       iStopProof. revert ls stk st_src st_tgt. induction n; i; iIntros "[IST PT]".
-      { rewrite !unfold_iter_eq. cStepsS. cStepsT. cStep. et. }
-      rewrite !unfold_iter_eq. cStepsT. cStepsS. cSimpl.
+      { rewrite !unfold_iter. cStepsS. cStepsT. cStep. et. }
+      rewrite !unfold_iter. cStepsT. cStepsS. cSimpl.
 
       cInlineT. cStepsT. cForceT ls. cStepsT. cForceT. iSplitL "PT"; et. cStepsT. cSimpl.
       cCall "IST" as (ret ? ?) "IST".
@@ -56,9 +56,9 @@ Module MainIA. Section MainIA.
     cStepsT. cStepsS. cSimpl. cCall "IST" as (? ? ?) "IST". cStepsS. cStepsT.
     destruct Any.downcast; [|cStepsS; ss]. cStepsS. cStepsT.
     iStopProof. clear_st. revert r_t st_s' st_t'. induction r_s; i; iIntros "[PT IST]".
-    { rewrite !unfold_iter_eq. cStepsS. cStepsT. cInlineT. cStepsT.
+    { rewrite !unfold_iter. cStepsS. cStepsT. cInlineT. cStepsT.
       cForceT []. cStepsT. cForceT. iFrame. cStepsT. cStep. iFrame. et. }
-    rewrite !unfold_iter_eq. cStepsS. cStepsT.
+    rewrite !unfold_iter. cStepsS. cStepsT.
     cInlineT. cStepsT. cForceT (a::r_s). cStepsT. cForceT. iFrame.
     cStepsT. cStep. cStepsS. cStepsT.
     rewrite -IHr_s. iFrame.

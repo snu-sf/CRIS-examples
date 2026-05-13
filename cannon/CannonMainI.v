@@ -13,12 +13,12 @@ Module MainI. Section MainI.
     | 0 => Ret tt
     | S n' =>
       r <- ccallU CannonHdr.fire ([] : list val);;
-      trigger (@IO _ void "print" [r]↑);;;
+      trigger (@IO _ unit "print" [r]↑);;;
       main_repeat n'
     end.
 
   Definition main : Any.t → itree crisE Any.t :=
-    λ _, main_repeat num_fire;;; ret ()↑.
+    λ _, main_repeat num_fire;;; Ret ()↑.
 
   Definition fnsems : fnsemmap :=
     {[entry # (msk_scp scopes msk_true, (None, main))]}.

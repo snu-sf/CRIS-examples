@@ -31,6 +31,8 @@ Open Scope itree_scope.
 
 Set Implicit Arguments.
 
+CoFixpoint itree_spin {E R} : itree E R := Tau itree_spin.
+
 Module MemE.
   Variant t: Type -> Type :=
   | read (loc: Loc.t) (ord: Ordering.t): t Val.t
@@ -211,7 +213,7 @@ Module ILang.
     :
       @step R (ProgramEvent.failure)
             (Vis (MemE.abort) k)
-            ITree.spin
+            itree_spin
   | step_ptr_eq
       (k: option bool -> itree MemE.t R) valret loc1 loc2
       itr1 (EQ: itr1 = k valret)
@@ -237,12 +239,12 @@ End ILang.
 From Paco Require Import paco.
 
 Lemma bind_spin E A B (k: ktree E A B):
-  ITree.spin >>= k = ITree.spin.
+  itree_spin >>= k = itree_spin.
 Proof.
   apply bisim_is_eq. revert k. pcofix CIH.
   i. pfold. red.
-  change (observe (ITree.spin: itree E B)) with (@TauF E B _ (ITree.spin: itree E B)).
-  change (observe (ITree.spin >>= k)) with (@TauF E B _ (ITree.spin >>= k)).
+  change (observe (itree_spin: itree E B)) with (@TauF E B _ (itree_spin: itree E B)).
+  change (observe (itree_spin >>= k)) with (@TauF E B _ (itree_spin >>= k)).
   econs. right. auto.
 Qed.
 
@@ -754,4 +756,3 @@ Section Interp.
     | None => trigger MemE.abort;;; Ret Val.Vundef
     end.
 End Interp.
-
