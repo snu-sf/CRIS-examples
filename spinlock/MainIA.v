@@ -49,10 +49,10 @@ Module MainIA. Section MainIA.
 
     (* tgt yield *)
     solve_base_sl_red. iDestruct "P" as "[%x [PT P]]".
-    mLoadT "PT".
+    mLoad.
     sYieldIR "IST" "TID". sYieldIR "IST" "TID".
 
-    mStoreT "PT".
+    mStore.
     sYieldIR "IST" "TID".
 
     iCombine "P Tkn" as "C". iMod (own_update with "C") as "[F C]".
@@ -168,7 +168,7 @@ Module MainIA. Section MainIA.
     iCombine "B W" gives %WF%frac_auth_agree. inv WF.
 
     (* tgt inline - mem load *)
-    mLoadT "PT".
+    mLoad.
 
     (* tgt yield *)
     sYieldIR "IST" "TID". sYieldIR "IST" "TID".

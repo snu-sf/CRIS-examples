@@ -40,7 +40,7 @@ Module LockIA. Section LockIA.
     sYieldIR "IST" "TID".
 
     (* tgt inline - mem store *)
-    mStoreT "↦".
+    mStore.
 
     (* src/tgt yield *)
     sYieldIR "IST" "TID".
@@ -78,7 +78,9 @@ Module LockIA. Section LockIA.
     iDestruct "I" as "[FAIL|SUCC]".
     { (* fail case *)
       (* tgt inline - mem cas *)
-      iApply (wsim_mem_cas _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ emp%I with "FAIL"); ss.
+      mCas.
+      instantiate (1:=emp%I).
+      iSplitR; first done. iSplitR.
       { ss. iIntros "_ !>"; eauto. }
       iIntros "↦ _"; case_decide; first done.
       iMod ("Hcl" with "[↦]") as "_". { iFrame. }
@@ -92,7 +94,9 @@ Module LockIA. Section LockIA.
       (* tgt inline - mem cas *)
       cStepsT.
       iDestruct "SUCC" as "[↦ [Q TKN]]".
-      iApply (wsim_mem_cas _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ emp%I with "↦"); ss.
+      mCas.
+      instantiate (1:=emp%I).
+      iSplitR; first done. iSplitR.
       { ss. iIntros "_ !>"; eauto. }
       iIntros "↦ _"; case_decide; last done.
       iMod ("Hcl" with "[↦]") as "_". { iFrame. }

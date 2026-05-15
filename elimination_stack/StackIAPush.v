@@ -38,7 +38,7 @@ Section StackIM.
     (* load *)
     iInv "Hinv" with "[IST]"
       as "[IST [%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist Hoffer]]]]]]]" "close"; first by iFrame.
-    mLoadT "H↦".
+    mLoad.
     iPoseProof (list_inv_comparable with "Hlist") as "[Hlist [Hval #Hcomp]]".
     iMod ("close" with "[//] [Hs Hlist H↦ Hoffer] [$]") as "> > IST"; first by iFrame.
 
@@ -46,7 +46,7 @@ Section StackIM.
     sYields. mAllocT as (blkhead) "[↦head [↦offer _]]". sYields.
 
     (* store to new head *)
-    mStoreT "↦head". sYields. mStoreT "↦offer". sYields.
+    mStore. sYields. mStore. sYields.
 
     (* try push *)
     iInv "Hinv" with "[IST]"
@@ -56,7 +56,7 @@ Section StackIM.
     iPoseProof ("Hcomp" with "Hlist") as "[%succ %Hcomp]".
 
     iCombine "Hval Hval2" as "Hcmp".
-    cShowT. iApply (wsim_mem_cas with "H↦ Hcmp"); [prove_inline_cond|ss|eauto| | ].
+    cShowT. mCas. iSplitL "Hcmp"; first iExact "Hcmp". iSplitR.
     { iIntros "[[% [% $]] [% [% $]]] !> [$ $] //". }
     iIntros "H↦ [Hval Hval2]". iClear "Hcomp". cStepsT. cHideT.
     case_bool_decide; subst.
@@ -85,7 +85,7 @@ Section StackIM.
       (* comparison *)
       cHideT. sYields.
       iCombine "Hval" "Hval2" as "Hval".
-      iApply (wsim_mem_cmp with "Hval"); [prove_inline_cond|ss|eauto| | ].
+      mCmp. iSplitL "Hval"; first iExact "Hval". iSplitR.
       { iIntros "[[% [% $]] [% [% $]]] !> [$ $] //". }
       iIntros "_". cStepsT.
 
@@ -99,7 +99,7 @@ Section StackIM.
     (* comparison - which leads us to offering *)
     sYields.
     iCombine "Hval" "Hval2" as "Hval".
-    iApply (wsim_mem_cmp with "Hval"); [prove_inline_cond|ss|eauto| | ].
+    mCmp. iSplitL "Hval"; first iExact "Hval". iSplitR.
     { iIntros "[[% [% $]] [% [% $]]] !> [$ $] //". }
     iIntros "_". cStepsT. sYields.
     destruct (decide (succ = 0)); subst; cycle 1.
@@ -108,13 +108,13 @@ Section StackIM.
     (* make an offer *)
     cStepsT. sYields. iClear "↦head ↦offer".
     mAllocT as (offerb) "[↦offer [↦offerst _]]". sYields.
-    mStoreT "↦offer". sYields. mStoreT "↦offerst". sYields.
+    mStore. sYields. mStore. sYields.
 
     clear dependent l l1 stack_rep stack_rep1 offer_rep offer_rep1.
     iInv "Hinv" with "[IST]"
       as "[IST [%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist [Hoffer _]]]]]]]]" "close";
       first by iFrame.
-    mStoreT "Hoffer".
+    mStore.
     iMod (own_alloc (Excl ())) as "[%γo OfferTkn]"; ss.
     iMod (hinv_alloc (syn_offer_inv N n γo (offerb, 0%Z) req_id v _)
       _ _ (offerN N) with "[↦offer ↦offerst Help]") as "[%γ #Hoinv]"; eauto.
@@ -128,37 +128,33 @@ Section StackIM.
     iInv "Hinv" with "[IST]"
       as "[IST [%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist [Hoffer _]]]]]]]]" "close";
       first by iFrame.
-    mStoreT "Hoffer".
+    mStore.
 
     iMod ("close" with "[//] [$] [$]") as "> > IST". sYields.
     iInv "Hoinv" with "[IST]" as "[IST [%offerst [offerst↦ offer]]]" "close"; first by iFrame.
     rewrite Z.add_0_l.
     case_decide; subst.
     { (* nobody helped - try again *)
-      iApply (wsim_mem_cas with "offerst↦"); [prove_inline_cond|ss|eauto| | | ].
-      { instantiate (1:=emp%I); done. }
+      mCas. instantiate (1:=emp%I). iSplitR; first done. iSplitR.
       { eauto. }
       case_bool_decide; ss. iIntros "Hofferst _". cStepsT.
 
       iMod ("close" with "[//] [$] [$]") as "> > IST". sYields.
       iAssert (emp)%I as "E"; first done.
-      iApply (wsim_mem_cmp with "E");
-        [try prove_inline_cond|try prove_sb_cond|unfold_cris_defs|..]; eauto.
+      mCmp. iSplitL "E"; first iExact "E". iSplitR; first eauto.
       iIntros "_". cStepsT.
 
       cByCoind CIH. iFrame "∗#". iDestruct "offer" as "[? ?]"; iFrame.
     }
     case_decide; subst.
     { (* Somebody helped *)
-      iApply (wsim_mem_cas _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ emp%I with "offerst↦");
-        [prove_inline_cond|try prove_sb_cond|ss|..]; eauto.
+      mCas. instantiate (1:=emp%I). iSplitR; first done. iSplitR; first eauto.
       case_bool_decide; ss. iIntros "Hofferst _". cStepsT.
       iPoseProof "offer" as "#offer".
 
       iMod ("close" with "[//] [$] [$]") as ">>IST".
       sYields. iAssert (emp)%I as "E"; first done.
-      iApply (wsim_mem_cmp with "E");
-        [try prove_inline_cond|try prove_sb_cond|unfold_cris_defs|..]; eauto.
+      mCmp. iSplitL "E"; first iExact "E". iSplitR; first eauto.
       iIntros "_". cStepsT.
 
       sYieldS. iApply (wsim_HelpDone_try_run with "offer IST"). iIntros "IST".

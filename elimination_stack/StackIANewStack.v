@@ -26,7 +26,7 @@ Section StackIM.
     mAllocT as (blk) "[↦stack [↦val _]]". sYields.
 
     (* initialize stack *)
-    mStoreT "↦stack". sYields. mStoreT "↦val". sYields.
+    mStore. sYields. mStore. sYields.
 
     (* Guarantee the postcondition *)
     sYieldS.

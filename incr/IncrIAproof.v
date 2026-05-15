@@ -19,12 +19,10 @@ Module IncrIA. Section IncrIA.
     iApply wsim_reset. cCoind CIH g __ with st_src st_tgt. iIntros "? /=".
     aUnfoldT. sYields. sYieldS. aUnfoldS. sYieldS. cStepsS.
     rename _q into v; iRename "ASM" into "↦".
-    mLoadT "↦". cForceS (inl tt); cForcesS; iFrame "↦". cStepsS.
+    mLoad. cForceS (inl tt); cForcesS; iFrame "↦". cStepsS.
 
     aUnfoldS. sYields. sYieldS. cStepsS. rename _q into v2; iRename "ASM" into "↦".
-    iApply (wsim_mem_cas with "↦"); [prove_inline_cond|ss|eauto| | | ].
-    { rewrite /MemA.compare_val; des_ifs. }
-    { instantiate (1:=emp%I); done. }
+    mCas. instantiate (1:=emp%I). iSplitR; first done. iSplitR.
     { iIntros "_"; iExists 1%Qp, 1%Qp, Vundef, Vundef; ss. }
     iIntros "↦ _". cStepsT. case_bool_decide.
     { case_bool_decide; subst; ss. cForceS (inr _); cForcesS; iFrame "↦".

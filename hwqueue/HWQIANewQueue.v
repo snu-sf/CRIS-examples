@@ -36,7 +36,8 @@ Section HWQPM.
     mAllocT as (blk) "H"; first by lia.
     replace (Z.to_nat (2 + sz)) with (2 + sz) by lia. s.
     iDestruct "H" as "[sz [back ar]]".
-    sYields. mStoreT "sz". sYields. mStoreT "back". sYields.
+    sYields. mStore. sYields. mStore.
+    iRevert "sz"; iIntros "sz". iRevert "back"; iIntros "back". sYields.
     replace sz with ((sz - sz) + sz) at 1 by lia. rewrite replicate_add.
     replace (replicate (sz - sz) Vundef) with (replicate (sz - sz) (Vint 0))
       by rewrite Nat.sub_diag //=.
@@ -116,7 +117,7 @@ Section HWQPM.
     { rewrite lookup_app_r length_replicate // Nat.sub_diag //=. }
     cStepsT.
     replace (0 + 2 + (sz - S i)%nat)%Z with (Z.of_nat (2 + (sz - S i))) by lia.
-    mStoreT "↦". iPoseProof ("ar" with "↦") as "ar".
+    mStore. iPoseProof ("ar" with "↦") as "ar".
     replace (sz - S i) with (length (replicate (sz - S i) (Vint 0)) + 0) at 1
       by (rewrite length_replicate; lia).
     rewrite insert_app_r /=.

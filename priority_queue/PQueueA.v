@@ -141,7 +141,7 @@ Module PQueueIA. Section PQueueIA.
     cStepsT. sYields. mAllocT as (queueb) "↦queue"; first lia. sYields.
     rewrite (comm Z.add) Z2Nat.inj_add //; try lia.
     rewrite replicate_add /=; iDestruct "↦queue" as "[↦range ↦queue]".
-    mStoreT "↦range".
+    mStore.
 
     iApply wsim_yy_y_namespace. iApply wsim_bind_strong.
     rewrite ?Nat2Z.id.
@@ -167,6 +167,7 @@ Module PQueueIA. Section PQueueIA.
     set (var := range).
     rewrite {1 2 3 4}/var.
     replace (0%Z) with (range - var)%Z by lia.
+    iEval (rewrite /var Z.sub_diag) in "↦range".
     rewrite {5}Z.sub_diag.
     iAssert (⌜var ≤ range⌝)%I as "#Hvar"; first (iPureIntro; lia).
     generalize var. clear var. iIntros (var).
@@ -216,7 +217,7 @@ Module PQueueIA. Section PQueueIA.
     case_decide; last lia.
 
     rewrite Nat2Z.inj_sub //.
-    mStoreT "↦queue".
+    mStore.
     replace (length entries - S var + 1)%Z with (length entries - var)%Z by lia.
     sYields.
 
@@ -247,7 +248,7 @@ Module PQueueIA. Section PQueueIA.
     iCombine "stacks" "↦" as "↦"; rewrite -big_sepL_sep. ss.
     hexploit (lookup_lt_is_Some_2 entries priority); first lia; intros [[stack γs] Hstack].
     iPoseProof (big_sepL_lookup_acc_impl priority with "↦") as "[[#stack ↦] ↦s]"; eauto; s.
-    mLoadT "↦".
+    mLoad.
     iMod ("close" with "[↦s ↦range ↦ ◯entries]") as "_".
     { iFrame. iApply ("↦s" with "[] [↦]"); iFrame. iIntros "!> %%%% [?$]". }
     sYields.
@@ -280,7 +281,7 @@ Module PQueueIA. Section PQueueIA.
 
     (* range load *)
     iInv "queue_inv" as "[◯ [↦range ↦queues]]" "close".
-    mLoadT "↦range".
+    mLoad.
     iMod ("close" with "[◯ ↦range ↦queues]") as "_"; iFrame. sYields. sYieldS.
 
     (* induction *)
@@ -303,7 +304,7 @@ Module PQueueIA. Section PQueueIA.
     hexploit (lookup_lt_is_Some_2 entries index); first lia; intros [[istack iγs] Hi].
     iPoseProof (big_sepL_lookup_acc _ _ index with "↦queues") as "[↦queue ↦queues]"; eauto; s.
     iPoseProof (big_sepL_lookup_acc _ _ index with "stack_invs") as "[stack _]"; eauto; s.
-    mLoadT "↦queue".
+    mLoad.
     iPoseProof ("↦queues" with "↦queue") as "↦queues".
     iMod ("close" with "[◯ ↦range ↦queues]") as "_"; iFrame.
     sYields.

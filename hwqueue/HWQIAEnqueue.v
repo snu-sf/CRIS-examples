@@ -129,7 +129,7 @@ Section HWQPM.
     iInv "Inv" with "[IST]" as "[IST HInv]" "Close"; first by iFrame.
     iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
     iDestruct "HInv" as "[H_sz Hinv]".
-    mLoadT "H_sz". iMod ("Close" with "[//] [$] IST") as "> > IST".
+    mLoad. iMod ("Close" with "[//] [$] IST") as "> > IST".
     sYields.
     rewrite /MemHdr.faa. cStepsT.
     clear pvs pref rest slots deqs back cont.
@@ -139,7 +139,7 @@ Section HWQPM.
     iDestruct "HInv" as "[Hproph [Hbig [Hcont Hpures]]]".
     iDestruct "Hpures" as %(Hslots & Hstate & Hpref & Hdeqs & Hpvs_OK & Hcont & Hlem).
     destruct Hpvs_OK as (Hpvs_ND & Hpvs_sz).
-    mLoadT "H_back". mStoreT "H_back".
+    mLoad. mStore.
     assert (back + 1 = S back)%Z as -> by lia.
     iMod (back_incr with "Hb●") as "Hb●".
     iAssert (i2_lower_bound γi match cont with
@@ -276,7 +276,7 @@ Section HWQPM.
       destruct (array_content_is_Some sz i slots deqs) as [x Hix]; first by lia.
       iPoseProof (big_sepL_insert_acc _ _ i with "H_ar") as "[↦ H_ar]"; eauto.
       replace (0 + 2 + i)%Z with (i + 2)%Z by lia.
-      mStoreT "↦".
+      mStore.
       iPoseProof ("H_ar" with "↦") as "H_ar". clear x Hix.
       (* We perform some updates. *)
       iMod (use_writing_tok with "Hs● Hwriting_tok_i") as "[Hs● #written_wit_i]".
@@ -434,7 +434,7 @@ Section HWQPM.
       destruct (array_content_is_Some sz i slots deqs) as [x Hix]; first by lia.
       iPoseProof (big_sepL_insert_acc _ _ i with "H_ar") as "[↦ H_ar]"; eauto.
       replace (0 + 2 + i)%Z with (i + 2)%Z by lia.
-      mStoreT "↦".
+      mStore.
       iPoseProof ("H_ar" with "↦") as "H_ar". clear x Hix.
       (* We perform some updates. *)
       iMod (use_writing_tok with "Hs● Hwriting_tok_i") as "[Hs● #written_wit_i]".
@@ -712,7 +712,7 @@ Section HWQPM.
       destruct (array_content_is_Some sz i slots deqs) as [x Hix]; first by lia.
       iPoseProof (big_sepL_insert_acc _ _ i with "H_ar") as "[↦ H_ar]"; eauto.
       replace (0 + 2 + i)%Z with (i + 2)%Z by lia.
-      mStoreT "↦".
+      mStore.
       iPoseProof ("H_ar" with "↦") as "H_ar". clear x Hix.
       (* We perform some updates. *)
       iMod (use_writing_tok with "Hs● Hwriting_tok_i") as "[Hs● #written_wit_i]".
@@ -882,7 +882,7 @@ Section HWQPM.
       destruct (array_content_is_Some sz i slots deqs) as [x Hix]; first by lia.
       iPoseProof (big_sepL_insert_acc _ _ i with "H_ar") as "[↦ H_ar]"; eauto.
       replace (0 + 2 + i)%Z with (i + 2)%Z by lia.
-      mStoreT "↦".
+      mStore.
       iPoseProof ("H_ar" with "↦") as "H_ar". clear x Hix.
       (* We now look at the state of our cell. *)
       destruct Hslots_i as [[[l' s] w] Hi].

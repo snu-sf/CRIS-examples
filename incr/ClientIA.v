@@ -85,7 +85,7 @@ Module ClientIA. Section ClientIA.
     mAllocT as (blk) "[map _]". sYields.
 
     (* tgt store *)
-    mStoreT "map". sYields.
+    mStore. sYields.
 
     (* spawn *)
     sYieldS. cForceS (Vptr (blk, 0%Z)). sYieldS. cStepsS.
@@ -136,7 +136,7 @@ Module ClientIA. Section ClientIA.
     iCombine "C Q Q2" as "C" gives %[_ WF%frac_auth_agree]. inv WF; ss.
     iDestruct "C" as "[CA CF]".
 
-    mLoadT "PT".
+    mLoad.
 
     iMod ("INVA" with "[CA PT]") as "_"; first solve_base_sl_red; iFrame.
     sYields. sYieldS. replace (0 + 2 + (0 + 2))%Z with 4%Z by lia.
