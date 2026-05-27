@@ -1,7 +1,7 @@
 Require Export CRIS ImpPrelude HWQHeader SchHeader MemHeader ProphecyHeader HelpingHeader.
 Require Export CallFilter MemA SchA ProphecyA.
 Require Import MemI MemIAproof MemTactics.
-Require Import ProphecyI ProphecyFacts.
+Require Import ProphecyI ProphecyFacts ProphecyStream.
 Require Import HelpingTactics.
 Require Import HWQI HWQP SchI SchTactics.
 From Stdlib Require Import IndefiniteDescription Sorted. (* require for prophecy *)
@@ -673,60 +673,7 @@ Proof.
 Qed.
 
 (** * Prophecy abstractions *************************************************)
-Definition obs_stream {X} (obs_seq : nat → X) : stream X :=
-  let cofix go n := obs_seq n :.: go (S n) in go 0.
-
-Lemma lookup_obs_stream {X} (obs_seq : nat → X) (n : nat) :
-  obs_stream obs_seq !.! n = obs_seq n.
-Proof.
-  rewrite /obs_stream. remember 0 as i. set (n2 := n) at 2.
-  assert (i + n = n2) as Hin by lia; revert Hin.
-  generalize i n2; clear dependent i n2. induction n as [|n IHn].
-  { intros ??; rewrite Nat.add_0_r; intros ->; ss. }
-  intros i n2 Hi; s; rewrite (IHn (S i) n2); ss; lia.
-Qed.
-
-Lemma stake_S {X} (str : stream X) (n : nat) : stake (S n) str = stake n str ++ [str !.! n].
-Proof.
-  revert str; induction n as [|n Hn] using Nat.strong_induction_le; first ss.
-  intros str; specialize (Hn n (Nat.le_refl _) (stail str)); ss; rewrite Hn; ss.
-Qed.
-
-Lemma length_firstn {X} (obs_seq : nat → X) n : length (Prophecy.firstn obs_seq n) = n.
-Proof. induction n; ss; lia. Qed.
-
-Fixpoint list_stream_app {X} (l : list X) (str : stream X) : stream X :=
-  match l with
-  | hd :: tl => scons hd (list_stream_app tl str)
-  | [] => str
-  end.
-
-Lemma list_stream_app_app {X} (l1 l2 : list X) (str : stream X) :
-  list_stream_app (l1 ++ l2) str = list_stream_app l1 (list_stream_app l2 str).
-Proof. revert l2 str; induction l1 as [|e1 l1]; ii; ss; f_equal; auto. Qed.
-
-Lemma lookup_list_stream_app_r {X} (l : list X) str n :
-  length l ≤ n → list_stream_app l str !.! n = str !.! (n - length l).
-Proof.
-  revert l str; induction n; intros l str Hl.
-  { assert (length l = 0) as Hl2 by lia; apply nil_length_inv in Hl2; subst l.
-    rewrite length_nil //=.
-  }
-  destruct l as [|e l]; ss. apply IHn; lia.
-Qed.
-
-Program Definition hwq_prophecy : Prophecy.t := {|
-  Prophecy.Pro := stream (nat * bool);
-  Prophecy.Obs := nat * bool;
-  Prophecy.consistent := λ l p, reverse l = stake (length l) p;
-  Prophecy.obs_default := inhabitant;
-|}.
-Next Obligation.
-  intros obs_seq; exists (obs_stream obs_seq). intros i; rewrite length_firstn.
-  induction i as [|i]; first ss.
-  simpl Prophecy.firstn; rewrite reverse_cons. rewrite stake_S IHi; f_equal.
-  rewrite lookup_obs_stream //.
-Qed.
+Definition hwq_prophecy : Prophecy.t := stream_prophecy (nat * bool).
 
 Fixpoint proph_data fuel sz (deq : gset nat) (str : stream (nat * bool)) : list nat :=
   match fuel with
@@ -835,13 +782,11 @@ Qed.
 
 (* Wrapper for the Iris [proph] proposition, using our data abstraction. *)
 Definition hwq_proph (blk : nat) sz (deq : gset nat) pvs :=
-  (∃ p str rs, proph ("hwq", (Vptr (blk, 0%Z))↑↑) (existT hwq_prophecy (p, rs)) ∗
-  ⌜p = list_stream_app (reverse rs) str⌝ ∗
+  (∃ str, stream_proph ("hwq", (Vptr (blk, 0%Z))↑↑) str ∗
   ∃ fuel, ⌜enough_fuel sz deq str fuel ∧ pvs = proph_data fuel sz deq str⌝)%I.
 Definition syn_hwq_proph {n} (blk : nat) sz (deq : gset nat) pvs : GTerm.t n :=
-  (∃ (p str : τ{stream (nat * bool)}) (rs : τ{list (nat * bool)}),
-    syn_proph ("hwq", (Vptr (blk, 0%Z))↑↑) (existT hwq_prophecy (p, rs)) ∗
-    ⌜p = list_stream_app (reverse rs) str⌝ ∗
+  (∃ (str : τ{stream (nat * bool)}),
+    syn_stream_proph ("hwq", (Vptr (blk, 0%Z))↑↑) str ∗
     ∃ (fuel : τ{nat}), ⌜enough_fuel sz deq str fuel ∧ pvs = proph_data fuel sz deq str⌝)%SAT.
 
 Definition block  : Type := nat * list nat.

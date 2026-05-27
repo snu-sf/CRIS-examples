@@ -2,7 +2,7 @@ Require Export CRIS ImpPrelude HWQHeader SchHeader MemHeader ProphecyHeader Help
 Require Export CallFilter MemA SchA ProphecyA.
 Require Export HWQRA.
 Require Import MemI MemIAproof MemTactics.
-Require Import ProphecyI ProphecyFacts.
+Require Import ProphecyI ProphecyFacts ProphecyStream.
 Require Import HelpingTactics.
 Require Import HWQI HWQP SchI HWQA SchTactics.
 From stdpp Require Import streams list.
@@ -56,9 +56,10 @@ Section HWQPM.
       iDestruct "sz" as "[sz1 sz2]".
       iPoseProof (free_id_split_singleton _ ("hwq", ((Vptr (blk, 0%Z))↑↑)) with "free") as "[tok free]".
       { split; ss. rewrite SAny.upcast_downcast //. }
-      cStepsT. cInlineT. cForceT (_, hwq_prophecy). cForcesT. iSplitL "tok".
-      { repeat iSplit; first iPureIntro; ss. }
-      cStepsT. iDestruct "GRT" as "[-> [%p [-> Proph]]]".
+      cStepsT. iApply (wsim_stream_proph_new (Obs:=nat * bool) with "tok").
+      { try solve [simpl_map | prove_inline_cond | prove_sb_cond | ss]. }
+      { ss. }
+      iIntros (str) "Proph".
       (* invariant construction *)
       iMod new_back as (γb) "Hb●".
       iMod new_back as (γi) "Hi●".
@@ -67,8 +68,8 @@ Section HWQPM.
       iMod new_slots as (γs) "Hs●".
       iMod (hinv_alloc (syn_inv_hwq sz γb γi γe γc γs blk) (n:=n) _ _ N
         with "[ar sz1 back Proph Hb● Hi● He● HC Hs●]") as "#[%γh InvN]"; auto.
-      { pose proof (enough_fuel_exists sz ∅ p) as [fuel Hfuel].
-        pose (pvs := proph_data fuel sz ∅ p).
+      { pose proof (enough_fuel_exists sz ∅ str) as [fuel Hfuel].
+        pose (pvs := proph_data fuel sz ∅ str).
         pose (cont := NoCont (map (λ i, (i, [])) pvs)).
         rewrite inv_hwq_red.
         iExists 0, pvs, [], [], cont, ∅, ∅.

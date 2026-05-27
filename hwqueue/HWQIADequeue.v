@@ -2,7 +2,7 @@ Require Export CRIS ImpPrelude HWQHeader SchHeader MemHeader ProphecyHeader Help
 Require Export CallFilter MemA SchA ProphecyA.
 Require Export HWQRA.
 Require Import MemI MemIAproof MemTactics.
-Require Import ProphecyI ProphecyFacts.
+Require Import ProphecyI ProphecyFacts ProphecyStream.
 Require Import HelpingTactics.
 Require Import HWQI HWQP SchI HWQA SchTactics.
 From stdpp Require Import streams list.
@@ -203,16 +203,12 @@ Section HWQPM.
         iIntros "Hi Hi2". cStepsT. iPoseProof ("H_ar" with "Hi") as "H_ar".
         rewrite /array_get Hslots_i ?decide_False //= bool_decide_eq_true_2 //.
         (* We resolve. *)
-        iDestruct "Hproph" as (p str rs) "[Hp Hpvs]". iDestruct "Hpvs" as %Hpvs.
-        cInlineT. cForceT (_, existT _ (p, rs, (i, true))). cForcesT. iSplitL "Hp".
-        { repeat iSplit; eauto. }
-        cStepsT. iDestruct "GRT" as "[-> [[-> %Hp] Hp]]".
-        pose proof (stake_S p (length rs)) as Htemp; simpl in Htemp.
-        rewrite Htemp in Hp; clear Htemp. rewrite reverse_cons app_inj_tail_iff in Hp.
-        destruct Hp as [Hp1 Hp2]; symmetry in Hp2.
-        destruct Hpvs as [-> [fuel [Hpvs ->]]].
-        rewrite (lookup_list_stream_app_r _ str (length rs)) in Hp2; last by rewrite length_reverse.
-        rewrite length_reverse Nat.sub_diag /= in Hp2.
+        iDestruct "Hproph" as (str) "[Hproph Hpvs]".
+        iApply (wsim_stream_proph_resolve with "Hproph").
+        { try solve [simpl_map | prove_inline_cond | prove_sb_cond | ss]. }
+        { ss. }
+        iIntros "%Hp2 Hproph". iDestruct "Hpvs" as %Hpvs.
+        destruct Hpvs as [fuel [Hpvs ->]].
         destruct pref as [|i' new_pref].
         { exfalso. destruct cont as [i1 i2|_].
           - destruct Hinitial_cont as [-> Hi1].
@@ -265,10 +261,7 @@ Section HWQPM.
           subst new_deqs. iFrame. iSplitL "H_ar".
           { rewrite array_content_dequeue; [ done | by lia | done ]. }
           iPureIntro. repeat split_and; try done.
-          - exists (stail str).
-            rewrite reverse_cons. subst new_pvs; split.
-            { rewrite list_stream_app_app /=; f_equal; destruct str; ss; clarify. }
-            exists (fuel - 1); split; last done.
+          - subst new_pvs. exists (fuel - 1); split; last done.
             destruct fuel as [|fuel].
             { specialize (Hpvs 0 i); exfalso; ss; hexploit Hpvs; ss; last set_solver+. lia. }
             intros x2 i2 Hi2sz Hi2deq Hi2lookup.
@@ -358,28 +351,22 @@ Section HWQPM.
       case_bool_decide; first ss.
       iIntros "Hi Hi2". cStepsT. iPoseProof ("H_ar" with "Hi") as "H_ar".
       (* We resolve. *)
-      iDestruct "Hproph" as (p str rs) "[Hp Hpvs]". iDestruct "Hpvs" as %Hpvs.
-      cInlineT. cForceT (_, existT _ (p, rs, (i, false))). cForcesT. iSplitL "Hp".
-      { repeat iSplit; eauto. }
-      cStepsT. iDestruct "GRT" as "[-> [[-> %Hp] Hp]]".
-      pose proof (stake_S p (length rs)) as Htemp; simpl in Htemp.
-      rewrite Htemp in Hp; clear Htemp. rewrite reverse_cons app_inj_tail_iff in Hp.
-      destruct Hp as [Hp1 Hp2]; symmetry in Hp2.
-      destruct Hpvs as [-> [fuel [Hpvs ->]]].
-      rewrite lookup_list_stream_app_r length_reverse // Nat.sub_diag /= in Hp2.
+      iDestruct "Hproph" as (str) "[Hproph Hpvs]".
+      iApply (wsim_stream_proph_resolve with "Hproph").
+      { try solve [simpl_map | prove_inline_cond | prove_sb_cond | ss]. }
+      { ss. }
+      iIntros "%Hp2 Hproph". iDestruct "Hpvs" as %Hpvs.
+      replace (bool_decide (Vint 0 = Vptr (iblk, iofs))) with false in Hp2 by (case_bool_decide; ss).
+      destruct Hpvs as [fuel [Hpvs ->]].
       (* We can close the invariant. *)
       iMod ("Close" with "[//] [- IST Hback_snap Hi2_lower_bound Hi2] IST") as ">> IST".
       { iExists _, _, _, _, cont', _, _. iFrame. iSplit; last done. iPureIntro.
-        s; exists (stail str).
-        rewrite reverse_cons; split.
-        { replace str with (scons (shead str) (stail str)) at 1; last by (destruct str; ss).
-          rewrite list_stream_app_app //=; destruct str; ss; clarify.
-        }
-        exists (fuel - 1); destruct fuel as [|fuel]; s.
+        s; exists (fuel - 1); destruct fuel as [|fuel]; s.
         { split; last done.
           intros x2 i2 Hi2sz Hi2deq Hi2lookup. eapply (Hpvs (S x2) i2); eauto.
         }
-        rewrite Hp2 Nat.sub_0_r; split; last done.
+        replace (fuel - 0) with fuel by lia.
+        rewrite Hp2; split; last done.
         intros x2 i2 Hi2sz Hi2deq Hi2lookup. specialize (Hpvs (S x2) i2); ss.
         rewrite Hp2 in Hpvs; apply Hpvs; eauto.
       }
