@@ -1,9 +1,11 @@
 Require Import CRIS Atomic.
 Require Import MemHeader MemA MemTactics.
-Require Import SchHeader SchI SchA SchTactics.
+Require Import SchHeader SchI SchA SchTactics SchStarTactics.
 Require Import StackHeader StackA.
 Require Import PQueueHeader PQueueI.
 From iris.algebra Require Import excl_auth.
+
+Local Opaque atomic_update_sem_star.
 
 Class queueG `{!crisG Γ Σ α β τ _S _I} := QueueG {
   queue_stateG :: inG (excl_authR (listO (prodO valO gnameO))) Γ;
@@ -79,33 +81,59 @@ Module PQueueA. Section PQueueA.
 
   Definition new : fbody := λ arg,
     {{{ ∀∀ '((n, range) : nat * nat), ⌜arg = [Vint range]↑ ∧ 8 * (range + 1) < modulus_64⌝%Z }}}
-      𝒴@{Some N};;; trigger (Choose (Any.t * ()))
+      𝒴*@{Some N};;; trigger (Choose (Any.t * ()))
     {{{ RET ret, ∃ q γq, ⌜ret = q↑⌝ ∗
       is_queue N n γq range q ∗ queue_contents γq (replicate range []) }}} @ N.
 
-  Definition add : fbody := λ arg,
-    {{{ ∀∀ (x : gname * nat * val),
-        ∃ range q n, ⌜arg = [q; Vint x.1.2; x.2]↑ ∧ x.1.2 < range⌝ ∗ is_queue N n x.1.1 range q }}}
-      <<{ ∀∀ (l : list (list valO)), queue_contents x.1.1 l,
-        queue_contents x.1.1 (<[x.1.2 := x.2 :: (l !!! x.1.2)]> l) }>> @ N
-    {{{ RET ret, ⌜ret = Vundef↑⌝ }}} @ N.
+	  Definition add : fbody := λ arg,
+	    {{{ ∀∀ (x : gname * nat * val),
+	        ∃ range q n, ⌜arg = [q; Vint x.1.2; x.2]↑ ∧ x.1.2 < range⌝ ∗ is_queue N n x.1.1 range q }}}
+	      atomic_update_sem_star N
+	        (λ (l : list (list valO)), queue_contents x.1.1 l)
+	        (λ l _, queue_contents x.1.1 (<[x.1.2 := x.2 :: (l !!! x.1.2)]> l))
+	    {{{ RET ret, ⌜ret = Vundef↑⌝ }}} @ N.
+
+  Definition remove_min_au_body (N : namespace) (γq : gname) (n : nat)
+      : itree crisE (Any.t * list (list valO))%type :=
+    Seal.sealing "pqueue.remove_min.au"
+      (atomic_update_sem_star N
+        (λ (l : list (list valO)), queue_contents γq l)
+        (λ l ret, let l_p := l !!! n in
+          queue_contents γq (<[n := tail l_p]> l) ∗
+          ⌜ret = match l_p with | [] | Vundef :: _ => inl (S n) | v :: _ => inr v end↑⌝)%I).
+  Arguments remove_min_au_body : simpl never.
+  Lemma remove_min_au_body_unfold (N : namespace) (γq : gname) (n : nat) :
+    remove_min_au_body N γq n =
+      atomic_update_sem_star N
+        (λ (l : list (list valO)), queue_contents γq l)
+        (λ l ret, let l_p := l !!! n in
+          queue_contents γq (<[n := tail l_p]> l) ∗
+          ⌜ret = match l_p with | [] | Vundef :: _ => inl (S n) | v :: _ => inr v end↑⌝)%I.
+  Proof. unfold remove_min_au_body; rewrite Seal.sealing_eq; reflexivity. Qed.
+  Global Opaque remove_min_au_body.
+
+  Definition remove_min_au (N : namespace) (γq : gname) (n : nat)
+      : itree crisE (Any.t * list (list valO))%type :=
+    𝒴*@{Some N};;; remove_min_au_body N γq n.
+  Arguments remove_min_au : simpl never.
+  Lemma remove_min_au_unfold (N : namespace) (γq : gname) (n : nat) :
+    remove_min_au N γq n = 𝒴*@{Some N};;; remove_min_au_body N γq n.
+  Proof. reflexivity. Qed.
 
   Definition remove_min : fbody := λ arg,
     {{{ ∀∀ '((γq, range) : gname * nat), ∃ q n, ⌜arg = [q]↑⌝ ∗ is_queue N n γq range q }}}
-      yield_namespace_iter (Some N) (λ n,
+      ret <- ITree.iter (λ n : nat,
+        𝒴*@{Some N};;;
         if (decide (n = range))
         then Ret (inr (Vundef↑, tt))
-        else
-          '(ret, _) : Any.t * _ <-
-            <<{ ∀∀ (l : list (list valO)), queue_contents γq l,
-              ∃∃ ret, let l_p := l !!! n in
-              queue_contents γq (<[n := tail l_p]> l) ∗
-              ⌜ret = match l_p with | [] | Vundef :: _ => inl (S n) | v :: _ => inr v end↑⌝ }>> @ N;;
+	        else
+	          '(ret, _) : Any.t * _ <- remove_min_au N γq n;;
           'ret : nat + val <- (ret)↓?;;
           match ret with
           | inl n => Ret (inl n)
           | inr v => Ret (inr (v↑, tt))
-          end) 0
+          end) 0;;
+      𝒴*@{Some N};;; Ret ret
     {{{ emp }}} @ N.
 
   Definition fnsems : fnsemmap :=
@@ -124,7 +152,7 @@ Module PQueueA. Section PQueueA.
 End PQueueA. End PQueueA.
 
 Module PQueueIA. Section PQueueIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !stackGS, !queueG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !stackGS, !queueG}.
 
   Context (sp : specmap).
 
@@ -138,12 +166,20 @@ Module PQueueIA. Section PQueueIA.
     cStartFunSim. rewrite /PQueueI.new /PQueueA.new. cStepsS.
     aStepS (N [n range]) "[-> %Hrange]".
 
-    cStepsT. sYields. mAllocT as (queueb) "↦queue"; first lia. sYields.
+    cStepsT. cNormS. cNormT.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    iIntros (st_src0 st_tgt0) "IST". cStepsT.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    iIntros (st_src1 st_tgt1) "IST". cStepsT.
+    mAllocT as (queueb) "↦queue"; first lia.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    iIntros (st_src2 st_tgt2) "IST". cStepsT.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    iIntros (st_src3 st_tgt3) "IST". cStepsT.
     rewrite (comm Z.add) Z2Nat.inj_add //; try lia.
     rewrite replicate_add /=; iDestruct "↦queue" as "[↦range ↦queue]".
     mStore.
 
-    iApply wsim_yy_y_namespace. iApply wsim_bind_strong.
     rewrite ?Nat2Z.id.
     iAssert (∃ entries,
       ⌜length entries = range⌝ ∗
@@ -166,14 +202,17 @@ Module PQueueIA. Section PQueueIA.
     }
     set (var := range).
     rewrite {1 2 3 4}/var.
-    replace (0%Z) with (range - var)%Z by lia.
-    iEval (rewrite /var Z.sub_diag) in "↦range".
-    rewrite {5}Z.sub_diag.
+    replace (0 + 1)%Z with (range - var + 1)%Z by lia.
+    assert (Hvar0 : 0%Z = (range - var)%Z) by lia.
+    iEval (rewrite Hvar0) in "↦queue".
+    clear Hvar0.
     iAssert (⌜var ≤ range⌝)%I as "#Hvar"; first (iPureIntro; lia).
     generalize var. clear var. iIntros (var).
-    iInduction (var) as [|var] forall (st_src st_tgt).
-    { aUnfoldT. cStepsT. appendRetS. sYields. sYieldS.
-      iDestruct "↦queue" as "[%entries [% ↦queues]]". rewrite Z.sub_0_r.
+    iInduction (var) as [|var] forall (st_src3 st_tgt3).
+    { aUnfoldT. cStepsT. appendRetS. cNormS. cNormT.
+      iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+      iIntros (??) "IST". cStepsT.
+      iDestruct "↦queue" as "[%entries [% ↦queues]]".
       iAssert ([∗ list] i ↦ v ∈ entries,
         is_stack (stackN N) n v.2 v.1 ∗ (queueb, Z.of_nat i + 1)%Z ↦ v.1 ∗ stack_content v.2 [])%I
         with "[↦queues]" as "↦queues".
@@ -189,22 +228,32 @@ Module PQueueIA. Section PQueueIA.
         with "[◯q ↦queues ↦range]") as "#Qinv"; eauto.
       { apply nclose_subseteq. }
       { solve_base_sl_red; iFrame. }
-      cStep; iFrame.
-      sYields. sYieldS. cForceS (_, tt). cStep; iFrame "∗#".
-      rewrite length_replicate. iModIntro. iSplit; ss. iExists _; repeat iSplit; auto.
+      iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+      iIntros (??) "IST". cStepsT.
+      replace_s; [rewrite {1}yield_ns_star_unfold; hnorm_itr|]. cStepsS. cForceS (@None bool). cStepsS.
+      cForceS ((Vptr (queueb, 0%Z))↑, tt). cStep; iFrame "∗#".
+      rewrite length_replicate. iModIntro. iSplit; last ss.
+      iExists (Vptr (queueb, 0%Z)); repeat iSplit; auto.
       iApply (big_sepL_impl with "↦stack_contents").
       iIntros "!> %% %Hk ?". rewrite list_lookup_total_alt lookup_replicate_2 //=.
       apply lookup_lt_Some in Hk; lia.
     }
 
     iPoseProof "Hvar" as "%".
-    aUnfoldT. cStepsT. appendRetS. sYields.
+    aUnfoldT. cStepsT. appendRetS. cNormS. cNormT.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    iIntros (??) "IST". cStepsT.
 
     (* stack allocation *)
     cInlineT. rewrite /StackA.new_stack. cStepsT.
-    aForceT (stackN N) with ""; first eauto. sYields. destruct _q as [ret_t []].
+    aForceT (stackN N) with ""; first eauto.
+    cStepT.
+    iApply (wsim_yield_star_N_N with "IST"); try done; try ss; try solve_ndisj.
+    iIntros (??) "IST". cStepsT. destruct _q as [ret_t []].
     cStepsT. iDestruct "GRT" as "[%stack [%γs [-> [#is_stack stack]]]]".
-    cStepsT. sYields.
+    cStepsT. 
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    iIntros (??) "IST". cStepsT.
 
     iDestruct "↦queue" as "[%entries [%Hentries ↦queue]]".
     hexploit (lookup_lt_is_Some_2 entries (range - S var)); first lia; intros [p Hp].
@@ -219,11 +268,12 @@ Module PQueueIA. Section PQueueIA.
     rewrite Nat2Z.inj_sub //.
     mStore.
     replace (length entries - S var + 1)%Z with (length entries - var)%Z by lia.
-    sYields.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    iIntros (??) "IST". cStepsT.
 
     replace (range - S var + 1 + 1)%Z with (range - var + 1)%Z by lia.
     rewrite bind_ret_r.
-    iApply ("IHvar" with "[] IST ↦range [-]").
+    iApply ("IHvar" $! _ _ with "[] ↦range IST [-]").
     { iIntros "!>"; iPureIntro; lia. }
     iExists (<[length entries - S var := (stack, γs)]> entries); iSplit.
     { rewrite length_insert //. }
@@ -243,7 +293,13 @@ Module PQueueIA. Section PQueueIA.
     aStepS (N [[γq priority] v]) "/= [%range [%q [%n [[-> %Hp] #HQ]]]]".
     iDestruct "HQ" as "[%queueblk [%queueofs [-> [%entries [%Hlen [#qinv #stacks]]]]]]".
 
-    cStepsT. aAddY. sYields.
+    cStepsT. aUnfoldS.
+    replace_s; [rewrite !SRed.bind !SBRed.bind ?bind_bind; hnorm_itr|].
+    replace_t; [rewrite !SRed.bind !SBRed.bind ?bind_bind; hnorm_itr|].
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    iIntros (??) "IST". cStepsT.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    iIntros (??) "IST". cStepsT.
     iInv "qinv" as "[◯entries [↦range ↦]]" "close".
     iCombine "stacks" "↦" as "↦"; rewrite -big_sepL_sep. ss.
     hexploit (lookup_lt_is_Some_2 entries priority); first lia; intros [[stack γs] Hstack].
@@ -251,11 +307,24 @@ Module PQueueIA. Section PQueueIA.
     mLoad.
     iMod ("close" with "[↦s ↦range ↦ ◯entries]") as "_".
     { iFrame. iApply ("↦s" with "[] [↦]"); iFrame. iIntros "!> %%%% [?$]". }
-    sYields.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    iIntros (??) "IST". cStepsT.
 
     (* stack push *)
-    cInlineT. rewrite /StackA.push. cStepsT. sYieldS.
+    cInlineT. rewrite /StackA.push. cStepsT.
     aForceT (stackN N) with ""; try instantiate (1:=(_, _)); simpl; eauto with iFrame.
+    set (src_au := atomic_update_sem_star N
+      (λ (l : list (list valO)), queue_contents γq l)
+      (λ l _, queue_contents γq (<[priority:=v :: (l !!! priority)]> l))).
+    replace_s; [
+      lazymatch goal with
+      | |- ITree.bind (SB.sandbox ?msk (SModTr.trans ?sp _)) _ = _ =>
+        instantiate (1 := SB.sandbox msk (SModTr.trans sp src_au));
+        subst src_au; symmetry; rewrite {1}unfold_atomic_update_sem_star
+          !SRed.bind !SBRed.bind ?bind_bind; hnorm_itr
+      end
+    |].
+    subst src_au.
     aStep. iExists (S n). iAuIntro. iInv "qinv" as "[◯ inv]".
     iAaccIntro "%queue [%entries' [%Hlen' [● stack_contents]]] !>" with "".
     iCombine "●" "◯" gives %->%excl_auth_agree_L.
@@ -268,8 +337,12 @@ Module PQueueIA. Section PQueueIA.
       { iIntros "!> %k %y %Hky % s". rewrite list_lookup_total_insert_ne //. }
       { s. rewrite list_lookup_total_insert // -Hlen'; lia. }
     }
-    clear_st; iIntros "!>" (st_src st_tgt) "IST". cStepsT. iDestruct "GRT" as "->". cStepsT.
-    sYields. sYieldS. cStep; iFrame. auto.
+    clear_st; iIntros "!>" (st_src' st_tgt') "IST". cStepsT. iDestruct "GRT" as "->". cStepsT.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    iIntros (??) "IST". cStepsT.
+    replace_s; [rewrite {1}yield_ns_star_unfold; hnorm_itr|].
+    cStepsS. cForceS (@None bool). cStepsS.
+    cStep; iFrame. auto.
   Qed.
 
   Lemma remove_min_simF : ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.remove_min).
@@ -277,29 +350,84 @@ Module PQueueIA. Section PQueueIA.
     cStartFunSim. rewrite /PQueueA.remove_min /PQueueI.remove_min. cStepsS; cStepsT.
     aStepS (N [γq range]) "/= [%q [%n [-> #[%queueb [%queueofs [-> Q]]]]]]".
     iDestruct "Q" as "[%entries [%Hlen [#queue_inv #stack_invs]]]".
-    cStepsT. aAddY. sYields.
+    cStepsT. aUnfoldS.
+    replace_s; [rewrite !SRed.bind !SBRed.bind ?bind_bind; hnorm_itr|].
+    replace_t; [rewrite !SRed.bind !SBRed.bind ?bind_bind; hnorm_itr|].
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    clear_st; iIntros (st_src0 st_tgt0) "IST". cStepsT.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    clear_st; iIntros (st_src1 st_tgt1) "IST". cStepsT.
 
     (* range load *)
     iInv "queue_inv" as "[◯ [↦range ↦queues]]" "close".
     mLoad.
-    iMod ("close" with "[◯ ↦range ↦queues]") as "_"; iFrame. sYields. sYieldS.
+    iMod ("close" with "[◯ ↦range ↦queues]") as "_"; iFrame.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    clear_st; iIntros (st_src2 st_tgt2) "IST". cStepsT.
+    replace_s; [rewrite yield_ns_star_unfold; hnorm_itr|].
+    cStepsS. cForceS (@None bool). cStepsS.
 
     (* induction *)
-    rewrite !Nat2Z.id. replace 0 with (range - range) by lia.
-    iAssert (⌜range ≤ length entries⌝)%I as "#Hrange"; first by subst.
-    replace (queueofs + 1)%Z with (queueofs + (length entries - range) + 1)%Z by lia.
-    generalize range at 2 8 9 10. subst range. iIntros (var).
-    iInduction (var) as [|var'] forall (st_src st_tgt).
-    { aUnfoldS. rewrite Nat.sub_0_r decide_True //.
-      aUnfoldT. sYields. sYieldS. cNormS. sYieldS. by cStep; iFrame.
+    set (total := range) in *.
+    rewrite !Nat2Z.id.
+    pose (var := total).
+    replace 0 with (total - var) by (subst var; lia).
+    replace (queueofs + 1)%Z with (queueofs + (length entries - var) + 1)%Z by (subst var; lia).
+    replace (total, (queueofs + (length entries - var) + 1)%Z)
+      with (var, (queueofs + (length entries - var) + 1)%Z) by (subst var; auto).
+    iAssert (⌜var ≤ length entries⌝)%I as "#Hrange"; first (subst var; iPureIntro; lia).
+    clearbody var.
+    iInduction (var) as [|var'] forall (st_src2 st_tgt2).
+    { try aUnfoldS. rewrite Nat.sub_0_r decide_True //.
+      aUnfoldT. appendRetS. cNormS. cNormT.
+      replace_s; [
+        lazymatch goal with
+        | |- context[SB.sandbox ?msk (SModTr.trans ?sp _)] =>
+          instantiate (1 :=
+            ITree.bind (SB.sandbox msk (SModTr.trans sp (Sch.yield_ns_star (Some N))))
+              (λ _, Ret (Vundef↑, tt)));
+          symmetry; rewrite {1}yield_ns_star_unfold;
+          rewrite ?SRed.tau ?SBRed.tau ?SRed.bind ?SBRed.bind;
+          rewrite ?bind_tau;
+          rewrite !bind_bind;
+          rewrite ?SRed.ret ?SBRed.ret ?bind_ret_l ?bind_ret_r;
+          reflexivity
+        end
+      |].
+      iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+      iIntros (??) "IST". cStepsT.
+      replace_s; [rewrite {1}yield_ns_star_unfold; hnorm_itr|].
+      cStepsS. cForceS (@None bool). cStepsS.
+      by cStep; iFrame.
     }
 
-    iPoseProof ("Hrange") as "%". aUnfoldT. aUnfoldS.
-    rewrite decide_False; last by lia. sYields.
+    iPoseProof ("Hrange") as "%". aUnfoldT.
+    try (replace_s; [
+      lazymatch goal with
+      | |- context[ITree.iter ?body ?arg] =>
+        rewrite (unfold_iter body arg); hnorm_itr
+      end
+    |]).
+    destruct (decide (total - S var' = total)) as [Hdone|Hdone]; first lia.
+    replace_s; [
+      rewrite ?SRed.bind ?SBRed.bind ?SRed.ret ?SBRed.ret
+        ?bind_tau ?bind_bind ?bind_ret_l ?bind_ret_r; reflexivity
+    |].
+    replace_s; [
+      lazymatch goal with
+      | |- ITree.bind (SB.sandbox ?msk (SModTr.trans ?sp _)) ?k = _ =>
+        instantiate (1 :=
+          ITree.bind (SB.sandbox msk (SModTr.trans sp (Sch.yield_ns_star (Some N)))) k);
+        symmetry; rewrite {1}yield_ns_star_unfold; reflexivity
+      end
+    |].
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    clear_st; iIntros (st_src3 st_tgt3) "IST". cStepsT.
 
     (* stack load *)
     rewrite -?Nat2Z.inj_sub; try lia.
     set (index := (length entries - S var')).
+    replace (total - S var') with index by (subst index; lia).
     iInv "queue_inv" as "[◯ [↦range ↦queues]]" "close".
     hexploit (lookup_lt_is_Some_2 entries index); first lia; intros [[istack iγs] Hi].
     iPoseProof (big_sepL_lookup_acc _ _ index with "↦queues") as "[↦queue ↦queues]"; eauto; s.
@@ -310,8 +438,14 @@ Module PQueueIA. Section PQueueIA.
     sYields.
 
     (* stack pop *)
-    cInlineT. rewrite /StackA.pop. cStepsT. sYieldS. cStepsS.
-    aForceT (stackN N) with ""; first eauto with iFrame.
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    clear_st; iIntros (st_src4 st_tgt4) "IST". cStepsT.
+    cInlineT. rewrite /StackA.pop. cStepsT.
+    replace_s; [rewrite {1}yield_ns_star_unfold; hnorm_itr|].
+    cStepsS. cForceS (@None bool). cStepsS.
+    eapply (tac_atomic_fun_tgt _ _ (stackN N));
+      [solve_msk|solve_msk|solve_ndisj|iSplitL ""; [eauto with iFrame|simpl_set]].
+    replace_s; [rewrite PQueueA.remove_min_au_body_unfold; reflexivity|].
     aStep. iExists (S n). iAuIntro. iInv "queue_inv" as "[◯ inv]".
     iAaccIntro "%queue [%entries' [%Hlenq [● ↦stacks]]] !>" with "".
     iCombine "●" "◯" gives %->%excl_auth_agree_L.
@@ -330,7 +464,7 @@ Module PQueueIA. Section PQueueIA.
       auto.
     }
 
-    iModIntro. clear_st; iIntros (st_src st_tgt) "IST". cStepsT. iDestruct "GRT" as "->".
+    iModIntro. clear_st; iIntros (st_src5 st_tgt5) "IST". cStepsT. iDestruct "GRT" as "->".
     set (caseb :=
       match queue !!! index with
       | [] => true
@@ -341,14 +475,31 @@ Module PQueueIA. Section PQueueIA.
     { set (case := match queue !!! index with | [] => Vundef | v :: _ => v end).
       assert (case = Vundef) as Heq by (subst case caseb; destruct (_ !!! _) as [|[?|?|]?]; ss).
       subst case; rewrite Heq.
-      sYields. sYieldS. cStepS.
+      cStepsT.
+      iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+      clear_st; iIntros (st_src6 st_tgt6) "IST". cStepsT.
+      replace_s; [rewrite {1}yield_ns_star_unfold; hnorm_itr|].
+      cStepsS. cForceS (@None bool). cStepsS. cStepS.
       set (case := match queue !!! index with | Vint _ as v :: _ => _ | _ => _ end).
       replace case with ((inl (S index)) : nat + val); cycle 1.
       { subst case caseb; destruct (queue !!! index) as [|[?|?|]?]; ss. }
       cStepsS. subst index.
       replace (queueofs + _ + 1 + 1)%Z with (queueofs + (length entries - var')%nat + 1)%Z by lia.
       replace (S (length entries - S var')) with (length entries - var') by lia.
-      iApply ("IHvar'" $! st_src st_tgt with "[] IST"); iFrame; eauto.
+      replace_s; [
+        rewrite Hlen;
+        lazymatch goal with
+        | |- context[ITree.iter ?body ?arg] =>
+          rewrite (unfold_iter body arg); hnorm_itr
+        end
+      |].
+      replace_s; [
+        rewrite ?SRed.bind ?SBRed.bind ?SRed.ret ?SBRed.ret
+          ?bind_tau ?bind_bind ?bind_ret_l ?bind_ret_r; reflexivity
+      |].
+      cStepsS. cForceS (@None bool). cStepsS.
+      replace_s; [rewrite {1}yield_ns_star_unfold; hnorm_itr|].
+      iApply ("IHvar'" $! st_src6 st_tgt6 with "[] IST"); iFrame; eauto.
       iPureIntro; lia.
     }
 
@@ -358,25 +509,51 @@ Module PQueueIA. Section PQueueIA.
     replace (match v with | Vundef => _ | _ => _ end) with ((inr v) : (nat + val)); last des_ifs.
     cStepsT.
     set (case := match v with | Vundef => _ | _ => _ end).
-    replace case with (𝒴;;; Ret (inr v) : itree crisE (nat * Z + val)); last (subst case; des_ifs).
-    sYields. sYieldS. cStepsS. sYieldS. cStep; iFrame. auto.
+    replace case with (𝒴;;; Ret (inr v) : itree crisE ((nat * Z + val)%type)); last (subst case; des_ifs).
+    replace_t; [
+      rewrite ?SRed.bind ?SBRed.bind ?SRed.ret ?SBRed.ret
+        ?bind_tau ?bind_bind ?bind_ret_l ?bind_ret_r; reflexivity
+    |].
+    iApply (wsim_yield_star_N_r with "IST"); try done; try ss.
+    clear_st; iIntros (st_src6 st_tgt6) "IST". cStepsT.
+    replace_s; [rewrite {1}yield_ns_star_unfold; hnorm_itr|].
+    cStepsS. cForceS (@None bool). cStepsS.
+    cForceS (@None bool). cStepsS.
+    cStep; iFrame. auto.
   (*SLOW*)Qed.
 
   Lemma sim : ISim.t open PQueueA PQueueI emp IstFull.
   Proof.
     cStartModSim.
+    { mod_tac. }
+    { iIntros "_"; iExists ∅, ∅,
+        (Mod.initial_st (StackA.t ★ SchI.t ★ MemA.t sp)),
+        (Mod.initial_st (StackA.t ★ SchI.t ★ MemA.t sp)).
+      iSplit; first (iPureIntro; ss).
+      iSplit.
+      { iSplit; first (iPureIntro; ss). done. }
+      iPureIntro; ss.
+    }
     { apply new_simF. }
     { apply add_simF. }
     { apply remove_min_simF. }
-    { iIntros "_"; repeat iExists _; iPureIntro; ss. }
+    all: abstract (
+      unfold ISim.sim_fun; intros wfs wft; cris_simpl_map;
+      eexists; split; first refl; apply isim_reflR; ss;
+      try solve [intros; split; [iIntros "-> //"|set_solver]]
+    ).
   Qed.
 End PQueueIA.
 Section ctxr.
-  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !stackGS, !queueG}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !stackGS, !queueG}.
 
   Lemma ctxr (sp : specmap) :
     ctx_refines
       (PQueueI.t ★ StackA.t ★ SchI.t ★ MemA.t sp, emp%I)
       (PQueueA.t ★ StackA.t ★ SchI.t ★ MemA.t sp, emp%I).
-  Proof. intros Hsp. eapply main_adequacy, sim; eauto. Qed.
+  Proof.
+    rewrite <- (mod_up_id (PQueueI.t ★ StackA.t ★ SchI.t ★ MemA.t sp)).
+    rewrite <- (mod_up_id (PQueueA.t ★ StackA.t ★ SchI.t ★ MemA.t sp)).
+    eapply main_adequacy, sim; eauto.
+  Qed.
 End ctxr. End PQueueIA.
