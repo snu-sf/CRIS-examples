@@ -1,9 +1,8 @@
 From Stdlib Require Import Orders.
 
-Require Import DataStructure.
-Require Export DenseOrder.
-Require Import Basic.
-Require Import Loc.
+From CRIS.promise_free.lib Require Import DataStructure.
+From CRIS.promise_free.lib Require Export DenseOrder.
+From CRIS.promise_free.lib Require Import Basic Loc.
 
 From CRIS.lib Require Import sflib Coqlib.
 

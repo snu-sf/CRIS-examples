@@ -1,14 +1,16 @@
 Require Import CRIS.common.CRIS.
 From CRIS.scheduler Require Import SchHeader SchA SchTactics.
-Require Import RRSHeader RRSA.
-Require Import NDSHeader NDSA.
+From CRIS.scheduler Require Import RRS.RRSHeader RRS.RRSA.
+From CRIS.scheduler Require Import NDS.NDSHeader NDS.NDSA.
 (** NonDet Mem **)
-Require Import MemHeader MemA.
+From CRIS.imp_system Require Import mem.MemHeader mem.MemA.
 (** Det Mem **)
-Require Import MemHdr MemLib HybridMem.
-Require Import RRSNodeHeader RRSNodeI RRSNodeA.
-Require Import NDSNodeHeader NDSNodeI NDSNodeA.
-Require Import SCHMainI SCHMainA.
+From CRIS.hybrid_mem Require Import MemHdr MemLib HybridMem.
+From CRIS.scheduler Require Import example.RRSNodeHeader example.RRSNodeI.
+From CRIS.scheduler Require Import example.RRSNodeA.
+From CRIS.scheduler Require Import example.NDSNodeHeader example.NDSNodeI.
+From CRIS.scheduler Require Import example.NDSNodeA.
+From CRIS.scheduler Require Import example.SCHMainI example.SCHMainA.
 Require Import CRIS.lib.ltac2_lib.
 
 Module SCHMainIA. Section SCHMainIA.

@@ -1,7 +1,7 @@
 From CRIS.common Require Import CRIS.
 From iris.algebra Require Import auth excl agree csum functions dfrac_agree.
 From iris.bi.lib Require Import fractional.
-Require Export MemHeader.
+From CRIS.imp_system.mem Require Export MemHeader.
 From CRIS.prophecy Require Export ProphecyHeader.
 From CRIS.helping Require Export HelpingHeader.
 

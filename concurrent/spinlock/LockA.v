@@ -1,6 +1,6 @@
 Require Import CRIS.common.CRIS.
-Require Import LockHeader.
-Require Import ImpPrelude MemHeader MemA.
+From CRIS.spinlock Require Import LockHeader.
+From CRIS.imp_system Require Import imp.ImpPrelude mem.MemHeader mem.MemA.
 From CRIS.scheduler Require Import SchHeader SchA.
 From iris Require Import excl.
 

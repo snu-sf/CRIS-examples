@@ -1,12 +1,16 @@
-Require Export CRIS.common.CRIS ImpPrelude HWQHeader
-  CRIS.scheduler.SchHeader MemHeader CRIS.prophecy.ProphecyHeader
-  CRIS.helping.HelpingHeader.
-Require Export CRIS.simulations.filter.CallFilter MemA
-  CRIS.scheduler.SchA CRIS.prophecy.ProphecyA.
-Require Import MemI MemIAproof MemTactics.
+Require Export CRIS.common.CRIS.
+From CRIS.imp_system Require Export imp.ImpPrelude.
+From CRIS.hwqueue Require Export HWQHeader.
+Require Export CRIS.scheduler.SchHeader.
+From CRIS.imp_system Require Export mem.MemHeader.
+Require Export CRIS.prophecy.ProphecyHeader CRIS.helping.HelpingHeader.
+Require Export CRIS.simulations.filter.CallFilter.
+From CRIS.imp_system Require Export mem.MemA.
+Require Export CRIS.scheduler.SchA CRIS.prophecy.ProphecyA.
+From CRIS.imp_system Require Import mem.MemI mem.MemIAproof mem.MemTactics.
 From CRIS.prophecy Require Import ProphecyI ProphecyFacts ProphecyStream.
 Require Import CRIS.helping.HelpingTactics.
-Require Import HWQI HWQP.
+From CRIS.hwqueue Require Import HWQI HWQP.
 From CRIS.scheduler Require Import SchI SchTactics.
 From Stdlib Require Import IndefiniteDescription Sorted. (* require for prophecy *)
 From iris.algebra Require Import numbers excl auth list gset gmap agree csum.

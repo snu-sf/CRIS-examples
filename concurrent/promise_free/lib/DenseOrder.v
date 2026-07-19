@@ -1,8 +1,6 @@
 Require Import CRIS.common.CRIS.
 From Stdlib Require Import OrdersFacts FMapPositive.
-Require Import Basic.
-Require Import DataStructure.
-Require Import UsualFMapPositive.
+From CRIS.promise_free.lib Require Import Basic DataStructure UsualFMapPositive.
 
 Set Implicit Arguments.
 

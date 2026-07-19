@@ -1,5 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Export KnotHeader MemHeader.
+From CRIS.knot Require Export KnotHeader.
+From CRIS.imp_system.mem Require Export MemHeader.
 
 Module KnotI. Section KnotI.
   Context `{!crisG Σ Γ α β τ Hinv Hsub}.

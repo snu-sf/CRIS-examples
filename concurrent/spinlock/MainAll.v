@@ -1,6 +1,8 @@
 Require Import CRIS.common.CRIS.
-Require Import LockHeader LockI LockA LockIA MainI MainA MainIA.
-Require Import ImpPrelude MemI MemA MemIAproof.
+From CRIS.spinlock Require Import LockHeader LockI LockA LockIA MainI MainA.
+From CRIS.spinlock Require Import MainIA.
+From CRIS.imp_system Require Import imp.ImpPrelude mem.MemI mem.MemA.
+From CRIS.imp_system Require Import mem.MemIAproof.
 From CRIS.scheduler Require Import SchHeader SchI SchA SchIAproof.
 Require Import CRIS.cancellation.Cancel.
 

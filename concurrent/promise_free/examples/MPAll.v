@@ -1,8 +1,12 @@
 Require Import CRIS.common.CRIS CRIS.cancellation.Cancel.
-Require Import PFMemHeader PFMemA base HistoryRA AtomicRA PFMemA PFMemI PFMemIA.
-Require Import SystemHeader SystemI SystemA SystemIA SystemTactics.
-Require Import MPI MPA MPIA.
-Require Import Language.
+From CRIS.promise_free.pfmem Require Import PFMemHeader PFMemA.
+From CRIS.promise_free.gpfsl Require Import base.
+From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
+From CRIS.promise_free.pfmem Require Import PFMemA PFMemI PFMemIA.
+From CRIS.promise_free.system Require Import
+  SystemHeader SystemI SystemA SystemIA SystemTactics.
+From CRIS.promise_free.examples Require Import MPI MPA MPIA.
+From CRIS.promise_free.lib Require Import Language.
 
 Section MPAux.
   Context `{!crisG Γ Σ α β τ Hsub Hinv, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS, _ONESHOT: !one_shotG}.

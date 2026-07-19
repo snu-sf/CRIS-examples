@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Import SingleCoinHeader.
+From CRIS.single_coin Require Import SingleCoinHeader.
 
 Module SingleCoinI. Section SingleCoinI.
   Context `{!crisG Γ Σ α β τ _S _I}.

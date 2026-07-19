@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Import ImpPrelude.
-Require Import CellHeader CellI CellA.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.ring Require Import CellHeader CellI CellA.
 
 (* Simulation Proof *)
 Module CellIA. Section CellIA.

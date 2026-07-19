@@ -1,6 +1,7 @@
 Require Import CRIS.common.CRIS.
-Require Import SystemHeader SystemI SystemA.
-Require Import PFMemHeader PFMemA HistoryRA AtomicRA.
+From CRIS.promise_free.system Require Import SystemHeader SystemI SystemA.
+From CRIS.promise_free.pfmem Require Import PFMemHeader PFMemA.
+From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
 
 Section SystemIA.
   Import SystemA.

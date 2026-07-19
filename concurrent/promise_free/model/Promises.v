@@ -2,14 +2,10 @@ Require Import CRIS.common.CRIS.
 
 From Stdlib Require Import MSetList.
 
-Require Import Basic.
-Require Import DataStructure.
-Require Import Loc.
-Require Import Language.
-Require Import Event.
-Require Import Ordering.
+From CRIS.promise_free.lib Require Import
+  Basic DataStructure Loc Language Event Ordering.
 
-Require Import BoolMap.
+From CRIS.promise_free.model Require Import BoolMap.
 
 Set Implicit Arguments.
 

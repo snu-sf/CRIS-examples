@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Export ImpPrelude.
+From CRIS.imp_system.imp Require Export ImpPrelude.
 
 Module RepeatHdr.
   Definition mn := "Repeat".

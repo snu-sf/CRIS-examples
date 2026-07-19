@@ -1,6 +1,6 @@
 Require Export CRIS.common.Common.
 From CRIS.modules Require Export SMod Mod.
-Require Import ImpPrelude.
+From CRIS.imp_system Require Import imp.ImpPrelude.
 
 Module RRSHdr.
   Definition init         := fnsig "RRS.init" (fntyp (SAny.t) ()).

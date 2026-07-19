@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Import Imp.
-Require Import RepeatHeader.
+From CRIS.imp_system.imp Require Import Imp.
+From CRIS.repeat Require Import RepeatHeader.
 
 Set Implicit Arguments.
 

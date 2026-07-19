@@ -1,6 +1,9 @@
-Require Export CRIS.common.CRIS ImpPrelude
-  CRIS.prophecy.ProphecyHeader HWQHeader CRIS.scheduler.SchHeader
-  MemHeader.
+Require Export CRIS.common.CRIS.
+From CRIS.imp_system Require Export imp.ImpPrelude.
+Require Export CRIS.prophecy.ProphecyHeader.
+From CRIS.hwqueue Require Export HWQHeader.
+Require Export CRIS.scheduler.SchHeader.
+From CRIS.imp_system Require Export mem.MemHeader.
 (** * Implementation of the queue operations ********************************)
 
 Module HWQI. Section HWQI.

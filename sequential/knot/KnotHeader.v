@@ -1,5 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Export ImpPrelude Imp MemA.
+From CRIS.imp_system.imp Require Export ImpPrelude Imp.
+From CRIS.imp_system.mem Require Export MemA.
 
 Module KnotHdr.
 Definition knot := fnsig "Knot.knot" imp_fun_t.

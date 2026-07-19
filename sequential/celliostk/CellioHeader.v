@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Import ImpPrelude.
+From CRIS.imp_system.imp Require Import ImpPrelude.
 
 Module CellioHdr.
   Definition mn := "Cellio".

@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Export MapHeader MapM.
+From CRIS.map Require Export MapHeader MapM.
 
 (* Resource algebra for MapM ⊆ MapA *)
 Local Definition RA := prodUR (optionUR (exclR unitO)) (authUR (Z -d> optionUR (exclR ZO))).

@@ -1,6 +1,6 @@
 Require Import CRIS.common.CRIS.
-Require Import ImpPrelude MemA MemTactics.
-Require Import LockHeader LockI LockA.
+From CRIS.imp_system Require Import imp.ImpPrelude mem.MemA mem.MemTactics.
+From CRIS.spinlock Require Import LockHeader LockI LockA.
 From CRIS.scheduler Require Import SchHeader SchA SchTactics.
 
 Module LockIA. Section LockIA.

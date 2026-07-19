@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Import MemHeader.
+From CRIS.imp_system.mem Require Import MemHeader.
 From CRIS.helping Require Import HelpingHeader.
 From CRIS.prophecy Require Import ProphecyHeader.
 

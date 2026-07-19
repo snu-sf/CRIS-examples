@@ -1,6 +1,7 @@
 From CRIS.common Require Import CRIS.
 
-Require Import ImpPrelude MemHdr MemLib HybridMem DetMem.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.hybrid_mem Require Import MemHdr MemLib HybridMem DetMem.
 From iris.algebra Require Import auth excl agree csum functions dfrac_agree.
 
 Local Notation _memRA := (Z -d> optionUR (dfrac_agreeR (optionO (leibnizO val))))%type.

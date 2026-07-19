@@ -1,7 +1,8 @@
 Require Import CRIS.common.CRIS CRIS.scheduler.Atomic.
 From CRIS.scheduler Require Import SchHeader SchA SchTactics.
-Require Import ImpPrelude MemHeader MemA MemTactics.
-Require Import IncrHeader IncrI IncrA.
+From CRIS.imp_system Require Import imp.ImpPrelude mem.MemHeader mem.MemA.
+From CRIS.imp_system Require Import mem.MemTactics.
+From CRIS.incr Require Import IncrHeader IncrI IncrA.
 
 Module IncrIA. Section IncrIA.
   Context `{!crisG Γ Σ α β τ _S _I, !memGS, !concGS}.

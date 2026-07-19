@@ -1,6 +1,11 @@
 Require Import CRIS.common.CRIS.
-Require Export Basic Val Cell Loc Time View TView Memory Local Global Configuration.
-Require Import LatticeRA ToAgree HistoryRA.
+From CRIS.promise_free.lib Require Export Basic Val.
+From CRIS.promise_free.model Require Export Cell.
+From CRIS.promise_free.lib Require Export Loc.
+From CRIS.promise_free.model Require Export
+  Time View TView Memory Local Global Configuration.
+From CRIS.promise_free.gpfsl Require Import LatticeRA.
+From CRIS.promise_free.algebra Require Import ToAgree HistoryRA.
 
 From iris.algebra Require Import frac_auth.
 From iris Require Import fractional.

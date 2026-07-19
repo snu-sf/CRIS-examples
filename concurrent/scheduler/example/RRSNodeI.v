@@ -1,7 +1,8 @@
 Require Import CRIS.common.CRIS.
-Require Import CRIS.scheduler.SchHeader RRSHeader.
-Require Import MemHeader.
-Require Import RRSNodeHeader.
+Require Import CRIS.scheduler.SchHeader.
+From CRIS.scheduler Require Import RRS.RRSHeader.
+From CRIS.imp_system Require Import mem.MemHeader.
+From CRIS.scheduler Require Import example.RRSNodeHeader.
 
 Set Implicit Arguments.
 

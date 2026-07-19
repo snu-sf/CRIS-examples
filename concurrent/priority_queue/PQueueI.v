@@ -1,8 +1,8 @@
 Require Import CRIS.common.CRIS.
 Require Import CRIS.scheduler.SchHeader.
-Require Import MemHeader.
-Require Import StackHeader.
-Require Import PQueueHeader.
+From CRIS.imp_system Require Import mem.MemHeader.
+From CRIS.elimination_stack Require Import StackHeader.
+From CRIS.priority_queue Require Import PQueueHeader.
 
 Module PQueueI. Section PQueueI.
   Context `{!crisG Γ Σ α β τ _S _I}.

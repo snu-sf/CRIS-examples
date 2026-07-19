@@ -1,6 +1,10 @@
-Require Export CRIS.common.CRIS ImpPrelude HWQHeader
-  CRIS.scheduler.SchHeader MemHeader CRIS.prophecy.ProphecyHeader
-  CRIS.helping.HelpingHeader HWQI.
+Require Export CRIS.common.CRIS.
+From CRIS.imp_system Require Export imp.ImpPrelude.
+From CRIS.hwqueue Require Export HWQHeader.
+Require Export CRIS.scheduler.SchHeader.
+From CRIS.imp_system Require Export mem.MemHeader.
+Require Export CRIS.prophecy.ProphecyHeader CRIS.helping.HelpingHeader.
+From CRIS.hwqueue Require Export HWQI.
 Require Import CRIS.simulations.filter.CallFilter
   CRIS.prophecy.ProphecyI CRIS.scheduler.SchTactics.
 

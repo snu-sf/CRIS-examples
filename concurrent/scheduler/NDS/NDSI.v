@@ -1,5 +1,5 @@
 Require Import CRIS.common.CRIS.
-Require Import NDSHeader.
+From CRIS.scheduler Require Import NDS.NDSHeader.
 
 Definition thpool : Type := list (nat * option SAny.t).
 

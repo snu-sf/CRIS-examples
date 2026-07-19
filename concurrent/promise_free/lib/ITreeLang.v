@@ -16,13 +16,9 @@ From ExtLib Require Export
 
 Require Export CRIS.lib.ITreelib.
 
-Require Import Basic.
-Require Import Loc.
-Require Import Val.
-Require Import Language.
+From CRIS.promise_free.lib Require Import Basic Loc Val Language.
 
-Require Import Event.
-Require Import Ordering.
+From CRIS.promise_free.lib Require Import Event Ordering.
 From Stdlib Require Export Program.
 
 Open Scope cat_scope.

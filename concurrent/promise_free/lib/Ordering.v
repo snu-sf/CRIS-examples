@@ -2,11 +2,7 @@ From Stdlib Require Import List Orders MSetList ZArith.
 
 Require Import CRIS.lib.sflib.
 
-Require Import DataStructure.
-Require Import Basic.
-Require Import Loc.
-Require Import Language.
-Require Import Val.
+From CRIS.promise_free.lib Require Import DataStructure Basic Loc Language Val.
 
 Set Implicit Arguments.
 

@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Import MutHeader.
+From CRIS.mutsum Require Import MutHeader.
 
 Set Implicit Arguments.
 

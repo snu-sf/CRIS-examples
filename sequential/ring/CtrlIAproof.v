@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Import ImpPrelude.
-Require Import CellHeader CellA RingHeader RingA CtrlI.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.ring Require Import CellHeader CellA RingHeader RingA CtrlI.
 
 Lemma mod_addL_app `{Σ : GRA} l l' : Mod.addL (l ++ l') = (Mod.addL l) ★ (Mod.addL l').
 Proof using.

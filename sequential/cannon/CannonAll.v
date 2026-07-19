@@ -1,9 +1,9 @@
 From CRIS.common Require Import CRIS.
 From CRIS.cancellation Require Import Cancel.
-Require Import ImpPrelude.
-Require Import CannonHeader CannonI CannonMainI.
-Require Import CannonA CannonMainA.
-Require Import CannonIAproof CannonMainIAproof.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.cannon Require Import CannonHeader CannonI CannonMainI.
+From CRIS.cannon Require Import CannonA CannonMainA.
+From CRIS.cannon Require Import CannonIAproof CannonMainIAproof.
 
 Section CannonAux.
   Import CannonA.

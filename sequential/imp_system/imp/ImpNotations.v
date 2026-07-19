@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
 
-Require Import ImpPrelude Imp.
+From CRIS.imp_system.imp Require Import ImpPrelude Imp.
 
 Set Implicit Arguments.
 

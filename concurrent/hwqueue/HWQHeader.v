@@ -1,4 +1,5 @@
-Require Import CRIS.common.Common ImpPrelude.
+Require Import CRIS.common.Common.
+From CRIS.imp_system Require Import imp.ImpPrelude.
 
 Module HWQHdr.
   Definition new_queue := fnsig "new_queue" imp_fun_t.

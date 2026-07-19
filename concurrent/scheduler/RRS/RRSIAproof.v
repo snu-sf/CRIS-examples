@@ -1,6 +1,6 @@
 Require Import CRIS.common.CRIS.
 From CRIS.scheduler Require Import SchHeader SchA.
-Require Import RRSHeader RRSI RRSA.
+From CRIS.scheduler Require Import RRS.RRSHeader RRS.RRSI RRS.RRSA.
 From iris.algebra Require Import gmap_view frac_auth.
 
 Local Open Scope nat_scope.

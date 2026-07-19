@@ -1,7 +1,7 @@
 Require Import CRIS.common.CRIS.
 Require Import CRIS.simulations.msim.ITactics.
 From CRIS.simulations.msim Require Import MSim WSim.
-Require Import NDSHeader NDSA.
+From CRIS.scheduler Require Import NDS.NDSHeader NDS.NDSA.
 
 Require Import CRIS.lib.ltac2_lib.
 

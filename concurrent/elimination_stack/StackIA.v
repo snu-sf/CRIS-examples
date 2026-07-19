@@ -1,9 +1,10 @@
 Require Import CRIS.common.CRIS.
-Require Import ImpPrelude.
-Require Import MemTactics MemA.
+From CRIS.imp_system Require Import imp.ImpPrelude.
+From CRIS.imp_system Require Import mem.MemTactics mem.MemA.
 From CRIS.scheduler Require Import SchHeader SchI SchA SchTactics.
-Require Import StackHeader StackA StackI.
-Require Import StackIANewStack StackIAPush StackIAPop.
+From CRIS.elimination_stack Require Import StackHeader StackA StackI.
+From CRIS.elimination_stack Require Import StackIANewStack StackIAPush.
+From CRIS.elimination_stack Require Import StackIAPop.
 From CRIS.helping Require Export HelpingTactics HelpingFacts.
 
 Module StackIM. Section StackIM.

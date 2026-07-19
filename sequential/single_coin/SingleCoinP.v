@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Import SingleCoinHeader.
+From CRIS.single_coin Require Import SingleCoinHeader.
 From CRIS.prophecy Require Import ProphecyHeader.
 
 Module SingleCoinP. Section SingleCoinP.

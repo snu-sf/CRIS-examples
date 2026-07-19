@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Export GEnv.
+From CRIS.imp_system.imp Require Export GEnv.
 
 Set Implicit Arguments.
 

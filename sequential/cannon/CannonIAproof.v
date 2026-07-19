@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Import ImpPrelude.
-Require Import CannonHeader CannonI CannonA.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.cannon Require Import CannonHeader CannonI CannonA.
 
 Module CannonIA. Section CannonIA.
   Context `{!crisG Γ Σ α β τ _S _I, _CANNON: !cannonGS}.

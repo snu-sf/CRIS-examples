@@ -1,7 +1,10 @@
 Require Import CRIS.common.CRIS.
-Require Import PFMemHeader PFMemI PFMemA HistoryRA AtomicRA.
-Require Import base Time TView View Cell Memory Global Time.
-Require Import PFMemIAproof.
+From CRIS.promise_free.pfmem Require Import PFMemHeader PFMemI PFMemA.
+From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
+From CRIS.promise_free.gpfsl Require Import base.
+From CRIS.promise_free.model Require Import
+  Time TView View Cell Memory Global Time.
+From CRIS.promise_free.pfmem Require Import PFMemIAproof.
 
 Section alloc.
   Import PFMemIA.

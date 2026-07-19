@@ -1,6 +1,7 @@
 Require Import CRIS.common.CRIS.
-Require Import MemHeader CRIS.scheduler.SchHeader CRIS.helping.HelpingHeader.
-Require Export StackHeader.
+From CRIS.imp_system Require Import mem.MemHeader.
+Require Import CRIS.scheduler.SchHeader CRIS.helping.HelpingHeader.
+From CRIS.elimination_stack Require Export StackHeader.
 
 Module StackI. Section StackI.
   Context `{!crisG Γ Σ α β τ _S _I}.

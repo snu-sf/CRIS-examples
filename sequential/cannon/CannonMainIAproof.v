@@ -1,7 +1,7 @@
 From CRIS.common Require Import CRIS.
-Require Import ImpPrelude.
-Require Import CannonHeader CannonI CannonA.
-Require Import CannonMainI CannonMainA.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.cannon Require Import CannonHeader CannonI CannonA.
+From CRIS.cannon Require Import CannonMainI CannonMainA.
 
 Module CannonMainIA. Section CannonMainIA.
   Import CannonA CannonMainA.

@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Import MutHeader.
+From CRIS.mutsum Require Import MutHeader.
 From CRIS.apc Require Import APCHeader APC.
 
 Set Implicit Arguments.

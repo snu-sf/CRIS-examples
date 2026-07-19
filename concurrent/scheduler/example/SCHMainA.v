@@ -1,12 +1,12 @@
 Require Import CRIS.common.CRIS.
 Require Import CRIS.simulations.filter.CallFilter.
 From CRIS.scheduler Require Import SchHeader SchA.
-Require Import RRSHeader RRSA.
-Require Import NDSHeader NDSA.
-Require Import RRSNodeHeader RRSNodeA.
-Require Import NDSNodeHeader NDSNodeA.
-Require Import MemHeader MemA.
-Require Import SCHMainI.
+From CRIS.scheduler Require Import RRS.RRSHeader RRS.RRSA.
+From CRIS.scheduler Require Import NDS.NDSHeader NDS.NDSA.
+From CRIS.scheduler Require Import example.RRSNodeHeader example.RRSNodeA.
+From CRIS.scheduler Require Import example.NDSNodeHeader example.NDSNodeA.
+From CRIS.imp_system Require Import mem.MemHeader mem.MemA.
+From CRIS.scheduler Require Import example.SCHMainI.
 Set Implicit Arguments.
 
 Module SCHMainA. Section SCHMainA.

@@ -1,8 +1,9 @@
 Require Import CRIS.common.CRIS.
 From CRIS.scheduler Require Import SchHeader SchA SchTactics.
-Require Import RRSHeader RRSA.
-Require Import MemHeader MemA.
-Require Import RRSNodeHeader RRSNodeI RRSNodeA RRSTactics.
+From CRIS.scheduler Require Import RRS.RRSHeader RRS.RRSA.
+From CRIS.imp_system Require Import mem.MemHeader mem.MemA.
+From CRIS.scheduler Require Import example.RRSNodeHeader example.RRSNodeI.
+From CRIS.scheduler Require Import example.RRSNodeA RRS.RRSTactics.
 Require Import CRIS.lib.ltac2_lib.
 
 Module RRSNodeIA. Section RRSNodeIA.

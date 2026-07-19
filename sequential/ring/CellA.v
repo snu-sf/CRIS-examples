@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Import ImpPrelude.
-Require Import RingHeader CellHeader.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.ring Require Import RingHeader CellHeader.
 
 Local Definition pendingUR := (nat -d> optionUR (exclR unitO)).
 Local Definition cellUR := (nat -d> optionUR (exclR ZO)).

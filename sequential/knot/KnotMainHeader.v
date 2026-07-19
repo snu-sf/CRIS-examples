@@ -1,5 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Export ImpPrelude Imp MemA.
+From CRIS.imp_system.imp Require Export ImpPrelude Imp.
+From CRIS.imp_system.mem Require Export MemA.
 
 Module KnotMainHdr.
 Definition fib := fnsig "KnotMain.fib" imp_fun_t.

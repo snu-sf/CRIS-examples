@@ -1,6 +1,8 @@
 From CRIS.common Require Import CRIS.
-Require Import ImpPrelude MemTactics.
-Require Export MemA MapI MapM.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.imp_system.mem Require Import MemTactics.
+From CRIS.imp_system.mem Require Export MemA.
+From CRIS.map Require Export MapI MapM.
 
 (* Auxiliary lemmas *)
 Definition fun_to_list (f : Z → Z) (sz : nat) : list val :=

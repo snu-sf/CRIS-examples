@@ -1,5 +1,5 @@
 Require Import CRIS.common.CRIS.
-Require Import NDSHeader NDSI NDSA.
+From CRIS.scheduler Require Import NDS.NDSHeader NDS.NDSI NDS.NDSA.
 From iris Require Import gmap_view.
 
 Module NDSIA. Section sim.

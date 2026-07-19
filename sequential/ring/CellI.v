@@ -1,7 +1,7 @@
 From CRIS.common Require Import CRIS.
 
-Require Import ImpPrelude.
-Require Import CellHeader.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.ring Require Import CellHeader.
 
 Module CellI. Section CellI.
   Context `{!crisG Γ Σ α β τ _S _I}.

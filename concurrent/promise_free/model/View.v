@@ -2,12 +2,9 @@ Require Import CRIS.common.CRIS.
 
 From Stdlib Require Import Lists.ListDec Decidable.
 
-Require Import Basic.
-Require Import DataStructure.
-Require Import DenseOrder.
-Require Import Loc.
+From CRIS.promise_free.lib Require Import Basic DataStructure DenseOrder Loc.
 
-Require Import Time.
+From CRIS.promise_free.model Require Import Time.
 
 Set Implicit Arguments.
 

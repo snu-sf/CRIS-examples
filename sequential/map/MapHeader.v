@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Export ImpPrelude.
+From CRIS.imp_system.imp Require Export ImpPrelude.
 
 Module MapHdr.
   Definition init := fnsig "Map.init" imp_fun_t.

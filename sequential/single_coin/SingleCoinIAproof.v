@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Import SingleCoinIPproof SingleCoinPAproof.
+From CRIS.single_coin Require Import SingleCoinIPproof SingleCoinPAproof.
 From CRIS.prophecy Require Import ProphecyFacts.
 
 Module SingleCoinIA. Section SingleCoinIA.

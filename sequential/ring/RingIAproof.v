@@ -1,7 +1,6 @@
 From CRIS.common Require Import CRIS.
 
-Require Import RingHeader CellHeader
-  RingA CtrlI CellA CellI
+From CRIS.ring Require Import RingHeader CellHeader RingA CtrlI CellA CellI
   CtrlIAproof CellIAproof.
 
 (* Contextual Refinement Proof *)

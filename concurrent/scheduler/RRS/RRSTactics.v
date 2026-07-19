@@ -1,7 +1,7 @@
 Require Import CRIS.common.CRIS.
 Require Import CRIS.simulations.msim.ITactics.
 From CRIS.simulations.msim Require Import MSim WSim.
-Require Import RRSHeader RRSA.
+From CRIS.scheduler Require Import RRS.RRSHeader RRS.RRSA.
 
 Require Import CRIS.lib.ltac2_lib.
 

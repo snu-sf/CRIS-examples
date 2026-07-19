@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Import KnotMainI KnotMainA KnotA.
+From CRIS.knot Require Import KnotMainI KnotMainA KnotA.
 From CRIS.apc Require Import APCTactics APC APCC APCHeader.
 
 Module KnotMainIA. Section KnotMainIA.

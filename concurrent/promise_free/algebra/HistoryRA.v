@@ -1,7 +1,12 @@
 (* Definition of resource algebras needed for WMM specs *)
 Require Import CRIS.common.CRIS.
-Require Import Basic Val Cell Loc Time View TView Memory Local Global Configuration.
-Require Import LatticeRA ToAgree.
+From CRIS.promise_free.lib Require Import Basic Val.
+From CRIS.promise_free.model Require Import Cell.
+From CRIS.promise_free.lib Require Import Loc.
+From CRIS.promise_free.model Require Import
+  Time View TView Memory Local Global Configuration.
+From CRIS.promise_free.gpfsl Require Import LatticeRA.
+From CRIS.promise_free.algebra Require Import ToAgree.
 
 (* Corresponds to gpfsl's view explicit *)
 Definition view_at `(P : View.t → iProp Σ) (V : View.t) := P V.

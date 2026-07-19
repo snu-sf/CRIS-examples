@@ -1,8 +1,8 @@
 Require Export CRIS.common.CRIS.
 Require Export CRIS.modules.SMod.
-Require Import ImpPrelude.
-Require Export PFMemHeader.
-Require Export Basic Val.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.promise_free.pfmem Require Export PFMemHeader.
+From CRIS.promise_free.lib Require Export Basic Val.
 
 Module SystemHdr.
   Definition _spawn  := fnsig "System._spawn" (fntyp (Ident.t * string * SAny.t) ()).

@@ -1,6 +1,7 @@
 Require Import CRIS.common.CRIS.
-Require Import ImpPrelude MemHeader CRIS.scheduler.SchHeader.
-Require Import IncrHeader.
+From CRIS.imp_system Require Import imp.ImpPrelude mem.MemHeader.
+Require Import CRIS.scheduler.SchHeader.
+From CRIS.incr Require Import IncrHeader.
 
 Module ClientI. Section ClientI.
   Context `{!crisG Γ Σ α β τ _S _I}.

@@ -1,8 +1,8 @@
 Require Import CRIS.common.CRIS.
-Require Import LockHeader LockA.
-Require Import ImpPrelude.
+From CRIS.spinlock Require Import LockHeader LockA.
+From CRIS.imp_system Require Import imp.ImpPrelude.
 From CRIS.scheduler Require Import SchHeader SchA.
-Require Import MemHeader MemA.
+From CRIS.imp_system Require Import mem.MemHeader mem.MemA.
 From iris Require Import frac_auth numbers.
 
 (** Specification Module of SpinLockMainI *)

@@ -1,6 +1,9 @@
 Require Import CRIS.common.CRIS.
-Require Import PFMemHeader HistoryRA AtomicRA.
-Require Import Time Cell View TView base Language.
+From CRIS.promise_free.pfmem Require Import PFMemHeader.
+From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
+From CRIS.promise_free.model Require Import Time Cell View TView.
+From CRIS.promise_free.gpfsl Require Import base.
+From CRIS.promise_free.lib Require Import Language.
 
 (* Specification of promise-free memory module *)
 Module PFMemA. Section PFMemA.

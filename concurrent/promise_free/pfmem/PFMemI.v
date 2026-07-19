@@ -1,6 +1,6 @@
 Require Import CRIS.common.CRIS.
-Require Import Promises Memory.
-Require Export PFMemHeader.
+From CRIS.promise_free.model Require Import Promises Memory.
+From CRIS.promise_free.pfmem Require Export PFMemHeader.
 
 Module PFMemI. Section PFMemI.
   Context `{!crisG Γ Σ α β τ _S _I}.

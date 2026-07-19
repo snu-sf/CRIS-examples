@@ -1,7 +1,8 @@
 From CRIS.common Require Import CRIS.
 From CRIS.cancellation Require Import Cancel.
-Require Import ImpPrelude.
-From CRIS.celliocb Require Import MainHeader CellioHeader CellioA CellioI MainA MainI CtxHeader CellioIAproof MainIAproof.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.celliocb Require Import MainHeader CellioHeader CellioA CellioI MainA
+  MainI CtxHeader CellioIAproof MainIAproof.
 
 Section CellioAux.
   Context `{!crisG Γ Σ α β τ Hsub Hinv, _CELL: !cellioGS}.

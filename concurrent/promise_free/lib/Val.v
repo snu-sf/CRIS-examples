@@ -1,6 +1,6 @@
 Require Import CRIS.common.CRIS.
 
-Require Import Loc.
+From CRIS.promise_free.lib Require Import Loc.
 
 Set Implicit Arguments.
 

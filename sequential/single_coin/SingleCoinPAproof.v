@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Export SingleCoinHeader SingleCoinP SingleCoinA.
+From CRIS.single_coin Require Export SingleCoinHeader SingleCoinP SingleCoinA.
 From CRIS.prophecy Require Export ProphecyHeader ProphecyA.
 
 Local Program Definition coin_proph : Prophecy.t := {|

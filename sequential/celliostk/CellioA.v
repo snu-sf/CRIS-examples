@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-From CRIS.imp_system Require Import mem.MemA.
+From CRIS.imp_system.mem Require Import MemA.
 From CRIS.celliostk Require Import CellioHeader CtxHeader.
 
 Module CellioA. Section CellioA.

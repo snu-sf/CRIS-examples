@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Import ImpPrelude.
-Require Import RingHeader CellA.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.ring Require Import RingHeader CellA.
 
 Module RingA. Section RingA.
   Context `{!crisG Γ Σ α β τ _S _I, _CELL: !cellGS}.

@@ -1,7 +1,7 @@
 (* Definition of lattice algebra copied from gpfsl *)
 Require Import CRIS.common.CRIS.
 From iris.algebra Require Import cmra auth lib.frac_auth.
-Require Export base.
+From CRIS.promise_free.gpfsl Require Export base.
 Require Import iris.prelude.options.
 From Stdlib.QArith Require Import Qcanon.
 

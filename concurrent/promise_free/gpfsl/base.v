@@ -648,7 +648,7 @@ Notation "(∌ x )" := (λ X, X ∌ x) (only parsing) : stdpp_scope.
 (* Promise-time Lattices *)
 (* TODO : Generalize to denseorders if required *)
 Require Import CRIS.lib.sflib.
-Require Import Time.
+From CRIS.promise_free.model Require Import Time.
 Section time.
   Program Canonical Structure Time_Lat :=
     Make_Lat (Time.t) (=) Time.le Time.join Time.meet
@@ -667,7 +667,7 @@ End time.
 
 (* Promise-view Lattices *)
 (* Meet operation for views are not defined - we define it here since gpfsl requires it *)
-Require Import View.
+From CRIS.promise_free.model Require Import View.
 Section view.
   Local Definition TimeMap_meet (M1 M2 : TimeMap.t) : TimeMap.t :=
     λ l, Time.meet (M1 l) (M2 l).

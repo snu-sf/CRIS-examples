@@ -1,10 +1,11 @@
 Require Import CRIS.common.CRIS.
-Require Import Cell Time View.
+From CRIS.promise_free.model Require Import Cell Time View.
 
 From CRIS.scheduler Require Import SchHeader SchA.
-Require Import PFMemHeader HistoryRA AtomicRA.
-Require Import SystemHeader SystemA.
-Require Import MPI.
+From CRIS.promise_free.pfmem Require Import PFMemHeader.
+From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
+From CRIS.promise_free.system Require Import SystemHeader SystemA.
+From CRIS.promise_free.examples Require Import MPI.
 
 From iris.algebra Require Import excl agree csum.
 

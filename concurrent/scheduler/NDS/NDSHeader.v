@@ -1,6 +1,6 @@
 Require Export CRIS.common.CRIS.
 From CRIS.modules Require Export SMod Mod.
-Require Import ImpPrelude.
+From CRIS.imp_system Require Import imp.ImpPrelude.
 
 Module NDSHdr.
   Definition init         := fnsig "NDS.init" (fntyp (SAny.t) ()).

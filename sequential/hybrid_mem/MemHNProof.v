@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Import ImpPrelude.
-Require Import MemHdr MemLib HybridMem NonDetMem.
+From CRIS.imp_system.imp Require Import ImpPrelude.
+From CRIS.hybrid_mem Require Import MemHdr MemLib HybridMem NonDetMem.
 
 Module MemHN. Section MemHN.
   Context `{!crisG Γ Σ α β τ _S _I, _MEM: !memGS}.

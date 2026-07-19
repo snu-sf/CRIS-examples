@@ -1,9 +1,9 @@
 Require Import CRIS.common.CRIS.
 Require Import CRIS.scheduler.SchHeader.
-Require Import RRSHeader.
-Require Import NDSHeader.
-Require Import RRSNodeHeader.
-Require Import NDSNodeHeader.
+From CRIS.scheduler Require Import RRS.RRSHeader.
+From CRIS.scheduler Require Import NDS.NDSHeader.
+From CRIS.scheduler Require Import example.RRSNodeHeader.
+From CRIS.scheduler Require Import example.NDSNodeHeader.
 Set Implicit Arguments.
 
 Module SCHMainI. Section SCHMainI.

@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Import MemHdr MemLib DetMem.
+From CRIS.hybrid_mem Require Import MemHdr MemLib DetMem.
 
 (* Non-Deterministic Memory model (physical). *)
 

@@ -1,8 +1,8 @@
 Require Import CRIS.common.CRIS CRIS.scheduler.Atomic.
-Require Import MemHeader MemA MemTactics.
+From CRIS.imp_system Require Import mem.MemHeader mem.MemA mem.MemTactics.
 From CRIS.scheduler Require Import SchHeader SchI SchA SchTactics.
-Require Import StackHeader StackA.
-Require Import PQueueHeader PQueueI.
+From CRIS.elimination_stack Require Import StackHeader StackA.
+From CRIS.priority_queue Require Import PQueueHeader PQueueI.
 From iris.algebra Require Import excl_auth.
 
 Class queueG `{!crisG Γ Σ α β τ _S _I} := QueueG {

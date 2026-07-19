@@ -1,5 +1,9 @@
-Require Import CRIS.common.CRIS ImpPrelude.
-Require Import MemHeader CRIS.scheduler.SchHeader PQueueHeader IOHeader.
+Require Import CRIS.common.CRIS.
+From CRIS.imp_system Require Import imp.ImpPrelude.
+From CRIS.imp_system Require Import mem.MemHeader.
+Require Import CRIS.scheduler.SchHeader.
+From CRIS.priority_queue Require Import PQueueHeader.
+From CRIS.IO_proxy Require Import IOHeader.
 
 Module IOI. Section IOI.
   Context `{!crisG Γ Σ α β τ Hinv Hsub}.

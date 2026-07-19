@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
 
-Require Import RepeatHeader RepeatI RepeatA.
+From CRIS.repeat Require Import RepeatHeader RepeatI RepeatA.
 From CRIS.apc Require Import APCHeader APC APCA APCTactics.
 
 Set Implicit Arguments.

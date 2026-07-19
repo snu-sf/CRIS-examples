@@ -1,5 +1,5 @@
 Require Import CRIS.common.CRIS.
-Require Import NDSHeader NDSI.
+From CRIS.scheduler Require Import NDS.NDSHeader NDS.NDSI.
 Require Import CRIS.simulations.filter.CallFilter.
 From iris Require Import frac_auth dfrac_agree gmap_view csum.
 

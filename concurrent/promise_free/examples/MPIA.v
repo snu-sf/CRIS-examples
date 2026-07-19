@@ -1,7 +1,10 @@
 Require Import CRIS.common.CRIS.
-Require Import PFMemHeader PFMemA base HistoryRA AtomicRA.
-Require Import CRIS.scheduler.SchHeader SystemHeader SystemA SystemTactics.
-Require Import MPI MPA.
+From CRIS.promise_free.pfmem Require Import PFMemHeader PFMemA.
+From CRIS.promise_free.gpfsl Require Import base.
+From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
+Require Import CRIS.scheduler.SchHeader.
+From CRIS.promise_free.system Require Import SystemHeader SystemA SystemTactics.
+From CRIS.promise_free.examples Require Import MPI MPA.
 
 Module MPIA. Section MPIA.
   Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS, _ONESHOT: !one_shotG}.

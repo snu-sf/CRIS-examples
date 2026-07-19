@@ -1,13 +1,16 @@
 Require Import CRIS.common.CRIS CRIS.cancellation.Cancel.
-Require Import ImpPrelude.
+From CRIS.imp_system Require Import imp.ImpPrelude.
 From CRIS.scheduler Require Import SchI SchA SchIAproof.
-Require Import RRSI RRSA RRSIAproof.
-Require Import NDSI NDSA NDSIAproof.
-Require Import MemI MemA MemIAproof.
-Require Import DetMem HybridMem MemDHProof.
-Require Import RRSNodeI RRSNodeA RRSNodeIAproof.
-Require Import NDSNodeI NDSNodeA NDSNodeIAproof.
-Require Import SCHMainI SCHMainA SCHMainIAproof.
+From CRIS.scheduler Require Import RRS.RRSI RRS.RRSA RRS.RRSIAproof.
+From CRIS.scheduler Require Import NDS.NDSI NDS.NDSA NDS.NDSIAproof.
+From CRIS.imp_system Require Import mem.MemI mem.MemA mem.MemIAproof.
+From CRIS.hybrid_mem Require Import DetMem HybridMem MemDHProof.
+From CRIS.scheduler Require Import example.RRSNodeI example.RRSNodeA.
+From CRIS.scheduler Require Import example.RRSNodeIAproof.
+From CRIS.scheduler Require Import example.NDSNodeI example.NDSNodeA.
+From CRIS.scheduler Require Import example.NDSNodeIAproof.
+From CRIS.scheduler Require Import example.SCHMainI example.SCHMainA.
+From CRIS.scheduler Require Import example.SCHMainIAproof.
 
 Section SCHMainAux.
   Context `{!crisG Γ Σ α β τ Hsub Hinv, _SCH: !schGS, _RRS: !rrsGS, _NDS: !ndsGS, _MEM: !memGS, _MEMLIB: !MemLib.memGS, _NODE: !nodeGS}.

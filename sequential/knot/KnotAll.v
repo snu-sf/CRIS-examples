@@ -1,11 +1,11 @@
 From CRIS.common Require Import CRIS.
 From CRIS.cancellation Require Import Cancel.
 From CRIS.simulations.filter Require Import CallFilter.
-Require Import MemHeader MemI MemA MemIAproof.
+From CRIS.imp_system.mem Require Import MemHeader MemI MemA MemIAproof.
 From CRIS.apc Require Import APCHeader APC APCI APCA APCC APCACproof APCIAproof.
-Require Import KnotHeader KnotMainHeader KnotI KnotMainI.
-Require Import KnotA KnotMainA.
-Require Import KnotIAproof KnotMainIAproof.
+From CRIS.knot Require Import KnotHeader KnotMainHeader KnotI KnotMainI.
+From CRIS.knot Require Import KnotA KnotMainA.
+From CRIS.knot Require Import KnotIAproof KnotMainIAproof.
 
 Section KnotAux.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, _MEM: !memGS, _KNOT: !knotGS}.

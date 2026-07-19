@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Import MemHeader.
-Require Export MapHeader.
+From CRIS.imp_system.mem Require Import MemHeader.
+From CRIS.map Require Export MapHeader.
 
 (*** module I Map
 private data := NULL

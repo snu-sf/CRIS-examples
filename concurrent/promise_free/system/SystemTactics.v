@@ -1,4 +1,5 @@
-Require Import CRIS.common.CRIS SystemHeader SystemA.
+Require Import CRIS.common.CRIS.
+From CRIS.promise_free.system Require Import SystemHeader SystemA.
 
 Section wsim.
   Context `{!crisG Γ Σ α β τ _S _I, _SYS: !sysGS}.

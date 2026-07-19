@@ -1,7 +1,7 @@
 Require Import CRIS.common.CRIS.
-Require Import ImpPrelude MemHeader.
+From CRIS.imp_system Require Import imp.ImpPrelude mem.MemHeader.
 From CRIS.scheduler Require Import SchHeader Atomic.
-Require Export IncrHeader.
+From CRIS.incr Require Export IncrHeader.
 
 Module IncrI. Section IncrI.
   Context `{!crisG Γ Σ α β τ _S _I, !concGS}.

@@ -1,18 +1,10 @@
 Require Import CRIS.common.CRIS.
 
-Require Import Basic.
-Require Import DataStructure.
-Require Import DenseOrder.
-Require Import Loc.
-Require Import Val.
-Require Import Event.
+From CRIS.promise_free.lib Require Import
+  Basic DataStructure DenseOrder Loc Val Event.
 
-Require Import Time.
-Require Import View.
-Require Import BoolMap.
-Require Import Promises.
-Require Import Cell.
-Require Import Memory.
+From CRIS.promise_free.model Require Import
+  Time View BoolMap Promises Cell Memory.
 
 Set Implicit Arguments.
 

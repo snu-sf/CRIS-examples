@@ -1,6 +1,8 @@
 Require Import CRIS.common.CRIS.
-Require Import LockHeader.
-Require Import ImpPrelude CRIS.scheduler.SchHeader MemHeader.
+From CRIS.spinlock Require Import LockHeader.
+From CRIS.imp_system Require Import imp.ImpPrelude.
+Require Import CRIS.scheduler.SchHeader.
+From CRIS.imp_system Require Import mem.MemHeader.
 
 (* Implementation of an example user module that uses spinlock library *)
 (* Define three components for a module:

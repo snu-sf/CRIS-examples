@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-From CRIS.imp_system Require Import mem.MemA mem.MemTactics.
+From CRIS.imp_system.mem Require Import MemA MemTactics.
 From CRIS.celliostk Require Import CellioHeader CellioA CellioI.
 
 Local Open Scope nat_scope.

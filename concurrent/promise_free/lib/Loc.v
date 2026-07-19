@@ -2,8 +2,7 @@ Require Import CRIS.common.CRIS.
 
 From Stdlib Require Import Orders MSetList FMapList OrderedTypeEx FunInd.
 
-Require Import DataStructure.
-Require Import Basic.
+From CRIS.promise_free.lib Require Import DataStructure Basic.
 
 Set Implicit Arguments.
 

@@ -45,26 +45,26 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-Q $(CRISMODULE)/theories $(CRISMODULE)"; \
 	 echo "-Q $(CRISMODULE)/library $(CRISMODULE)"; \
 	 echo "-Q $(CRISMODULE)/extract $(CRISMODULE)"; \
-	 echo "-R sequential/imp_system $(CRISMODULE).imp_system"; \
-	 echo "-R sequential/cannon $(CRISMODULE).cannon"; \
-	 echo "-R sequential/cellio $(CRISMODULE).cellio"; \
-	 echo "-R sequential/celliocb $(CRISMODULE).celliocb"; \
-	 echo "-R sequential/celliostk $(CRISMODULE).celliostk"; \
-	 echo "-R sequential/hybrid_mem $(CRISMODULE).hybrid_mem"; \
-	 echo "-R sequential/knot $(CRISMODULE).knot"; \
-	 echo "-R sequential/map $(CRISMODULE).map"; \
-	 echo "-R sequential/mutsum $(CRISMODULE).mutsum"; \
-	 echo "-R sequential/repeat $(CRISMODULE).repeat"; \
-	 echo "-R sequential/ring $(CRISMODULE).ring"; \
-	 echo "-R sequential/single_coin $(CRISMODULE).single_coin"; \
-	 echo "-R concurrent/promise_free $(CRISMODULE).promise_free"; \
-	 echo "-R concurrent/scheduler $(CRISMODULE).scheduler"; \
-	 echo "-R concurrent/incr $(CRISMODULE).incr"; \
-	 echo "-R concurrent/spinlock $(CRISMODULE).spinlock"; \
-	 echo "-R concurrent/IO_proxy $(CRISMODULE).IO_proxy"; \
-	 echo "-R concurrent/priority_queue $(CRISMODULE).priority_queue"; \
-	 echo "-R concurrent/elimination_stack $(CRISMODULE).elimination_stack"; \
-	 echo "-R concurrent/hwqueue $(CRISMODULE).hwqueue"; \
+	 echo "-Q sequential/imp_system $(CRISMODULE).imp_system"; \
+	 echo "-Q sequential/cannon $(CRISMODULE).cannon"; \
+	 echo "-Q sequential/cellio $(CRISMODULE).cellio"; \
+	 echo "-Q sequential/celliocb $(CRISMODULE).celliocb"; \
+	 echo "-Q sequential/celliostk $(CRISMODULE).celliostk"; \
+	 echo "-Q sequential/hybrid_mem $(CRISMODULE).hybrid_mem"; \
+	 echo "-Q sequential/knot $(CRISMODULE).knot"; \
+	 echo "-Q sequential/map $(CRISMODULE).map"; \
+	 echo "-Q sequential/mutsum $(CRISMODULE).mutsum"; \
+	 echo "-Q sequential/repeat $(CRISMODULE).repeat"; \
+	 echo "-Q sequential/ring $(CRISMODULE).ring"; \
+	 echo "-Q sequential/single_coin $(CRISMODULE).single_coin"; \
+	 echo "-Q concurrent/promise_free $(CRISMODULE).promise_free"; \
+	 echo "-Q concurrent/scheduler $(CRISMODULE).scheduler"; \
+	 echo "-Q concurrent/incr $(CRISMODULE).incr"; \
+	 echo "-Q concurrent/spinlock $(CRISMODULE).spinlock"; \
+	 echo "-Q concurrent/IO_proxy $(CRISMODULE).IO_proxy"; \
+	 echo "-Q concurrent/priority_queue $(CRISMODULE).priority_queue"; \
+	 echo "-Q concurrent/elimination_stack $(CRISMODULE).elimination_stack"; \
+	 echo "-Q concurrent/hwqueue $(CRISMODULE).hwqueue"; \
 	 echo $(COQTHEORIES)) > _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 

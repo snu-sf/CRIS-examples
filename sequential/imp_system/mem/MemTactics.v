@@ -1,5 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Export ImpPrelude MemHeader MemA.
+From CRIS.imp_system.imp Require Export ImpPrelude.
+From CRIS.imp_system.mem Require Export MemHeader MemA.
 
 Section mem.
   Context `{!crisG Γ Σ α β τ _S _I, !memGS}.

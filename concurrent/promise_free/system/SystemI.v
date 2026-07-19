@@ -1,5 +1,6 @@
 Require Import CRIS.common.CRIS.
-Require Import SystemHeader PFMemHeader.
+From CRIS.promise_free.system Require Import SystemHeader.
+From CRIS.promise_free.pfmem Require Import PFMemHeader.
 
 Definition tidmap : Type := gmap Ident.t nat.
 

@@ -1,8 +1,8 @@
 From CRIS.common Require Import CRIS.
 From CRIS.cancellation Require Import Cancel.
-Require Import MutHeader MutFA MutGA MutMainA.
-Require Import MutFI MutGI MutMainI.
-Require Import MutFIAproof MutGIAproof MutMainIAproof.
+From CRIS.mutsum Require Import MutHeader MutFA MutGA MutMainA.
+From CRIS.mutsum Require Import MutFI MutGI MutMainI.
+From CRIS.mutsum Require Import MutFIAproof MutGIAproof MutMainIAproof.
 From CRIS.apc Require Import APCHeader APC APCI APCA APCC.
 From CRIS.apc Require Import APCIAproof APCACproof.
 

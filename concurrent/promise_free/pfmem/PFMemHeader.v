@@ -1,6 +1,7 @@
 Require Import CRIS.common.CRIS.
-Require Export Basic Loc Val Ordering Event Local Configuration PFConfiguration.
-Require Export View TView.
+From CRIS.promise_free.lib Require Export Basic Loc Val Ordering Event.
+From CRIS.promise_free.model Require Export
+  Local Configuration PFConfiguration View TView.
 
 Module PFMemHdr.
   Definition alloc := fnsig "PFMem.alloc" (fntyp (Ident.t * Z) Val.t).

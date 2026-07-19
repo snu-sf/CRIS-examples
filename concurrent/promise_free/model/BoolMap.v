@@ -2,11 +2,8 @@ Require Import CRIS.common.CRIS.
 
 From Stdlib Require Import MSetList.
 
-Require Import Basic.
-Require Import DataStructure.
-Require Import Loc.
-Require Import Language.
-Require Import Event.
+From CRIS.promise_free.lib Require Import
+  Basic DataStructure Loc Language Event.
 
 Set Implicit Arguments.
 

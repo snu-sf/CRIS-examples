@@ -1,8 +1,8 @@
 Require Import CRIS.common.CRIS.
-Require Import LockHeader MainI MainA LockI LockA.
-Require Import ImpPrelude.
+From CRIS.spinlock Require Import LockHeader MainI MainA LockI LockA.
+From CRIS.imp_system Require Import imp.ImpPrelude.
 From CRIS.scheduler Require Import SchHeader SchA SchTactics.
-Require Import MemA MemTactics.
+From CRIS.imp_system Require Import mem.MemA mem.MemTactics.
 From iris Require Import frac_auth numbers.
 
 Module MainIA. Section MainIA.

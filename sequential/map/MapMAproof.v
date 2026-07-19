@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Export MapHeader MapM MapA.
+From CRIS.map Require Export MapHeader MapM MapA.
 
 Module MapMA. Section MapMA.
   Context `{!crisG Γ Σ α β τ _S _I, _MAPM: !mapMGS, _MAP: !mapGS}.

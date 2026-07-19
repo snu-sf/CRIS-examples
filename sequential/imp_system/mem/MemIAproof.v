@@ -1,5 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Import MemHeader MemA MemI ImpPrelude.
+From CRIS.imp_system.mem Require Import MemHeader MemA MemI.
+From CRIS.imp_system.imp Require Import ImpPrelude.
 From CRIS.simulations.filter Require Import CallFilter.
 From iris.algebra Require Import auth excl agree csum functions dfrac_agree.
 

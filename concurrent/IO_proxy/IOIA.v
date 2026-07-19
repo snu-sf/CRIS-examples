@@ -1,9 +1,15 @@
-Require Import CRIS.common.CRIS ImpPrelude.
-Require Import IOHeader IOI IOA.
-Require Import MemHeader CRIS.scheduler.SchHeader PQueueHeader IOHeader.
+Require Import CRIS.common.CRIS.
+From CRIS.imp_system Require Import imp.ImpPrelude.
+From CRIS.IO_proxy Require Import IOHeader IOI IOA.
+From CRIS.imp_system Require Import mem.MemHeader.
+Require Import CRIS.scheduler.SchHeader.
+From CRIS.priority_queue Require Import PQueueHeader.
+From CRIS.IO_proxy Require Import IOHeader.
 From CRIS.scheduler Require Import Atomic SchA SchTactics.
-Require Import PQueueA StackA MemA.
-Require Import MemTactics.
+From CRIS.priority_queue Require Import PQueueA.
+From CRIS.elimination_stack Require Import StackA.
+From CRIS.imp_system Require Import mem.MemA.
+From CRIS.imp_system Require Import mem.MemTactics.
 From CRIS.helping Require Import HelpingTactics HelpingFacts.
 Require Import CRIS.scheduler.SchI.
 

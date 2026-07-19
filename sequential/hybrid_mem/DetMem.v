@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Import MemHdr MemLib.
+From CRIS.hybrid_mem Require Import MemHdr MemLib.
 
 (* Deterministic Memory model, Bottom-level memory model of this example. *)
 

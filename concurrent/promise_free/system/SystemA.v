@@ -1,6 +1,8 @@
 Require Import CRIS.common.CRIS.
-Require Export PFMemHeader SystemHeader SystemI.
-Require Import HistoryRA AtomicRA LatticeRA.
+From CRIS.promise_free.pfmem Require Export PFMemHeader.
+From CRIS.promise_free.system Require Export SystemHeader SystemI.
+From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
+From CRIS.promise_free.gpfsl Require Import LatticeRA.
 From iris.algebra Require Export csum gmap_view.
 From iris.bi Require Export fractional.
 

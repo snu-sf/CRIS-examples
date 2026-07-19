@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-From CRIS.imp_system Require Import imp.ImpPrelude.
+From CRIS.imp_system.imp Require Import ImpPrelude.
 From CRIS.celliostk Require Import MainHeader CellioHeader CtxHeader.
 
 Module MainI. Section MainI.

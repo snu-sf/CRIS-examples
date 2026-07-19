@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
-Require Import MemA.
-Require Export MapHeader MapA MapM MapI MapIMproof MapMAproof.
+From CRIS.imp_system.mem Require Import MemA.
+From CRIS.map Require Export MapHeader MapA MapM MapI MapIMproof MapMAproof.
 
 Module MapIA. Section MapIA.
   Context `{!crisG Γ Σ α β τ _S _I, _MAPM: !mapMGS, _MAP: !mapGS, _MEM: !memGS}.

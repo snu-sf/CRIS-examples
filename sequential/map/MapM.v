@@ -1,5 +1,5 @@
 From CRIS.common Require Import CRIS.
-Require Export MapHeader.
+From CRIS.map Require Export MapHeader.
 
 (* Resource algebra for MapI ⊆ MapM *)
 

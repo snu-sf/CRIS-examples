@@ -1,6 +1,8 @@
 Require Import CRIS.common.CRIS.
-Require Import PFMemHeader CRIS.scheduler.SchHeader HistoryRA.
-Require Import SystemHeader.
+From CRIS.promise_free.pfmem Require Import PFMemHeader.
+Require Import CRIS.scheduler.SchHeader.
+From CRIS.promise_free.algebra Require Import HistoryRA.
+From CRIS.promise_free.system Require Import SystemHeader.
 
 Notation flag := 0 (only parsing).
 Notation data := 1 (only parsing).
