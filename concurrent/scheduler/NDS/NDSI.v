@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import NDSHeader.
 
 Definition thpool : Type := list (nat * option SAny.t).

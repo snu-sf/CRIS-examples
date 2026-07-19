@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 From Stdlib Require Import OrdersFacts FMapPositive.
 Require Import Basic.
 Require Import DataStructure.

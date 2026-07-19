@@ -1,4 +1,4 @@
-Require Import CRIS Cancel.
+Require Import CRIS.common.CRIS CRIS.cancellation.Cancel.
 Require Import PFMemHeader PFMemA base HistoryRA AtomicRA PFMemA PFMemI PFMemIA.
 Require Import SystemHeader SystemI SystemA SystemIA SystemTactics.
 Require Import MPI MPA MPIA.
@@ -133,9 +133,10 @@ Module MPAll.
     iMod (sys_alloc with "TV") as "[% [? ?]]".
     do 6 iExists _.
     pose proof (top_tgt) as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
+    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
-    rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
+    rewrite /refines in Href; hexploit Href.
+    { exact tgt_wf. }
     clear Href; intros [? Href].
     iPureIntro; hexploit (Href res); eauto.
     { rewrite Hres; iIntros "[[W [$ [$ [$ $]]]] [[$ $] [$ $]]]".

@@ -1,4 +1,5 @@
-Require Import CRIS ImpPrelude MemTactics.
+From CRIS.common Require Import CRIS.
+Require Import ImpPrelude MemTactics.
 Require Export MemA MapI MapM.
 
 (* Auxiliary lemmas *)

@@ -1,7 +1,9 @@
 (** * The Imp language  *)
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 
-Require Import ImpPrelude LModTr MemHeader.
+Require Import ImpPrelude.
+From CRIS.modules Require Import LModTr.
+Require Import MemHeader.
 
 Set Implicit Arguments.
 

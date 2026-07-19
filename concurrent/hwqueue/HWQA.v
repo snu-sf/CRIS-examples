@@ -1,10 +1,15 @@
-Require Export CRIS Atomic ImpPrelude HWQHeader SchHeader MemHeader ProphecyHeader HelpingHeader.
-Require Export CallFilter MemA SchA ProphecyA.
+Require Export CRIS.common.CRIS.
+From CRIS.scheduler Require Export Atomic SchHeader.
+Require Export ImpPrelude HWQHeader MemHeader
+  CRIS.prophecy.ProphecyHeader CRIS.helping.HelpingHeader.
+Require Export CRIS.simulations.filter.CallFilter MemA
+  CRIS.scheduler.SchA CRIS.prophecy.ProphecyA.
 Require Export HWQRA.
 Require Import MemI MemIAproof MemTactics.
-Require Import ProphecyI ProphecyFacts.
-Require Import HelpingTactics.
-Require Import HWQI HWQP SchI SchTactics.
+From CRIS.prophecy Require Import ProphecyI ProphecyFacts.
+Require Import CRIS.helping.HelpingTactics.
+Require Import HWQI HWQP.
+From CRIS.scheduler Require Import SchI SchTactics.
 From stdpp Require Import streams list.
 
 (* Specification of the queue operations *)

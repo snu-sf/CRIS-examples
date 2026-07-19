@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import PFMemHeader HistoryRA AtomicRA.
 Require Import Time Cell View TView base Language.
 

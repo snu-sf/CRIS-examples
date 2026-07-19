@@ -1,4 +1,4 @@
-From CRIS Require Import CRIS.
+From CRIS.common Require Import CRIS.
 
 Require Import ImpPrelude MemHdr MemLib HybridMem DetMem.
 From iris.algebra Require Import auth excl agree csum functions dfrac_agree.

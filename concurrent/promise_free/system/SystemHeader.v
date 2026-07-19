@@ -1,5 +1,5 @@
-Require Export CRIS.
-Require Export SMod.
+Require Export CRIS.common.CRIS.
+Require Export CRIS.modules.SMod.
 Require Import ImpPrelude.
 Require Export PFMemHeader.
 Require Export Basic Val.

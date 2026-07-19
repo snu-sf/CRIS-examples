@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import SystemHeader PFMemHeader.
 
 Definition tidmap : Type := gmap Ident.t nat.

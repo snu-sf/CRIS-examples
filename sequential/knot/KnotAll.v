@@ -1,6 +1,8 @@
-Require Import CRIS Cancel CallFilter.
+From CRIS.common Require Import CRIS.
+From CRIS.cancellation Require Import Cancel.
+From CRIS.simulations.filter Require Import CallFilter.
 Require Import MemHeader MemI MemA MemIAproof.
-Require Import APCHeader APC APCI APCA APCC APCACproof APCIAproof.
+From CRIS.apc Require Import APCHeader APC APCI APCA APCC APCACproof APCIAproof.
 Require Import KnotHeader KnotMainHeader KnotI KnotMainI.
 Require Import KnotA KnotMainA.
 Require Import KnotIAproof KnotMainIAproof.
@@ -188,7 +190,7 @@ Module KnotAll.
     iMod (mem_alloc genv) as "[% ?]".
     iExists _, _, _, _, _, _.
     pose proof (top_tgt tgt_wf) as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
+    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
     rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
     clear Href; intros [? Href].

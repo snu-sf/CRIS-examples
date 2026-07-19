@@ -1,6 +1,7 @@
-Require Import CRIS CallFilter.
+From CRIS.common Require Import CRIS.
+From CRIS.simulations.filter Require Import CallFilter.
 Require Export SingleCoinHeader SingleCoinI SingleCoinP.
-Require Export ProphecyHeader ProphecyI.
+From CRIS.prophecy Require Export ProphecyHeader ProphecyI.
 
 Module SingleCoinIP. Section SingleCoinIP.
   Import SingleCoinP SingleCoinI.

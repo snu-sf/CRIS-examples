@@ -1,6 +1,6 @@
 From Stdlib Require Import List Orders MSetList ZArith.
 
-Require Import sflib Coqlib.
+From CRIS.lib Require Import sflib Coqlib.
 
 Require Import Basic DataStructure Language.
 Require Import Loc Val Ordering.

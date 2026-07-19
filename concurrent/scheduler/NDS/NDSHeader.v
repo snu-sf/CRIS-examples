@@ -1,5 +1,5 @@
-Require Export CRIS.
-Require Export SMod Mod.
+Require Export CRIS.common.CRIS.
+From CRIS.modules Require Export SMod Mod.
 Require Import ImpPrelude.
 
 Module NDSHdr.

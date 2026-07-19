@@ -1,4 +1,4 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 
 (* Function names as string *)
 Module CellHdr.

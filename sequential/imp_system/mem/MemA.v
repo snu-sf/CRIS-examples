@@ -1,7 +1,9 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 From iris.algebra Require Import auth excl agree csum functions dfrac_agree.
 From iris.bi.lib Require Import fractional.
-From CRIS Require Export MemHeader ProphecyHeader HelpingHeader.
+Require Export MemHeader.
+From CRIS.prophecy Require Export ProphecyHeader.
+From CRIS.helping Require Export HelpingHeader.
 
 (* Memory resource algebra *)
 Canonical Structure valO := leibnizO val.

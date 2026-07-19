@@ -1,5 +1,5 @@
-Require Export Common.
-Require Export SMod Mod.
+Require Export CRIS.common.Common.
+From CRIS.modules Require Export SMod Mod.
 Require Import ImpPrelude.
 
 Module RRSHdr.

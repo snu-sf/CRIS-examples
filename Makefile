@@ -41,10 +41,10 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-arg -w -arg -redundant-canonical-projection"; \
 	 echo "-arg -w -arg -cannot-define-projection"; \
 	 echo "-arg -require-import -arg ExtLib.Structures.Monad"; \
-	 echo "-R $(CRISMODULE)/itreeS ITreeS"; \
-	 echo "-R $(CRISMODULE)/theories $(CRISMODULE)"; \
-	 echo "-R $(CRISMODULE)/library $(CRISMODULE)"; \
-	 echo "-R $(CRISMODULE)/extract $(CRISMODULE)"; \
+	 echo "-Q $(CRISMODULE)/itreeS ITreeS"; \
+	 echo "-Q $(CRISMODULE)/theories $(CRISMODULE)"; \
+	 echo "-Q $(CRISMODULE)/library $(CRISMODULE)"; \
+	 echo "-Q $(CRISMODULE)/extract $(CRISMODULE)"; \
 	 echo "-R sequential/imp_system $(CRISMODULE).imp_system"; \
 	 echo "-R sequential/cannon $(CRISMODULE).cannon"; \
 	 echo "-R sequential/cellio $(CRISMODULE).cellio"; \

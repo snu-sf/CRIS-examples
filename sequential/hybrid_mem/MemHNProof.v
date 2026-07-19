@@ -1,4 +1,5 @@
-From CRIS Require Import CRIS ImpPrelude.
+From CRIS.common Require Import CRIS.
+Require Import ImpPrelude.
 Require Import MemHdr MemLib HybridMem NonDetMem.
 
 Module MemHN. Section MemHN.

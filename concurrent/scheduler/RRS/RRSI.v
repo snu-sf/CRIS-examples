@@ -1,5 +1,5 @@
-Require Import CRIS.
-Require Import RRSHeader SchHeader.
+Require Import CRIS.common.CRIS.
+Require Import RRSHeader CRIS.scheduler.SchHeader.
 
 Definition thpool : Type := list nat.
 

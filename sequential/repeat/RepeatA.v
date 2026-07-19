@@ -1,8 +1,8 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 Require Import Imp.
 Require Import ImpPrelude.
 Require Import RepeatHeader.
-Require Import APCHeader APC.
+From CRIS.apc Require Import APCHeader APC.
 
 Set Implicit Arguments.
 

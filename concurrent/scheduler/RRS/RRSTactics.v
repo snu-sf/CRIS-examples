@@ -1,9 +1,9 @@
-Require Import CRIS.
-Require Import ITactics.
-Require Import MSim WSim.
+Require Import CRIS.common.CRIS.
+Require Import CRIS.simulations.msim.ITactics.
+From CRIS.simulations.msim Require Import MSim WSim.
 Require Import RRSHeader RRSA.
 
-Require Import ltac2_lib.
+Require Import CRIS.lib.ltac2_lib.
 
 Section wsim.
   Context `{!crisG Γ Σ α β τ _S _I, _RRS: !rrsGS}.

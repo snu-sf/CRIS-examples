@@ -1,5 +1,5 @@
-Require Import CRIS.
-Require Import SchHeader NDSHeader MemHdr.
+Require Import CRIS.common.CRIS.
+Require Import CRIS.scheduler.SchHeader NDSHeader MemHdr.
 Require Import NDSNodeHeader.
 
 Set Implicit Arguments.

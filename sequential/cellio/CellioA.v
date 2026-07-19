@@ -1,4 +1,4 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 From CRIS.cellio Require Import CellioHeader CtxHeader.
 
 Set Implicit Arguments.

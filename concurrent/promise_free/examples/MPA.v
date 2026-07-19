@@ -1,7 +1,7 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import Cell Time View.
 
-Require Import SchHeader SchA.
+From CRIS.scheduler Require Import SchHeader SchA.
 Require Import PFMemHeader HistoryRA AtomicRA.
 Require Import SystemHeader SystemA.
 Require Import MPI.

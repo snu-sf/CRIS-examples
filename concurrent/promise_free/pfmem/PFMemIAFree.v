@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import PFMemHeader PFMemI PFMemA HistoryRA AtomicRA.
 Require Import base Time TView View Cell Memory Global Time.
 Require Import PFMemIAproof.

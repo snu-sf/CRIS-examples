@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 
 From ITree Require Export
      ITree
@@ -14,7 +14,7 @@ From ExtLib Require Export
      Structures.Maps
 .
 
-Require Export ITreelib.
+Require Export CRIS.lib.ITreelib.
 
 Require Import Basic.
 Require Import Loc.

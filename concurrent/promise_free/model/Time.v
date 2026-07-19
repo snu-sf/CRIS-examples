@@ -5,7 +5,7 @@ Require Export DenseOrder.
 Require Import Basic.
 Require Import Loc.
 
-Require Import sflib Coqlib.
+From CRIS.lib Require Import sflib Coqlib.
 
 Set Implicit Arguments.
 

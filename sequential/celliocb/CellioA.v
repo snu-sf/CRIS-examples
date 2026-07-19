@@ -1,4 +1,4 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 From CRIS.celliocb Require Import CellioHeader CtxHeader.
 
 Local Definition RA := authUR (optionUR (exclR ZO)).

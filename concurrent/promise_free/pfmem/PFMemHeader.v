@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Export Basic Loc Val Ordering Event Local Configuration PFConfiguration.
 Require Export View TView.
 

@@ -1,5 +1,5 @@
-Require Import CRIS.
-Require Import APCHeader APC APCA.
+From CRIS.common Require Import CRIS.
+From CRIS.apc Require Import APCHeader APC APCA.
 Require Export KnotHeader KnotMainHeader KnotA.
 
 Module KnotMainA. Section KnotMainA.

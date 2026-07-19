@@ -1,5 +1,5 @@
-Require Import CRIS.
-Require Import SchHeader.
+Require Import CRIS.common.CRIS.
+Require Import CRIS.scheduler.SchHeader.
 Require Import RRSHeader.
 Require Import NDSHeader.
 Require Import RRSNodeHeader.

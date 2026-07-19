@@ -1,9 +1,10 @@
-Require Import CRIS Cancel.
+From CRIS.common Require Import CRIS.
+From CRIS.cancellation Require Import Cancel.
 Require Import MutHeader MutFA MutGA MutMainA.
 Require Import MutFI MutGI MutMainI.
 Require Import MutFIAproof MutGIAproof MutMainIAproof.
-Require Import APCHeader APC APCI APCA APCC.
-Require Import APCIAproof APCACproof.
+From CRIS.apc Require Import APCHeader APC APCI APCA APCC.
+From CRIS.apc Require Import APCIAproof APCACproof.
 
 Section MutAll.
   Context `{!crisG Γ Σ α β τ Hsub Hinv}.
@@ -176,7 +177,7 @@ Module MutAll.
     iMod cris_alloc as "[% [% [% [% ?]]]]".
     iExists _, _, _, _.
     pose proof top_tgt as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
+    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
     rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
     clear Href; intros [? Href].

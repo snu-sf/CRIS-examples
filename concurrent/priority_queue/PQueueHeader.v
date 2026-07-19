@@ -1,4 +1,4 @@
-Require Import Common ImpPrelude.
+Require Import CRIS.common.Common ImpPrelude.
 
 Module PQueueHdr.
   Definition new := fnsig "PQueue.new" imp_fun_t.

@@ -1,5 +1,8 @@
-Require Export CRIS ImpPrelude HWQHeader SchHeader MemHeader ProphecyHeader HelpingHeader HWQI.
-Require Import CallFilter ProphecyI SchTactics.
+Require Export CRIS.common.CRIS ImpPrelude HWQHeader
+  CRIS.scheduler.SchHeader MemHeader CRIS.prophecy.ProphecyHeader
+  CRIS.helping.HelpingHeader HWQI.
+Require Import CRIS.simulations.filter.CallFilter
+  CRIS.prophecy.ProphecyI CRIS.scheduler.SchTactics.
 
 Ltac unfoldIterEqS :=
   let marker := fresh "MARKER" in

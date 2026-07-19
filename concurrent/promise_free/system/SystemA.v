@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Export PFMemHeader SystemHeader SystemI.
 Require Import HistoryRA AtomicRA LatticeRA.
 From iris.algebra Require Export csum gmap_view.

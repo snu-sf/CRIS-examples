@@ -1,6 +1,6 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 Require Import KnotHeader.
-Require Import APCHeader APC.
+From CRIS.apc Require Import APCHeader APC.
 
 Local Definition RA := authUR (optionUR (exclR (optionO (natO -d> natO)))).
 

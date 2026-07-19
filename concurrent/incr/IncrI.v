@@ -1,5 +1,6 @@
-Require Import CRIS.
-Require Import ImpPrelude MemHeader SchHeader Atomic.
+Require Import CRIS.common.CRIS.
+Require Import ImpPrelude MemHeader.
+From CRIS.scheduler Require Import SchHeader Atomic.
 Require Export IncrHeader.
 
 Module IncrI. Section IncrI.

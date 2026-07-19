@@ -1,4 +1,5 @@
-Require Import CRIS Cancel.
+From CRIS.common Require Import CRIS.
+From CRIS.cancellation Require Import Cancel.
 Require Import ImpPrelude.
 From CRIS.celliocb Require Import MainHeader CellioHeader CellioA CellioI MainA MainI CtxHeader CellioIAproof MainIAproof.
 
@@ -194,7 +195,7 @@ Module CellioAll.
     iMod cellio_alloc as "[% ?]".
     iExists _, _, _, _, _.
     pose proof top_tgt as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
+    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
     iPureIntro. i.
     rewrite /refines in Href; hexploit Href; eauto using tgt_wf.

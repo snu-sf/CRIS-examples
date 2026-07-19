@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import SystemHeader SystemI SystemA.
 Require Import PFMemHeader PFMemA HistoryRA AtomicRA.
 

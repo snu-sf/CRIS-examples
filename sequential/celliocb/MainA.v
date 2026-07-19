@@ -1,4 +1,4 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 From CRIS.celliocb Require Import CellioA CtxHeader CellioHeader MainHeader.
 
 Module MainA. Section MainA.

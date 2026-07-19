@@ -1,6 +1,6 @@
-Require Import CRIS Atomic.
+Require Import CRIS.common.CRIS CRIS.scheduler.Atomic.
 Require Import ImpPrelude.
-Require Import SchHeader SchA.
+From CRIS.scheduler Require Import SchHeader SchA.
 Require Import MemHeader MemA.
 Require Import IncrHeader.
 

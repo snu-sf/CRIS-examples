@@ -1,4 +1,5 @@
-Require Import CRIS ImpPrelude.
+From CRIS.common Require Import CRIS.
+Require Import ImpPrelude.
 Require Import CannonHeader.
 
 Module MainI. Section MainI.

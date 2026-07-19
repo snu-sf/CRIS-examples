@@ -647,7 +647,7 @@ Notation "(∌ x )" := (λ X, X ∌ x) (only parsing) : stdpp_scope.
 
 (* Promise-time Lattices *)
 (* TODO : Generalize to denseorders if required *)
-Require Import sflib.
+Require Import CRIS.lib.sflib.
 Require Import Time.
 Section time.
   Program Canonical Structure Time_Lat :=

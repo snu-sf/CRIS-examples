@@ -1,8 +1,8 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import MemHeader MemA.
-Require Import SchHeader SchA.
-Require Import HelpingHeader HelpingTactics.
-Require Export StackHeader Atomic.
+From CRIS.scheduler Require Import SchHeader SchA.
+From CRIS.helping Require Import HelpingHeader HelpingTactics.
+Require Export StackHeader CRIS.scheduler.Atomic.
 
 Class stackG `{!crisG Γ Σ α β τ _S _I} := StackG {
   stack_tokG :: inG (exclR unitO) Γ;

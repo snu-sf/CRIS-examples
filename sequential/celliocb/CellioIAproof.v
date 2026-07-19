@@ -1,4 +1,4 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 From CRIS.celliocb Require Import CellioHeader CellioA CellioI.
 
 Local Open Scope nat_scope.

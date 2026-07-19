@@ -1,5 +1,6 @@
-Require Import CRIS.
-Require Import SingleCoinHeader ProphecyHeader.
+From CRIS.common Require Import CRIS.
+Require Import SingleCoinHeader.
+From CRIS.prophecy Require Import ProphecyHeader.
 
 Module SingleCoinP. Section SingleCoinP.
   Context `{!crisG Γ Σ α β τ _S _I}.

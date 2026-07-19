@@ -1,5 +1,5 @@
-Require Import CRIS.
-Require Import PFMemHeader SchHeader HistoryRA.
+Require Import CRIS.common.CRIS.
+Require Import PFMemHeader CRIS.scheduler.SchHeader HistoryRA.
 Require Import SystemHeader.
 
 Notation flag := 0 (only parsing).

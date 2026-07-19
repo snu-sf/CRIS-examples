@@ -1,4 +1,4 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 Require Export MapHeader MapM MapA.
 
 Module MapMA. Section MapMA.

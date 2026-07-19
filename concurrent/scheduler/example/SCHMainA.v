@@ -1,6 +1,6 @@
-Require Import CRIS.
-Require Import CallFilter.
-Require Import SchHeader SchA.
+Require Import CRIS.common.CRIS.
+Require Import CRIS.simulations.filter.CallFilter.
+From CRIS.scheduler Require Import SchHeader SchA.
 Require Import RRSHeader RRSA.
 Require Import NDSHeader NDSA.
 Require Import RRSNodeHeader RRSNodeA.

@@ -1,6 +1,6 @@
-Require Import CRIS Cancel.
+Require Import CRIS.common.CRIS CRIS.cancellation.Cancel.
 Require Import ImpPrelude.
-Require Import SchI SchA SchIAproof.
+From CRIS.scheduler Require Import SchI SchA SchIAproof.
 Require Import RRSI RRSA RRSIAproof.
 Require Import NDSI NDSA NDSIAproof.
 Require Import MemI MemA MemIAproof.
@@ -279,7 +279,7 @@ Module SCHMainAll.
     iMod rrsnode_alloc as "[% ?]".
     do 10 iExists _.
     pose proof (top_tgt genv) as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
+    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
     rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
     clear Href; intros [? Href].

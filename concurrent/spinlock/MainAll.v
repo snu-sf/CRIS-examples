@@ -1,8 +1,8 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import LockHeader LockI LockA LockIA MainI MainA MainIA.
 Require Import ImpPrelude MemI MemA MemIAproof.
-Require Import SchHeader SchI SchA SchIAproof.
-Require Import Cancel.
+From CRIS.scheduler Require Import SchHeader SchI SchA SchIAproof.
+Require Import CRIS.cancellation.Cancel.
 
 (* Cancellation *)
 Section MainAux.
@@ -178,9 +178,10 @@ Module MainAll.
     iMod (mem_alloc genv) as "[% ?]".
     iExists _, _, _, _, _, _.
     pose proof (cancel_tgt genv) as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res Hres) "R".
+    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
     iPoseProof (Own_valid with "R") as "%".
-    rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
+    rewrite /refines in Href; hexploit Href.
+    { exact (tgt_wf genv). }
     clear Href; intros [? Href].
     iPureIntro; hexploit (Href res); eauto.
     { rewrite Hres. iIntros "[[W [$ [$ [$ $]]]] [[$ $] [$ _]]]".

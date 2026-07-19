@@ -1,4 +1,4 @@
-Require Import Common.
+Require Import CRIS.common.Common.
 
 Module NDSNodeHdr.
   Definition f_main := fnsig "NDSNode.f_main" (fntyp SAny.t SAny.t).

@@ -1,4 +1,4 @@
-Require Import Common ImpPrelude.
+Require Import CRIS.common.Common ImpPrelude.
 
 Module IOHdr.
   Definition init := fnsig "init" imp_fun_t.

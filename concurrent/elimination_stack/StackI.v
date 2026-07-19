@@ -1,5 +1,5 @@
-Require Import CRIS.
-Require Import MemHeader SchHeader HelpingHeader.
+Require Import CRIS.common.CRIS.
+Require Import MemHeader CRIS.scheduler.SchHeader CRIS.helping.HelpingHeader.
 Require Export StackHeader.
 
 Module StackI. Section StackI.

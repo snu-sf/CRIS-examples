@@ -1,6 +1,6 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 Require Import SingleCoinHeader.
-Require Import ProphecyRA.
+From CRIS.prophecy Require Import ProphecyRA.
 From iris Require Import gmap_view.
 
 Local Definition CoinRA : ucmra := gmap_viewUR nat (agreeR boolO).

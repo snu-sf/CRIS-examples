@@ -1,11 +1,11 @@
-Require Import CRIS ImpPrelude.
+Require Import CRIS.common.CRIS ImpPrelude.
 Require Import IOHeader IOI IOA.
-Require Import MemHeader SchHeader PQueueHeader IOHeader.
-Require Import Atomic SchA SchTactics.
+Require Import MemHeader CRIS.scheduler.SchHeader PQueueHeader IOHeader.
+From CRIS.scheduler Require Import Atomic SchA SchTactics.
 Require Import PQueueA StackA MemA.
 Require Import MemTactics.
-Require Import HelpingTactics HelpingFacts.
-Require Import SchI.
+From CRIS.helping Require Import HelpingTactics HelpingFacts.
+Require Import CRIS.scheduler.SchI.
 
 (* Helper lemma: prepend a 𝒴@{N} to ITree.iter whose body starts with 𝒴@{N}.
    Same idea as yield_iter_prepend_yield_src but for the form induced by

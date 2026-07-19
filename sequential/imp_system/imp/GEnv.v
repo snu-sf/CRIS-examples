@@ -1,4 +1,5 @@
-Require Import Any AList sProp.
+From CRIS.lib Require Import Any AList.
+From CRIS.iris_system Require Import sProp.
 Import ListNotations.
 
 Module GEnv.

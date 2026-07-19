@@ -1,5 +1,7 @@
-Require Import CRIS.
-Require Export ImpPrelude SchA SchTactics MemA.
+Require Import CRIS.common.CRIS.
+Require Export ImpPrelude.
+From CRIS.scheduler Require Export SchA SchTactics.
+Require Export MemA.
 Require Import IncrHeader.
 From iris Require Import frac_auth numbers.
 

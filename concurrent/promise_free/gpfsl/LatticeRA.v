@@ -1,5 +1,5 @@
 (* Definition of lattice algebra copied from gpfsl *)
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 From iris.algebra Require Import cmra auth lib.frac_auth.
 Require Export base.
 Require Import iris.prelude.options.

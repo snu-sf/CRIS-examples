@@ -1,6 +1,6 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 Require Export SingleCoinHeader SingleCoinP SingleCoinA.
-Require Export ProphecyHeader ProphecyA.
+From CRIS.prophecy Require Export ProphecyHeader ProphecyA.
 
 Local Program Definition coin_proph : Prophecy.t := {|
   Prophecy.Pro := bool;

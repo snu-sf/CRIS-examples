@@ -1,4 +1,4 @@
-Require Import Common.
+From CRIS.common Require Import Common.
 
 Module SingleCoinHdr.
   Definition new := fnsig "SingleCoin.new" (fntyp () nat).

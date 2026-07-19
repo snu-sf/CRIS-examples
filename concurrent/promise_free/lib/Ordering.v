@@ -1,6 +1,6 @@
 From Stdlib Require Import List Orders MSetList ZArith.
 
-Require Import sflib.
+Require Import CRIS.lib.sflib.
 
 Require Import DataStructure.
 Require Import Basic.

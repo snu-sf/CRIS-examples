@@ -1,4 +1,7 @@
-From CRIS Require Import CRIS MemHeader HelpingHeader ProphecyHeader.
+From CRIS.common Require Import CRIS.
+Require Import MemHeader.
+From CRIS.helping Require Import HelpingHeader.
+From CRIS.prophecy Require Import ProphecyHeader.
 
 Module Mem.
   Record t : Type := mk {

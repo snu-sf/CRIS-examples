@@ -1,6 +1,6 @@
-Require Import CRIS Atomic atomic.
-Require Export IncrHeader ClientI ClientA IncrA SchA MemA.
-Require Import SchTactics MemTactics.
+Require Import CRIS.common.CRIS CRIS.scheduler.Atomic CRIS.iris_system.atomic.
+Require Export IncrHeader ClientI ClientA IncrA CRIS.scheduler.SchA MemA.
+Require Import CRIS.scheduler.SchTactics MemTactics.
 From iris Require Import frac_auth numbers.
 
 (* Proof of refinement between ClientA.t and ClientI.t *)

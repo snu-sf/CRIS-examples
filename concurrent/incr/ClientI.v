@@ -1,5 +1,5 @@
-Require Import CRIS.
-Require Import ImpPrelude MemHeader SchHeader.
+Require Import CRIS.common.CRIS.
+Require Import ImpPrelude MemHeader CRIS.scheduler.SchHeader.
 Require Import IncrHeader.
 
 Module ClientI. Section ClientI.

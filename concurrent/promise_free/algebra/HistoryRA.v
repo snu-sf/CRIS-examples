@@ -1,5 +1,5 @@
 (* Definition of resource algebras needed for WMM specs *)
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import Basic Val Cell Loc Time View TView Memory Local Global Configuration.
 Require Import LatticeRA ToAgree.
 

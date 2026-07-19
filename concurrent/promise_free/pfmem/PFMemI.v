@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import Promises Memory.
 Require Export PFMemHeader.
 

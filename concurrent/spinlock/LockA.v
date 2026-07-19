@@ -1,7 +1,7 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import LockHeader.
 Require Import ImpPrelude MemHeader MemA.
-Require Import SchHeader SchA.
+From CRIS.scheduler Require Import SchHeader SchA.
 From iris Require Import excl.
 
 (** Specification Module of the spinlock library *)

@@ -1,4 +1,4 @@
-From CRIS Require Import CRIS.
+From CRIS.common Require Import CRIS.
 Require Import MemHdr MemLib DetMem.
 
 Module HybMem. Section HybMem.

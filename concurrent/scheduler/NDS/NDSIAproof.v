@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import NDSHeader NDSI NDSA.
 From iris Require Import gmap_view.
 

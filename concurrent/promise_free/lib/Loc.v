@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 
 From Stdlib Require Import Orders MSetList FMapList OrderedTypeEx FunInd.
 

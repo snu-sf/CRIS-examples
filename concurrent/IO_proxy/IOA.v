@@ -1,10 +1,10 @@
-Require Import CRIS ImpPrelude.
-Require Import MemHeader SchHeader PQueueHeader IOHeader.
-Require Import Atomic SchA SchTactics.
+Require Import CRIS.common.CRIS ImpPrelude.
+Require Import MemHeader CRIS.scheduler.SchHeader PQueueHeader IOHeader.
+From CRIS.scheduler Require Import Atomic SchA SchTactics.
 Require Import PQueueA StackA MemA.
 Require Import MemTactics.
-Require Import HelpingTactics.
-Require Import SchI.
+Require Import CRIS.helping.HelpingTactics.
+Require Import CRIS.scheduler.SchI.
 
 Section preds.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !schGS, !memGS, !queueG, !stackGS}.

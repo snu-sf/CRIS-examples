@@ -1,6 +1,6 @@
-Require Import CRIS Atomic.
+Require Import CRIS.common.CRIS CRIS.scheduler.Atomic.
 Require Import MemHeader MemA MemTactics.
-Require Import SchHeader SchI SchA SchTactics.
+From CRIS.scheduler Require Import SchHeader SchI SchA SchTactics.
 Require Import StackHeader StackA.
 Require Import PQueueHeader PQueueI.
 From iris.algebra Require Import excl_auth.

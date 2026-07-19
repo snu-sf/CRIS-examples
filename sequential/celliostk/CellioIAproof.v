@@ -1,4 +1,4 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 From CRIS.imp_system Require Import mem.MemA mem.MemTactics.
 From CRIS.celliostk Require Import CellioHeader CellioA CellioI.
 

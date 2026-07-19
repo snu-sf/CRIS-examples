@@ -1,5 +1,5 @@
-Require Import CRIS.
-Require Import SchHeader.
+Require Import CRIS.common.CRIS.
+Require Import CRIS.scheduler.SchHeader.
 Require Import MemHeader.
 Require Import StackHeader.
 Require Import PQueueHeader.

@@ -1,4 +1,4 @@
-Require Import Common ImpPrelude.
+Require Import CRIS.common.Common ImpPrelude.
 
 Module IncrHdr.
   Definition incr := fnsig "incr" imp_fun_t.

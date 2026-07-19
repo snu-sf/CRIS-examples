@@ -1,6 +1,6 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import PFMemHeader PFMemA base HistoryRA AtomicRA.
-Require Import SchHeader SystemHeader SystemA SystemTactics.
+Require Import CRIS.scheduler.SchHeader SystemHeader SystemA SystemTactics.
 Require Import MPI MPA.
 
 Module MPIA. Section MPIA.

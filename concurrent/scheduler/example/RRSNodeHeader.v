@@ -1,4 +1,4 @@
-Require Import Common.
+Require Import CRIS.common.Common.
 
 Module RRSNodeHdr.
   Definition f_main := fnsig "RRSNode.f_main" (fntyp SAny.t SAny.t).

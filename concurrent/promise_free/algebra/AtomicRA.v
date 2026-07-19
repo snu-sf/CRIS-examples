@@ -1,4 +1,4 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Export Basic Val Cell Loc Time View TView Memory Local Global Configuration.
 Require Import LatticeRA ToAgree HistoryRA.
 

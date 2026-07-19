@@ -1,6 +1,7 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 Require Import MemTactics.
-Require Import APCHeader APC APCA APCTactics Tactics.
+From CRIS.apc Require Import APCHeader APC APCA APCTactics.
+From CRIS.simulations.msim Require Import Tactics.
 Require Import KnotI KnotA.
 
 Module KnotIA. Section KnotIA.

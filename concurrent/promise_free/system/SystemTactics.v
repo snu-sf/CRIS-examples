@@ -1,4 +1,4 @@
-Require Import CRIS SystemHeader SystemA.
+Require Import CRIS.common.CRIS SystemHeader SystemA.
 
 Section wsim.
   Context `{!crisG Γ Σ α β τ _S _I, _SYS: !sysGS}.

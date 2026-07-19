@@ -1,5 +1,5 @@
-Require Import CRIS Atomic.
-Require Import SchHeader SchA SchTactics.
+Require Import CRIS.common.CRIS CRIS.scheduler.Atomic.
+From CRIS.scheduler Require Import SchHeader SchA SchTactics.
 Require Import ImpPrelude MemHeader MemA MemTactics.
 Require Import IncrHeader IncrI IncrA.
 

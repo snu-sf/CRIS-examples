@@ -1,6 +1,6 @@
-Require Import CRIS.
+Require Import CRIS.common.CRIS.
 Require Import NDSHeader NDSI.
-Require Import CallFilter.
+Require Import CRIS.simulations.filter.CallFilter.
 From iris Require Import frac_auth dfrac_agree gmap_view csum.
 
 Local Open Scope Qp.

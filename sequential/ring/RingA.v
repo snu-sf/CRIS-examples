@@ -1,4 +1,4 @@
-Require Import CRIS.
+From CRIS.common Require Import CRIS.
 Require Import ImpPrelude.
 Require Import RingHeader CellA.
 

@@ -1,4 +1,5 @@
-Require Import CRIS MemA.
+From CRIS.common Require Import CRIS.
+Require Import MemA.
 Require Export MapHeader MapA MapM MapI MapIMproof MapMAproof.
 
 Module MapIA. Section MapIA.

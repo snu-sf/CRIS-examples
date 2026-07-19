@@ -1,9 +1,9 @@
-Require Import CRIS.
-Require Import SchHeader SchA SchTactics.
+Require Import CRIS.common.CRIS.
+From CRIS.scheduler Require Import SchHeader SchA SchTactics.
 Require Import NDSHeader NDSA NDSTactics.
 Require Import MemHdr MemLib HybridMem.
 Require Import NDSNodeHeader NDSNodeI NDSNodeA.
-Require Import ltac2_lib.
+Require Import CRIS.lib.ltac2_lib.
 
 Module NDSNodeIA. Section NDSNodeIA.
   Import NDSNodeA.
