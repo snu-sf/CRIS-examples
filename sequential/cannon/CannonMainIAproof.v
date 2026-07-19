@@ -51,8 +51,6 @@ Section ctxr.
 
   Theorem ctxr (sp : specmap) :
     CannonA.sp ⊆ sp →
-    ctx_refines
-      (MainI.t 1,    emp%I)
-      (MainA.t 1 sp, emp%I).
+    ⊢ ctx_refines (MainI.t 1) (MainA.t 1 sp).
   Proof. i; eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End CannonMainIA.

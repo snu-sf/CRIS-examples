@@ -16,50 +16,42 @@ Section CannonAux.
   Local Definition mod_src : Mod.t := SMod.to_mod sp smod_src.
 
   Lemma cancel_src :
-    refines
-      (mod_src, Ready)%I
-      (mod_top, Ready ∗ Ball ∗ Cancel.init_res)%I.
+    Ball ∗ Cancel.init_res ⊢ refines mod_src mod_top.
   Proof.
-    etrans. { eapply ctxr_refines, Cancel.prepare; et; clarify. }
-    eapply Cancel.cancel.
+    iIntros "[H1 H2]".
+    iApply refines_trans. iSplitR.
+    { iApply ctxr_refines. iApply Cancel.prepare; et; clarify. }
+    iApply Cancel.cancel.
     { apply SMod.cancellable_add; r; rewrite /=; mod_tac ss. }
-    { assert (Ht : (SMod.sp_from smod_src).1 !! entry = fsp_some (MainA.main_spec)).
-      { mod_tac. }
-      rewrite Ht; clear Ht.
-      eexists _, _; splits.
-      { ss; exists (tt); split; refl. }
-      { iIntros "[$ [? [? ?]]]"; ss. }
-      { unfoldPrePost. iIntros "% % %"; by des. }
+    { ss. exists tt. split; refl. }
+    { unfoldPrePost. iIntros "% % %"; by des. }
+    { iDestruct "H2" as "(X & Y & Z & $ & $)".
+      unfoldPrePost. iSplit; et.
     }
   Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, Ready).
+  Lemma src_tgt :
+    Ready ⊢ refines mod_tgt mod_src.
   Proof.
-    eapply ctxr_refines.
+    iIntros "H".
+    iApply ctxr_refines.
     rewrite /mod_src /mod_tgt /smod_src SMod.to_mod_add.
-
-    etrans.
-    { ctxr_rotate. ctxr_drop. eapply CannonIA.ctxr. }
-
-    etrans.
-    { ctxr_rotate. ctxr_drop. eapply CannonMainIA.ctxr.
-      instantiate (1:=sp). split; et.
+    iApply ctxr_compose_hor. iSplitL.
+    - iApply CannonIA.ctxr; et.
+    - iApply CannonMainIA.ctxr.
+      split; et.
       repeat try eapply insert_subseteq_l; last apply map_empty_subseteq.
       mod_tac.
-    }
-
-    eapply ctxr_consequence. by iIntros "$".
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines
-      (mod_tgt, emp%I)
-      (mod_top, Ready ∗ Ball ∗ Cancel.init_res)%I.
+    Ready ∗ Ball ∗ Cancel.init_res ⊢ refines mod_tgt mod_top.
   Proof.
-    etrans.
-    { eapply src_tgt. }
-    { eapply cancel_src. }
+    iIntros "(H1 & H2 & H3)".
+    iApply refines_trans. iSplitL "H1".
+    - iApply src_tgt; iFrame.
+    - iApply cancel_src; iFrame.
   Qed.
 
   Lemma tgt_wf : Mod.wf mod_tgt.
@@ -78,26 +70,22 @@ Module CannonAll.
   Local Instance Σ : GRA := ##[Γ; invΣ].
 
   Theorem behavioral_refinement :
-    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : cannonGS)
-      src_res tgt_res,
-      refines_lmod
-        (Mod.to_lmod mod_tgt tgt_res)
-        (Mod.to_lmod mod_top src_res).
+    ∃ β τ (Hinv : invGS Γ Σ α) (_ : crisG Γ Σ α β τ _ Hinv) (_ : cannonGS) src_res,
+      ✓ src_res
+      /\ refines_lmod
+          (Mod.to_lmod mod_tgt ε)
+          (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
-    iMod cris_alloc as "[% [% [% [% ?]]]]".
-    iMod cannon_alloc as "[% [? ?]]".
+    iMod cris_alloc as "(% & % & % & % & [WINV H0])".
+    iPoseProof (winv_split_empty with "WINV") as "[WINV WINV∅]".
+    iMod cannon_alloc as "(% & H1 & H2)".
     iExists _, _, _, _, _.
-    pose proof top_tgt as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
-    iPoseProof (Own_valid with "R") as "%".
-    rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
-    clear Href; intros [? Href].
-    iPureIntro; hexploit (Href res); eauto.
-    { rewrite Hres. iIntros "[[W [$ [$ $]]] [$ $]]".
-      rewrite {1}winv_split_empty comm //.
-    }
-    s; i; des; et.
+    iPoseProof (top_tgt with "[WINV H0 H1 H2]") as "REF".
+    { iFrame. iDestruct "H0" as "(H0 & H1 & H2 & H3)". iFrame. }
+    iApply refines_adequacy. { eapply tgt_wf. }
+    iFrame; et.
   Qed.
-(*SLOW*)End CannonAll.
+
+End CannonAll.
 (* Print Assumptions CannonAll.behavioral_refinement. *)
