@@ -38,32 +38,36 @@ Module StackIM. Section StackIM.
 End StackIM. End StackIM.
 
 Module StackIA. Section StackIA.
-  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !stackGS}.
+  Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !stackGS}.
 
   Lemma ctxr (sp : specmap) :
-    ctx_refines
-      (StackI.t ★ MemA.t sp ★ SchI.t, emp%I)
-      (StackA.t ★ MemA.t sp ★ SchI.t, help_init_cond).
+    help_init_cond ⊢
+      ctx_refines
+        (StackI.t ★ MemA.t sp ★ SchI.t)
+        (StackA.t ★ MemA.t sp ★ SchI.t).
   Proof.
-    etrans; cycle 1; first eapply ctxr_consequence.
-    { instantiate (1:=(_ ∗ emp)%I); iIntros "H"; iSplitL; last done; iExact "H". }
-    eapply helping_main; i; rewrite !CFilter.filter_app.
+    iIntros "H". iApply helping_main. iSplitL "H"; iIntros (mn);
+      rewrite !CFilter.filter_app.
     { (* intermediate refinement with helping facilities *)
       rewrite comm assoc (comm _ (HelpingDummy.t mn)).
-      etrans; [eapply main_adequacy, StackIM.sim|].
-      rewrite -!assoc. etrans.
-      { ctxr_rotate. ctxr_swap. do 2 ctxr_rotate. ctxr_swap. ctxr_rotate. ctxr_swap.
-        do 3 ctxr_rotate. refl.
+      iApply ctxr_trans. iSplitL "H".
+      { iApply main_adequacy.
+        - apply StackIM.sim.
+        - iExact "H".
       }
-      eapply ctxr_consequence; eauto.
+      rewrite -!assoc. iApply ctxr_trans. iSplitR.
+      { ctxr_rotate. ctxr_swap. do 2 ctxr_rotate. ctxr_swap. ctxr_rotate. ctxr_swap.
+        do 3 ctxr_rotate. ctxr_refl.
+      }
+      ctxr_refl.
     }
 
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { do 3 ctxr_rotate. ctxr_swap. ctxr_refl. }
     rewrite (assoc _ (StackM.t mn)).
 
-    eapply main_adequacy
-      with (Ist := IstProd (IstSB (Mod.scopes (StackA.t) ++ [mn]) IstTrue) IstEq).
+    iApply (main_adequacy _ _ emp%I
+      (IstProd (IstSB (Mod.scopes StackA.t ++ [mn]) IstTrue) IstEq)).
     cStartModSim.
     { cStartFunSim. rewrite /StackM.new_stack /StackA.new_stack. cStepsS; cStepsT.
       aStepS (N n) "[%v ->]".
@@ -96,5 +100,6 @@ Module StackIA. Section StackIA.
       cStep; eauto with iFrame.
     }
     { iIntros "_"; repeat iExists _; repeat iSplit; eauto. }
+    iEmpIntro.
   Qed.
 End StackIA. End StackIA.

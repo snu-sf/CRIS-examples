@@ -12,9 +12,7 @@ Module PFMemIA. Section PFMemIA.
   Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG}.
 
   Lemma ctxr sp :
-    ctx_refines
-      (PFMemI.t PFMemA.syn [], emp%I)
-      (PFMemA.t sp, PFMemA.init_cond).
+    PFMemA.init_cond ⊢ ctx_refines (PFMemI.t PFMemA.syn []) (PFMemA.t sp).
   Proof using.
     eapply main_adequacy with (Ist := PFMemIA.Ist).
     cStartModSim.

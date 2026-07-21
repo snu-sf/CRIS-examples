@@ -387,9 +387,9 @@ Section ctxr.
   Definition ctxr (sp_s sp_user : specmap) :
     (SystemA.sp sp_user ⊤) ⊆ sp_s →
     MPA.sp ⊆ sp_user →
-    ctx_refines
-      ((MPI.t      ★ SystemA.t sp_user ⊤ sp_s ★ PFMemA.t sp_s), True%I)
-      ((MPA.t sp_s ★ SystemA.t sp_user ⊤ sp_s ★ PFMemA.t sp_s), emp%I).
+    ⊢ ctx_refines
+      (MPI.t ★ SystemA.t sp_user ⊤ sp_s ★ PFMemA.t sp_s)
+      (MPA.t sp_s ★ SystemA.t sp_user ⊤ sp_s ★ PFMemA.t sp_s).
   Proof using. intros ??; eapply main_adequacy, sim; eauto. Qed.
 End ctxr.
 End MPIA.

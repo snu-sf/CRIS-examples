@@ -21,20 +21,20 @@ Section MutAll.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
-    refines
-      (mod_src, emp%I)
-      (mod_top, emp ∗ emp ∗ Cancel.init_res)%I.
+    Cancel.init_res ⊢ refines mod_src mod_top.
   Proof.
-    etrans. { eapply ctxr_refines, Cancel.prepare; et; clarify. }
-    eapply Cancel.cancel.
+    iIntros "Hinit".
+    iApply refines_trans. iSplitR "Hinit".
+    { iApply ctxr_refines. iApply Cancel.prepare; et; clarify. }
+    iApply Cancel.cancel.
     { repeat apply SMod.cancellable_add; r; mod_tac ss. }
     { assert (Ht : (SMod.sp_from smod_src).1 !! entry = fsp_none) by mod_tac.
       rewrite Ht; clear Ht.
-      eexists _, _; splits.
-      { ss; exists (tt); split; refl. }
-      { iIntros "[? [? ?]]"; ss. }
-      { unfoldPrePost. iIntros "% % $ //". }
+      ss; exists tt; split; refl.
     }
+    { unfoldPrePost. iIntros "% % $ //". }
+    iDestruct "Hinit" as "(X & Y & Z & $ & $)".
+    unfoldPrePost; done.
   Qed.
 
   Lemma apc_in_sp : APCA.sp ⊆ sp.
@@ -64,45 +64,47 @@ Section MutAll.
   Qed.
   
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, emp%I).
+  Lemma src_tgt : ⊢ refines mod_tgt mod_src.
   Proof.
-    eapply ctxr_refines.
+    iApply ctxr_refines.
     rewrite /mod_src /mod_tgt !SMod.to_mod_add.
 
     (* abstraction of APCI to APCA *)
-    etrans.
-    { do 3 ctxr_drop. eapply APCIA.ctxr. }
+    iApply ctxr_trans. iSplitR.
+    { do 3 ctxr_drop. iApply APCIA.ctxr. }
 
     (* abstraction of MutF *)
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
-      eapply MutFIA.ctxr with (Sp:=sp) (SpPure:=sp_pure).
+      iApply (MutFIA.ctxr (Sp:=sp) (SpPure:=sp_pure)).
       { eapply apc_in_sp. }
       { eapply mutg_in_pure. }
       { eapply pure_in_sp. }
+      iEmpIntro.
     }
 
     (* abstraction of MutG *)
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
-      eapply MutGIA.ctxr with (Sp:=sp) (SpPure:=sp_pure).
+      iApply (MutGIA.ctxr (Sp:=sp) (SpPure:=sp_pure)).
       { eapply apc_in_sp. }
       { eapply mutf_in_pure. }
       { eapply pure_in_sp. }
+      iEmpIntro.
     }
 
     (* abstraction of MutMain *)
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { ctxr_rotate. do 2 ctxr_drop. ctxr_rotate.
-      eapply MutMainIA.ctxr with (Sp:=sp) (SpPure:=sp_pure).
+      iApply (MutMainIA.ctxr (Sp:=sp) (SpPure:=sp_pure)).
       { eapply apc_in_sp. }
       { eapply mutf_in_pure. }
       { eapply pure_in_sp. }
     }
     
     (* abstraction of APCA to APCC *)
-    etrans.
-    { do 2 ctxr_rotate. ctxr_drop. eapply APCAC.ctxr.
+    iApply ctxr_trans. iSplitR.
+    { do 2 ctxr_rotate. ctxr_drop. iApply APCAC.ctxr.
       { eapply apc_in_sp. }
       { eapply pure_in_sp. }
       { i; ss.
@@ -116,29 +118,28 @@ Section MutAll.
     }
 
     (* elimination of pure cCall *)
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { do 2 ctxr_rotate. do 2 ctxr_drop.
-      eapply MutMainIA.ctxr_close with (Sp:=sp) (SpPure:=sp_pure).
+      iApply (MutMainIA.ctxr_close (Sp:=sp) (SpPure:=sp_pure)).
       { eapply apc_in_sp. }
       { eapply mutf_in_pure. }
       { eapply pure_in_sp. }
     }
 
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { do 2 ctxr_rotate. ctxr_swap. ctxr_rotate. ctxr_refl. }
 
     rewrite /MutMainA.t /MutFA.t /MutGA.t /APCC.t.
-    eapply ctxr_consequence. eauto.
+    ctxr_refl.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines
-      (mod_tgt, emp%I)
-      (mod_top, emp ∗ emp ∗ Cancel.init_res)%I.
+    Cancel.init_res ⊢ refines mod_tgt mod_top.
   Proof.
-    etrans.
-    { eapply src_tgt. }
-    { eapply cancel_src. }
+    iIntros "Hinit".
+    iApply refines_trans. iSplitR "Hinit".
+    { iApply src_tgt. }
+    iApply cancel_src. iFrame.
   Qed.
 
   Lemma tgt_wf : Mod.wf mod_tgt.
@@ -174,18 +175,19 @@ Module MutAll.
         (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
-    iMod cris_alloc as "[% [% [% [% ?]]]]".
+    iMod cris_alloc as "(% & % & % & % & [WINV Hinit])".
+    iPoseProof (winv_split_empty with "WINV") as "[WINV WINVempty]".
     iExists _, _, _, _.
-    pose proof top_tgt as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
-    iPoseProof (Own_valid with "R") as "%".
-    rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
-    clear Href; intros [? Href].
-    iPureIntro; hexploit (Href res); eauto.
-    { rewrite Hres; iIntros "[W ($ & $ & $ & $)]".
-      rewrite {1}winv_split_empty comm //.
+    iPoseProof (top_tgt with "[WINV Hinit]") as "REF".
+    { rewrite /Cancel.init_res.
+      iDestruct "Hinit" as "(H0 & H1 & H2 & H3)". iFrame.
     }
-    s; i; des; et.
+    iAssert (⌜∃ src_res, ✓ src_res /\
+      refines_lmod (Mod.to_lmod mod_tgt ε) (Mod.to_lmod mod_top src_res)⌝)%I
+      with "[WINVempty REF]" as "%Href".
+    { iApply refines_adequacy. { eapply tgt_wf. } iFrame. }
+    destruct Href as [src_res [_ Href]].
+    iPureIntro. exists src_res, ε. exact Href.
   (*SLOW*)Qed.
 End MutAll.
 (* Print Assumptions MutAll.behavioral_refinement. *)

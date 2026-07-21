@@ -437,7 +437,7 @@ End MemIA.
 Section MemIA.
   Context `{!crisG Γ Σ α β τ Hsub Hinv, !memGS}.
 
-  Lemma ctxr sp genv : ctx_refines (MemI.t genv, emp%I) (MemA.t sp, MemA.init_cond genv).
+  Lemma ctxr sp genv : MemA.init_cond genv ⊢ ctx_refines (MemI.t genv) (MemA.t sp).
   Proof using.
     eapply main_adequacy, sim; eauto.
   Qed.

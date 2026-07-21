@@ -113,9 +113,9 @@ Module HWQIP. Section HWQIP.
 
   Local Definition IstFull := IstProd (IstSB (Mod.scopes (HWQP.t mn)) IstEq) IstEq.
   Lemma ctxr :
-    ctx_refines
-      (HWQI.t    ★ ProphecyI.t mn, emp)%I
-      (HWQP.t mn ★ ProphecyI.t mn, emp)%I.
+    ⊢ ctx_refines
+        (HWQI.t ★ ProphecyI.t mn)
+        (HWQP.t mn ★ ProphecyI.t mn).
   Proof using.
     apply main_adequacy with (Ist:=IstFull).
     cStartModSim.

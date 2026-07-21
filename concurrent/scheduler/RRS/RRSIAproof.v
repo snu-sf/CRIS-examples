@@ -746,9 +746,10 @@ Section ctxr.
                        (λ x vret ret, 
                           TID (get_stid x) ∗ YIELD (get_stid x) ∗ PYIP x ∗ ⌜vret = ret ∧ vret = tt↑⌝))%I))
     (ConcInSp : sp.2) :
-    ctx_refines
-      (RRSI.t parent_yield,                              emp%I)
-      (RRSA.t parent_yield sp sp_rrs_user get_stid PYIP, RRSA.init_cond).
+    RRSA.init_cond ⊢
+      ctx_refines
+        (RRSI.t parent_yield)
+        (RRSA.t parent_yield sp sp_rrs_user get_stid PYIP).
   Proof using. eapply main_adequacy, sim; eauto. Qed.
 
 End ctxr.

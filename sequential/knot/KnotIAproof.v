@@ -179,8 +179,9 @@ Module KnotIA. Section KnotIA.
   Qed.
 
   Lemma ctxr :
-    ctx_refines
-      (KnotI.t genv ★ MemA ★ APCA.t sp_pure sp,                  emp%I)
-      (KnotA.t genv sp_rec sp_fun sp ★ MemA ★ APCA.t sp_pure sp, KnotA.init_cond genv).
+    KnotA.init_cond genv ⊢
+      ctx_refines
+        (KnotI.t genv ★ MemA ★ APCA.t sp_pure sp)
+        (KnotA.t genv sp_rec sp_fun sp ★ MemA ★ APCA.t sp_pure sp).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End KnotIA. End KnotIA.

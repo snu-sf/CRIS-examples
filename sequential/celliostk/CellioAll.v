@@ -63,22 +63,21 @@ Section CellioAux.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src:
-    refines
-      (mod_src, init_cond)
-      (mod_top, init_cond ∗ Cancel.init_res)%I.
+    Cancel.init_res ⊢ refines mod_src mod_top.
   Proof.
+    iIntros "Hinit".
     rewrite /mod_src /mod_top.
-    etrans.
-    { eapply ctxr_refines. ctxr_drop.
-      eapply SFilter.smod_filter_intro. }
-    etrans.
-    { eapply ctxr_refines. ctxr_rotate. ctxr_drop.
-      eapply Cancel.prepare; et; clarify.
+    iApply refines_trans. iSplitR "Hinit".
+    { iApply ctxr_refines. ctxr_drop.
+      iApply SFilter.smod_filter_intro. }
+    iApply refines_trans. iSplitR "Hinit".
+    { iApply ctxr_refines. ctxr_rotate. ctxr_drop.
+      iApply Cancel.prepare; et; clarify.
     }
 
-    etrans.
-    { eapply ctxr_refines. ctxr_rotate. ctxr_drop.
-      eapply Cancel.prepare with (sps:=sp); et; i; cycle 1.
+    iApply refines_trans. iSplitR "Hinit".
+    { iApply ctxr_refines. ctxr_rotate. ctxr_drop.
+      iApply (Cancel.prepare _ sp _); et; i; cycle 1.
       { eapply SFilter.filter_masked; et. }
 
       ltac2:(renames H into Lfn, Lsp).
@@ -93,8 +92,8 @@ Section CellioAux.
         rewrite lookup_singleton_Some in Lsp1. set_solver.
     }
 
-    rewrite -SMod.to_mod_cancel_add left_id -(left_id _ bi_sep Cancel.init_res).
-    eapply Cancel.cancel.
+    rewrite -SMod.to_mod_cancel_add.
+    iApply Cancel.cancel.
     { apply SMod.cancellable_add.
       - r; rewrite /= /MainA.fnsems //; mod_tac ss.
       - eapply SFilter.filter_cancellable. et.
@@ -103,64 +102,69 @@ Section CellioAux.
       { eapply not_elem_of_dom. ii. eapply ctx_main_disj; eauto.
         rewrite /MainI.t /MainI.smod /SMod.to_mod /= /Mod.fnsems. set_solver.
       }
-      assert (Ht : (SMod.sp_from (MainA.smod ☆ Ctx_filtered)).1 !! entry = fsp_none);
-        last (rewrite Ht; clear Ht).
+      assert (Ht : (SMod.sp_from (MainA.smod ☆ Ctx_filtered)).1 !! entry = fsp_none).
       { rewrite /SMod.sp_from /SMod.sp_core_from.
         rewrite !lookup_omap !lookup_fmap lookup_omap lookup_union_with.
         simpl_map; ss. rewrite !lookup_fmap Ce //.
       }
-      eexists _, _; splits.
-      - ss; exists tt; split; refl.
-      - et.
-      - et.
+      rewrite Ht; clear Ht. ss; exists tt; split; refl.
     }
+    { unfoldPrePost. iIntros (??) "$". }
+    iDestruct "Hinit" as "(X & Y & Z & $ & $)".
+    unfoldPrePost; done.
   (*SLOW*)Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond)%I.
+  Lemma src_tgt : init_cond ⊢ refines mod_tgt mod_src.
   Proof.
-    eapply ctxr_refines.
+    iIntros "Hinit".
+    iApply ctxr_refines.
     rewrite /init_cond /mod_src /mod_tgt.
 
-    etrans.
+    iApply ctxr_trans. iSplitL "Hinit".
     { (* MemI ⊆ctx MemA *)
       do 2 ctxr_drop. ctxr_rotate. ctxr_drop.
-      eapply main_adequacy, MemIA.sim with (sp:=sp).
+      iApply main_adequacy.
+      { apply MemIA.sim with (sp:=sp). }
+      iFrame.
     }
 
     (* solve by transitivity:
       MainI ★ CellioI ⊆ MainI ★ CellioA ⊆ MainA ★ CellioA 
     *)
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { (* CellioI ★ MemA ⊆ctx CellioA ★ MemA *)
       ctxr_drop. ctxr_rotate. ctxr_drop. ctxr_rotate.
-      eapply main_adequacy, CellioIA.sim.
+      iApply main_adequacy.
+      { apply CellioIA.sim. }
+      iEmpIntro.
     }
 
     rewrite /CellioIAproof.CellioIA.CellioAMod.
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { (* MainI ★ CellioA ⊆ MainA *)
       ctxr_rotate. ctxr_drop. ctxr_rotate. ctxr_drop.
-      eapply main_adequacy, MainIA.sim; eauto using sp_foo, sp_cb.
+      iApply main_adequacy.
+      { apply MainIA.sim; eauto using sp_foo, sp_cb. }
+      iEmpIntro.
     }
 
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { (* drop & rotate *)
-      do 2 ctxr_rotate. do 2 ctxr_drop. eapply elim_module.
+      do 2 ctxr_rotate. do 2 ctxr_drop. iApply elim_module.
     }
 
     rewrite right_id.
-    eapply ctxr_consequence. et.
+    ctxr_refl.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines
-      (mod_tgt, emp%I)
-      (mod_top, init_cond ∗ Cancel.init_res)%I.
+    init_cond ∗ Cancel.init_res ⊢ refines mod_tgt mod_top.
   Proof.
-    etrans.
-    { eapply src_tgt. }
-    { eapply cancel_src. }
+    iIntros "[Hinit Hcancel]".
+    iApply refines_trans. iSplitL "Hinit".
+    { iApply src_tgt. iFrame. }
+    iApply cancel_src. iFrame.
   Qed.
 
   Lemma tgt_wf: Mod.wf mod_tgt.
@@ -210,20 +214,27 @@ Module CellioAll.
       (Mod.to_lmod (mod_top Ctx) src_res).
   Proof.
     apply own_admin_soundness.
-    iMod cris_alloc as "[% [% [% [% ?]]]]".
-    iMod mem_alloc as "[% ?]".
+    iMod cris_alloc as "(% & % & % & % & [WINV Hinit])".
+    iPoseProof (winv_split_empty with "WINV") as "[WINV WINVempty]".
+    iMod mem_alloc as "(% & HMem)".
     iExists _, _, _, _, _.
-    pose proof top_tgt as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
-    iPoseProof (Own_valid with "R") as "%".
-    iPureIntro. i.
-    rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
-    clear Href; intros [? Href].
-    hexploit (Href res); eauto.
-    { rewrite Hres. iIntros "((W & $ & $ & $ & $) & [$ _])".
-      rewrite {1}winv_split_empty comm //.
+    iModIntro.
+    iIntros (Ctx ctx_real ctx_mod_wf ctx_cancellable ctx_has_foo
+      ctx_main_disj ctx_cellio_disj ctx_mem_disj ctx_main_scope_disj
+      ctx_cellio_scope_disj ctx_mem_scope_disj).
+    iPoseProof (top_tgt Ctx with "[WINV Hinit HMem]") as "REF".
+    all: try eassumption.
+    { iDestruct "HMem" as "[HMem _]".
+      rewrite /init_cond /Cancel.init_res /MemA.init_cond.
+      iDestruct "Hinit" as "(H0 & H1 & H2 & H3)". iFrame.
     }
-    s; i; des; et.
+    iAssert (⌜∃ src_res, ✓ src_res /\ refines_lmod
+      (Mod.to_lmod (mod_tgt Ctx) ε)
+      (Mod.to_lmod (mod_top Ctx) src_res)⌝)%I
+      with "[WINVempty REF]" as "%Href".
+    { iApply refines_adequacy. { eapply tgt_wf; eassumption. } iFrame. }
+    destruct Href as [src_res [_ Href]].
+    iPureIntro. exists src_res, ε. exact Href.
   (*SLOW*)Qed.
 End CellioAll.
 

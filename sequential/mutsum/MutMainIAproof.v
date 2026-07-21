@@ -69,15 +69,15 @@ Module MutMainIA. Section MutMainIA.
   Qed.
 
   Theorem ctxr:
-    ctx_refines
-      (MutMainI.t ★ APCA.t SpPure Sp, emp%I)
-      (MutMainA.t true Sp ★ APCA.t SpPure Sp, emp%I).
+    ⊢ ctx_refines
+        (MutMainI.t ★ APCA.t SpPure Sp)
+        (MutMainA.t true Sp ★ APCA.t SpPure Sp).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 
   Theorem ctxr_close:
-    ctx_refines
-      (MutMainA.t true  Sp ★ APCC.t Sp, emp%I)
-      (MutMainA.t false Sp ★ APCC.t Sp, emp%I).
+    ⊢ ctx_refines
+        (MutMainA.t true Sp ★ APCC.t Sp)
+        (MutMainA.t false Sp ★ APCC.t Sp).
   Proof using APCInSp FInPure PureInSp.
     eapply main_adequacy
       with (Ist := IstProd (IstSB MutMainA.scopes IstEq) IstEq).

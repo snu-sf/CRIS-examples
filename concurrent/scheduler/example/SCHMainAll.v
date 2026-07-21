@@ -68,20 +68,18 @@ Section SCHMainAux.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
-    refines
-      (mod_src, init_cond)      
-      (mod_top, init_cond ∗ SCHMainA.init_cond ∗ Cancel.init_res)%I.
+    SCHMainA.init_cond ∗ Cancel.init_res ⊢ refines mod_src mod_top.
   Proof.
-    etrans. { eapply ctxr_refines, Cancel.prepare; et; clarify. }
-    eapply Cancel.cancel.
+    iIntros "[H1 H2]".
+    iApply refines_trans. iSplitR.
+    { iApply ctxr_refines. iApply Cancel.prepare; et; clarify. }
+    iApply Cancel.cancel.
     { do 5 (eapply SMod.cancellable_add; r; [ctac|]). ctac. }
-    { assert (Ht : (SMod.sp_from smod_src).1 !! entry =
-                     fsp_some (SCHMainA.main_spec ⊤)) by mod_tac.
-      rewrite Ht; clear Ht.
-      exists (precond (SCHMainA.main_spec ⊤) tt), (postcond (SCHMainA.main_spec ⊤) tt); splits.
-      { ss. exists (). esplits; refl. }
-      { iIntros "[[$ [$ [$ $]]] [$ [$ $]]]". eauto. }
-      { i. iIntros "(W & % & _)". eauto. }
+    { ss. exists (). esplits; refl. }
+    { i. iIntros "(W & % & _)". eauto. }
+    { iDestruct "H2" as "(TID & YIELD & WINV & $ & $)".
+      iDestruct "H1" as "(HINITRRS & HNODE & HINITNDS & HTIDFRAG)".
+      unfoldPrePost. rewrite /SchA.Tid. iFrame; eauto.
     }
   (*SLOW*)Qed.
 
@@ -150,13 +148,14 @@ Section SCHMainAux.
   End SP.
 
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond).
+  Lemma src_tgt : init_cond ⊢ refines mod_tgt mod_src.
   Proof.
-    eapply ctxr_refines.
+    iIntros "(HSCH & HRRS & HNDS & HHYB & HMEM)".
+    iApply ctxr_refines.
     rewrite /mod_src /mod_tgt /smod_src.
 
-    etrans.
-    { ctxr_rotate. do 7 ctxr_drop. eapply SCHMainIAproof.ctxr.
+    iApply ctxr_trans. iSplitR.
+    { ctxr_rotate. do 7 ctxr_drop. iApply SCHMainIAproof.ctxr.
       { eapply spsch_in_sp. }
       { eapply sch_in_sp. }
       { eapply rrs_in_spsch. }
@@ -165,78 +164,82 @@ Section SCHMainAux.
       { eapply ndsnode_in_sprrs. }
     }
 
-    etrans.
-    { ctxr_rotate. do 7 ctxr_drop. eapply SchIA.ctxr.
+    iApply ctxr_trans. iSplitL "HSCH".
+    { ctxr_rotate. do 7 ctxr_drop. iApply SchIA.ctxr.
       { eapply sch_in_sp. }
       { eapply spsch_in_sp. }
       { et. }
+      { iExact "HSCH". }
     }
 
-    etrans.
-    { ctxr_rotate. do 7 ctxr_drop. eapply RRSIA.ctxr.
+    iApply ctxr_trans. iSplitL "HRRS".
+    { ctxr_rotate. do 7 ctxr_drop. iApply RRSIA.ctxr.
       { eapply yield_in_sp. }
       { etrans; [eapply rrs_in_spsch| eapply spsch_in_sp]. }
       { eapply sprrs_in_sp. }
       { eapply yield_spec_cond. }
       { et. }
+      { iExact "HRRS". }
     }
 
-    etrans.
-    { ctxr_rotate. do 7 ctxr_drop. eapply NDSIA.ctxr.
+    iApply ctxr_trans. iSplitL "HNDS".
+    { ctxr_rotate. do 7 ctxr_drop. iApply NDSIA.ctxr.
       { eapply yield_in_sp. }
       { etrans; [eapply nds_in_spsch| eapply spsch_in_sp]. }
       { eapply spnds_in_sp. }
       { eapply yield_spec_cond. }
       { et. }
+      { iExact "HNDS". }
     }
 
-    etrans.
-    { do 3 ctxr_rotate. do 7 ctxr_drop. eapply MemIA.ctxr. }
+    iApply ctxr_trans. iSplitL "HMEM".
+    { do 3 ctxr_rotate. do 7 ctxr_drop. iApply MemIA.ctxr. iExact "HMEM". }
 
-    etrans.
-    { ctxr_rotate. do 7 ctxr_drop. eapply MemDH.ctxr. }
+    iApply ctxr_trans. iSplitL "HHYB".
+    { ctxr_rotate. do 7 ctxr_drop. iApply MemDH.ctxr. iExact "HHYB". }
     
-    etrans.
-    { do 2 ctxr_drop. do 3 (ctxr_rotate; ctxr_drop). ctxr_rotate. eapply RRSNodeIAproof.ctxr; cycle 1.
+    iApply ctxr_trans. iSplitR.
+    { do 2 ctxr_drop. do 3 (ctxr_rotate; ctxr_drop). ctxr_rotate. iApply RRSNodeIAproof.ctxr.
+      { eapply sprrs_in_sp. }
       { etrans; [eapply rrs_in_spsch|eapply spsch_in_sp]. }
       { eapply rrsnode_in_sprrs. }
-      { eapply sprrs_in_sp. }
+      { done. }
     }
 
-    etrans.
-    { do 3 ctxr_drop. do 2 ctxr_rotate. do 3 ctxr_drop. eapply NDSNodeIAproof.ctxr; cycle 1.
+    iApply ctxr_trans. iSplitR.
+    { do 3 ctxr_drop. do 2 ctxr_rotate. do 3 ctxr_drop. iApply NDSNodeIAproof.ctxr.
+      { eapply spnds_in_sp. }
       { etrans; [eapply nds_in_spsch|eapply spsch_in_sp]. }
       { eapply ndsnode_in_sprrs. }
-      { eapply spnds_in_sp. }
+      { done. }
     }
 
-    etrans.
-    { do 4 ctxr_drop. ctxr_rotate. do 3 ctxr_drop. eapply elim_module. }
+    iApply ctxr_trans. iSplitR.
+    { do 4 ctxr_drop. ctxr_rotate. do 3 ctxr_drop. iApply elim_module. }
+    rewrite !mod_add_empty_r.
 
-    etrans.
-    { do 6 ctxr_drop. ctxr_rotate. ctxr_drop. eapply elim_module. }
+    iApply ctxr_trans. iSplitR.
+    { do 6 ctxr_drop. iApply elim_module. }
 
     rewrite !mod_add_empty_r.
 
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { do 2 ctxr_drop. do 2 ctxr_rotate. ctxr_drop. ctxr_rotate. ctxr_refl. }
 
-    rewrite /init_cond.
-    rewrite !SMod.to_mod_add /init_cond.
+    rewrite !SMod.to_mod_add.
     rewrite /SCHMainA.t /SchA.t /RRSA.t /NDSA.t /RRSNodeA.t /NDSNodeA.t.
 
-    eapply ctxr_consequence.
-    iIntros "(? & ? & ? & ? & ?)". iFrame.
+    iApply ctxr_refl.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines
-      (mod_tgt, emp%I)
-      (mod_top, init_cond ∗ SCHMainA.init_cond ∗ Cancel.init_res)%I.
+    init_cond ∗ SCHMainA.init_cond ∗ Cancel.init_res ⊢
+      refines mod_tgt mod_top.
   Proof.
-    etrans.
-    { eapply src_tgt. }
-    { eapply cancel_src. }
+    iIntros "(H1 & H2 & H3)".
+    iApply refines_trans. iSplitL "H1".
+    - iApply src_tgt; iFrame.
+    - iApply cancel_src; iFrame.
   Qed.
 
   Local Ltac ttac := econs; eauto; [mod_tac|prove_nodup].
@@ -273,23 +276,29 @@ Module SCHMainAll.
       (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
-    iMod cris_alloc as "[% [% [% [% ?]]]]".
-    iMod sch_alloc as "[% ?]".
-    iMod rrs_alloc as "[% [? ?]]".
-    iMod nds_alloc as "[% [? ?]]".
-    iMod MemLib.mem_alloc as "[% ?]".
-    iMod (mem_alloc genv) as "[% ?]".
-    iMod rrsnode_alloc as "[% ?]".
+    iMod cris_alloc as "(% & % & % & % & [WINV HCONC])".
+    iPoseProof (winv_split_empty with "WINV") as "[WINV WINV∅]".
+    iMod sch_alloc as "(% & HSCH & HTIDFRAG)".
+    iMod rrs_alloc as "(% & HRRS & HINITRRS)".
+    iMod nds_alloc as "(% & HNDS & HINITNDS)".
+    iMod MemLib.mem_alloc as "(% & HMEMLIB)".
+    iMod (mem_alloc genv) as "(% & HMEM)".
+    iMod rrsnode_alloc as "(% & HNODE)".
     do 10 iExists _.
-    pose proof (top_tgt genv) as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
-    iPoseProof (Own_valid with "R") as "%".
-    rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
-    clear Href; intros [? Href].
-    iPureIntro; hexploit (Href res); eauto.
-    { rewrite Hres /=. iIntros "[[W [$ [$ [$ $]]]] [[$ $] [$ [$ [$ [$ [[$ _] [[$ _] $]]]]]]]]".
-      rewrite {1}winv_split_empty comm //. }
-    s; i; des; et.
+    iPoseProof (top_tgt genv with "[-WINV∅]") as "REF".
+    { iDestruct "HMEMLIB" as "[HHYB _]".
+      iDestruct "HMEM" as "[HMEM _]".
+      rewrite /init_cond /SCHMainA.init_cond /Cancel.init_res
+        /HybMem.init_cond /MemA.init_cond.
+      iFrame.
+    }
+    iAssert (⌜∃ src_res, ✓ src_res /\ refines_lmod
+      (Mod.to_lmod (mod_tgt genv) ε)
+      (Mod.to_lmod mod_top src_res)⌝)%I
+      with "[WINV∅ REF]" as "%Href".
+    { iApply refines_adequacy. { eapply tgt_wf. } iFrame. }
+    destruct Href as [src_res [_ Href]].
+    iPureIntro. exists src_res, ε. exact Href.
   (*SLOW*)Qed.
 End SCHMainAll.
 (* Print Assumptions SCHMainAll.behavioral_refinement. *)

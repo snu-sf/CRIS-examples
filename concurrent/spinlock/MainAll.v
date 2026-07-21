@@ -51,89 +51,89 @@ Section MainAux.
 
   (* Refinement between smod_cancel and smod_src *)
   Lemma cancel_src :
-    refines
-      (mod_src, init_cond)
-      (mod_top, init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res)%I.
+    TidFrag 0 0 ∗ Cancel.init_res ⊢ refines mod_src mod_top.
   Proof.
-    etrans. { eapply ctxr_refines, Cancel.prepare; et; clarify. }
-    eapply Cancel.cancel.
+    iIntros "[H1 H2]".
+    iApply refines_trans. iSplitR.
+    { iApply ctxr_refines. iApply Cancel.prepare; et; clarify. }
+    iApply Cancel.cancel.
     { apply SMod.cancellable_add; r; rewrite /= /MainA.fnsems /SchA.fnsems; mod_tac ss. }
-    { assert (Ht : (SMod.sp_from smod_src).1 !! entry =
-                     fsp_some (fspec_sch (↑nroot) fspec_trivial)) by mod_tac.
-      rewrite Ht; clear Ht.
-      eexists _, _; splits.
-      { ss; exists (0, 0, tt); split; refl. }
-      { rewrite !nclose_nroot. iIntros "[$ [$ [$ $]]]"; ss. }
-      { unfoldPrePost. iIntros "% % [_ [_ $]]". }
+    { ss; exists (0, 0, tt); split; refl. }
+    { unfoldPrePost. iIntros "% % [_ [_ $]]". }
+    { iDestruct "H2" as "(TID & YIELD & WINV & $ & $)".
+      unfoldPrePost. rewrite /SchA.Tid !nclose_nroot. iFrame; eauto.
     }
   Qed.
 
   (* Refinement between smod_src and mod_tgt *)
-  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond).
+  Lemma src_tgt : init_cond ⊢ refines mod_tgt mod_src.
   Proof.
-    apply ctxr_refines.
-    rewrite /mod_src /smod_src /mod_tgt /init_cond.
+    iIntros "[HMEM HSCH]".
+    iApply ctxr_refines.
+    rewrite /mod_src /smod_src /mod_tgt.
 
     (* abstraction of Sch *)
-    etrans.
+    iApply ctxr_trans. iSplitL "HSCH".
     { do 3 ctxr_drop.
-      eapply SchIA.ctxr.
+      iApply SchIA.ctxr.
       - apply SchInSp.
       - apply UserInSp.
       - et.
+      - iExact "HSCH".
     }
 
     (* abstraction of Mem *)
-    etrans.
+    iApply ctxr_trans. iSplitL "HMEM".
     { do 3 ctxr_rotate. do 3 ctxr_drop.
-      eapply MemIA.ctxr.
+      iApply MemIA.ctxr.
+      iExact "HMEM".
     }
 
     (* abstraction of SpinLock *)
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { do 2 ctxr_drop.
-      eapply LockIA.ctxr; cycle 1.
+      iApply LockIA.ctxr; cycle 1.
       - apply SchInSp.
       - set_solver.
     }
 
     (* abstraction of SpinLockMain *)
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { ctxr_drop.
       rewrite -nclose_nroot.
-      eapply MainIA.ctxr; rewrite ?nclose_nroot.
+      iApply MainIA.ctxr; rewrite ?nclose_nroot.
       - apply SchInSp.
       - apply SchInSp.
       - apply MainInSp.
     }
 
     (* elimination of Mem *)
-    etrans.
-    { do 3 ctxr_drop. eapply elim_module. }
+    iApply ctxr_trans. iSplitR.
+    { do 3 ctxr_drop. iApply elim_module. }
     rewrite right_id.
 
     (* elimination of SpinLock *)
-    etrans.
-    { do 2 ctxr_drop. eapply elim_module. }
+    iApply ctxr_trans. iSplitR.
+    { do 2 ctxr_drop. iApply elim_module. }
     rewrite right_id.
 
-    etrans.
-    { ctxr_rotate. refl. }
+    iApply ctxr_trans. iSplitR.
+    { ctxr_rotate. ctxr_refl. }
 
     rewrite /MainA.t /SchA.t. unseal CRIS.
     rewrite SMod.to_mod_add.
-    eapply ctxr_consequence; et.
+    iApply ctxr_refl.
   (*SLOW*)Qed.
 
   (* source Mod ⊆ source SMod ⊆ cancelled Mod *)
   Lemma cancel_tgt :
-    refines
-      (mod_tgt, emp%I)
-      (mod_top, init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res)%I.
+    init_cond ∗ TidFrag 0 0 ∗ Cancel.init_res ⊢
+      refines mod_tgt mod_top.
   Proof.
-    etrans.
-    { eapply src_tgt. }
-    { eapply cancel_src. }
+    iIntros "(H1 & H2 & H3)".
+    iApply refines_trans. iSplitL "H1".
+    - iApply src_tgt; iFrame.
+    - iApply cancel_src; iFrame.
   Qed.
 
   Lemma tgt_wf : Mod.wf mod_tgt.
@@ -175,20 +175,22 @@ Module MainAll.
         (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
-    iMod cris_alloc as "[% [% [% [% ?]]]]".
-    iMod sch_alloc as "[% ?]".
-    iMod (mem_alloc genv) as "[% ?]".
+    iMod cris_alloc as "(% & % & % & % & [WINV HCONC])".
+    iPoseProof (winv_split_empty with "WINV") as "[WINV WINV∅]".
+    iMod sch_alloc as "(% & HSCH & HTIDFRAG)".
+    iMod (mem_alloc genv) as "(% & HMEM)".
     iExists _, _, _, _, _, _.
-    pose proof (cancel_tgt genv) as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
-    iPoseProof (Own_valid with "R") as "%".
-    rewrite /refines in Href; hexploit Href.
-    { exact (tgt_wf genv). }
-    clear Href; intros [? Href].
-    iPureIntro; hexploit (Href res); eauto.
-    { rewrite Hres. iIntros "[[W [$ [$ [$ $]]]] [[$ $] [$ _]]]".
-      rewrite {1}winv_split_empty comm //.
+    iPoseProof (cancel_tgt genv with "[-WINV∅]") as "REF".
+    { iDestruct "HMEM" as "[HMEM _]".
+      rewrite /init_cond /Cancel.init_res /MemA.init_cond.
+      iFrame.
     }
-    s; i; des; et.
+    iAssert (⌜∃ src_res, ✓ src_res /\ refines_lmod
+      (Mod.to_lmod (mod_tgt genv) ε)
+      (Mod.to_lmod mod_top src_res)⌝)%I
+      with "[WINV∅ REF]" as "%Href".
+    { iApply refines_adequacy. { eapply tgt_wf. } iFrame. }
+    destruct Href as [src_res [_ Href]].
+    iPureIntro. exists src_res, ε. exact Href.
   (*SLOW*)Qed.
 End MainAll.

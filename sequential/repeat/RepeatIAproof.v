@@ -126,8 +126,8 @@ Section ctxr.
         (SpPureInSp : sp_pure ⊆ sp)
         (SpPureFunInSpPure : sp_pure_fun ⊆ sp_pure)
         (repeatInSpPure: sp_pure.1 !! (fid RepeatHdr.repeat) = Some (fspec_to_rel (RepeatAS.repeat_spec sp_pure_fun ge))) :
-    ctx_refines
-      ((RepeatI.t ge)                ★ (APCA.t sp_pure sp), emp%I)
-      ((RepeatA.t ge sp sp_pure_fun) ★ (APCA.t sp_pure sp), emp%I).
+    ⊢ ctx_refines
+        ((RepeatI.t ge) ★ APCA.t sp_pure sp)
+        ((RepeatA.t ge sp sp_pure_fun) ★ APCA.t sp_pure sp).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End RepeatIA.

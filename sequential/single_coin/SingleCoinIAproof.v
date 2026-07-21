@@ -11,20 +11,25 @@ Module SingleCoinIA. Section SingleCoinIA.
 
   Lemma ctxr (md : Mod.t) :
     real_mod md →
-    refines
-      (CoinI ★ md, emp%I)
-      (CoinA ★ md, ProphecyA.initial_cond ∗ SingleCoinA.init_cond)%I.
+    ProphecyA.initial_cond ∗ SingleCoinA.init_cond ⊢
+      refines (CoinI ★ md) (CoinA ★ md).
   Proof.
     intros Hreal.
-    etrans.
-    { eapply prophecy_main with (Pm:=emp%I); eauto.
-      { intros mn; eapply main_adequacy, SingleCoinIP.sim. }
-      { intros mn; eapply main_adequacy, SingleCoinPA.sim. }
-      { intros mn. rewrite /real_mod.
-        mod_tac (s; esplits; ii; edestruct excluded_middle_informative; ss).
-      }
+    iIntros "[HP HC]".
+    iApply (prophecy_main CoinA CoinI md SingleCoinP.t).
+    { intros mn. rewrite /real_mod.
+      mod_tac (s; esplits; ii; edestruct excluded_middle_informative; ss).
     }
-    eapply ctxr_refines, ctxr_consequence; iIntros "[$ $] //".
-  Unshelve. all: apply True.
+    { exact Hreal. }
+    iSplitR "HP HC".
+    { iIntros (mn). iApply main_adequacy.
+      { eapply SingleCoinIP.sim. }
+      iEmpIntro.
+    }
+    iFrame "HP".
+    iIntros (mn). iApply main_adequacy.
+    { eapply SingleCoinPA.sim. }
+    iFrame.
+    Unshelve. all: apply True.
   Qed.
 End SingleCoinIA. End SingleCoinIA.

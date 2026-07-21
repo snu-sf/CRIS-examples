@@ -1331,8 +1331,6 @@ Module MemDH. Section MemDH.
   (*SLOW*)Qed.
 
   Lemma ctxr :
-    ctx_refines
-      (DetMem, emp%I)
-      (HybMem, HybMem.init_cond).
+    HybMem.init_cond ⊢ ctx_refines DetMem HybMem.
   Proof using. eapply main_adequacy, sim; eauto. Qed.
 End MemDH. End MemDH.

@@ -163,8 +163,6 @@ Module MapMA. Section MapMA.
   Qed.
 
   Lemma ctxr :
-    ctx_refines
-      (MapM.t sp_t, emp%I)
-      (MapA.t sp_s, MapA.init_cond).
+    MapA.init_cond ⊢ ctx_refines (MapM.t sp_t) (MapA.t sp_s).
   Proof. eapply main_adequacy, MapMA.sim; eauto. Qed.
 End MapMA. End MapMA.

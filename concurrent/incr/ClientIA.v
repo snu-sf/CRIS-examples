@@ -163,9 +163,9 @@ Section ctxr.
   Definition ctxr (N : namespace) (sp_user sp : specmap) :
     ClientA.sp N ⊆ sp_user →
     (SchA.sp sp_user (↑N)) ⊆ sp →
-    ctx_refines
-      (ClientI.t      ★ IncrA.t ★ MemA.t sp, emp%I)
-      (ClientA.t N sp ★ IncrA.t ★ MemA.t sp, emp%I).
+    ⊢ ctx_refines
+        (ClientI.t ★ IncrA.t ★ MemA.t sp)
+        (ClientA.t N sp ★ IncrA.t ★ MemA.t sp).
   Proof using.
     i; eapply main_adequacy, sim; eauto.
   Qed.

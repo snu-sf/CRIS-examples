@@ -375,8 +375,8 @@ Section ctxr.
   Context `{!crisG Γ Σ α β τ _S _I, !memGS, !stackGS, !queueG}.
 
   Lemma ctxr (sp : specmap) :
-    ctx_refines
-      (PQueueI.t ★ StackA.t ★ SchI.t ★ MemA.t sp, emp%I)
-      (PQueueA.t ★ StackA.t ★ SchI.t ★ MemA.t sp, emp%I).
-  Proof. intros Hsp. eapply main_adequacy, sim; eauto. Qed.
+    ⊢ ctx_refines
+        (PQueueI.t ★ StackA.t ★ SchI.t ★ MemA.t sp)
+        (PQueueA.t ★ StackA.t ★ SchI.t ★ MemA.t sp).
+  Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr. End PQueueIA.

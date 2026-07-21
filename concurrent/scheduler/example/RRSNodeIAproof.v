@@ -266,9 +266,10 @@ Section ctxr.
     (Hschrrs: sp_user ⊆ sp)
     (Hrrs: (RRSAS.sp sp_user ⊤ get_stid PYIP) ⊆ sp)
     (Hnode: (RRSNodeAS.sp ⊤) ⊆ sp_user) :
-    ctx_refines
-      ((RRSNodeI.t    ★ (MemA.t sp) ★ (RRSA.t SchHdr.yield.1 sp sp_user get_stid PYIP)), emp%I)
-      ((RRSNodeA.t sp ★ (MemA.t sp) ★ (RRSA.t SchHdr.yield.1 sp sp_user get_stid PYIP)), RRSNodeA.init_cond).
+    RRSNodeA.init_cond ⊢
+      ctx_refines
+        (RRSNodeI.t ★ MemA.t sp ★ RRSA.t SchHdr.yield.1 sp sp_user get_stid PYIP)
+        (RRSNodeA.t sp ★ MemA.t sp ★ RRSA.t SchHdr.yield.1 sp sp_user get_stid PYIP).
   Proof using. eapply main_adequacy, (RRSNodeIA.sim sp sp_user); eauto. Qed.
 
 End ctxr.

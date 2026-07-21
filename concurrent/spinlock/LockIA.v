@@ -159,8 +159,8 @@ Module LockIA. Section LockIA.
 
   (* ctxr works as a unit in compositions of module simulations *)
   Lemma ctxr :
-    ctx_refines
-      (SpinLockI.t  ★ MemA.t sp, emp%I)
-      (LockA.t E sp ★ MemA.t sp, emp%I).
+    ⊢ ctx_refines
+        (SpinLockI.t ★ MemA.t sp)
+        (LockA.t E sp ★ MemA.t sp).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End LockIA. End LockIA.

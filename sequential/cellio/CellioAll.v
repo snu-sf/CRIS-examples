@@ -71,23 +71,23 @@ Section CellioAux.
   
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src:
-    refines
-      (mod_src, init_cond)
-      (mod_top, init_cond ∗ CellioA.cell 0 ∗ Cancel.init_res)%I.
+    CellioA.cell 0 ∗ Cancel.init_res ⊢
+      refines mod_src mod_top.
   Proof.
-    etrans.
-    { eapply ctxr_refines. ctxr_drop.
-      eapply SFilter.smod_filter_intro. }
-    etrans.
-    { eapply ctxr_refines. ctxr_drop.
-      eapply CFilter.smod_filter_intro with (bl:={[MainAS.main]}). }
-    etrans.
-    { eapply ctxr_refines. ctxr_rotate. ctxr_drop.
-      eapply Cancel.prepare; et; clarify.
+    iIntros "[Hcell Hinit]".
+    iApply refines_trans. iSplitR "Hcell Hinit".
+    { iApply ctxr_refines. ctxr_drop.
+      iApply SFilter.smod_filter_intro. }
+    iApply refines_trans. iSplitR "Hcell Hinit".
+    { iApply ctxr_refines. ctxr_drop.
+      iApply (CFilter.smod_filter_intro {[MainAS.main]}). }
+    iApply refines_trans. iSplitR "Hcell Hinit".
+    { iApply ctxr_refines. ctxr_rotate. ctxr_drop.
+      iApply Cancel.prepare; et; clarify.
     }
-    etrans.
-    { eapply ctxr_refines. ctxr_rotate. ctxr_drop.
-      eapply Cancel.prepare with (sps := sp); et; i; cycle 1.
+    iApply refines_trans. iSplitR "Hcell Hinit".
+    { iApply ctxr_refines. ctxr_rotate. ctxr_drop.
+      iApply (Cancel.prepare _ sp _); et; i; cycle 1.
       { rewrite SFilter.cfilter_comm in H0.
         eapply SFilter.filter_masked; et.
       }
@@ -106,8 +106,8 @@ Section CellioAux.
         rewrite lookup_singleton_Some in Lsp1. set_solver.
     }
 
-    rewrite -SMod.to_mod_cancel_add left_id.
-    eapply Cancel.cancel.
+    rewrite -SMod.to_mod_cancel_add.
+    iApply Cancel.cancel.
     { apply SMod.cancellable_add.
       - r; rewrite /= /MainA.fnsems //; mod_tac ss.
       - eapply CFilter.filter_cancellable, SFilter.filter_cancellable. et.
@@ -117,56 +117,59 @@ Section CellioAux.
         rewrite /MainI.t /MainI.smod /SMod.to_mod /= /Mod.fnsems. set_solver.
       }
       assert (Ht : (SMod.sp_from (MainA.smod ☆ Ctx_filtered)).1 !! entry =
-        fsp_some MainAS.main_spec); last (rewrite Ht; clear Ht).
+        fsp_some MainAS.main_spec).
       { rewrite /SMod.sp_from /SMod.sp_core_from.
         rewrite !lookup_omap !lookup_fmap lookup_omap lookup_union_with.
         simpl_map; ss. rewrite !lookup_fmap Ce //.
       }
-      eexists _, _; splits.
-      { ss; exists tt; split; refl. }
-      { iIntros "($ & _ & [_ _])"; eauto. }
-      { unfoldPrePost. iIntros (??) "[$ _]". }
+      rewrite Ht; clear Ht. ss; exists tt; split; refl.
     }
+    { unfoldPrePost. iIntros (??) "[$ _]". }
+    iDestruct "Hinit" as "(X & Y & Z & $ & $)".
+    unfoldPrePost. iSplit; et.
   (*SLOW*)Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond)%I.
+  Lemma src_tgt : init_cond ⊢ refines mod_tgt mod_src.
   Proof.
-    eapply ctxr_refines.
+    iIntros "Hinit".
+    iApply ctxr_refines.
     rewrite /init_cond /mod_src /mod_tgt.
     
     (* solve by transitivity:
       MainI ★ CellioI ⊆ MainI ★ CellioA ⊆ MainA ★ CellioA 
     *)
-    etrans.
+    iApply ctxr_trans. iSplitL "Hinit".
     { (* CellioI ⊆ctx CellioA *)
       ctxr_drop. ctxr_rotate. ctxr_drop.
-      eapply main_adequacy, CellioIA.sim.
+      iApply main_adequacy.
+      { apply CellioIA.sim. }
+      iFrame.
     }
 
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { (* MainI ★ CellioA ⊆ MainA *)
       ctxr_rotate. ctxr_drop. ctxr_rotate.
-      eapply main_adequacy, MainIA.sim; eauto using sp_input, sp_foo, sp_main.
+      iApply main_adequacy.
+      { apply MainIA.sim; eauto using sp_input, sp_foo, sp_main. }
+      iEmpIntro.
     }
 
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { (* reorder *)
-      ctxr_rotate. ctxr_drop. refl.
+      ctxr_rotate. ctxr_drop. ctxr_refl.
     }
-    
-    eapply ctxr_consequence.
-    iIntros "$".
+    ctxr_refl.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines
-      (mod_tgt, emp%I)
-      (mod_top, init_cond ∗ CellioA.cell 0 ∗ Cancel.init_res)%I.
+    init_cond ∗ CellioA.cell 0 ∗ Cancel.init_res ⊢
+      refines mod_tgt mod_top.
   Proof.
-    etrans.
-    { eapply src_tgt. }
-    { eapply cancel_src. }
+    iIntros "(Hinit & Hcell & Hcancel)".
+    iApply refines_trans. iSplitL "Hinit".
+    { iApply src_tgt. iFrame. }
+    iApply cancel_src. iFrame.
   Qed.
 
   Lemma tgt_wf: Mod.wf mod_tgt.
@@ -213,20 +216,25 @@ Module CellioAll.
       (Mod.to_lmod (mod_top Ctx) src_res).
   Proof.
     apply own_admin_soundness.
-    iMod cris_alloc as "[% [% [% [% ?]]]]".
-    iMod cellio_alloc as "[% ?]".
+    iMod cris_alloc as "(% & % & % & % & [WINV Hinit])".
+    iPoseProof (winv_split_empty with "WINV") as "[WINV WINVempty]".
+    iMod cellio_alloc as "(% & Hauth & Hcell)".
     iExists _, _, _, _, _.
-    pose proof top_tgt as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
-    iPoseProof (Own_valid with "R") as "%".
-    iPureIntro. i.
-    rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
-    clear Href; intros [? Href].
-    hexploit (Href res); eauto.
-    { rewrite Hres. iIntros "((W & $ & $ & $ & $) & $ & $)".
-      rewrite {1}winv_split_empty comm //.
+    iModIntro.
+    iIntros (Ctx ctx_real ctx_mod_wf ctx_cancellable ctx_has_input ctx_has_foo
+      ctx_main_disj ctx_cellio_disj ctx_main_scope_disj ctx_cellio_scope_disj).
+    iPoseProof (top_tgt Ctx with "[WINV Hinit Hauth Hcell]") as "REF".
+    all: try eassumption.
+    { rewrite /init_cond /Cancel.init_res.
+      iDestruct "Hinit" as "(H0 & H1 & H2 & H3)". iFrame.
     }
-    s; i; des; et.
+    iAssert (⌜∃ src_res, ✓ src_res /\ refines_lmod
+      (Mod.to_lmod (mod_tgt Ctx) ε)
+      (Mod.to_lmod (mod_top Ctx) src_res)⌝)%I
+      with "[WINVempty REF]" as "%Href".
+    { iApply refines_adequacy. { eapply tgt_wf; eassumption. } iFrame. }
+    destruct Href as [src_res [_ Href]].
+    iPureIntro. exists src_res, ε. exact Href.
   (*SLOW*)Qed.
 End CellioAll.
 

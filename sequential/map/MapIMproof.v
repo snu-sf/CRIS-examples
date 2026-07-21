@@ -268,8 +268,8 @@ Section MapIM.
 
   Lemma ctxr (sp_s sp_mem : specmap) :
     MapM.sp ⊆ sp_s →
-    ctx_refines
-      (MapI.t      ★ MemA.t sp_mem, emp%I)
-      (MapM.t sp_s ★ MemA.t sp_mem, emp%I).
+    ⊢ ctx_refines
+        (MapI.t ★ MemA.t sp_mem)
+        (MapM.t sp_s ★ MemA.t sp_mem).
   Proof. i; eapply main_adequacy, MapIM.sim; eauto. Qed.
 End MapIM. End MapIM.

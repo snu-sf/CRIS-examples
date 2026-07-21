@@ -149,9 +149,10 @@ Section ctxr.
     (Hschnds: sp_user ⊆ sp)
     (Hnds: (NDSA.sp sp_user ⊤ T get_stid PYIP) ⊆ sp)
     (Hnode: (NDSNodeA.sp ⊤) ⊆ sp_user) :
-    ctx_refines
-      ((NDSNodeI.t   ★ HybMem.t, emp%I))
-      (NDSNodeA.t sp ★ HybMem.t, NDSNodeA.init_cond).
+    NDSNodeA.init_cond ⊢
+      ctx_refines
+        (NDSNodeI.t ★ HybMem.t)
+        (NDSNodeA.t sp ★ HybMem.t).
   Proof using. eapply main_adequacy, (NDSNodeIA.sim sp sp_user); eauto. Qed.
 
 End ctxr.

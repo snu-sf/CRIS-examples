@@ -30,37 +30,39 @@ Section KnotAux.
   Local Definition init_cond : iProp Σ := KnotA.init_cond genv ∗ MemA.init_cond genv.
 
   Lemma cancel_src :
-    refines
-      (mod_src, init_cond)
-      (mod_top, init_cond ∗ KnotA.knot_frag None ∗ Cancel.init_res)%I.
+    KnotA.knot_frag None ∗ Cancel.init_res ⊢
+      refines mod_src mod_top.
   Proof.
-    etrans. { eapply ctxr_refines, Cancel.prepare; et; clarify. }
-    eapply Cancel.cancel.
+    iIntros "[Hknot Hinit]".
+    iApply refines_trans. iSplitR "Hknot Hinit".
+    { iApply ctxr_refines. iApply Cancel.prepare; et; clarify. }
+    iApply Cancel.cancel.
     { repeat apply SMod.cancellable_add; r; mod_tac ss. }
     { assert (Ht : (SMod.sp_from smod_src).1 !! entry =
                      fsp_some (KnotMainA.main_spec)) by mod_tac.
-      eexists _, _; splits.
-      { ss; exists (tt); split; refl. }
-      { iIntros "[$ [? [? ?]]]"; ss. }
-      { unfoldPrePost. iIntros "% % [% %] //". }
+      rewrite Ht; clear Ht. ss; exists tt; split; refl.
     }
+    { unfoldPrePost. iIntros "% % [% %] //". }
+    iDestruct "Hinit" as "(X & Y & Z & $ & $)".
+    unfoldPrePost. iSplit; et.
   Qed.
 
-  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond).
+  Lemma src_tgt : init_cond ⊢ refines mod_tgt mod_src.
   Proof.
-    eapply ctxr_refines.
+    iIntros "[HKnot HMem]".
+    iApply ctxr_refines.
     rewrite /mod_src /mod_tgt !SMod.to_mod_add.
 
     (* abstraction of Mem *)
-    etrans.
-    { do 3 ctxr_rotate. do 3 ctxr_drop. eapply MemIA.ctxr. }
+    iApply ctxr_trans. iSplitL "HMem".
+    { do 3 ctxr_rotate. do 3 ctxr_drop. iApply MemIA.ctxr. iFrame. }
     (* abstraction of APCI to APCA *)
-    etrans.
-    { ctxr_rotate. do 3 ctxr_drop. eapply APCIA.ctxr. }
+    iApply ctxr_trans. iSplitR "HKnot".
+    { ctxr_rotate. do 3 ctxr_drop. iApply APCIA.ctxr. }
     (* abstraction of Knot *)
-    etrans.
+    iApply ctxr_trans. iSplitL "HKnot".
     { ctxr_drop.
-      eapply KnotIA.ctxr with (sp:=sp) (sp_pure:=sp_pure) (sp_rec:=sp_rec) (sp_fun:=sp_fun); eauto.
+      iApply (KnotIA.ctxr genv sp sp_rec sp_fun sp_pure); eauto.
       { eapply genv_wf. }
       { unfold genv. eapply incl_appl; refl. }
       { split; et.
@@ -71,8 +73,8 @@ Section KnotAux.
       }
     }
     (* abstraction of KnotMain *)
-    etrans.
-    { ctxr_norm. eapply KnotMainIA.ctxr; eauto.
+    iApply ctxr_trans. iSplitR.
+    { ctxr_norm. iApply (KnotMainIA.ctxr genv sp sp_rec sp_fun sp_pure); eauto.
       { eapply genv_wf. }
       { unfold genv. eapply incl_appr; refl. }
       { split; et.
@@ -91,9 +93,9 @@ Section KnotAux.
       }
     }
     (* abstraction of APCA to APCC *)
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { do 2 ctxr_rotate. ctxr_drop.
-      eapply APCAC.ctxr.
+      iApply APCAC.ctxr.
       { split; et.
         repeat try eapply insert_subseteq_l; last apply map_empty_subseteq; mod_tac.
       }
@@ -109,9 +111,9 @@ Section KnotAux.
       }
     }
     (* elimination of pure cCall *)
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { do 3 ctxr_rotate. do 2 ctxr_drop. ctxr_rotate.
-      eapply KnotMainIA.ctxr_close with (sp:=sp) (sp_pure:=sp_pure) (sp_fun:=sp_fun); eauto.
+      iApply (KnotMainIA.ctxr_close genv sp sp_rec sp_fun sp_pure); eauto.
       { eapply genv_wf. }
       { unfold genv. eapply incl_appr; refl. }
       { split; et.
@@ -130,25 +132,24 @@ Section KnotAux.
       }
     }
     (* elimination of mem *)
-    etrans.
-    { do 2 ctxr_rotate. do 3 ctxr_drop. eapply elim_module. }
+    iApply ctxr_trans. iSplitR.
+    { do 2 ctxr_rotate. do 3 ctxr_drop. iApply elim_module. }
     rewrite right_id.
 
-    etrans.
+    iApply ctxr_trans. iSplitR.
     { ctxr_swap. ctxr_rotate. ctxr_refl. }
 
-    eapply ctxr_consequence.
-    iIntros "[$ $]".
+    ctxr_refl.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines
-      (mod_tgt, emp%I)
-      (mod_top, init_cond ∗ KnotA.knot_frag None ∗ Cancel.init_res)%I.
+    init_cond ∗ KnotA.knot_frag None ∗ Cancel.init_res ⊢
+      refines mod_tgt mod_top.
   Proof.
-    etrans.
-    { eapply src_tgt. }
-    { eapply cancel_src. }
+    iIntros "(Hinit & Hknot & Hcancel)".
+    iApply refines_trans. iSplitL "Hinit".
+    { iApply src_tgt. iFrame. }
+    iApply cancel_src. iFrame.
   Qed.
 
   Lemma tgt_wf : Mod.wf mod_tgt.
@@ -185,26 +186,35 @@ Module KnotAll.
         (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
-    iMod cris_alloc as "[% [% [% [% ?]]]]".
-    iMod (knot_alloc ) as "[% [? ?]]".
-    iMod (mem_alloc genv) as "[% ?]".
+    iMod cris_alloc as "(% & % & % & % & [WINV Hinit])".
+    iPoseProof (winv_split_empty with "WINV") as "[WINV WINVempty]".
+    iMod knot_alloc as "(% & HKnotFull & HKnotFrag)".
+    iMod (mem_alloc genv) as "(% & HMem)".
     iExists _, _, _, _, _, _.
-    pose proof (top_tgt tgt_wf) as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
-    iPoseProof (Own_valid with "R") as "%".
-    rewrite /refines in Href; hexploit Href; eauto using tgt_wf.
-    clear Href; intros [? Href].
-    iPureIntro; hexploit (Href res); eauto.
-    { rewrite Hres; iIntros "[[W [$ [$ [$ $]]]] [$ [$ [$ ?]]]]".
-      rewrite {1}winv_split_empty comm //. iDestruct "W" as "[$ $]".
+    iDestruct "HMem" as "[HMemAuth HMemFrag]".
+    iPoseProof (own_update with "HMemFrag") as ">Hvar".
+    { apply cmra_update_included.
+      apply (mem_init_auth_r_valid genv 2 0%Z 0%Z).
+      rewrite /mem_init_val /genv /KnotGEnv.t /KnotMainGEnv.t.
+      Local Transparent CEnv.id2blk CEnv.load_genv.
+      rewrite /CEnv.id2blk /CEnv.load_genv /=. cSimpl.
+    }
+    iPoseProof (top_tgt with
+      "[WINV Hinit HKnotFull HKnotFrag HMemAuth Hvar]") as "REF".
+    { rewrite /init_cond /KnotA.init_cond /MemA.init_cond /Cancel.init_res.
+      iDestruct "Hinit" as "(HTID & HYIELD & HTIDAUTH & HYIELDAUTH)".
+      iFrame "WINV HTID HYIELD HTIDAUTH HYIELDAUTH HKnotFull HKnotFrag HMemAuth".
       rewrite /KnotA.var_points_to /mem_init_val /genv /KnotGEnv.t /KnotMainGEnv.t.
       Local Transparent CEnv.id2blk CEnv.load_genv.
       rewrite /CEnv.id2blk /CEnv.load_genv /=.
-      iApply (own_update with "[$]").
-      apply cmra_update_included, mem_init_auth_r_valid.
-      rewrite /mem_init_val /=. cSimpl.
+      iFrame.
     }
-    s; i; des; et.
+    iAssert (⌜∃ src_res, ✓ src_res /\
+      refines_lmod (Mod.to_lmod mod_tgt ε) (Mod.to_lmod mod_top src_res)⌝)%I
+      with "[WINVempty REF]" as "%Href".
+    { iApply refines_adequacy. { eapply tgt_wf. } iFrame. }
+    destruct Href as [src_res [_ Href]].
+    iPureIntro. exists src_res, ε. exact Href.
   (*SLOW*)Qed.
 End KnotAll.
 

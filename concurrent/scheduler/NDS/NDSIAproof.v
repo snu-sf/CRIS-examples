@@ -1015,9 +1015,10 @@ Section ctxr.
                       (λ x vret ret, 
                         TID (get_stid x) ∗ YIELD (get_stid x) ∗ PYIP x ∗ ⌜vret = ret ∧ vret = tt↑⌝))%I))
     (ConcInSp : sp.2) :
-    ctx_refines
-      (NDSI.t parent_yield,                                emp%I)
-      (NDSA.t parent_yield sp sp_nds_user T get_stid PYIP, NDSA.init_cond).
+    NDSA.init_cond ⊢
+      ctx_refines
+        (NDSI.t parent_yield)
+        (NDSA.t parent_yield sp sp_nds_user T get_stid PYIP).
   Proof. eapply main_adequacy, sim; eauto. Qed.
 End ctxr.
 End NDSIA.

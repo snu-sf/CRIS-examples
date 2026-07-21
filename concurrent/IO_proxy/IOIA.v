@@ -385,29 +385,47 @@ Module IOIA_ctxr. Section IOIA_ctxr.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !schGS, !memGS, !queueG, !stackGS}.
 
   Lemma ctxr (sp : specmap) :
-    ctx_refines
-      ((IOI.t ★ ProxyI.t) ★ (PQueueA.t ★ MemA.t ∅) ★ SchI.t, emp%I)
-      ((IOA.t ★ ProxyA.t (SchA.sp sp ⊤)) ★ (PQueueA.t ★ MemA.t ∅) ★ SchI.t,
-        help_init_cond).
+    help_init_cond ⊢
+      ctx_refines
+        ((IOI.t ★ ProxyI.t) ★ (PQueueA.t ★ MemA.t ∅) ★ SchI.t)
+        ((IOA.t ★ ProxyA.t (SchA.sp sp ⊤)) ★ (PQueueA.t ★ MemA.t ∅) ★ SchI.t).
   Proof.
-    etrans; cycle 1; first eapply ctxr_consequence.
-    { instantiate (1:=(_ ∗ emp)%I); iIntros "H"; iSplitL; last done; iExact "H". }
-    etrans; first eapply (helping_main) with
-      (mM := λ mn, IOM.t mn ★ ProxyM.t mn)
-      (mE := PQueueA.t ★ MemA.t ∅)
-      (jobs := jobCode); [intros mn|intros mn|..].
+    iIntros "H".
+    iApply (helping_main
+      (λ mn, IOM.t mn ★ ProxyM.t mn)
+      (IOA.t ★ ProxyA.t (SchA.sp sp ⊤))
+      (IOI.t ★ ProxyI.t)
+      (PQueueA.t ★ MemA.t ∅)
+      jobCode).
+    iSplitL "H"; iIntros (mn).
     { (* IOIM.sim — helping-on intermediate refinement *)
       rewrite !CFilter.filter_app.
       rewrite comm assoc (comm _ (HelpingDummy.t mn)).
-      etrans; [eapply main_adequacy, IOIM.sim|].
-      ctxr_norm. do 2 ctxr_drop. ctxr_rotate. refl.
+      iApply ctxr_trans. iSplitL "H".
+      { iApply main_adequacy.
+        - apply (IOIM.sim mn); try exact sp.
+        - iExact "H".
+      }
+      ctxr_norm. do 2 ctxr_drop. ctxr_rotate. ctxr_refl.
     }
-    { etrans.
-      { do 3 ctxr_rotate. ctxr_swap. ctxr_rotate; ctxr_swap. do 3 ctxr_rotate. refl. }
-      rewrite !CFilter.filter_app; do 2 rewrite assoc.
-      etrans; [eapply main_adequacy, IOIA.sim|].
-      rewrite -!assoc; eauto. rewrite assoc. refl.
+    { do 2 rewrite CFilter.filter_app.
+      rewrite <-(mod_add_assoc
+        (CFilter.filter (Helping.exports mn) PQueueA.t)
+        (CFilter.filter (Helping.exports mn) (MemA.t ∅))
+        (CFilter.filter (Helping.exports mn) SchI.t)).
+      rewrite (Mod.add_comm
+        (CFilter.filter (Helping.exports mn) PQueueA.t ★
+         (CFilter.filter (Helping.exports mn) (MemA.t ∅) ★
+          CFilter.filter (Helping.exports mn) SchI.t))
+        (HelpingOff.t mn jobCode)).
+      rewrite (mod_add_assoc
+        (IOM.t mn ★ ProxyM.t mn)
+        (HelpingOff.t mn jobCode)
+        (CFilter.filter (Helping.exports mn) PQueueA.t ★
+         (CFilter.filter (Helping.exports mn) (MemA.t ∅) ★
+          CFilter.filter (Helping.exports mn) SchI.t))).
+      iApply (main_adequacy _ _ emp%I (IOIA.IstMA mn) (IOIA.sim mn sp)).
+      iEmpIntro.
     }
-    eapply ctxr_consequence; iIntros "[$ _]".
   Qed.
 End IOIA_ctxr. End IOIA_ctxr.

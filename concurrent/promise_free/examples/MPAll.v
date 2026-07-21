@@ -40,61 +40,61 @@ Section MPAux.
 
   (* Apply cancellation to linked spec module *)
   Lemma cancel_src :
-    refines
-      (mod_src, init_cond)
-      (mod_top, init_cond ∗ tview_sys_gen 1 1 0 (TView.init []) ∗ Cancel.init_res)%I.
+    tview_sys_gen 1 1 0 (TView.init []) ∗ Cancel.init_res ⊢
+      refines mod_src mod_top.
   Proof.
-    etrans. { eapply ctxr_refines, Cancel.prepare; et; clarify. }
-    eapply Cancel.cancel.
+    iIntros "[TV INIT]".
+    iApply refines_trans. iSplitR.
+    { iApply ctxr_refines. iApply Cancel.prepare; et; clarify. }
+    iApply Cancel.cancel.
     { apply SMod.cancellable_add; last apply SMod.cancellable_add; r;
         rewrite /= /MPA.fnsems /SystemA.fnsems /PFMemA.fnsems; mod_tac ss.
     }
     { assert (Ht : (SMod.sp_from smod_src).1 !! entry =
                      fsp_some (MPA.main_spec)) by mod_tac.
       rewrite Ht; clear Ht.
-      eexists _, _; splits.
-      { ss; exists tt; split; refl. }
-      { iIntros "[$ [$ [$ $]]]"; ss. }
-      { unfoldPrePost. iIntros "% % [_ [% _]] //". }
+      ss; exists tt; split; refl.
+    }
+    { unfoldPrePost. iIntros "% % [_ [% _]] //". }
+    { iDestruct "INIT" as "(TID & YIELD & WINV & $ & $)".
+      unfoldPrePost. iFrame; eauto.
     }
   Qed.
 
   (* Refinement between spec/impl of whole program (linked module) *)
-  Lemma src_tgt : refines (mod_tgt, emp%I) (mod_src, init_cond).
+  Lemma src_tgt : init_cond ⊢ refines mod_tgt mod_src.
   Proof.
-    eapply ctxr_refines.
+    iIntros "[MEM SYS]".
+    iApply ctxr_refines.
     rewrite /mod_src /mod_tgt /smod_src !SMod.to_mod_add.
     (* abstraction of Mem *)
-    etrans.
+    iApply ctxr_trans. iSplitL "MEM".
     { do 2 ctxr_drop.
-      eapply PFMemIA.ctxr.
+      iApply PFMemIA.ctxr. iExact "MEM".
     }
     (* abstraction of Sch *)
-    etrans.
+    iApply ctxr_trans. iSplitL "SYS".
     { ctxr_drop.
-      eapply SystemIA.ctxr.
+      iApply SystemIA.ctxr.
       - apply UserInSp.
       - apply SchInSp.
       - et.
+      - iExact "SYS".
     }
     (* abstraction of MP *)
-    etrans.
-    { ctxr_norm. eapply MPIA.ctxr.
-      - apply SchInSp.
-      - apply MainInSp.
-    }
-    eapply ctxr_consequence.
-    { iIntros "[? [? ?]]". iFrame. }
+    ctxr_norm. iApply MPIA.ctxr.
+    - apply SchInSp.
+    - apply MainInSp.
   (*SLOW*)Qed.
 
   Lemma top_tgt :
-    refines
-      (mod_tgt, emp%I)
-      (mod_top, init_cond ∗ tview_sys_gen 1 1 0 (TView.init []) ∗ Cancel.init_res)%I.
+    init_cond ∗ tview_sys_gen 1 1 0 (TView.init []) ∗ Cancel.init_res ⊢
+      refines mod_tgt mod_top.
   Proof.
-    etrans.
-    { eapply src_tgt. }
-    { eapply cancel_src. }
+    iIntros "(INIT & TV & CANCEL)".
+    iApply refines_trans. iSplitL "INIT".
+    - iApply src_tgt; iFrame.
+    - iApply cancel_src; iFrame.
   Qed.
 
   Ltac wf_solver :=
@@ -132,20 +132,21 @@ Module MPAll.
           (Mod.to_lmod mod_top src_res).
   Proof.
     apply own_admin_soundness.
-    iMod cris_alloc as "[% [% [% [% ?]]]]".
-    iMod hist_alloc as "[% [? TV]]".
-    iMod (sys_alloc with "TV") as "[% [? ?]]".
+    iMod cris_alloc as "(% & % & % & % & [WINV H0])".
+    iPoseProof (winv_split_empty with "WINV") as "[WINV WINV_empty]".
+    iMod hist_alloc as "(% & MEM & TV)".
+    iMod (sys_alloc with "TV") as "(% & SYS & TV)".
     do 6 iExists _.
-    pose proof (top_tgt) as Href.
-    iStopProof. eapply entails_pointwise; iIntros (res _ Hres) "R".
-    iPoseProof (Own_valid with "R") as "%".
-    rewrite /refines in Href; hexploit Href.
-    { exact tgt_wf. }
-    clear Href; intros [? Href].
-    iPureIntro; hexploit (Href res); eauto.
-    { rewrite Hres; iIntros "[[W [$ [$ [$ $]]]] [[$ $] [$ $]]]".
-      rewrite {1}winv_split_empty comm //.
+    iPoseProof (top_tgt with "[WINV H0 MEM SYS TV]") as "REF".
+    { rewrite /init_cond /Cancel.init_res.
+      iDestruct "H0" as "(TID & YIELD & TIDAUTH & YIELDAUTH)".
+      iFrame.
     }
-    s; i; des; et.
+    iAssert (⌜∃ src_res, ✓ src_res /\
+      refines_lmod (Mod.to_lmod mod_tgt ε) (Mod.to_lmod mod_top src_res)⌝)%I
+      with "[WINV_empty REF]" as "%Href".
+    { iApply refines_adequacy. { exact tgt_wf. } iFrame. }
+    destruct Href as [src_res [_ Href]].
+    iPureIntro. exists src_res, ε. exact Href.
   (*SLOW*)Qed.
 End MPAll.
