@@ -1,1 +1,2 @@
 ./CRIS/configure
+opam install coq-promising-lib

@@ -53,3 +53,7 @@ builddep
 _opam
 
 .diff
+
+.envrc
+.direnv
+CRIS
