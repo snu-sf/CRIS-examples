@@ -1,33 +1,41 @@
 COQMODULE    := CRISEXAMPLES
 CRISMODULE	 := CRIS
+ROCQ         ?= rocq
 COQTHEORIES  := $(shell find . \( -path "./deprecated" -o -path "./_opam" -o -path "./$(CRISMODULE)" \) -prune -o -type f -not -name '.*.v' -iname '*.v' -print)
 COQDIRS      := $(sort $(patsubst ./%,%,$(shell for f in $(COQTHEORIES); do d=$${f%/*}; while [ "$$d" != "." ]; do printf "%s\n" "$$d"; d=$${d%/*}; done; done)))
 COQDIR_THEORIES = $(filter ./$@/%.v,$(COQTHEORIES))
 COQGOALS     := $(filter %.vo %.vos,$(MAKECMDGOALS))
+CRISGOAL     := $(if $(filter %.vo,$(COQGOALS)),cris,$(if $(filter %.vos,$(COQGOALS)),cris-quick))
 
-.PHONY: all all-quick FORCE $(COQDIRS)
+.PHONY: all all-quick cris cris-quick FORCE $(COQDIRS)
 
 ifneq ($(COQGOALS),)
 .PHONY: $(COQGOALS) __coq_goals
 
 $(COQGOALS): __coq_goals ;
 
-__coq_goals: Makefile.coq
+__coq_goals: $(CRISGOAL) Makefile.coq
 	$(MAKE) -f Makefile.coq $(COQGOALS)
 else
-%.vo: Makefile.coq %.v FORCE
+%.vo: cris Makefile.coq %.v FORCE
 	$(MAKE) -f Makefile.coq $@
 
-%.vos: Makefile.coq %.v FORCE
+%.vos: cris-quick Makefile.coq %.v FORCE
 	$(MAKE) -f Makefile.coq $@
 endif
 
-all: Makefile.coq $(COQTHEORIES)
+all: cris Makefile.coq $(COQTHEORIES)
 	$(MAKE) -f Makefile.coq $(patsubst %.v,%.vo,$(COQTHEORIES))
-all-quick: Makefile.coq $(COQTHEORIES)
+all-quick: cris-quick Makefile.coq $(COQTHEORIES)
 	$(MAKE) -f Makefile.coq $(patsubst %.v,%.vos,$(COQTHEORIES))
 
-$(COQDIRS): Makefile.coq
+cris:
+	$(MAKE) -C $(CRISMODULE) all
+
+cris-quick:
+	$(MAKE) -C $(CRISMODULE) all-quick
+
+$(COQDIRS): cris Makefile.coq
 	$(MAKE) -f Makefile.coq $(patsubst %.v,%.vo,$(COQDIR_THEORIES))
 
 FORCE:
@@ -66,7 +74,7 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-Q concurrent/elimination_stack $(CRISMODULE).elimination_stack"; \
 	 echo "-Q concurrent/hwqueue $(CRISMODULE).hwqueue"; \
 	 echo $(COQTHEORIES)) > _CoqProject
-	coq_makefile -f _CoqProject -o Makefile.coq
+	$(ROCQ) makefile -f _CoqProject -o Makefile.coq
 
 clean:
 	@# Do not delegate to Makefile.coq here: its generated clean target
@@ -74,7 +82,10 @@ clean:
 	@# Make sure not to enter the CRIS submodule, `_opam`, or hidden folders.
 	find . -mindepth 1 \( -path "./$(CRISMODULE)" -o -path "./_opam" -o -name ".*" \) -prune -o -type f \( -name "*.d" -o -name "*.vo" -o -name "*.vo[sk]" -o -name "*.aux" -o -name "*.cache" -o -name "*.glob" -o -name "*.vos" \) -print -exec rm -f {} + || true
 	rm -f _CoqProject Makefile.coq Makefile.coq.conf #Makefile.coq-rsync Makefile.coq-rsync.conf
-.PHONY: clean
+
+clean-all: clean
+	$(MAKE) -C $(CRISMODULE) clean
+.PHONY: clean clean-all
 
 # Install build-dependencies
 OPAMFILES=$(wildcard *.opam)

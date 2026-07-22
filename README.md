@@ -11,7 +11,7 @@ git submodule update
 ```
 ./configure
 ```
-- Build the project
+- Build CRIS and the examples
 ```
-make -j
+make -j4
 ```
