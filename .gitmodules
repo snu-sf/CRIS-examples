@@ -1,4 +1,3 @@
 [submodule "CRIS"]
 	path = CRIS
-	url = git@github.com:snu-sf/CRIS-private.git
-	branch = master
+	url = git@github.com:snu-sf/CRIS.git
