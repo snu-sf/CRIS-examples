@@ -1,6 +1,6 @@
 From CRIS.common Require Import CRIS.
 From CRIS.cancellation Require Import Cancel.
-From CRIS.simulations.filter Require Import CallFilter.
+From CRIS.filter Require Import CallFilter.
 From CRIS.imp_system.mem Require Import MemHeader MemI MemA MemIAproof.
 From CRIS.apc Require Import APCHeader APC APCI APCA APCC APCACproof APCIAproof.
 From CRIS.knot Require Import KnotHeader KnotMainHeader KnotI KnotMainI.

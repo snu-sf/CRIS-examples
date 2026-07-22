@@ -3,7 +3,7 @@ From CRIS.scheduler Require Import SchHeader SchA.
 From CRIS.scheduler Require Import NDS.NDSHeader NDS.NDSA.
 From CRIS.hybrid_mem Require Import MemHdr MemLib HybridMem.
 From CRIS.scheduler Require Import example.NDSNodeHeader example.NDSNodeI.
-Require Import CRIS.simulations.filter.CallFilter.
+Require Import CRIS.filter.CallFilter.
 
 Set Implicit Arguments.
 

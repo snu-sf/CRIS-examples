@@ -1,7 +1,7 @@
 Require Import CRIS.common.CRIS.
 From CRIS.scheduler Require Import SchHeader SchA.
 From CRIS.scheduler Require Import RRS.RRSHeader RRS.RRSI.
-Require Import CRIS.simulations.filter.CallFilter.
+Require Import CRIS.filter.CallFilter.
 From iris Require Import dfrac_agree gmap_view csum.
 
 Set Implicit Arguments.

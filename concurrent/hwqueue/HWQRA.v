@@ -4,7 +4,7 @@ From CRIS.hwqueue Require Export HWQHeader.
 Require Export CRIS.scheduler.SchHeader.
 From CRIS.imp_system Require Export mem.MemHeader.
 Require Export CRIS.prophecy.ProphecyHeader CRIS.helping.HelpingHeader.
-Require Export CRIS.simulations.filter.CallFilter.
+Require Export CRIS.filter.CallFilter.
 From CRIS.imp_system Require Export mem.MemA.
 Require Export CRIS.scheduler.SchA CRIS.prophecy.ProphecyA.
 From CRIS.imp_system Require Import mem.MemI mem.MemIAproof mem.MemTactics.

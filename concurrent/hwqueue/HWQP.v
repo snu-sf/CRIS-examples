@@ -5,7 +5,7 @@ Require Export CRIS.scheduler.SchHeader.
 From CRIS.imp_system Require Export mem.MemHeader.
 Require Export CRIS.prophecy.ProphecyHeader CRIS.helping.HelpingHeader.
 From CRIS.hwqueue Require Export HWQI.
-Require Import CRIS.simulations.filter.CallFilter
+Require Import CRIS.filter.CallFilter
   CRIS.prophecy.ProphecyI CRIS.scheduler.SchTactics.
 
 Ltac unfoldIterEqS :=
