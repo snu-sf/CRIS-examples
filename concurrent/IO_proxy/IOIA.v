@@ -51,7 +51,8 @@ Module IOIM. Section IOIM.
   Local Notation Mem := (CFilter.filter (Helping.exports mn) (MemA.t ∅)).
   Local Notation PQ := (CFilter.filter (Helping.exports mn) (PQueueA.t)).
   Local Notation SchI := (CFilter.filter (Helping.exports mn) SchI.t).
-  Local Definition IstFull : ist_type Σ := IstHelp mn ⊤.
+  Local Definition IstFull : ist_type Σ :=
+    IstProd (IstSB [mn] (IstHelp IstTrue ⊤)) IstEq.
 
   Lemma init_simF : ISim.sim_fun open
     (((IOM.t mn ★ ProxyM.t mn) ★ HelpingOn.t mn jobCode) ★ (PQ ★ Mem) ★ SchI)
@@ -91,8 +92,8 @@ Module IOIM. Section IOIM.
     cStartFunSim. rewrite /IOM.request /IOI.request. cStepsS.
     aStepS (N [[[q [cb cofs]] num] prt]) "[-> [%sz [[%qb [%qofs [-> [%γq [#queue #proxy]]]]] %Hsz]]]".
     cStepsS; cStepsT.
-    iApply (wsim_helping_run with "IST"); [simpl_map; s; f_equal|].
-    clear_st; iIntros (st_src reqid) "IST help". sYields.
+    iApply wsim_helping_run; [simpl_map; s; f_equal|].
+    iIntros (reqid) "help". sYields.
     mAllocT as (hb) "/= [hb1 [hb2 [hb3 _]]]". sYields.
     mStoreT "hb1". sYields. mStoreT "hb2". sYields. mStoreT "hb3". sYields.
     cInlineT. rewrite /PQueueA.add. cStepsT.
@@ -116,18 +117,21 @@ Module IOIM. Section IOIM.
     iIntros "[#[queue [proxy data]] IST]".
 
     aUnfoldT. sYields.
+    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
     iInv "data" with "[IST]" as "[IST [[st|[st #Done]] ?]]" "close"; first (iFrame; eauto).
     { (* pending help *)
       mLoadT "st". iMod ("close" with "[//] [$] IST") as ">>IST".
+      iEval (rewrite -IstHelp_nested_equiv) in "IST".
       sYields. iApply wsim_mem_cmp_int; [simpl_map; s; f_equal|solve_msk|].
       cStepsT. sYields.
       cByCoind CIH; eauto with iFrame.
     }
     mLoadT "st". iMod ("close" with "[//] [-IST] IST") as ">>IST".
     { iFrame "∗#"; eauto. }
+    iEval (rewrite -IstHelp_nested_equiv) in "IST".
     sYields. iApply wsim_mem_cmp_int; [simpl_map; s; f_equal|solve_msk|].
-    cStepsT. sYields. sYieldS. iApply (wsim_HelpDone_try_run with "[$] [$]").
-    iIntros "IST"; cStepsS. cStep; iFrame. eauto.
+    cStepsT. sYields. sYieldS. iApply (wsim_HelpDone_try_run with "Done").
+    cStepsS. cStep; iFrame. eauto.
   Qed.
 
   Lemma proxy_simF : ISim.sim_fun open
@@ -175,17 +179,21 @@ Module IOIM. Section IOIM.
     { iPureIntro; rewrite length_insert //. }
     iModIntro; clear_st; iIntros (st_src0 st_tgt0) "IST".
     cStepsT. sYields. rewrite !left_id_L.
+    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
     iInv "data" with "[IST]" as "[IST [st [st2 stnum]]]" "close"; first (iFrame; eauto).
     mLoadT "st2".
     iMod ("close" with "[//] [$] IST") as ">>IST".
+    iEval (rewrite -IstHelp_nested_equiv) in "IST".
     sYields.
+    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
     iInv "data" with "[IST]" as "[IST [? [? stnum]]]" "close"; first (iFrame; eauto).
     mLoadT "stnum".
     iMod ("close" with "[//] [$] IST") as ">>IST".
+    iEval (rewrite -IstHelp_nested_equiv) in "IST".
     sYields. sYieldS. aUnfoldS. sYieldS. cStepsS. cInlineS. cStepsS.
-    iApply (wsim_helping_help with "Pend IST").
-    iExists 1. clear_st; iIntros (st_src) "IST !>".
-    iApply wsim_reset. cCoind CIH2 g2 Hg2 with st_src st_tgt0.
+    iApply (wsim_helping_help with "Pend").
+    iExists 1. iModIntro.
+    iApply wsim_reset. cCoind CIH2 g2 Hg2 with st_src0 st_tgt0.
     iIntros "[#[queue2 [proxy2 data]] [_ IST]]".
     replace ((cb, cfos, 0, num, None : option val)↑↑)
         with ((cb, cfos, num - num, num, None : option val)↑↑)
@@ -199,26 +207,29 @@ Module IOIM. Section IOIM.
     generalize (num - num) at 1 2 3. intros k Hk.
     remember (num - k) as r eqn:Hr.
     iRevert (k Hk Hr) "IST".
-    iInduction r as [|r] forall (st_src st_tgt0); iIntros (k Hk Hr) "IST".
+    iInduction r as [|r] forall (st_src0 st_tgt0); iIntros (k Hk Hr) "IST".
     { (* base: k = num *)
       assert (k = num) by lia. subst k.
       aUnfoldS. aUnfoldT. sYield.
       rewrite /jobCode. cStepsS.
       rewrite Nat2Z.id decide_True //. cStepsT.
       sYieldS. cStepsS. rewrite decide_True //. cStepsS.
-      cStep. iExists ⊤. iFrame.
-      iIntros (st_src1 st_tgt) "#Done IST".
+      cStep. iFrame.
+      iIntros "#Done".
       cStepsS.
       aAddY. sYield.
+      iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
       iInv "data" with "[IST]" as "[IST [[st0|[st0 #Done2]] [st1 st2]]]" "close2"; first (iFrame; eauto).
       - cStepsT. mStoreT "st0".
         iMod ("close2" with "[//] [- IST] IST") as ">>IST".
         { iFrame "∗#"; iRight; iFrame "∗#". }
+        iEval (rewrite -IstHelp_nested_equiv) in "IST".
         cStepsT.
         cByCoind CIH; iFrame "∗#"; eauto.
       - cStepsT. mStoreT "st0".
         iMod ("close2" with "[//] [- IST] IST") as ">>IST".
         { iFrame "∗#"; iRight; iFrame "∗#". }
+        iEval (rewrite -IstHelp_nested_equiv) in "IST".
         cStepsT.
         cByCoind CIH; iFrame "∗#"; eauto.
     }
@@ -249,7 +260,7 @@ Module IOIM. Section IOIM.
   Lemma sim : ISim.t open
     (((IOM.t mn ★ ProxyM.t mn) ★ HelpingOn.t mn jobCode) ★ (PQ ★ Mem) ★ SchI)
     (((IOI ★ ProxyI) ★ HelpingDummy.t mn) ★ (PQ ★ Mem) ★ SchI)
-    help_init_cond IstFull.
+    (hinv_ownE ⊤) IstFull.
   Proof.
     cStartModSim.
     { apply init_simF. }
@@ -257,10 +268,7 @@ Module IOIM. Section IOIM.
     { apply proxy_simF. }
     { cStartFunSim; cStepsT. cStepsT; ss. }
     { cStartFunSim; cStepsT. cStepsT; ss. }
-    { iIntros "[? ?]"; repeat iExists _; iFrame; iPureIntro; splits; eauto; ss.
-      { rewrite !dom_union_with !dom_empty_L !dom_singleton_L. set_solver. }
-      { exists ∅. rewrite !left_id_L !right_id_L //. }
-    }
+    { iIntros "HE"; repeat iExists _; iFrame; iPureIntro; splits; eauto; ss. }
   Qed.
 End IOIM. End IOIM.
 
@@ -396,18 +404,19 @@ Module IOIA_ctxr. Section IOIA_ctxr.
       (IOA.t ★ ProxyA.t (SchA.sp sp ⊤))
       (IOI.t ★ ProxyI.t)
       (PQueueA.t ★ MemA.t ∅)
-      jobCode).
-    iSplitL "H"; iIntros (mn).
+      jobCode with "H").
+    iIntros (mn) "HE".
     { (* IOIM.sim — helping-on intermediate refinement *)
       rewrite !CFilter.filter_app.
       rewrite comm assoc (comm _ (HelpingDummy.t mn)).
-      iApply ctxr_trans. iSplitL "H".
+      iApply ctxr_trans. iSplitL "HE".
       { iApply main_adequacy.
         - apply (IOIM.sim mn); try exact sp.
-        - iExact "H".
+        - iExact "HE".
       }
       ctxr_norm. do 2 ctxr_drop. ctxr_rotate. ctxr_refl.
     }
+    iIntros (mn).
     { do 2 rewrite CFilter.filter_app.
       rewrite <-(mod_add_assoc
         (CFilter.filter (Helping.exports mn) PQueueA.t)

@@ -3,7 +3,8 @@ From CRIS.imp_system Require Import imp.ImpPrelude.
 From CRIS.imp_system Require Import mem.MemTactics mem.MemA.
 From CRIS.scheduler Require Import SchHeader SchI SchA SchTactics.
 From CRIS.elimination_stack Require Import StackHeader StackA StackI.
-From CRIS.helping Require Import HelpingTactics HelpingFacts.
+From CRIS.filter Require Import CallFilter.
+From CRIS.helping Require Import HelpingTactics.
 
 Section StackIM.
   Context `{!crisG Γ Σ α β τ _S _I, !memGS, !stackGS}.
@@ -20,15 +21,16 @@ Section StackIM.
   Local Notation HelpingDummy := (HelpingDummy.t mn).
   Local Notation StackM := ((StackM.t mn ★ HelpingOn) ★ MemA ★ SchI).
   Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
+  Local Notation Ist := (IstProd (IstSB [mn] (IstHelp IstTrue ⊤)) IstEq).
 
-  Lemma push_simF : ISim.sim_fun open StackM StackI (IstHelp mn ⊤) (fid StackHdr.push).
+  Lemma push_simF : ISim.sim_fun open StackM StackI Ist (fid StackHdr.push).
   Proof.
     cStartFunSim. rewrite /StackI.push /StackM.push. cStepsS; cStepsT.
     aStepS (N [v γs]) "[%s [-> [%n #[%stackb [%stackofs [%γh [-> Hinv]]]]]]]".
 
     cStepsS; cStepsT.
-    iApply (wsim_helping_run with "IST"); [simpl_map; s; f_equal|..].
-    clear_st; iIntros (st_src req_id) "IST Tkn". cStepsS.
+    iApply wsim_helping_run; [simpl_map; s; f_equal|iIntros (req_id) "Tkn"].
+    cStepsS.
 
     (* Coinduction starts here *)
     iApply wsim_reset.
@@ -36,11 +38,13 @@ Section StackIM.
     aUnfoldT. rewrite {1}/StackI._push. cStepsT. cHideT. sYields.
 
     (* load *)
+    iEval (rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hinv" with "[IST]"
       as "[IST [%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist Hoffer]]]]]]]" "close"; first by iFrame.
     mLoad.
     iPoseProof (list_inv_comparable with "Hlist") as "[Hlist [Hval #Hcomp]]".
     iMod ("close" with "[//] [Hs Hlist H↦ Hoffer] [$]") as "> > IST"; first by iFrame.
+    iEval (rewrite -IstHelp_nested_equiv) in "IST".
 
     (* alloc new head *)
     sYields. mAllocT as (blkhead) "[↦head [↦offer _]]". sYields.
@@ -49,6 +53,7 @@ Section StackIM.
     mStore. sYields. mStore. sYields.
 
     (* try push *)
+    iEval (rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hinv" with "[IST]"
       as "[IST [%stack_rep1 [%offer_rep1 [%l1 [Hs [H↦ [Hlist Hoffer]]]]]]]" "close";
       first by iFrame.
@@ -66,21 +71,21 @@ Section StackIM.
       (* atomic update happens here: since it is valid to update stack_contents here (without any
          helps from other threads), the pusher does its own job *)
       sYieldS. prependRetT tt.
-      iApply (wsim_helping_pend_try_run with "Help IST [-]").
-      clear_st. iIntros (st_src2) "IST".
-      aUnfoldS. rewrite {3}/StackM.jobCode. cNormS. sYieldS. cStepsS.
+      iApply (wsim_helping_pend_try_run with "Help [-]").
+      aUnfoldS. rewrite {3}/StackM.jobCode. sYieldS. cStepsS.
       iCombine "Hs ASM" gives %[->%Excl_included%leibniz_equiv _]%auth_both_valid_discrete.
       iMod (own_update_2 with "Hs ASM") as "[Hs Hl]".
       { eapply auth_update, option_local_update, (exclusive_local_update _ (Excl _)). done. }
       cForcesS. iFrame. cStep. iFrame.
 
-      clear_st. iIntros (st_src1 st_tgt1) "#Done IST". cStepsS.
+      iIntros "#Done". cStepsS.
 
       (* we updated the user-side resource, now proceed *)
       iMod ("close" with "[//] [↦head ↦offer Hoffer Hlist H↦ Hs] [$]") as "> > IST".
       { destruct stack_rep, stack_rep1; inv Hcomp; try case_bool_decide; des_ifs; iFrame; eauto.
         case_bool_decide; des; clarify; iFrame; eauto.
       }
+      iEval (rewrite -IstHelp_nested_equiv) in "IST".
 
       (* comparison *)
       cHideT. sYields.
@@ -95,6 +100,7 @@ Section StackIM.
 
     (* failure *)
     iMod ("close" with "[//] [$] [$]") as "> > IST".
+    iEval (rewrite -IstHelp_nested_equiv) in "IST".
 
     (* comparison - which leads us to offering *)
     sYields.
@@ -111,6 +117,7 @@ Section StackIM.
     mStore. sYields. mStore. sYields.
 
     clear dependent l l1 stack_rep stack_rep1 offer_rep offer_rep1.
+    iEval (rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hinv" with "[IST]"
       as "[IST [%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist [Hoffer _]]]]]]]]" "close";
       first by iFrame.
@@ -122,15 +129,20 @@ Section StackIM.
     { rewrite sl_red; iFrame; eauto. }
 
     iMod ("close" with "[//] [$] IST") as "> > IST".
+    iEval (rewrite -IstHelp_nested_equiv) in "IST".
     sYields.
 
     clear dependent l stack_rep offer_rep.
+    iEval (rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hinv" with "[IST]"
       as "[IST [%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist [Hoffer _]]]]]]]]" "close";
       first by iFrame.
     mStore.
 
-    iMod ("close" with "[//] [$] [$]") as "> > IST". sYields.
+    iMod ("close" with "[//] [$] [$]") as "> > IST".
+    iEval (rewrite -IstHelp_nested_equiv) in "IST".
+    sYields.
+    iEval (rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hoinv" with "[IST]" as "[IST [%offerst [offerst↦ offer]]]" "close"; first by iFrame.
     rewrite Z.add_0_l.
     case_decide; subst.
@@ -139,7 +151,9 @@ Section StackIM.
       { eauto. }
       case_bool_decide; ss. iIntros "Hofferst _". cStepsT.
 
-      iMod ("close" with "[//] [$] [$]") as "> > IST". sYields.
+      iMod ("close" with "[//] [$] [$]") as "> > IST".
+      iEval (rewrite -IstHelp_nested_equiv) in "IST".
+      sYields.
       iAssert (emp)%I as "E"; first done.
       mCmp. iSplitL "E"; first iExact "E". iSplitR; first eauto.
       iIntros "_". cStepsT.
@@ -153,11 +167,12 @@ Section StackIM.
       iPoseProof "offer" as "#offer".
 
       iMod ("close" with "[//] [$] [$]") as ">>IST".
+      iEval (rewrite -IstHelp_nested_equiv) in "IST".
       sYields. iAssert (emp)%I as "E"; first done.
       mCmp. iSplitL "E"; first iExact "E". iSplitR; first eauto.
       iIntros "_". cStepsT.
 
-      sYieldS. iApply (wsim_HelpDone_try_run with "offer IST"). iIntros "IST".
+      sYieldS. iApply (wsim_HelpDone_try_run with "offer").
       cStepsS. sYieldS. cStep; iFrame. done.
     }
 

@@ -5,7 +5,7 @@ From CRIS.scheduler Require Import SchHeader SchI SchA SchTactics.
 From CRIS.elimination_stack Require Import StackHeader StackA StackI.
 From CRIS.elimination_stack Require Import StackIANewStack StackIAPush.
 From CRIS.elimination_stack Require Import StackIAPop.
-From CRIS.helping Require Export HelpingTactics HelpingFacts.
+From CRIS.helping Require Export HelpingTactics.
 
 Module StackIM. Section StackIM.
   Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !stackGS}.
@@ -20,9 +20,10 @@ Module StackIM. Section StackIM.
   Local Notation HelpingDummy := (HelpingDummy.t mn).
   Local Notation StackM := ((StackM.t mn ★ HelpingOn) ★ MemA ★ SchI).
   Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
+  Local Notation Ist := (IstProd (IstSB [mn] (IstHelp IstTrue ⊤)) IstEq).
 
   (* Construct ISim.t for summing up each simulation proofs *)
-  Lemma sim : ISim.t open StackM StackI help_init_cond (IstHelp mn ⊤).
+  Lemma sim : ISim.t open StackM StackI (hinv_ownE ⊤) Ist.
   Proof.
     cStartModSim.
     { apply new_stack_simF. }
@@ -30,12 +31,12 @@ Module StackIM. Section StackIM.
     { apply pop_simF. }
     { cStartFunSim; cStepsT. cStepsT; ss. }
     { cStartFunSim; cStepsT. cStepsT; ss. }
-    { iIntros "[? ?]"; repeat iExists _; iFrame; iPureIntro; splits; eauto; ss.
-      { rewrite dom_union_with; set_solver. }
-      { exists ∅; rewrite left_id_L right_id_L //=. }
-    }
+    { iIntros "HE". rewrite /IstProd /IstSB /IstHelp /IstTrue /IstEq.
+      repeat iExists _; iFrame; iPureIntro; splits; eauto; ss. }
   Qed.
 End StackIM. End StackIM.
+
+From CRIS.helping Require Export HelpingFacts.
 
 Module StackIA. Section StackIA.
   Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !stackGS}.
@@ -46,14 +47,14 @@ Module StackIA. Section StackIA.
         (StackI.t ★ MemA.t sp ★ SchI.t)
         (StackA.t ★ MemA.t sp ★ SchI.t).
   Proof.
-    iIntros "H". iApply helping_main. iSplitL "H"; iIntros (mn);
-      rewrite !CFilter.filter_app.
-    { (* intermediate refinement with helping facilities *)
+    iIntros "H". iApply (helping_main with "H").
+    { iIntros (mn) "HE". rewrite !CFilter.filter_app.
+      (* intermediate refinement with helping facilities *)
       rewrite comm assoc (comm _ (HelpingDummy.t mn)).
-      iApply ctxr_trans. iSplitL "H".
+      iApply ctxr_trans. iSplitL "HE".
       { iApply main_adequacy.
         - apply StackIM.sim.
-        - iExact "H".
+        - iExact "HE".
       }
       rewrite -!assoc. iApply ctxr_trans. iSplitR.
       { ctxr_rotate. ctxr_swap. do 2 ctxr_rotate. ctxr_swap. ctxr_rotate. ctxr_swap.
@@ -62,6 +63,7 @@ Module StackIA. Section StackIA.
       ctxr_refl.
     }
 
+    iIntros (mn). rewrite !CFilter.filter_app.
     iApply ctxr_trans. iSplitR.
     { do 3 ctxr_rotate. ctxr_swap. ctxr_refl. }
     rewrite (assoc _ (StackM.t mn)).
