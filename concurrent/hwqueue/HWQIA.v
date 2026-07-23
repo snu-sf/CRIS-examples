@@ -24,7 +24,8 @@ Module HWQPM. Section HWQPM.
     (∃ (X : gset val),
       free_id (λ x, x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type ∗
       [∗ set] x ∈ X, ∃ ptr ofs, ⌜x = Vptr (ptr, ofs)⌝ ∗ ∃ v, (ptr, ofs) ↦{1/2} v)%I.
-  Definition IstFull : ist_type Σ := IstHelp_gen Ist mnh ⊤.
+  Definition IstFull : ist_type Σ :=
+    IstProd (IstSB [mnh] (IstHelp Ist ⊤)) IstEq.
 
   Notation HWQM := (HWQM.t mnh).
   Notation HWQP := (HWQP.t mnp).
@@ -34,7 +35,7 @@ Module HWQPM. Section HWQPM.
   Notation ProphA := (ProphecyA.t mnp ∅).
 
   Lemma ctxr :
-    help_init_cond ∗ free_id top1 ⊢
+    hinv_ownE ⊤ ∗ free_id top1 ⊢
       ctx_refines
         ((HWQP ★ HelpDummy) ★ MemA ★ ProphA)
         ((HWQM ★ HelpOn) ★ MemA ★ ProphA).
@@ -46,11 +47,8 @@ Module HWQPM. Section HWQPM.
     { apply simF_dequeue. }
     { cStartFunSim. cStepsT; ss. }
     { cStartFunSim. cStepsT; ss. }
-    { iIntros "[[$ $] F]"; iExists _, _, _, _; repeat iSplit; eauto.
-      { iPureIntro; set_unfold. intros x [[? ?] [-> Hx]]; ss.
-        rewrite dom_union_with dom_empty left_id in Hx; set_unfold; inv Hx; left; done.
-      }
-      iExists ∅; iSplit; eauto.
+    { iIntros "[HE F]"; iExists ∅, ∅, ∅, ∅; repeat iSplit; eauto.
+      iFrame "HE".
       iExists ∅; rewrite big_sepS_empty right_id.
       iPoseProof (free_id_split with "F") as "[F ?]"; last iApply (free_id_iff with "F"); cycle 1.
       { intros i; split; [intros Hi; split; first done; exact Hi|].
@@ -145,60 +143,58 @@ Module HWQIA. Section HWQIA.
         iApply MemIA.ctxr. iExact "MEM". }
       iApply refines_trans. iSplitL "HELP FREE".
       { rewrite comm -assoc comm.
-        iApply (helping_refines _
+        iApply (helping_main_filtered _
           (λ mnh,
             HWQM.t mnh ★ MemA.t sp_mem ★ ProphecyA.t (mname_long sz) ∅)
-          (HWQA.t ★ MemA.t sp_mem) _ _ HWQM.jobCode).
+          (HWQA.t ★ MemA.t sp_mem) _ _ HWQM.jobCode with "HELP [FREE]").
         - intros fn IN1 IN2. subst sz allmds.
           rewrite -elem_of_elements in IN1. eapply elem_of_maxlen in IN1.
           eapply prophecy_exports_long in IN2. rewrite mname_long_length in IN2.
           do 3 rewrite Mod.dom_fnsems_add maxlen_get_fids_union in IN1.
           do 5 rewrite Mod.dom_fnsems_add maxlen_get_fids_union in IN2. nia.
-        - iSplitL "HELP FREE".
-          + iIntros (mnh).
-            iApply ctxr_refines. do 2 rewrite CFilter.filter_app.
-            rewrite HWQP.filter_helping MemA.filter_helping ProphecyA.filter_helping.
-            match goal with
-            | |- context[MemA.t ?sp] => is_evar sp; unify sp sp_mem
-            end.
-            set (hqp := HWQP.t (mname_long sz)).
-            set (hqm := HWQM.t mnh).
-            set (hma := MemA.t sp_mem).
-            set (hpa := ProphecyA.t (mname_long sz) ∅).
-            set (hflt := CFilter.filter
-              (Helping.exports mnh ∪ Prophecy.exports (mname_long sz))
-              (SchI.t ★ ctx)).
-            set (hdummy := HelpingDummy.t mnh).
-            set (hon := HelpingOn.t mnh HWQM.jobCode).
-            match goal with
-            | |- context[ctx_refines ?ms ?mt] =>
-                replace ms with (((hqp ★ hdummy) ★ (hma ★ hpa)) ★ hflt)
-                  by mod_eq_solver;
-                replace mt with (((hqm ★ hon) ★ (hma ★ hpa)) ★ hflt)
-                  by mod_eq_solver
-            end.
-            iApply ctxr_frameR.
-            iApply (HWQPM.ctxr mnh (mname_long sz) sp_mem). iFrame.
-          + iIntros (mnh).
-            iApply ctxr_refines.
-            set (hqm' := HWQM.t mnh).
-            set (hqa := HWQA.t).
-            set (hma' := MemA.t sp_mem).
-            set (hpa' := ProphecyA.t (mname_long sz) ∅).
-            set (hflt' := CFilter.filter
-              (Helping.exports mnh ∪ Prophecy.exports (mname_long sz))
-              (SchI.t ★ ctx)).
-            set (hoff := HelpingOff.t mnh HWQM.jobCode).
-            match goal with
-            | |- context[ctx_refines ?ms ?mt] =>
-                replace ms with
-                  ((hqm' ★ (hpa' ★ hoff)) ★ (hma' ★ hflt'))
-                  by mod_eq_solver;
-                replace mt with (hqa ★ (hma' ★ hflt'))
-                  by mod_eq_solver
-            end.
-            iApply ctxr_frameR.
-            iApply (HWQMA.ctxr (mname_long sz) mnh).
+        - iIntros (mnh) "HE".
+          do 2 rewrite CFilter.filter_app.
+          rewrite HWQP.filter_helping MemA.filter_helping ProphecyA.filter_helping.
+          match goal with
+          | |- context[MemA.t ?sp] => is_evar sp; unify sp sp_mem
+          end.
+          set (hqp := HWQP.t (mname_long sz)).
+          set (hqm := HWQM.t mnh).
+          set (hma := MemA.t sp_mem).
+          set (hpa := ProphecyA.t (mname_long sz) ∅).
+          set (hflt := CFilter.filter
+            (Helping.exports mnh ∪ Prophecy.exports (mname_long sz))
+            (SchI.t ★ ctx)).
+          set (hdummy := HelpingDummy.t mnh).
+          set (hon := HelpingOn.t mnh HWQM.jobCode).
+          match goal with
+          | |- context[ctx_refines ?ms ?mt] =>
+              replace ms with (((hqp ★ hdummy) ★ (hma ★ hpa)) ★ hflt)
+                by mod_eq_solver;
+              replace mt with (((hqm ★ hon) ★ (hma ★ hpa)) ★ hflt)
+                by mod_eq_solver
+          end.
+          iApply ctxr_frameR.
+          iApply (HWQPM.ctxr mnh (mname_long sz) sp_mem). iFrame "HE FREE".
+        - iIntros (mnh).
+          set (hqm' := HWQM.t mnh).
+          set (hqa := HWQA.t).
+          set (hma' := MemA.t sp_mem).
+          set (hpa' := ProphecyA.t (mname_long sz) ∅).
+          set (hflt' := CFilter.filter
+            (Helping.exports mnh ∪ Prophecy.exports (mname_long sz))
+            (SchI.t ★ ctx)).
+          set (hoff := HelpingOff.t mnh HWQM.jobCode).
+          match goal with
+          | |- context[ctx_refines ?ms ?mt] =>
+              replace ms with
+                ((hqm' ★ (hpa' ★ hoff)) ★ (hma' ★ hflt'))
+                by mod_eq_solver;
+              replace mt with (hqa ★ (hma' ★ hflt'))
+                by mod_eq_solver
+          end.
+          iApply ctxr_frameR.
+          iApply (HWQMA.ctxr (mname_long sz) mnh).
       }
       iApply refines_trans. iSplitR.
       { iApply ctxr_refines. do 2 ctxr_drop.

@@ -3,7 +3,8 @@ From CRIS.imp_system Require Import imp.ImpPrelude.
 From CRIS.imp_system Require Import mem.MemTactics mem.MemA.
 From CRIS.scheduler Require Import SchHeader SchI SchA SchTactics.
 From CRIS.elimination_stack Require Import StackHeader StackA StackI.
-From CRIS.helping Require Import HelpingTactics HelpingFacts.
+From CRIS.filter Require Import CallFilter.
+From CRIS.helping Require Import HelpingTactics.
 
 Section StackIM.
   Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !stackGS}.

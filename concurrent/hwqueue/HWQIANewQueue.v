@@ -25,7 +25,8 @@ Section HWQPM.
     (∃ (X : gset val),
       free_id (λ x, x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type ∗
       [∗ set] x ∈ X, ∃ ptr ofs, ⌜x = Vptr (ptr, ofs)⌝ ∗ ∃ v, (ptr, ofs) ↦{1/2} v)%I.
-  Definition IstFull : ist_type Σ := IstHelp_gen Ist mnh ⊤.
+  Definition IstFull : ist_type Σ :=
+    IstProd (IstSB [mnh] (IstHelp Ist ⊤)) IstEq.
 
   Notation HWQM := (HWQM.t mnh).
   Notation HWQP := (HWQP.t mnp).
@@ -57,7 +58,7 @@ Section HWQPM.
     { rewrite Nat.sub_0_r /= app_nil_r.
       aUnfoldT. sYields. rewrite Nat2Z.id Nat.ltb_irrefl. cStepsT. sYields.
       iDestruct "IST" as "[% [% [% [% [[-> ->] [[% [HE IST]] ->]]]]]]".
-      iDestruct "IST" as "[% [% [-> [HA [%X [free acc]]]]]]".
+      iDestruct "IST" as (X) "[free acc]".
       destruct (decide (Vptr (blk, 0%Z) ∈ X)) as [HblkX|HblkX].
       { iPoseProof (big_sepS_elem_of_acc with "acc") as "[[% [% [% [% acc]]]] _]"; auto using HblkX.
         clarify. by iPoseProof (mem_points_to_singleton_valid with "acc sz") as "%".
@@ -100,7 +101,7 @@ Section HWQPM.
       sYieldS. cForceS ((Vptr (blk, 0%Z))↑, tt).
       cIst "IST" with "[- He◯]".
       { iExists _, _, _, _. repeat iSplit; des; eauto.
-        iFrame "HE HA". iExists _; iSplitR; first done.
+        iFrame "HE".
         iExists (X ∪ {[Vptr (blk, 0%Z)]}).
         iSplitL "free".
         { iApply (free_id_iff with "free").
