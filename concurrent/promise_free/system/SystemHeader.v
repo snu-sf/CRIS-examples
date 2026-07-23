@@ -12,6 +12,8 @@ Module SystemHdr.
   Definition alloc   := fnsig "System.alloc" (fntyp nat Val.t).
   Definition write   := fnsig "System.write" (fntyp (Loc.t * Val.t * Ordering.t) Val.t).
   Definition read    := fnsig "System.read" (fntyp (Loc.t * Ordering.t) Val.t).
+  Definition cas     := fnsig "System.cas"
+    (fntyp (Loc.t * Val.t * Val.t * Ordering.t * Ordering.t) Val.t).
 End SystemHdr.
 
 (* Wrapping fspecs *)
@@ -63,6 +65,11 @@ Module System. Section System.
     λ '(loc, ord),
       'tid : Ident.t <- ccallU SystemHdr.get_tid ();;
       ccallU (PFMemHdr.read) (tid, loc, ord).
+
+  Definition cas : Loc.t * Val.t * Val.t * Ordering.t * Ordering.t → itree E Val.t :=
+    λ '(loc, old, new, ordr, ordw),
+      'tid : Ident.t <- ccallU SystemHdr.get_tid ();;
+      ccallU (PFMemHdr.cas) (tid, loc, old, new, ordr, ordw).
 End System. End System.
 
 Notation 𝒴 := (System.yield).

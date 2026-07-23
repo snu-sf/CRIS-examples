@@ -50,6 +50,11 @@ Module SystemI. Section SystemI.
       'tid : Ident.t <- get_tid ();;
       ccallU (PFMemHdr.read) (tid, loc, ord).
 
+  Definition cas : Loc.t * Val.t * Val.t * Ordering.t * Ordering.t → itree crisE Val.t :=
+    λ '(loc, old, new, ordr, ordw),
+      'tid : Ident.t <- get_tid ();;
+      ccallU (PFMemHdr.cas) (tid, loc, old, new, ordr, ordw).
+
   Definition fnsems : fnsemmap :=
     {[fid SystemHdr._spawn  # (msk_real (msk_scp scopes msk_true), (None, cfunU SystemHdr._spawn _spawn));
       fid SystemHdr.spawn   # (msk_real (msk_scp scopes msk_true), (None, cfunU SystemHdr.spawn spawn));
@@ -57,7 +62,8 @@ Module SystemI. Section SystemI.
       fid SystemHdr.yield   # (msk_real (msk_scp scopes msk_true), (None, cfunU SystemHdr.yield yield));
       fid SystemHdr.alloc   # (msk_real (msk_scp scopes msk_true), (None, cfunU SystemHdr.alloc alloc));
       fid SystemHdr.write   # (msk_real (msk_scp scopes msk_true), (None, cfunU SystemHdr.write write));
-      fid SystemHdr.read    # (msk_real (msk_scp scopes msk_true), (None, cfunU SystemHdr.read read))]}.
+      fid SystemHdr.read    # (msk_real (msk_scp scopes msk_true), (None, cfunU SystemHdr.read read));
+      fid SystemHdr.cas     # (msk_real (msk_scp scopes msk_true), (None, cfunU SystemHdr.cas cas))]}.
 
   Program Definition Mod: SMod.t := {|
     SMod.scopes := scopes;

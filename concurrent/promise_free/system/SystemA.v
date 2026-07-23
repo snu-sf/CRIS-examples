@@ -1,5 +1,6 @@
 Require Import CRIS.common.CRIS.
 From CRIS.promise_free.pfmem Require Export PFMemHeader.
+From CRIS.promise_free.pfmem Require Import PFMemA.
 From CRIS.promise_free.system Require Export SystemHeader SystemI.
 From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
 From CRIS.promise_free.gpfsl Require Import LatticeRA.
@@ -202,6 +203,57 @@ Module SystemA. Section SystemA.
   Definition write_spec : fspec := 
     [write_spec_0; write_spec_1]%cris.
 
+  Definition cas_spec : fspec :=
+    fspec_simple
+      (X:=Ident.t * nat * Loc.t * Val.t * Val.t * Ordering.t * Ordering.t * TView.t *
+          gname * Cell.t * View.t * Time.t * Cell.t * AtomicMode * iProp Σ)
+      (λ '(tid, stid, loc, old, new, ordr, ordw, 𝒱, γ, ζ', Vb, tx, ζ, mode, Pr),
+        let Wv ζ : iProp Σ := (if mode is SingleWriter then at_writer γ ζ else True)%I in
+        ((λ varg,
+          ⌜varg = (loc, old, new, ordr, ordw)↑
+            ∧ Ordering.le Ordering.relaxed ordr
+            ∧ Ordering.le Ordering.relaxed ordw
+            ∧ (∀ t f v V b,
+              Time.le (Cell.max_ts ζ') t →
+              Cell.get t ζ = Some (f, Message.message v V b) →
+              PFMemA.comparable old v)⌝ ∗
+          tview_sys tid stid 𝒱 ∗
+          @{TView.cur 𝒱} loc sn⊒{γ} ζ' ∗
+          @{Vb} AtomicPtsToX loc γ tx ζ mode ∗
+          Wv ζ ∗ Pr ∗
+          □ if old is (Val.Vptr lr) then
+              (Pr ==∗ ((∃ qr Cr Vr γ Cr', @{Vr} lr p↦{qr} Cr ∗ @{TView.cur 𝒱} lr sn⊒{γ} Cr') ∧
+                (∀ t f (l' : Loc.t) V' b,
+                  ⌜Time.le (Cell.max_ts ζ') t
+                    ∧ Cell.get t ζ = Some (f, Message.message (Val.Vptr l') V' b)
+                    ∧ l' <> lr⌝ -∗
+                  ∃ q' C' V'', @{V''} l' p↦{q'} C')))
+            else emp),
+        (λ vret, ∃ ret ζ'' ζn t' f' (LT : Time.lt f' t') v' Vr b 𝒱',
+          ⌜vret = ret↑
+            ∧ Cell.le ζ' ζ'' ∧ Cell.le ζ'' ζn
+            ∧ Cell.get t' ζ'' = Some (f', Message.message v' Vr b)
+            ∧ Time.le (Cell.max_ts ζ') t'
+            ∧ TView.le 𝒱 𝒱'⌝ ∗
+          tview_sys tid stid 𝒱' ∗
+          @{TView.cur 𝒱'} loc sn⊒{γ} ζ'' ∗ Pr ∗
+          ((⌜ret = Val.zero ∧ old <> v'
+              ∧ (Vr ⊑ if Ordering.le Ordering.acqrel ordr then TView.cur 𝒱' else TView.acq 𝒱')
+              ∧ ζ = ζn⌝ ∗ @{Vb} AtomicPtsToX loc γ tx ζ mode)
+            ∨ (∃ Vw,
+                ⌜ret = Val.one ∧ old = v'
+                ∧ ∃ t'', Cell.add ζ t' t'' (Message.message new Vw false) ζn
+                ∧ Vr ⊑ Vw ∧ Vr ≠ Vw
+                ∧ ¬ (TView.cur 𝒱') ⊑ Vr
+                ∧ 𝒱' ≠ 𝒱
+                ∧ if Ordering.le Ordering.acqrel ordw
+                  then if Ordering.le Ordering.acqrel ordr
+                    then Vw = TView.cur 𝒱'
+                    else TView.cur 𝒱' ⊑ Vw
+                  else (TView.rel 𝒱' loc) ⊑ Vw
+                ∧ Vw ⊑ if Ordering.le Ordering.acqrel ordr then TView.cur 𝒱' else TView.acq 𝒱'⌝ ∗
+                Wv ζn ∗ @{Vb ⊔ TView.cur 𝒱'} AtomicPtsToX loc γ tx ζn mode)))))%I.
+
   Definition sp (E : coPset) : specmap :=
     {[fid SystemHdr._spawn  @ _spawn_spec;
       fid SystemHdr.spawn   @ spawn_spec;
@@ -209,7 +261,8 @@ Module SystemA. Section SystemA.
       fid SystemHdr.get_tid @ get_tid_spec;
       fid SystemHdr.alloc   @ alloc_spec;
       fid SystemHdr.write   @ write_spec;
-      fid SystemHdr.read    @ read_spec]}.
+      fid SystemHdr.read    @ read_spec;
+      fid SystemHdr.cas     @ cas_spec]}.
 
   (* Module definitions *)
   Definition scopes : list string := ["System"].
@@ -255,6 +308,11 @@ Module SystemA. Section SystemA.
       'tid : Ident.t <- get_tid ();;
       ccallN (PFMemHdr.read) (tid, loc, ord).
 
+  Definition cas : Loc.t * Val.t * Val.t * Ordering.t * Ordering.t → itree crisE Val.t :=
+    λ '(loc, old, new, ordr, ordw),
+      'tid : Ident.t <- get_tid ();;
+      ccallN (PFMemHdr.cas) (tid, loc, old, new, ordr, ordw).
+
   Definition fnsems (E : coPset) : fnsemmap :=
     {[fid SystemHdr._spawn  # (msk_scp scopes msk_true, (fsp_some (_spawn_spec), cfunN (fntyp _ _) _spawn));
       fid SystemHdr.spawn   # (msk_scp scopes msk_true, (fsp_some (spawn_spec), cfunN (fntyp _ _) spawn));
@@ -262,7 +320,8 @@ Module SystemA. Section SystemA.
       fid SystemHdr.get_tid # (msk_scp scopes msk_true, (fsp_some get_tid_spec, cfunN (fntyp _ _) get_tid));
       fid SystemHdr.alloc   # (msk_scp scopes msk_true, (fsp_some alloc_spec, fbody_trivial));
       fid SystemHdr.write   # (msk_scp scopes msk_true, (fsp_some write_spec, fbody_trivial));
-      fid SystemHdr.read    # (msk_scp scopes msk_true, (fsp_some read_spec, fbody_trivial))]}.
+      fid SystemHdr.read    # (msk_scp scopes msk_true, (fsp_some read_spec, fbody_trivial));
+      fid SystemHdr.cas     # (msk_scp scopes msk_true, (fsp_some cas_spec, fbody_trivial))]}.
 
   Program Definition Mod E : SMod.t := {|
     SMod.scopes := scopes;

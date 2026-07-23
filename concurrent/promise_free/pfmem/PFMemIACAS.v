@@ -82,7 +82,7 @@ Section CAS.
           { inv PFG; rewrite H1 in FREEPROMISE. inv LOCAL; ss. }
           { (* inaccessible read ptr *)
             inv LOCAL. ss. destruct val'; ss; cycle 1.
-            { exfalso. hexploit (COMPARABLE to from Val.Vundef); last (intros ?; des; eauto).
+            { exfalso. hexploit (COMPARABLE to from Val.Vundef); last eauto.
               { inv READABLE. etrans; eauto. }
               { rewrite Cell.cut_spec; des_if.
                 { move : GET. rewrite /Memory.get_cell /Cell.get /Memory.get /Block.get /Cell.get //=. }
@@ -126,7 +126,7 @@ Section CAS.
             inv READABLE. etrans; eauto.
           }
         }
-        intros [CMP _]. destruct old, valr, val'; ss.
+        intros CMP. destruct old, valr, val'; ss.
       }
     }
 
@@ -303,7 +303,7 @@ Section CAS.
                 eapply TimeFacts.lt_le_lt; eauto.
               }
             }
-            destruct valr, val'; ss; intros [? _]; ss; try (destruct old; done); rewrite GETR GET.
+            destruct valr, val'; ss; intros ?; ss; try (destruct old; done); rewrite GETR GET.
             { eapply Z.eqb_eq in VAL; subst; refl. }
             { eapply Loc.eqb_eq in VAL; subst; refl. }
           }
