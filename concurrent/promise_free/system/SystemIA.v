@@ -1,6 +1,6 @@
 Require Import CRIS.common.CRIS.
 From CRIS.promise_free.system Require Import
-  SystemHeader SystemI SystemA SystemIAAlloc SystemIAWrite SystemIARead.
+  SystemHeader SystemI SystemA SystemIAAlloc SystemIAWrite SystemIARead SystemIACAS.
 From CRIS.promise_free.pfmem Require Import PFMemHeader PFMemA.
 From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
 
@@ -250,6 +250,7 @@ Section ctx_refines.
     { apply simF_alloc; eauto. }
     { apply simF_write; eauto. }
     { apply simF_read; eauto. }
+    { apply simF_cas; eauto. }
     { iIntros "TA"; repeat iExists _; repeat iSplit; ss.
       iExists 1%positive, {[1%positive := (TView.init size, 0)]}; iFrame.
       iSplit; first eauto.

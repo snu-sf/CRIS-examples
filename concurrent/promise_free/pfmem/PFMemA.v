@@ -134,13 +134,7 @@ Module PFMemA. Section PFMemA.
             ∧ (∀ t f v V b,
               Time.le (Cell.max_ts ζ') t
               → Cell.get t ζ = Some (f, Message.message v V b)
-              → comparable old v
-                ∧ if v is Val.Vptr loc
-                  then
-                    if Ordering.le Ordering.acqrel ordr
-                    then (View.alloc_view V) (Loc.get_tbid loc)
-                    else (View.alloc_view (TView.cur 𝓥)) (Loc.get_tbid loc)
-                  else True) ⌝
+              → comparable old v) ⌝
           ∗ tview tid 𝓥
           ∗ @{TView.cur 𝓥} loc sn⊒{γ} ζ'
           ∗ @{Vb} AtomicPtsToX loc γ tx ζ mode
