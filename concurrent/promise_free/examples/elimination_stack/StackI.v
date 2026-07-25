@@ -3,7 +3,7 @@ Require Import CRIS.scheduler.SchHeader.
 From CRIS.promise_free.algebra Require Import HistoryRA.
 From CRIS.promise_free.pfmem Require Import PFMemHeader.
 From CRIS.promise_free.system Require Import SystemHeader.
-From CRIS.promise_free.elimination_stack Require Export StackHeader.
+From CRIS.promise_free.examples.elimination_stack Require Export StackHeader.
 
 Module StackI. Section StackI.
   Context `{!crisG Γ Σ α β τ _S _I}.

@@ -3,9 +3,9 @@ From CRIS.scheduler Require Import SchHeader SchI SchA SchTactics.
 From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
 From CRIS.promise_free.system
   Require Import SystemHeader SystemA SystemTactics.
-From CRIS.promise_free.elimination_stack
+From CRIS.promise_free.examples.elimination_stack
   Require Import StackHeader StackA StackI.
-From CRIS.promise_free.elimination_stack
+From CRIS.promise_free.examples.elimination_stack
   Require Import StackIANewStack StackIAPush StackIAPop.
 From CRIS.helping Require Export HelpingTactics.
 
