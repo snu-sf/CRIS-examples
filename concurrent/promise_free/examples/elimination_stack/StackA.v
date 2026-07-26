@@ -6,7 +6,7 @@ From CRIS.promise_free.model Require Import Cell Time View.
 From CRIS.promise_free.gpfsl Require Import LatticeRA.
 From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
 From CRIS.promise_free.system Require Import SystemA.
-From CRIS.promise_free.elimination_stack Require Export StackHeader.
+From CRIS.promise_free.examples.elimination_stack Require Export StackHeader.
 From CRIS.helping Require Import HelpingHeader HelpingTactics.
 From CRIS.iris_system.lib Require Import ghost_map.
 

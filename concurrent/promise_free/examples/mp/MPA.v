@@ -5,7 +5,7 @@ From CRIS.scheduler Require Import SchHeader SchA.
 From CRIS.promise_free.pfmem Require Import PFMemHeader.
 From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
 From CRIS.promise_free.system Require Import SystemHeader SystemA.
-From CRIS.promise_free.examples Require Import MPI.
+From CRIS.promise_free.examples.mp Require Import MPI.
 
 From iris.algebra Require Import excl agree csum.
 

@@ -6,7 +6,7 @@ From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
 From CRIS.promise_free.pfmem Require Import PFMemA PFMemI PFMemIA.
 From CRIS.promise_free.system Require Import
   SystemHeader SystemI SystemA SystemIA SystemTactics.
-From CRIS.promise_free.examples Require Import MPI MPA MPIA.
+From CRIS.promise_free.examples.mp Require Import MPI MPA MPIA.
 From CRIS.promise_free.lib Require Import Language.
 
 Section MPAux.

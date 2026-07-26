@@ -2,7 +2,7 @@ Require Import CRIS.common.CRIS.
 From CRIS.scheduler Require Import SchHeader SchI SchA SchTactics.
 From CRIS.promise_free.algebra Require Import HistoryRA AtomicRA.
 From CRIS.promise_free.system Require Import SystemHeader SystemA SystemTactics.
-From CRIS.promise_free.elimination_stack Require Import StackHeader StackA StackI.
+From CRIS.promise_free.examples.elimination_stack Require Import StackHeader StackA StackI.
 From CRIS.filter Require Import CallFilter.
 From CRIS.helping Require Import HelpingTactics.
 
