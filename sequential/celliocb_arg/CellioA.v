@@ -49,7 +49,7 @@ Module CellioA. Section CellioA.
     rewrite comm; apply excl_auth_update.
   Qed.
 
-  Definition set : string * Z -> itree crisE () :=
+  Definition set : string * key -> itree crisE () :=
     λ '(cb, arg),
       x <- trigger (Take Z);;
       trigger (Assume (cell x));;;

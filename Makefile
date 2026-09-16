@@ -58,7 +58,6 @@ Makefile.coq: Makefile $(COQTHEORIES)
 	 echo "-Q sequential/cellio $(CRISMODULE).cellio"; \
 	 echo "-Q sequential/celliocb $(CRISMODULE).celliocb"; \
 	 echo "-Q sequential/celliocb_arg $(CRISMODULE).celliocb_arg"; \
-	 echo "-Q sequential/celliocb_count $(CRISMODULE).celliocb_count"; \
 	 echo "-Q sequential/celliostk $(CRISMODULE).celliostk"; \
 	 echo "-Q sequential/hybrid_mem $(CRISMODULE).hybrid_mem"; \
 	 echo "-Q sequential/knot $(CRISMODULE).knot"; \

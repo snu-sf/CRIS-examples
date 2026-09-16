@@ -7,15 +7,16 @@ Module MainI. Section MainI.
   Definition scopes : list string := ["Main"].
   Definition v_count := "Main" ↯ "count".
 
-  Definition input_cb : Z -> itree crisE Z :=
-    λ delta,
-      'count : Z <- cgetU v_count;;
-      cput v_count (count + delta)%Z;;;
-      Ret (count + delta)%Z.
+  (* ptr is a logical state key, not an imp_system memory pointer. *)
+  Definition input_cb : key -> itree crisE Z :=
+    λ ptr,
+      'count : Z <- cgetU ptr;;
+      cput ptr (count + 1)%Z;;;
+      Ret (7%Z).
 
   Definition main : Any.t -> itree crisE Any.t :=
     λ _,
-      ccallU CellioHdr.set (MainHdr.input_cb.1, 2%Z);;;
+      ccallU CellioHdr.set (MainHdr.input_cb.1, v_count);;;
       ccallU CtxHdr.foo tt;;;
       x <- ccallU CellioHdr.get tt;;
       'count : Z <- cgetU v_count;;

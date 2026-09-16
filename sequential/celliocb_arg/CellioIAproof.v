@@ -26,7 +26,7 @@ Module CellioIA. Section CellioIA.
     cCall "IST" as (?) "IST".
     cStepsS. cStepsT.
     destruct Any.downcast; cStepsS; des_ifs.
-    rename z0 into v_new.
+    rename z into v_new.
 
     (* Update the Cell ownership to the callback result. *)
     iDestruct "IST" as (v') "(CV & AUTH)".

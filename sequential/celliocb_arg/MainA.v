@@ -15,15 +15,16 @@ Module MainA. Section MainA.
       )
     )%I.
 
-  Definition input_cb : Z -> itree crisE Z :=
-    λ delta,
-      'count : Z <- cgetU v_count;;
-      cput v_count (count + delta)%Z;;;
-      Ret (count + delta)%Z.
+  (* ptr is a logical state key, not an imp_system memory pointer. *)
+  Definition input_cb : key -> itree crisE Z :=
+    λ ptr,
+      'count : Z <- cgetU ptr;;
+      cput ptr (count + 1)%Z;;;
+      Ret (7%Z).
 
   Definition main : Any.t -> itree crisE Any.t :=
     λ _,
-      'i : Z <- ccallU MainHdr.input_cb 2%Z;;
+      'i : Z <- ccallU MainHdr.input_cb v_count;;
       ccallU CtxHdr.foo tt;;;
       'count : Z <- cgetU v_count;;
       trigger (@IO _ unit "Print" (count, i));;;

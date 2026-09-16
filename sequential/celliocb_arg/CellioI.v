@@ -9,7 +9,7 @@ Module CellioI. Section CellioI.
   Definition scopes := [CellioHdr.mn].
   Definition v_cv := CellioHdr.mn ↯ "cv".
 
-  Definition set : string * Z -> itree crisE () :=
+  Definition set : string * key -> itree crisE () :=
     λ '(cb, arg),
       i <- ccallU (fnsig cb CtxHdr.cb_t) arg;;
       cput v_cv i;;;

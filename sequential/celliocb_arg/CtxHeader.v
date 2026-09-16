@@ -4,5 +4,5 @@ Module CtxHdr.
   Definition mn := "Ctx".
 
   Definition foo := fnsig "foo" (fntyp () ()).
-  Definition cb_t := fntyp Z Z.
+  Definition cb_t := fntyp key Z.
 End CtxHdr.
