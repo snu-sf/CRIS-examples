@@ -18,8 +18,11 @@ Module LockIA. Section LockIA.
   Local Definition SpinLockI := (SpinLockI.t).
   Local Notation MA := (SpinLockA ★ MemA).
   Local Notation MI := (SpinLockI ★ MemA).
-  Local Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (True ∗ IstEq MemA STATE)%I.
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Local Definition IstFull : iProp Σ :=
+    (True ∗ IstEq MemA)%I.
 
   Lemma newlock_simF :
     ⊢ ISim.sim_fun open MA MI IstFull (fid SpinLockHdr.newlock).
@@ -151,15 +154,18 @@ Module LockIA. Section LockIA.
     }
   (*SLOW*)Qed.
 
+  End SIM_FUNS.
+
   (* Construct ISim.t for summing up each simulation proofs *)
-  Lemma sim : init_cond ⊢ ISim.t open MA MI IstFull.
+
+  Lemma sim : init_cond ⊢ ISim.t open MA MI.
   Proof.
     iIntros "_".
     iApply (ISim_reflR open SpinLockA SpinLockI MemA (λ _, True%I)).
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STATE) "SRC TGT". done.
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+      iIntros "SRC TGT". done.
+    - iIntros (STATE). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split; mod_tac. }
       iIntros (fn) "%Hfn".
       set_unfold in Hfn; des; subst.

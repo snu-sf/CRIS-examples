@@ -18,8 +18,11 @@ Module ClientIA. Section ClientIA.
 
   Local Definition MA := (ClientA.t N sp ★ IncrA.t ★ MemA.t sp).
   Local Definition MI := (ClientI.t ★ IncrA.t ★ MemA.t sp).
-  Local Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (True ∗ IstEq (IncrA.t ★ MemA.t sp) STATE)%I.
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Local Definition IstFull : iProp Σ :=
+    (True ∗ IstEq (IncrA.t ★ MemA.t sp))%I.
 
   Lemma f_spawnable γ v bofs :
     ⊢ SchA.fn_spawnable sp_user (ClientHdr.thread.1)
@@ -151,14 +154,16 @@ Module ClientIA. Section ClientIA.
     cStep. iFrame. done.
   Qed.
 
-  Lemma sim : ⊢ ISim.t open MA MI IstFull.
+  End SIM_FUNS.
+
+  Lemma sim : ⊢ ISim.t open MA MI.
   Proof.
     iApply (ISim_reflR open (ClientA.t N sp) ClientI.t
       (IncrA.t ★ MemA.t sp) (λ _, True%I)).
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STATE) "SRC TGT". done.
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+      iIntros "SRC TGT". done.
+    - iIntros (STATE). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split; mod_tac. }
       iIntros (fn) "%Hfn".
       set_unfold in Hfn; des; subst.

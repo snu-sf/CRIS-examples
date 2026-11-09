@@ -10,8 +10,6 @@ Module MPIA. Section MPIA.
   Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS, _ONESHOT: !one_shotG}.
   Local Existing Instances one_shot_inG.
 
-  Definition Ist (_ : stateGS Σ) : iProp Σ := emp%I.
-
   Context (sp_s sp_user : specmap).
   Context (SchInSpS : (SystemA.sp sp_user ⊤) ⊆ sp_s).
   Context (HMP : MPA.sp ⊆ sp_user).
@@ -20,8 +18,12 @@ Module MPIA. Section MPIA.
   Local Definition MI := (MPI.t      ★ SystemA.t sp_user ⊤ sp_s ★ PFMemA.t sp_s).
   Local Definition CommonA :=
     SystemA.t sp_user ⊤ sp_s ★ PFMemA.t sp_s.
-  Local Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (Ist STATE ∗ IstEq CommonA STATE)%I.
+  Section SIM_FUNS.
+    Context `{STATE : !stateGS Σ}.
+
+  Definition Ist : iProp Σ := emp%I.
+  Local Definition IstFull : iProp Σ :=
+    (Ist ∗ IstEq CommonA)%I.
 
   Lemma mp2_spawnable : ⊢ SystemA.fspec_spawnable sp_user MPHdr.mp2.1 MPA.mp2_precondition.
   Proof.
@@ -362,14 +364,17 @@ Module MPIA. Section MPIA.
   Unshelve. all: try exact ⊤.
   Qed.
 
-  Lemma sim : ⊢ ISim.t open MA MI IstFull.
+  End SIM_FUNS.
+
+  Lemma sim : ⊢ ISim.t open MA MI.
   Proof.
     rewrite /MA /MI.
-    iApply (ISim_reflR open (MPA.t sp_s) MPI.t CommonA Ist).
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    iApply (ISim_reflR open (MPA.t sp_s) MPI.t CommonA
+      (fun _ : stateGS Σ => Ist)).
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STATE) "SRC TGT". done.
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+      iIntros "SRC TGT". done.
+    - iIntros (STATE). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split; mod_tac. }
       iIntros (fn) "%Hfn".
       unfold MPA.t in Hfn. cbn in Hfn.

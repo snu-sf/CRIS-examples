@@ -25,122 +25,128 @@ Module SingleCoinPA. Section SingleCoinPA.
   Local Notation MA := (SingleCoinA.t sp).
   Local Notation MI := (SingleCoinP.t mn ★ ProphecyA.t mn ∅).
 
-  Local Definition Ist (STATE : stateGS Σ) : iProp Σ :=
-    (∃ (l_s : list bool) (l_t : list (option bool)),
-        v_coins ↦tgt l_t↑ ∗ ⌜length l_s = length l_t⌝
-        ∗ ProphecyRA.free_id (λ i, i.1 = "SingleCoin" ∧ ∃ n, i.2↓↓ = Some n ∧ n >= length l_t)%type
-        ∗ coin_auth l_s
-        ∗ [∗ list] i ↦ ob ∈ l_t,
-          ∃ b ol, ProphecyRA.proph (proph_coins i) (existT coin_proph (b, ol))
-          ∗ ⌜l_s !! i = Some b
-            ∧ (match ob with Some b' => b' = b ∧ ol = [b] | None => ol = [] end)
-            ∧ (Prophecy.consistent coin_proph ol b)⌝
-        )%I.
+  Section SIM_FUNS.
 
-  Lemma simF_new :
-    ⊢ ISim.sim_fun open MA MI Ist (fid SingleCoinHdr.new).
-  Proof.
-    cStartFunSim. rewrite /new .
-    iDestruct "IST" as (l_s l_t) "[COINS [%EQ [F [AUTH PL]]]]".
-    cStepsS. iDestruct "ASM" as "[-> ->]". cSimpl.
+    Context `{STATE : !stateGS Σ}.
 
-    cStepsT. cInlineT. cForceT (proph_coins (length l_t), coin_proph).
-    cStepsT. cForceT ((proph_coins (length l_t))↑). cStepsT.
-    iPoseProof (ProphecyRA.free_id_split_singleton _ (proph_coins (length l_t)) with "F") as "[F1 F2]".
-    { ss; cSimpl; esplits; eauto. }
-    cForceT; iFrame; iSplit; eauto.
-    cStepsT. iDestruct "GRT" as "[-> [%b [-> P]]]". cStepsT.
+    Local Definition Ist : iProp Σ :=
+      (∃ (l_s : list bool) (l_t : list (option bool)),
+          v_coins ↦tgt l_t↑ ∗ ⌜length l_s = length l_t⌝
+          ∗ ProphecyRA.free_id (λ i, i.1 = "SingleCoin" ∧ ∃ n, i.2↓↓ = Some n ∧ n >= length l_t)%type
+          ∗ coin_auth l_s
+          ∗ [∗ list] i ↦ ob ∈ l_t,
+            ∃ b ol, ProphecyRA.proph (proph_coins i) (existT coin_proph (b, ol))
+            ∗ ⌜l_s !! i = Some b
+              ∧ (match ob with Some b' => b' = b ∧ ol = [b] | None => ol = [] end)
+              ∧ (Prophecy.consistent coin_proph ol b)⌝
+          )%I.
 
-    (* alloc coin *)
-    iMod (coin_alloc _ b with "AUTH") as "[AUTH COIN]".
-    cIst "IST" with "[COINS F2 PL P AUTH]".
-    { iExists (l_s ++ [b]), (l_t ++ [None]). iFrame "COINS".
-      iSplit.
-      { iPureIntro. rewrite ?length_app; s; lia. }
-      iSplitL "F2".
-      { iApply ProphecyRA.free_id_iff; [|iFrame].
-        intros [name a]; split; ss; des_ifs.
-        { intros t; inv t; des; clarify. inv e. cSimpl. rewrite length_app in H1. ss. lia. }
-        { intros t; des; esplits; eauto. rewrite length_app in t1; ss; lia. }
-        { intros [-> [n0 [EQ' GT]]]; esplits; eauto.
-          assert (n0 <> length l_t).
-          { ii; clarify; eapply n; rewrite /proph_coins; f_equal. hexploit SAny.downcast_upcast; eauto. }
-          rewrite length_app; ss; lia.
+    Lemma simF_new :
+      ⊢ ISim.sim_fun open MA MI Ist (fid SingleCoinHdr.new).
+    Proof.
+      cStartFunSim. rewrite /new .
+      iDestruct "IST" as (l_s l_t) "[COINS [%EQ [F [AUTH PL]]]]".
+      cStepsS. iDestruct "ASM" as "[-> ->]". cSimpl.
+
+      cStepsT. cInlineT. cForceT (proph_coins (length l_t), coin_proph).
+      cStepsT. cForceT ((proph_coins (length l_t))↑). cStepsT.
+      iPoseProof (ProphecyRA.free_id_split_singleton _ (proph_coins (length l_t)) with "F") as "[F1 F2]".
+      { ss; cSimpl; esplits; eauto. }
+      cForceT; iFrame; iSplit; eauto.
+      cStepsT. iDestruct "GRT" as "[-> [%b [-> P]]]". cStepsT.
+
+      (* alloc coin *)
+      iMod (coin_alloc _ b with "AUTH") as "[AUTH COIN]".
+      cIst "IST" with "[COINS F2 PL P AUTH]".
+      { iExists (l_s ++ [b]), (l_t ++ [None]). iFrame "COINS".
+        iSplit.
+        { iPureIntro. rewrite ?length_app; s; lia. }
+        iSplitL "F2".
+        { iApply ProphecyRA.free_id_iff; [|iFrame].
+          intros [name a]; split; ss; des_ifs.
+          { intros t; inv t; des; clarify. inv e. cSimpl. rewrite length_app in H1. ss. lia. }
+          { intros t; des; esplits; eauto. rewrite length_app in t1; ss; lia. }
+          { intros [-> [n0 [EQ' GT]]]; esplits; eauto.
+            assert (n0 <> length l_t).
+            { ii; clarify; eapply n; rewrite /proph_coins; f_equal. hexploit SAny.downcast_upcast; eauto. }
+            rewrite length_app; ss; lia.
+          }
         }
+        iFrame.
+        iApply (big_sepL_app). iSplitL "PL"; cycle 1.
+        { s. iSplit; [|done]. iExists b, []; iSplit.
+          { rewrite Nat.add_0_r; iFrame. }
+          iPureIntro. rewrite -EQ.
+          rewrite lookup_app_r; [|lia].
+          rewrite Nat.add_comm /= Nat.sub_diag /=.
+          esplits; eauto.
+        }
+        iApply (big_sepL_impl with "PL").
+        iModIntro; iIntros (k x) "%Hkx [%b' [%ol' H]]".
+        apply lookup_lt_Some in Hkx; rewrite -EQ in Hkx.
+        rewrite lookup_app_l //.
+        iExists _, _; iFrame.
       }
-      iFrame.
-      iApply (big_sepL_app). iSplitL "PL"; cycle 1.
-      { s. iSplit; [|done]. iExists b, []; iSplit.
-        { rewrite Nat.add_0_r; iFrame. }
-        iPureIntro. rewrite -EQ.
-        rewrite lookup_app_r; [|lia].
-        rewrite Nat.add_comm /= Nat.sub_diag /=.
-        esplits; eauto.
-      }
-      iApply (big_sepL_impl with "PL").
-      iModIntro; iIntros (k x) "%Hkx [%b' [%ol' H]]".
-      apply lookup_lt_Some in Hkx; rewrite -EQ in Hkx.
-      rewrite lookup_app_l //.
-      iExists _, _; iFrame.
-    }
 
-    cForcesS. iFrame. iSplit; eauto.
-    cStep. iFrame. eauto.
-  Qed.
-
-  Lemma simF_read :
-    ⊢ ISim.sim_fun open MA MI Ist (fid SingleCoinHdr.read).
-  Proof.
-    cStartFunSim. rewrite /read.
-    cStepsS. destruct _q as [idx b]. iDestruct "ASM" as "[-> [-> C]]".
-    iDestruct "IST" as (l_s l_t) "[COINS [%EQ [F [AU PL]]]]".
-    iPoseProof (coin_both_valid with "AU C") as "%NTH".
-
-    cStepsT.
-    assert (idx < length l_s) by (eapply lookup_lt_Some; eauto).
-    destruct (l_t !! idx) as [o|] eqn : LTN; cycle 1.
-    { apply lookup_ge_None in LTN; lia. }
-    destruct o as [bn'|].
-    { (* after initialization *)
-      iPoseProof (big_sepL_lookup_acc _ _ idx with "PL") as "[P PL]"; eauto.
-      iDestruct "P" as "[%bn [%oln [P %P]]]".
-      rewrite NTH in P. rewrite NTH. destruct P as [NTH' [EQ' ?]].
-      hexploit EQ'; ss; i; des; clarify.
       cForcesS. iFrame. iSplit; eauto.
-      cStep. iSplit; eauto.
-      iFrame. iSplit; eauto. iApply "PL". iExists _, _; iFrame.
-      iPureIntro; splits; ss. right; esplits; eauto.
-    }
-    { (* before initialization *)
-      eapply elem_of_list_split_length in LTN; destruct LTN as [l1 [l2 [-> ->]]].
-      cStepsT.
-      rewrite take_app Nat.sub_diag /= app_nil_r firstn_all drop_app.
-      rewrite drop_ge; [|lia]; rewrite /= Nat.sub_succ_l // Nat.sub_diag /= drop_0.
-      iPoseProof (big_sepL_app with "PL") as "[PL1 [P PL2]]".
-      iDestruct "P" as "[%bn [%oln [P %HP]]]".
-      cStepsT. cInlineT. cForceT (proph_coins _, existT coin_proph (_, _, _)). cForcesT. iFrame.
-      rewrite Nat.add_0_r. iSplit; eauto.
-      cStepsT. iDestruct "GRT" as "[-> [[-> %GRT] P]]". cStepsT.
-      destruct GRT as [|[tl EQ']]; [clarify|].
-      destruct tl; cycle 1.
-      { inv EQ'. destruct HP as [? [Htemp ?]]. exfalso; eapply app_cons_not_nil; eauto. }
-      inv EQ'.
+      cStep. iFrame. eauto.
+    Qed.
 
-      cForcesS. iFrame. iSplit; eauto. cStep.
-      rewrite Nat.add_0_r NTH in HP; destruct HP as [? [_ HP]]; clarify.
-      iSplit; eauto.
-      iExists l_s, _. iFrame "COINS". iSplit.
-      { iPureIntro. rewrite EQ ?length_app /= //. }
-      iSplitL "F".
-      { iApply ProphecyRA.free_id_iff; ss. rewrite ?length_app //. }
-      iFrame. rewrite Nat.add_0_r. iFrame. iPureIntro; ss; esplits; eauto. right; exists []; eauto.
-    }
-  Qed.
+    Lemma simF_read :
+      ⊢ ISim.sim_fun open MA MI Ist (fid SingleCoinHdr.read).
+    Proof.
+      cStartFunSim. rewrite /read.
+      cStepsS. destruct _q as [idx b]. iDestruct "ASM" as "[-> [-> C]]".
+      iDestruct "IST" as (l_s l_t) "[COINS [%EQ [F [AU PL]]]]".
+      iPoseProof (coin_both_valid with "AU C") as "%NTH".
+
+      cStepsT.
+      assert (idx < length l_s) by (eapply lookup_lt_Some; eauto).
+      destruct (l_t !! idx) as [o|] eqn : LTN; cycle 1.
+      { apply lookup_ge_None in LTN; lia. }
+      destruct o as [bn'|].
+      { (* after initialization *)
+        iPoseProof (big_sepL_lookup_acc _ _ idx with "PL") as "[P PL]"; eauto.
+        iDestruct "P" as "[%bn [%oln [P %P]]]".
+        rewrite NTH in P. rewrite NTH. destruct P as [NTH' [EQ' ?]].
+        hexploit EQ'; ss; i; des; clarify.
+        cForcesS. iFrame. iSplit; eauto.
+        cStep. iSplit; eauto.
+        iFrame. iSplit; eauto. iApply "PL". iExists _, _; iFrame.
+        iPureIntro; splits; ss. right; esplits; eauto.
+      }
+      { (* before initialization *)
+        eapply elem_of_list_split_length in LTN; destruct LTN as [l1 [l2 [-> ->]]].
+        cStepsT.
+        rewrite take_app Nat.sub_diag /= app_nil_r firstn_all drop_app.
+        rewrite drop_ge; [|lia]; rewrite /= Nat.sub_succ_l // Nat.sub_diag /= drop_0.
+        iPoseProof (big_sepL_app with "PL") as "[PL1 [P PL2]]".
+        iDestruct "P" as "[%bn [%oln [P %HP]]]".
+        cStepsT. cInlineT. cForceT (proph_coins _, existT coin_proph (_, _, _)). cForcesT. iFrame.
+        rewrite Nat.add_0_r. iSplit; eauto.
+        cStepsT. iDestruct "GRT" as "[-> [[-> %GRT] P]]". cStepsT.
+        destruct GRT as [|[tl EQ']]; [clarify|].
+        destruct tl; cycle 1.
+        { inv EQ'. destruct HP as [? [Htemp ?]]. exfalso; eapply app_cons_not_nil; eauto. }
+        inv EQ'.
+
+        cForcesS. iFrame. iSplit; eauto. cStep.
+        rewrite Nat.add_0_r NTH in HP; destruct HP as [? [_ HP]]; clarify.
+        iSplit; eauto.
+        iExists l_s, _. iFrame "COINS". iSplit.
+        { iPureIntro. rewrite EQ ?length_app /= //. }
+        iSplitL "F".
+        { iApply ProphecyRA.free_id_iff; ss. rewrite ?length_app //. }
+        iFrame. rewrite Nat.add_0_r. iFrame. iPureIntro; ss; esplits; eauto. right; exists []; eauto.
+      }
+    Qed.
+
+  End SIM_FUNS.
 
   Lemma sim :
-    SingleCoinA.init_cond ⊢ ISim.t open MA MI Ist.
+    SingleCoinA.init_cond ⊢ ISim.t open MA MI.
   Proof.
-    cStartModSim.
+    cStartModSim (fun STATE : stateGS Σ => Ist (STATE := STATE)).
     { iPoseProof (state_init_tgt_acc _ _ v_coins with "TGT") as
         (ov) "(%Hcoins & COINS & _)".
       { set_solver. }

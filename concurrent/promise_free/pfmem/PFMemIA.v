@@ -16,8 +16,9 @@ Module PFMemIA. Section PFMemIA.
   Proof using.
     etrans; cycle 1.
     { eapply (main_adequacy
-        (PFMemI.t PFMemA.syn []) (PFMemA.t sp) PFMemIA.Ist). }
-    cStartModSim.
+        (PFMemI.t PFMemA.syn []) (PFMemA.t sp)). }
+    cStartModSim
+      (fun STATE : stateGS Σ => PFMemIA.Ist (STATE := STATE)).
     { iPoseProof (state_init_tgt_acc _ _ PFMemI.v_config with "TGT") as
         (ov) "(%Hconfig & CONFIG & _)".
       { set_solver. }

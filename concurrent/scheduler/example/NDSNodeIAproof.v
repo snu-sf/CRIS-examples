@@ -18,8 +18,11 @@ Module NDSNodeIA. Section NDSNodeIA.
   Context (Hnds: (NDSA.sp sp_user ⊤ T get_stid PYIP) ⊆ sp).
   Context (Hnode: (NDSNodeA.sp ⊤) ⊆ sp_user).
 
-  Local Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (True ∗ IstEq HybMem.t STATE)%I.
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Local Definition IstFull : iProp Σ :=
+    (True ∗ IstEq HybMem.t)%I.
   Local Definition init_cond := NDSNodeA.init_cond.
   Local Definition MA := (NDSNodeA.t sp ★ HybMem.t).
   Local Definition MI := (NDSNodeI.t ★ HybMem.t).
@@ -131,15 +134,17 @@ Module NDSNodeIA. Section NDSNodeIA.
     cStep. iFrame; eauto.
   (*SLOW*)Qed.
 
-  Lemma sim : init_cond ⊢ ISim.t open MA MI IstFull.
+  End SIM_FUNS.
+
+  Lemma sim : init_cond ⊢ ISim.t open MA MI.
   Proof using Hschnds Hnds Hnode.
     iIntros "_".
     iApply (ISim_reflR open (NDSNodeA.t sp) NDSNodeI.t
       HybMem.t (λ _ : stateGS Σ, True%I)).
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STATE0) "SRC TGT". done.
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+      iIntros "SRC TGT". done.
+    - iIntros (STATE). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split; mod_tac. }
       iIntros (fn) "%Hfn".
       set_unfold in Hfn; des; subst.

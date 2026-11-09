@@ -21,6 +21,9 @@ Section HWQPM.
   Context (mnh mnp : string).
   Context (sp_mem : specmap).
 
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
   Definition Ist : iProp Σ :=
     (∃ (X : gset val),
       free_id (λ x, x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type ∗
@@ -33,9 +36,9 @@ Section HWQPM.
   Notation MemA := (MemA.t sp_mem).
   Notation ProphA := (ProphecyA.t mnp ∅).
 
-  Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (IstHelp (Ist ∗ IstEq (HWQM ★ HelpOn) STATE) ⊤ ∗
-     IstEq (MemA ★ ProphA) STATE)%I.
+  Definition IstFull : iProp Σ :=
+    (IstHelp (Ist ∗ IstEq (HWQM ★ HelpOn)) ⊤ ∗
+     IstEq (MemA ★ ProphA))%I.
 
   Lemma simF_new_queue :
     ⊢ ISim.sim_fun open
@@ -120,7 +123,9 @@ Section HWQPM.
         rewrite big_sepS_union; last set_solver.
         iFrame. rewrite big_sepS_singleton; iExists _, _; iSplit; eauto.
       }
-      cStep; iFrame "#∗". iModIntro; eauto.
+      cNormS. cNormT.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+      iFrame "#∗". iModIntro; eauto.
     }
     (* inductive case *)
     aUnfoldT. cStepsT. sYields.
@@ -139,4 +144,8 @@ Section HWQPM.
     replace (sz - i) with ((sz - S i) + 1) by lia; rewrite replicate_add /=.
     rewrite -(assoc app) //=.
   Qed.
+
+  End SIM_FUNS.
+
+
 End HWQPM.

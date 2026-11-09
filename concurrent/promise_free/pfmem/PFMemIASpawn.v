@@ -17,6 +17,9 @@ Section spawn.
   Definition MA := (PFMemA.t sp).
   Definition MI := (PFMemI.t syn size).
 
+  Section SIM_FUNS.
+    Context `{STATE : !stateGS Σ}.
+
   Lemma simF_spawn :
     ⊢ ISim.sim_fun open MA MI Ist (fid PFMemHdr.spawn).
   Proof.
@@ -34,7 +37,7 @@ Section spawn.
     { rewrite IdentMap.mem_find in Hnin; des_ifs; eauto. }
     cForceS (tid_new↑). cStepsS. cForceS (tid_new↑). cStepsS.
     cStepsT.
-    iAssert (Ist STATE)%I with "[- TV TVnew]" as "IST".
+    iAssert Ist%I with "[- TV TVnew]" as "IST".
     { iExists _, _, _; iSplit; cycle 1.
       { iFrame. }
       iPureIntro.
@@ -51,4 +54,6 @@ Section spawn.
     { iFrame. eauto. }
     cStepsS. cStep. iSplitR; done.
   (*SLOW*)Qed.
+  End SIM_FUNS.
+
 End spawn.

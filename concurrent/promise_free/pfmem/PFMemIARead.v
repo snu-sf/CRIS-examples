@@ -18,6 +18,9 @@ Section read.
   Definition MA := (PFMemA.t sp).
   Definition MI := (PFMemI.t syn size).
 
+  Section SIM_FUNS.
+    Context `{STATE : !stateGS Σ}.
+
   Lemma simF_read :
     ⊢ ISim.sim_fun open MA MI PFMemIA.Ist (fid PFMemHdr.read).
   Proof.
@@ -105,7 +108,7 @@ Section read.
       { rewrite Memory.get_memory_cell in CELL_GET'; des_ifs. }
       destruct EQ as [H2 [H4 [H5 H6]]]; subst.
       
-      iAssert (Ist STATE)%I with "[HA FA TA CONFIG]" as "IST".
+      iAssert Ist%I with "[HA FA TA CONFIG]" as "IST".
       { iFrame. iPureIntro; esplits; eauto.
         { hexploit (@PFConfiguration.step_future ThreadEvent.get_machine_event); eauto.
           { econs; eauto. econs; eauto.
@@ -232,7 +235,7 @@ Section read.
 
         iMod ((tview_auth_update ths (IdentMap.add tid (existT _ st2, lc2) ths)) with "TA TV") as "[TA TV]"; eauto.
 
-        iAssert (Ist STATE)%I with "[HA FA TA CONFIG]" as "IST".
+        iAssert Ist%I with "[HA FA TA CONFIG]" as "IST".
         { iFrame. iPureIntro; esplits; eauto.
           { hexploit (@PFConfiguration.step_future ThreadEvent.get_machine_event); eauto.
             { econs; eauto. econs; eauto.
@@ -382,7 +385,7 @@ Section read.
 
         iMod ((tview_auth_update ths (IdentMap.add tid (existT _ st2, lc2) ths)) with "TA TV") as "[TA TV]"; eauto.
 
-        iAssert (Ist STATE)%I with "[HA FA TA CONFIG]" as "IST".
+        iAssert Ist%I with "[HA FA TA CONFIG]" as "IST".
         { iFrame. iPureIntro; esplits; eauto.
           { hexploit (@PFConfiguration.step_future ThreadEvent.get_machine_event); eauto.
             { econs; eauto. econs; eauto.
@@ -436,4 +439,6 @@ Section read.
       }
     }
   (*SLOW*)Qed.
+  End SIM_FUNS.
+
 End read.

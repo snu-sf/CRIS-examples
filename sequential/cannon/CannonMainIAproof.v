@@ -10,38 +10,45 @@ Module CannonMainIA. Section CannonMainIA.
   Context (sp : specmap).
   Context (CannonInMain : CannonA.sp ⊆ sp).
 
-  Definition Ist (_ : stateGS Σ) : iProp Σ := True%I.
-
   Local Notation MainAMod := (MainA.t 1 sp).
   Local Notation MainIMod := (MainI.t 1).
-  
-  Lemma simF_main :
-    ⊢ ISim.sim_fun open MainAMod MainIMod Ist entry.
+
+  Section SIM_FUNS.
+
+    Context `{STATE : !stateGS Σ}.
+
+    Definition Ist : iProp Σ := True%I.
+
+
+    Lemma simF_main :
+      ⊢ ISim.sim_fun open MainAMod MainIMod Ist entry.
+    Proof using CannonInMain.
+      cStartFunSim. rewrite /MainA.main /MainI.main.
+
+      (* SRC: precondition *)
+      cStepsS. iDestruct "ASM" as "[-> B]". cSimpl.
+
+      (* SRC: prove the precondition of "fire" *)
+      cStepsT. cForceS (). cForcesS. iFrame; iSplit; eauto.
+
+      (* SRC, TGT; cCall "fire" and take a postcondition *)
+      cCall "IST" as (ret) "IST".
+      cStepsS. iDestruct "ASM" as "[% %]"; des; subst. cSimpl.
+      cStepsT. cStepsS.
+
+      (* SRC, TGT: print 1 *)
+      cStep.
+
+      (* SRC: prove the postcondition & IST *)
+      cForcesS. iSplit; eauto.
+      cStep. iFrame; et.
+    (*SLOW*)Qed.
+
+  End SIM_FUNS.
+
+  Theorem sim : ⊢ ISim.t open MainAMod MainIMod.
   Proof using CannonInMain.
-    cStartFunSim. rewrite /MainA.main /MainI.main.
-
-    (* SRC: precondition *)
-    cStepsS. iDestruct "ASM" as "[-> B]". cSimpl.
-
-    (* SRC: prove the precondition of "fire" *)
-    cStepsT. cForceS (). cForcesS. iFrame; iSplit; eauto.
-
-    (* SRC, TGT; cCall "fire" and take a postcondition *)
-    cCall "IST" as (ret) "IST".
-    cStepsS. iDestruct "ASM" as "[% %]"; des; subst. cSimpl.
-    cStepsT. cStepsS.
-    
-    (* SRC, TGT: print 1 *)
-    cStep.
-
-    (* SRC: prove the postcondition & IST *)
-    cForcesS. iSplit; eauto.
-    cStep. iFrame; et.
-  (*SLOW*)Qed.
-
-  Theorem sim : ⊢ ISim.t open MainAMod MainIMod Ist.
-  Proof using CannonInMain.
-    cStartModSim.
+    cStartModSim (fun _ : stateGS Σ => Ist).
     - done.
     - iApply simF_main.
   Qed.

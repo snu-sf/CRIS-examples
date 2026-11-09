@@ -17,6 +17,9 @@ Section CAS.
   Local Definition MA := (PFMemA.t sp).
   Local Definition MI := (PFMemI.t syn size).
 
+  Section SIM_FUNS.
+    Context `{STATE : !stateGS Σ}.
+
   Lemma simF_cas :
     ⊢ ISim.sim_fun open MA MI Ist (fid PFMemHdr.cas).
   Proof.
@@ -528,7 +531,7 @@ Section CAS.
       iMod ((tview_auth_update ths (IdentMap.add tid (existT lang st2, lc2) ths)) with "TA TV")
         as "[TA TV]"; ss.
 
-      iAssert (Ist STATE) with "[HA TA HFA CONFIG]" as "IST".
+      iAssert Ist with "[HA TA HFA CONFIG]" as "IST".
       { iExists _, (IdentMap.add _ _ _), Vcut. iFrame "HFA HA TA CONFIG".
         iPureIntro.
         split.
@@ -642,4 +645,6 @@ Section CAS.
     }
     Unshelve. all: auto.
   (*SLOW*)Qed.
+  End SIM_FUNS.
+
 End CAS.

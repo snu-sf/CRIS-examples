@@ -27,100 +27,106 @@ Module RepeatIA. Section RepeatIA.
   Local Definition RepeatAMod := (RepeatA ★ APCA).
 
   (* IST *)
-  Definition Ist (_ : stateGS Σ) : iProp Σ := True%I.
-  Local Notation IstFull :=
-    (λ STATE, (Ist STATE ∗ IstEq APCA STATE)%I).
+  Section SIM_FUNS.
 
-  Lemma simF_repeat :
-    ⊢ ISim.sim_fun open RepeatAMod RepeatIMod IstFull
-        (fid RepeatHdr.repeat).
-  Proof using APCInSp SpPureInSp SpPureFunInSpPure repeatInSpPure.
-    (* Simulation Start *)
-    cStartFunSim. rewrite /RepeatI.repeat.
+    Context `{STATE : !stateGS Σ}.
 
-    (* SRC: handle the precond of repeat *)
-    cStepsS. destruct _q as [[n x] f_sem].
-    iDestruct "ASM" as "%". cSimpl. dup H3. inv H4. rewrite /pure_body /cfunN.
-    cStepsS.
+    Definition Ist : iProp Σ := True%I.
+    Local Notation IstFull :=
+      (Ist ∗ IstEq APCA)%I.
 
-    (* SRC: find apc in sp *)
-    cSimpl.
+    Lemma simF_repeat :
+      ⊢ ISim.sim_fun open RepeatAMod RepeatIMod IstFull
+          (fid RepeatHdr.repeat).
+    Proof using APCInSp SpPureInSp SpPureFunInSpPure repeatInSpPure.
+      (* Simulation Start *)
+      cStartFunSim. rewrite /RepeatI.repeat.
 
-    (* TGT: handle input *)
-    cStepsT. unfold assume. cForceT.
+      (* SRC: handle the precond of repeat *)
+      cStepsS. destruct _q as [[n x] f_sem].
+      iDestruct "ASM" as "%". cSimpl. dup H3. inv H4. rewrite /pure_body /cfunN.
+      cStepsS.
 
-    (* case analysis: n *)
-    destruct n as [|n'].
+      (* SRC: find apc in sp *)
+      cSimpl.
 
-    (* CASE: n is 0 *)
-    {
-      (* TGT: cSteps tgt *)
-      iSplit; first done. cStepsT.
+      (* TGT: handle input *)
+      cStepsT. unfold assume. cForceT.
 
-      (* SRC: unfold APC *)
-      cForcesS. iSplit; eauto.
-      cStepsS. cInlineS. cStepsS. iDestruct "ASM" as "%". cSimpl.
-      cStepsS. rewrite /APCA.apc_body /APC. cForceS. cStepsS.
+      (* case analysis: n *)
+      destruct n as [|n'].
 
-      (* SRC: change to skip *)
-      apcS. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iSplit; et.
+      (* CASE: n is 0 *)
+      {
+        (* TGT: cSteps tgt *)
+        iSplit; first done. cStepsT.
 
-      (* prove the IST *)
-      cStep. by iSplit.
-    }
+        (* SRC: unfold APC *)
+        cForcesS. iSplit; eauto.
+        cStepsS. cInlineS. cStepsS. iDestruct "ASM" as "%". cSimpl.
+        cStepsS. rewrite /APCA.apc_body /APC. cForceS. cStepsS.
 
-    (* CASE: n is S n' *)
-    {
-      (* TGT: load fn from function pointer *)
-      destruct (Z_lt_le_dec (S n') 1) eqn:E; try lia.
-      rewrite H2. iSplit; first done. cStepsT.
+        (* SRC: change to skip *)
+        apcS. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iSplit; et.
 
-      (* SRC: unfold APC *)
-      cForcesS. iSplit; eauto. cStepsS. 
-      cInlineS. cStepsS. iDestruct "ASM" as "%". cSimpl.
-      cStepsS. rewrite /APCA.apc_body /APC. cForceS 2.
+        (* prove the IST *)
+        cStep. by iSplit.
+      }
 
-      (* cCall apc with fn *)
-      apcCallWeak "IST" as (?) "ISTPOST"; et.
-      { instantiate (1:= 1%ord). apply OrdArith.lt_from_nat. lia. }
-      { eapply Ord.lt_le_lt; et. apply OrdArith.lt_add_r. instantiate (1:=n'). apply OrdArith.lt_from_nat. lia. }
-      { iFrame. ss. iSplit; et. iExists (Ord.omega + n')%ord. iSplit; et.
-        iPureIntro. apply OrdArith.add_base_l. }
-      iDestruct "ISTPOST" as "[IST %]". unfold postcond. subst.
+      (* CASE: n is S n' *)
+      {
+        (* TGT: load fn from function pointer *)
+        destruct (Z_lt_le_dec (S n') 1) eqn:E; try lia.
+        rewrite H2. iSplit; first done. cStepsT.
 
-      (* TGT: cSteps tgt *)
-      cStepsT. cStepsT. assert (S n' - 1 = n')%Z as -> by lia.
+        (* SRC: unfold APC *)
+        cForcesS. iSplit; eauto. cStepsS.
+        cInlineS. cStepsS. iDestruct "ASM" as "%". cSimpl.
+        cStepsS. rewrite /APCA.apc_body /APC. cForceS 2.
 
-      (* cCall apc with repeat *)
-      apcCall "IST" as (?) "ISTPOST"; et.
-      { instantiate (1 := 0%ord). apply OrdArith.lt_from_nat; lia. }
-      { eapply Ord.lt_le_lt; et. apply OrdArith.lt_add_r. instantiate (1:= n'). apply OrdArith.lt_from_nat; lia. }
-      { unfold precond. ss. iFrame. instantiate (1:= (n', (f_sem x), f_sem)). iPureIntro. split.
-        - exists fn, fptr. hrepeat split; et. unfold_intrange_64; des_ifs_safe; hrepeat destruct Z_le_gt_dec; ss; try lia.
-        - exists (Ord.omega + n')%ord. split; et. apply Ord.le_refl. }
-      ss. iDestruct "ISTPOST" as "[IST %]". subst.
+        (* cCall apc with fn *)
+        apcCallWeak/ "IST" as (?) "ISTPOST"; et.
+        { instantiate (1:= 1%ord). apply OrdArith.lt_from_nat. lia. }
+        { eapply Ord.lt_le_lt; et. apply OrdArith.lt_add_r. instantiate (1:=n'). apply OrdArith.lt_from_nat. lia. }
+        { iFrame. ss. iSplit; et. iExists (Ord.omega + n')%ord. iSplit; et.
+          iPureIntro. apply OrdArith.add_base_l. }
+        iDestruct "ISTPOST" as "[IST %]". unfold postcond. subst.
 
-      (* TGT: cSteps tgt *)
-      cStepsT. cStepsT.
+        (* TGT: cSteps tgt *)
+        cStepsT. cStepsT. assert (S n' - 1 = n')%Z as -> by lia.
 
-      (* SRC: change to skip *)
-      apcS. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iSplit; et.
+        (* cCall apc with repeat *)
+        apcCall/ "IST" as (?) "ISTPOST"; et.
+        { instantiate (1 := 0%ord). apply OrdArith.lt_from_nat; lia. }
+        { eapply Ord.lt_le_lt; et. apply OrdArith.lt_add_r. instantiate (1:= n'). apply OrdArith.lt_from_nat; lia. }
+        { unfold precond. ss. iFrame. instantiate (1:= (n', (f_sem x), f_sem)). iPureIntro. split.
+          - exists fn, fptr. hrepeat split; et. unfold_intrange_64; des_ifs_safe; hrepeat destruct Z_le_gt_dec; ss; try lia.
+          - exists (Ord.omega + n')%ord. split; et. apply Ord.le_refl. }
+        ss. iDestruct "ISTPOST" as "[IST %]". subst.
 
-      (* prove the IST *)
-      cStep. by iSplit.
-    }
-    Unshelve. all: et. all: exact (0↑). 
-  (*SLOW*)Qed.
+        (* TGT: cSteps tgt *)
+        cStepsT. cStepsT.
+
+        (* SRC: change to skip *)
+        apcS. cStepsS. cForcesS. iSplit; et. cStepsS. cForcesS. iSplit; et.
+
+        (* prove the IST *)
+        cStep. by iSplit.
+      }
+      Unshelve. all: et. all: exact (0↑).
+    (*SLOW*)Qed.
+
+  End SIM_FUNS.
 
   Lemma sim :
-    RepeatA.init_cond ⊢ ISim.t open RepeatAMod RepeatIMod IstFull.
+    RepeatA.init_cond ⊢ ISim.t open RepeatAMod RepeatIMod.
   Proof.
     iIntros "INIT".
-    iApply (ISim_reflR open RepeatA RepeatI APCA Ist with "[INIT] []").
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    iApply (ISim_reflR open RepeatA RepeatI APCA (fun _ : stateGS Σ => Ist) with "[INIT] []").
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STATE) "SRC TGT". done.
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+      iIntros "SRC TGT". done.
+    - iIntros (STATE). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split; mod_tac. }
       iIntros (fn) "%Hfn".
       repeat rewrite Mod.dom_fnsems_add in Hfn.

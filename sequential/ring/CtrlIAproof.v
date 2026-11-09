@@ -93,202 +93,208 @@ Module CtrlIA. Section CtrlIA.
       exists (n / List.length l). nia.
   Qed.
 
-  Definition Ist (STATE : stateGS Σ) : iProp Σ :=
-    (∃ (q q' : list Z) (hd tl : nat),
-       RingA.v_que ↦src q↑ ∗ CtrlI.v_hd ↦tgt hd↑ ∗
-       CtrlI.v_tl ↦tgt tl↑ ∗
-       ⌜hd = (tl + List.length q)%nat /\ List.length (q ++ q') = max_size⌝ ∗
-       ([∗ list] i↦x ∈ q, CellA.cell ((tl+i) mod max_size) x) ∗
-       ([∗ list] i↦x ∈ q', (CellA.pending ((hd+i) mod max_size) ∨ CellA.cell ((hd+i) mod max_size) x)))%I.
+  Section SIM_FUNS.
 
-  Notation IstFull :=
-    (λ STATE, (Ist STATE ∗ IstEq CellGS STATE)%I).
+    Context `{STATE : !stateGS Σ}.
 
-  Lemma simF_init :
-    ⊢ ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.init).
-  Proof using.
-    cStartFunSim. rewrite /CtrlI.init /RingA.init.
+    Definition Ist : iProp Σ :=
+      (∃ (q q' : list Z) (hd tl : nat),
+         RingA.v_que ↦src q↑ ∗ CtrlI.v_hd ↦tgt hd↑ ∗
+         CtrlI.v_tl ↦tgt tl↑ ∗
+         ⌜hd = (tl + List.length q)%nat /\ List.length (q ++ q') = max_size⌝ ∗
+         ([∗ list] i↦x ∈ q, CellA.cell ((tl+i) mod max_size) x) ∗
+         ([∗ list] i↦x ∈ q', (CellA.pending ((hd+i) mod max_size) ∨ CellA.cell ((hd+i) mod max_size) x)))%I.
 
-    (* Simulation Starts Here *)
-    (* SRC: precondition *)
-    cStepsS. cStepsT. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
-    cStepsS; cStepsT.
-    iDestruct "IST" as "[IST CELLEQ]".
-    iDestruct "IST" as (? ? ? ?) "(QUE & HD & TL & %INV & LIVE & FREE)".
-    destruct INV as [HDREL LEN]. subst hd. cSimpl.
+    Notation IstFull :=
+      (Ist ∗ IstEq CellGS)%I.
 
-    (* TGT, SRC: take cSteps *)
-    cStepsT. cStepsS.
-    cStep. iSplitL "". { eauto. }
+    Lemma simF_init :
+      ⊢ ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.init).
+    Proof using.
+      cStartFunSim. rewrite /CtrlI.init /RingA.init.
 
-    (* Prove the IST *)
-    iSplitR "CELLEQ"; last iFrame.
-    iExists [], (rotate (max_size - tl mod max_size) (q++q')%list), 0, 0.
-    iFrame "QUE HD TL".
-    iSplit.
-    { iPureIntro. esplits; eauto. s. rewrite length_rotate. eauto. }
+      (* Simulation Starts Here *)
+      (* SRC: precondition *)
+      cStepsS. cStepsT. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
+      cStepsS; cStepsT.
+      iDestruct "IST" as "[IST CELLEQ]".
+      iDestruct "IST" as (? ? ? ?) "(QUE & HD & TL & %INV & LIVE & FREE)".
+      destruct INV as [HDREL LEN]. subst hd. cSimpl.
 
-    iSplit; eauto. rewrite -LEN.
-    iApply big_sepL_rotate. iApply big_sepL_app.
-    iSplitL "LIVE".
-    + iApply (big_sepL_impl with "LIVE").
-      iModIntro. iIntros (k x) "% LIVE". iRight. s.
-      rewrite Nat.Div0.mod_mod; eauto.
-    + iApply (big_sepL_impl with "FREE").
-      iModIntro. iIntros (k x) "% FREE". s.
-      rewrite Nat.add_assoc.
-      rewrite Nat.Div0.mod_mod; eauto.
-  (*SLOW*)Qed.
+      (* TGT, SRC: take cSteps *)
+      cStepsT. cStepsS.
+      cStep. iSplitL "". { eauto. }
 
-  Lemma simF_get_size :
-    ⊢ ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.get_size).
-  Proof using.
-    cStartFunSim. rewrite /CtrlI.get_size /RingA.get_size.
-
-    (* Simulation Starts Here *)
-    (* SRC: precondition *)
-    cStepsS. cStepsT. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
-    cStepsS; cStepsT.
-    iDestruct "IST" as "[IST CELLEQ]".
-    iDestruct "IST" as (? ? ? ?) "(QUE & HD & TL & %INV & LIVE & FREE)".
-    destruct INV as [HDREL LEN]. subst hd. cSimpl.
-
-    (* TGT, SRC: take cSteps *)
-    cStepsT. cStepsS.
-    cStep. iSplitL "". { rewrite Nat.add_comm Nat.add_sub. eauto. }
-
-    (* Prove the IST *)
-    iSplitR "CELLEQ"; last iFrame.
-    repeat iExists _. iFrame. eauto.
-  (*SLOW*)Qed.
-
-  Lemma simF_enqueue :
-    ⊢ ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.enqueue).
-  Proof using.
-    unfold RingAMod, RingIMod, CellGS.
-    cStartFunSim. rewrite /CtrlI.enqueue /RingA.enqueue.
-
-    (* Simulation Starts Here *)
-    (* SRC: precondition *)
-    cStepsS. cStepsT. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
-    cStepsS; cStepsT.
-    iDestruct "IST" as "[IST CELLEQ]".
-    iDestruct "IST" as (? ? ? ?) "(QUE & HD & TL & %INV & LIVE & FREE)".
-    destruct INV as [HDREL LEN]. subst hd.
-    cStepsS. cStepsT.
-    rename q into v. rename q' into l.
-
-    (* TGT: check the length of the queue *)
-    rewrite Nat.add_sub'; des_ifs; cycle 1.
-    { cStep. cStep. iSplitL ""; eauto.
+      (* Prove the IST *)
       iSplitR "CELLEQ"; last iFrame.
-      iExists v, l, (tl + List.length v), tl. iFrame. eauto. }
+      iExists [], (rotate (max_size - tl mod max_size) (q++q')%list), 0, 0.
+      iFrame "QUE HD TL".
+      iSplit.
+      { iPureIntro. esplits; eauto. s. rewrite length_rotate. eauto. }
 
-    (* SRC: take cSteps *)
-    cStepsS.
+      iSplit; eauto. rewrite -LEN.
+      iApply big_sepL_rotate. iApply big_sepL_app.
+      iSplitL "LIVE".
+      + iApply (big_sepL_impl with "LIVE").
+        iModIntro. iIntros (k x) "% LIVE". iRight. s.
+        rewrite Nat.Div0.mod_mod; eauto.
+      + iApply (big_sepL_impl with "FREE").
+        iModIntro. iIntros (k x) "% FREE". s.
+        rewrite Nat.add_assoc.
+        rewrite Nat.Div0.mod_mod; eauto.
+    (*SLOW*)Qed.
 
-    apply Nat.ltb_lt in Heq. rewrite length_app in LEN.
-    assert (UBND:= Nat.mod_upper_bound (tl + List.length v) max_size).
-    revert WFS WFT.
-    rewrite (@cellgroup_split ((tl+ List.length v) mod max_size)); try nia.
-    i; move_aux.
+    Lemma simF_get_size :
+      ⊢ ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.get_size).
+    Proof using.
+      cStartFunSim. rewrite /CtrlI.get_size /RingA.get_size.
 
-    (* TGT: inline CellHdr.set *)
-    cStepsT. cInlineT.
-    destruct l; [ss; nia|].
-    cForceT (_,_). cForcesT.
-    iDestruct "FREE" as "(Q & FREE)".
-    (* rewrite !Nat.add_0_l in NODUPFS NODUPFT WFS WFT. *)
-    rewrite !Nat.add_0_r.
-    iSplitL "Q".
-    { iFrame. eauto. }
+      (* Simulation Starts Here *)
+      (* SRC: precondition *)
+      cStepsS. cStepsT. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
+      cStepsS; cStepsT.
+      iDestruct "IST" as "[IST CELLEQ]".
+      iDestruct "IST" as (? ? ? ?) "(QUE & HD & TL & %INV & LIVE & FREE)".
+      destruct INV as [HDREL LEN]. subst hd. cSimpl.
 
-    (* TGT: take cSteps using GRT from set_spec *)
-    cStepsT. iDestruct "GRT" as "(% & % & CELL)". subst.
-    cStepsT. cStep.
-    iSplitL ""; eauto.
+      (* TGT, SRC: take cSteps *)
+      cStepsT. cStepsS.
+      cStep. iSplitL "". { rewrite Nat.add_comm Nat.add_sub. eauto. }
 
-    (* Prove the IST *)
-    iSplitR "CELLEQ"; last iFrame.
-    iExists (v++[z]), l, ((tl + List.length v)+1), tl.
-    iFrame "QUE HD TL".
-    iSplitL "".
-    { iPureIntro. esplits; eauto.
-      - rewrite length_app. s. nia.
-      - rewrite !length_app. s. cSimpl. nia.
-    }
-    iSplitL "LIVE CELL".
-    + iApply big_sepL_app. iFrame. s. rewrite Nat.add_0_r. eauto.
-    + iApply (big_sepL_impl with "FREE").
-      iModIntro. iIntros (k x FIND) "H".
-      rewrite <-!Nat.add_assoc. eauto.
-  (*SLOW*)Qed.
-
-  Lemma simF_dequeue :
-    ⊢ ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.dequeue).
-  Proof using.
-    unfold RingAMod, RingIMod, CellGS.
-    cStartFunSim. rewrite /CtrlI.dequeue /RingA.dequeue.
-
-    (* Simulation Starts Here *)
-    (* SRC: precondition *)
-    cStepsS. cStepsT. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
-    cStepsS; cStepsT.
-    iDestruct "IST" as "[IST CELLEQ]".
-    iDestruct "IST" as (? ? ? ?) "(QUE & HD & TL & %INV & LIVE & FREE)".
-    destruct INV as [HDREL LEN]. subst hd.
-
-    (* TGT: check the length of the queue *)
-    cStepsS. cStepsT.
-    destruct q; ss.
-    { rewrite Nat.add_0_r Nat.sub_diag. s. cStep. cStep. iSplitL ""; eauto.
+      (* Prove the IST *)
       iSplitR "CELLEQ"; last iFrame.
-      iExists [], q', tl, tl. iFrame. eauto. }
-    replace (tl + S(List.length q) - tl) with (S(List.length q)) by nia. s.
-    rewrite !length_app in LEN.
+      repeat iExists _. iFrame. eauto.
+    (*SLOW*)Qed.
 
-    (* SRC: take cSteps *)
-    cStepsS.
-    assert (UBND:= Nat.mod_upper_bound tl max_size).
-    revert WFS WFT.
-    rewrite (@cellgroup_split (tl mod max_size)); try nia.
-    i; move_aux.
+    Lemma simF_enqueue :
+      ⊢ ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.enqueue).
+    Proof using.
+      unfold RingAMod, RingIMod, CellGS.
+      cStartFunSim. rewrite /CtrlI.enqueue /RingA.enqueue.
 
-    (* TGT: inline CellHdr.get *)
-    cStepsT. cInlineT. cForcesT. iDestruct "LIVE" as "(Q & LIVE)".
-    rewrite !Nat.add_0_r.
-    iSplitL "Q". { iFrame. eauto. }
+      (* Simulation Starts Here *)
+      (* SRC: precondition *)
+      cStepsS. cStepsT. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
+      cStepsS; cStepsT.
+      iDestruct "IST" as "[IST CELLEQ]".
+      iDestruct "IST" as (? ? ? ?) "(QUE & HD & TL & %INV & LIVE & FREE)".
+      destruct INV as [HDREL LEN]. subst hd.
+      cStepsS. cStepsT.
+      rename q into v. rename q' into l.
 
-    (* TGT: take cSteps using GRT from get_spec *)
-    cStepsT. iDestruct "GRT" as "(% & % & CELL)". subst. cSimpl.
-    cStepsT. cForcesS. cStep.
-    iSplitL ""; eauto.
+      (* TGT: check the length of the queue *)
+      rewrite Nat.add_sub'; des_ifs; cycle 1.
+      { cStep. cStep. iSplitL ""; eauto.
+        iSplitR "CELLEQ"; last iFrame.
+        iExists v, l, (tl + List.length v), tl. iFrame. eauto. }
 
-    (* Prove the IST *)
-    iSplitR "CELLEQ"; last iFrame.
-    iExists q, (q'++[z]), (tl + S(List.length q)), (tl + 1).
-    iFrame "QUE HD TL".
-    iSplit.
-    { iPureIntro. split; first nia.
-      rewrite !length_app /= in LEN |- *. nia. }
-    iSplitL "LIVE".
-    + iApply (big_sepL_impl with "LIVE").
-      iModIntro. iIntros (k x FIND) "H".
-      replace (tl + 1 + k) with (S (tl + k)) by nia.
-      rewrite -Nat.add_succ_r. iFrame.
-    + iApply big_sepL_app. iFrame. s. iSplitR ""; eauto.
-      iRight. erewrite <-mod_add_ex; eauto; try nia.
-      exists 1. nia.
-  (*SLOW*)Qed.
+      (* SRC: take cSteps *)
+      cStepsS.
+
+      apply Nat.ltb_lt in Heq. rewrite length_app in LEN.
+      assert (UBND:= Nat.mod_upper_bound (tl + List.length v) max_size).
+      revert WFS WFT.
+      rewrite (@cellgroup_split ((tl+ List.length v) mod max_size)); try nia.
+      i; move_aux.
+
+      (* TGT: inline CellHdr.set *)
+      cStepsT. cInlineT.
+      destruct l; [ss; nia|].
+      cForceT (_,_). cForcesT.
+      iDestruct "FREE" as "(Q & FREE)".
+      (* rewrite !Nat.add_0_l in NODUPFS NODUPFT WFS WFT. *)
+      rewrite !Nat.add_0_r.
+      iSplitL "Q".
+      { iFrame. eauto. }
+
+      (* TGT: take cSteps using GRT from set_spec *)
+      cStepsT. iDestruct "GRT" as "(% & % & CELL)". subst.
+      cStepsT. cStep.
+      iSplitL ""; eauto.
+
+      (* Prove the IST *)
+      iSplitR "CELLEQ"; last iFrame.
+      iExists (v++[z]), l, ((tl + List.length v)+1), tl.
+      iFrame "QUE HD TL".
+      iSplitL "".
+      { iPureIntro. esplits; eauto.
+        - rewrite length_app. s. nia.
+        - rewrite !length_app. s. cSimpl. nia.
+      }
+      iSplitL "LIVE CELL".
+      + iApply big_sepL_app. iFrame. s. rewrite Nat.add_0_r. eauto.
+      + iApply (big_sepL_impl with "FREE").
+        iModIntro. iIntros (k x FIND) "H".
+        rewrite <-!Nat.add_assoc. eauto.
+    (*SLOW*)Qed.
+
+    Lemma simF_dequeue :
+      ⊢ ISim.sim_fun open RingAMod RingIMod IstFull (fid RingHdr.dequeue).
+    Proof using.
+      unfold RingAMod, RingIMod, CellGS.
+      cStartFunSim. rewrite /CtrlI.dequeue /RingA.dequeue.
+
+      (* Simulation Starts Here *)
+      (* SRC: precondition *)
+      cStepsS. cStepsT. destruct Any.downcast; last (cStepsS; case_match; cStepsS; ss).
+      cStepsS; cStepsT.
+      iDestruct "IST" as "[IST CELLEQ]".
+      iDestruct "IST" as (? ? ? ?) "(QUE & HD & TL & %INV & LIVE & FREE)".
+      destruct INV as [HDREL LEN]. subst hd.
+
+      (* TGT: check the length of the queue *)
+      cStepsS. cStepsT.
+      destruct q; ss.
+      { rewrite Nat.add_0_r Nat.sub_diag. s. cStep. cStep. iSplitL ""; eauto.
+        iSplitR "CELLEQ"; last iFrame.
+        iExists [], q', tl, tl. iFrame. eauto. }
+      replace (tl + S(List.length q) - tl) with (S(List.length q)) by nia. s.
+      rewrite !length_app in LEN.
+
+      (* SRC: take cSteps *)
+      cStepsS.
+      assert (UBND:= Nat.mod_upper_bound tl max_size).
+      revert WFS WFT.
+      rewrite (@cellgroup_split (tl mod max_size)); try nia.
+      i; move_aux.
+
+      (* TGT: inline CellHdr.get *)
+      cStepsT. cInlineT. cForcesT. iDestruct "LIVE" as "(Q & LIVE)".
+      rewrite !Nat.add_0_r.
+      iSplitL "Q". { iFrame. eauto. }
+
+      (* TGT: take cSteps using GRT from get_spec *)
+      cStepsT. iDestruct "GRT" as "(% & % & CELL)". subst. cSimpl.
+      cStepsT. cForcesS. cStep.
+      iSplitL ""; eauto.
+
+      (* Prove the IST *)
+      iSplitR "CELLEQ"; last iFrame.
+      iExists q, (q'++[z]), (tl + S(List.length q)), (tl + 1).
+      iFrame "QUE HD TL".
+      iSplit.
+      { iPureIntro. split; first nia.
+        rewrite !length_app /= in LEN |- *. nia. }
+      iSplitL "LIVE".
+      + iApply (big_sepL_impl with "LIVE").
+        iModIntro. iIntros (k x FIND) "H".
+        replace (tl + 1 + k) with (S (tl + k)) by nia.
+        rewrite -Nat.add_succ_r. iFrame.
+      + iApply big_sepL_app. iFrame. s. iSplitR ""; eauto.
+        iRight. erewrite <-mod_add_ex; eauto; try nia.
+        exists 1. nia.
+    (*SLOW*)Qed.
+
+  End SIM_FUNS.
 
   Lemma sim :
-    RingA.init_cond max_size ⊢ ISim.t open RingAMod RingIMod IstFull.
+    RingA.init_cond max_size ⊢ ISim.t open RingAMod RingIMod.
   Proof using.
     iIntros "INIT".
-    iApply (ISim_reflR open RingA CtrlI CellGS Ist with "[INIT] []").
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    iApply (ISim_reflR open RingA CtrlI CellGS (fun STATE : stateGS Σ => Ist (STATE := STATE)) with "[INIT] []").
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STATE) "SRC TGT".
+      iIntros "SRC TGT".
       rewrite /state_init_src /state_init_tgt.
       iDestruct "SRC" as "[SRC _]". iDestruct "TGT" as "[TGT _]".
       assert (SRCEQ :
@@ -314,7 +320,7 @@ Module CtrlIA. Section CtrlIA.
       iModIntro. iIntros (? ? FIND) "P".
       iLeft. rewrite Nat.mod_small; eauto.
       eapply lookup_replicate_1. eauto.
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split.
         - mod_tac.
         - set_unfold; naive_solver.

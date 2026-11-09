@@ -335,6 +335,9 @@ Section free.
     intros ->; des_ifs.
   Qed.
 
+  Section SIM_FUNS.
+    Context `{STATE : !stateGS Σ}.
+
   Lemma simF_free :
     ⊢ ISim.sim_fun open MA MI Ist (fid PFMemHdr.free).
   Proof.
@@ -476,4 +479,6 @@ Section free.
       iPoseProof (tview_both_valid with "TA TV") as "%F"; des; clarify.
     }
   (*SLOW*)Qed.
+  End SIM_FUNS.
+
 End free.

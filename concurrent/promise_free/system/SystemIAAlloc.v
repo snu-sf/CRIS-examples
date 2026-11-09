@@ -15,7 +15,10 @@ Section SystemIA.
   Local Definition SystemI_s := SystemI.t ★ PFMemA.t sp.
   Local Definition init_cond := init_cond size.
 
-  Definition Ist (STGS : stateGS Σ) : iProp Σ :=
+  Section SIM_FUNS.
+    Context `{STGS : !stateGS Σ}.
+
+  Definition Ist : iProp Σ :=
       (∃ (tid : Ident.t) (tids : gmap Ident.t (TView.t * nat)),
         let tids' : gmap Ident.t nat := snd <$> tids in
         SystemI.v_tid ↦src tid↑ ∗ SystemI.v_tids ↦src tids'↑ ∗
@@ -24,8 +27,8 @@ Section SystemIA.
         ([∗ map] i ↦ stid ∈ (snd <$> delete tid tids),
           (YIELD stid)))%I.
 
-  Local Definition IstFull (STGS : stateGS Σ) : iProp Σ :=
-    (Ist STGS ∗ IstEq (PFMemA.t sp) STGS)%I.
+  Local Definition IstFull : iProp Σ :=
+    (Ist ∗ IstEq (PFMemA.t sp))%I.
 
   Lemma simF_alloc :
     ⊢ ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr.alloc).
@@ -72,4 +75,6 @@ Section SystemIA.
     iSplitL "TVS TV"; eauto.
     rewrite big_sepM_insert_delete; iFrame.
   (*SLOW*)Qed.
+  End SIM_FUNS.
+
 End SystemIA.

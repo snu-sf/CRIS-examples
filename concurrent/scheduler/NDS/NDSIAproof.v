@@ -49,8 +49,10 @@ Module NDSIA. Section sim.
     YIELD ssch ∗ Shot ssch ∗ tid_global mtid stid
     ∗ PublicAuth ((λ '(n, rv, _), (n, fst <$> rv : option SAny.t)) <$> ths) None.
 
-  Definition Ist (STATE : stateGS Σ) : iProp Σ :=
-    let _ := STATE in
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Definition Ist : iProp Σ :=
       (∃ ths tid_cur stid_cur ssch,
         NDSI.v_ths ↦src
           (((λ '(n, rv, _), (n, fst <$> rv : option SAny.t))
@@ -1066,9 +1068,11 @@ Module NDSIA. Section sim.
     iFrame. do 2 iRight. iLeft. iFrame; eauto.
   (*SLOW*)Qed.
 
-  Lemma sim : NDSA.init_cond ⊢ ISim.t open NDSAMod NDSIMod Ist.
+  End SIM_FUNS.
+
+  Lemma sim : NDSA.init_cond ⊢ ISim.t open NDSAMod NDSIMod.
   Proof using SchInSp NDSInSp NdsInSchSp YieldSpec ConcInSp.
-    cStartModSim.
+    cStartModSim (fun STATE : stateGS Σ => Ist (STATE := STATE)).
     - rewrite /init_cond.
       iDestruct "INIT" as "(TiA & JoinA & P & PubA)".
       iEval (rewrite /state_init_src /=) in "SRC".

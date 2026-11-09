@@ -17,7 +17,10 @@ Module SystemIA. Section SystemIA.
   Local Definition SystemI_s := SystemI.t ★ PFMemA.t sp.
   Local Definition init_cond := init_cond size.
 
-  Definition Ist (STGS : stateGS Σ) : iProp Σ :=
+  Section SIM_FUNS.
+    Context `{STGS : !stateGS Σ}.
+
+  Definition Ist : iProp Σ :=
       (∃ (tid : Ident.t) (tids : gmap Ident.t (TView.t * nat)),
         let tids' : gmap Ident.t nat := snd <$> tids in
         SystemA.v_tid ↦src tid↑ ∗ SystemA.v_tids ↦src tids'↑ ∗
@@ -26,8 +29,8 @@ Module SystemIA. Section SystemIA.
         ([∗ map] i ↦ stid ∈ (snd <$> delete tid tids),
           (YIELD stid)))%I.
 
-  Local Definition IstFull (STGS : stateGS Σ) : iProp Σ :=
-    (Ist STGS ∗ IstEq (PFMemA.t sp) STGS)%I.
+  Local Definition IstFull : iProp Σ :=
+    (Ist ∗ IstEq (PFMemA.t sp))%I.
 
   Lemma simF__spawn :
     ⊢ ISim.sim_fun open SystemA_s SystemI_s IstFull (fid SystemHdr._spawn).
@@ -235,6 +238,8 @@ Module SystemIA. Section SystemIA.
     iSplitR "EQ"; last iFrame.
     iExists tid_cur, tids. iFrame.
   (*SLOW*)Qed.
+  End SIM_FUNS.
+
 End SystemIA.
 Section ctx_refines.
   Context `{!crisG Γ Σ α β τ _S _I, _HIST: !histGS, _ATOMIC: !atomicG, _SYS: !sysGS}.
@@ -253,15 +258,15 @@ Section ctx_refines.
     etrans; cycle 1.
     { eapply (main_adequacy
         (SystemI.t ★ PFMemA.t sp)
-        (SystemA.t sp_user ⊤ sp ★ PFMemA.t sp)
-        (fun STGS => (Ist STGS ∗ IstEq (PFMemA.t sp) STGS)%I)). }
+        (SystemA.t sp_user ⊤ sp ★ PFMemA.t sp)). }
     iIntros "TA".
     iApply (ISim_reflR open
-      (SystemA.t sp_user ⊤ sp) SystemI.t (PFMemA.t sp) Ist
+      (SystemA.t sp_user ⊤ sp) SystemI.t (PFMemA.t sp)
+      (fun STGS : stateGS Σ => Ist (STGS := STGS))
       with "[TA] []").
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    - iIntros (STGS). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STGS) "SRC TGT".
+      iIntros "SRC TGT".
       iEval (rewrite /state_init_src /=) in "SRC".
       iEval (rewrite /state_init_tgt /=) in "TGT".
       assert (SLS : state_slice ({["System"]} : gset string)
@@ -295,7 +300,7 @@ Section ctx_refines.
       iExists 1%positive, {[1%positive := (TView.init size, 0)]}.
       iFrame "TID_SRC TIDS_SRC TID_TGT TIDS_TGT".
       rewrite delete_singleton fmap_empty big_sepM_empty. iFrame "TA".
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+    - iIntros (STGS). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split; mod_tac. }
       iIntros (fn) "%Hfn".
       set_unfold in Hfn; des; subst.

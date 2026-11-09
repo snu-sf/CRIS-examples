@@ -28,14 +28,38 @@ Module HWQPM. Section HWQPM.
   Notation MemA := (MemA.t sp_mem).
   Notation ProphA := (ProphecyA.t mnp ∅).
 
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
   Definition Ist : iProp Σ :=
     (∃ (X : gset val),
       free_id (λ x, x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type ∗
       [∗ set] x ∈ X, ∃ ptr ofs, ⌜x = Vptr (ptr, ofs)⌝ ∗ ∃ v, (ptr, ofs) ↦{1/2} v)%I.
 
-  Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (IstHelp (Ist ∗ IstEq (HWQM ★ HelpOn) STATE) ⊤ ∗
-     IstEq (MemA ★ ProphA) STATE)%I.
+  Definition IstFull : iProp Σ :=
+    (IstHelp (Ist ∗ IstEq (HWQM ★ HelpOn)) ⊤ ∗
+     IstEq (MemA ★ ProphA))%I.
+
+  Local Lemma sim_funs :
+    ⊢ ISim.sim_funs open
+        ((HWQM ★ HelpOn) ★ MemA ★ ProphA)
+        ((HWQP ★ HelpDummy) ★ MemA ★ ProphA)
+        IstFull (HWQM ★ HelpOn) (HWQP ★ HelpDummy).
+  Proof.
+    rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+      { iPureIntro. split; mod_tac. }
+      iIntros (fn) "%Hfn".
+      rewrite Mod.dom_fnsems_add in Hfn.
+      unfold HWQM.t, HelpingOn.t in Hfn.
+      cbn in Hfn. set_unfold in Hfn; des; subst.
+      + iApply simF_new_queue.
+      + iApply simF_enqueue.
+      + iApply simF_dequeue.
+      + cStartFunSim. cStepsT; ss.
+      + cStartFunSim. cStepsT; ss.
+  Qed.
+
+  End SIM_FUNS.
 
   Lemma ctxr :
     hinv_ownE ⊤ ∗ free_id (fun _ => True%type) ⊢
@@ -45,16 +69,15 @@ Module HWQPM. Section HWQPM.
   Proof.
     etrans; last eapply (main_adequacy
       ((HWQP ★ HelpDummy) ★ MemA ★ ProphA)
-      ((HWQM ★ HelpOn) ★ MemA ★ ProphA)
-      IstFull).
+      ((HWQM ★ HelpOn) ★ MemA ★ ProphA)).
     iIntros "[HE F]".
     iApply (ISim_reflR open (HWQM ★ HelpOn) (HWQP ★ HelpDummy)
       (MemA ★ ProphA)
-      (λ STATE, IstHelp (Ist ∗ IstEq (HWQM ★ HelpOn) STATE) ⊤)
+      (λ STATE, IstHelp (Ist ∗ @IstEq Σ STATE (HWQM ★ HelpOn)) ⊤)
       with "[HE F] []").
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STATE) "SRC TGT".
+      iIntros "SRC TGT".
       rewrite /IstHelp. iFrame "HE".
       iSplitL "F".
       {
@@ -70,17 +93,7 @@ Module HWQPM. Section HWQPM.
       }
       }
       iApply (state_eq_init_same with "SRC TGT").
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
-      { iPureIntro. split; mod_tac. }
-      iIntros (fn) "%Hfn".
-      rewrite Mod.dom_fnsems_add in Hfn.
-      unfold HWQM.t, HelpingOn.t in Hfn.
-      cbn in Hfn. set_unfold in Hfn; des; subst.
-      + iApply simF_new_queue.
-      + iApply simF_enqueue.
-      + iApply simF_dequeue.
-      + cStartFunSim. cStepsT; ss.
-      + cStartFunSim. cStepsT; ss.
+    - iIntros (STATE). iApply sim_funs.
   Qed.
 End HWQPM. End HWQPM.
 
@@ -89,8 +102,70 @@ Module HWQMA. Section HWQMA.
   Context (mnp mnh : string).
   Context (sp : specmap).
 
-  Definition Ist (STATE : stateGS Σ) : iProp Σ :=
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Definition Ist : iProp Σ :=
     state_init_tgt ({[mnh]} : gset string) ∅ STATE.
+
+  Local Lemma simF_new_queue :
+    ⊢ ISim.sim_fun open HWQA.t
+        (HWQM.t mnh ★ ProphecyA.t mnp ∅ ★
+          HelpingOff.t mnh HWQM.jobCode) Ist (fid HWQHdr.new_queue).
+  Proof.
+    cStartFunSim.
+      rewrite /HWQA.new_queue. cStepsS. cStepT.
+      aStepS (N [n sz]) "[-> %Hsz]".
+      aForceT N with ""; first (instantiate (1:=(_, _)); eauto).
+      sYields. case_match; cStepsT; sYieldS; cForceS (_, tt).
+      cStepsS. cNormT.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret; iFrame; ss.
+  Qed.
+
+  Local Lemma simF_enqueue :
+    ⊢ ISim.sim_fun open HWQA.t
+        (HWQM.t mnh ★ ProphecyA.t mnp ∅ ★
+          HelpingOff.t mnh HWQM.jobCode) Ist (fid HWQHdr.enqueue).
+  Proof.
+    cStartFunSim.
+      rewrite /HWQA.enqueue /HWQM.enqueue. cStepsS. cStepsT.
+      aStepS (N [γq ?]) "A".
+      aForceT N with "A"; first (instantiate (1:=(_, _))); simpl; eauto with iFrame.
+      cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.run. cStepsT. aUnfoldS.
+      aUnfoldT. sYields. sYieldS. rewrite /HWQM.jobCode. cStepsS. cForcesT. iFrame. cStepsT.
+      cForceS (inr _). cForcesS. iFrame. sYields.
+      iApply wsim_reset.
+      assert (EX : exists coind_n : nat, True) by (exists 0; exact I).
+      destruct EX as [coind_n _].
+      iAssert (⌜coind_n = coind_n⌝ ∗ Ist)%I with "[IST]" as "LOOP".
+      { iFrame. done. }
+      cCoind CIH g' __ with coind_n. iIntros "[_ IST]".
+      aUnfoldT. cStepsT. case_match.
+      { cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.help. cStepsT.
+        sYields. specialize (CIH coind_n). cByCoind CIH. iFrame. done.
+      }
+      cStepsT. sYields. sYieldS. cStepsS. cNormT.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+      iFrame. by iFrame.
+  Qed.
+
+  Local Lemma simF_dequeue :
+    ⊢ ISim.sim_fun open HWQA.t
+        (HWQM.t mnh ★ ProphecyA.t mnp ∅ ★
+          HelpingOff.t mnh HWQM.jobCode) Ist (fid HWQHdr.dequeue).
+  Proof.
+    cStartFunSim.
+      rewrite /HWQA.dequeue. cStepsS. cStepsT.
+      aStepS (N ?) "A". aForceT N with "A"; iFrame.
+      aStep. iExists 0; iAuIntro; iAaccIntro "% $ !>" with ""; iSplit.
+      { iIntros "$ !>"; by iFrame. }
+      iIntros (ret_t) "[% [% [? ?]]] !>"; iExists _; iFrame.
+      iModIntro. iIntros "IST".
+      cStepsT. sYieldS. cStepsS. cNormT.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret; iFrame. done.
+  Qed.
+
+  End SIM_FUNS.
 
   Lemma ctxr :
     ⊢ ctx_refines
@@ -100,10 +175,9 @@ Module HWQMA. Section HWQMA.
     iApply (main_adequacy
       (HWQM.t mnh ★ ProphecyA.t mnp ∅ ★
         HelpingOff.t mnh HWQM.jobCode)
-      HWQA.t
-      Ist).
+      HWQA.t).
     iStopProof.
-    cStartModSim.
+    cStartModSim (fun STATE : stateGS Σ => Ist (STATE := STATE)).
     { assert (Hscopes :
         list_to_set
           (Mod.scopes
@@ -122,40 +196,9 @@ Module HWQMA. Section HWQMA.
         simpl_map. reflexivity. }
       iEval (rewrite Hscopes Hinit) in "TGT".
       iExact "TGT". }
-    { cStartFunSim.
-      rewrite /HWQA.new_queue. cStepsS. cStepT.
-      aStepS (N [n sz]) "[-> %Hsz]".
-      aForceT N with ""; first (instantiate (1:=(_, _)); eauto).
-      sYields. case_match; cStepsT; sYieldS; cForceS (_, tt); cStep; iFrame; ss.
-    }
-    { cStartFunSim.
-      rewrite /HWQA.enqueue /HWQM.enqueue. cStepsS. cStepsT.
-      aStepS (N [γq ?]) "A".
-      aForceT N with "A"; first (instantiate (1:=(_, _))); simpl; eauto with iFrame.
-      cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.run. cStepsT. aUnfoldS.
-      aUnfoldT. sYields. sYieldS. rewrite /HWQM.jobCode. cStepsS. cForcesT. iFrame. cStepsT.
-      cForceS (inr _). cForcesS. iFrame. sYields.
-      iApply wsim_reset.
-      assert (EX : exists coind_n : nat, True) by (exists 0; exact I).
-      destruct EX as [coind_n _].
-      iAssert (⌜coind_n = coind_n⌝ ∗ Ist STATE)%I with "[IST]" as "LOOP".
-      { iFrame. done. }
-      cCoind CIH g' __ with coind_n. iIntros "[_ IST]".
-      aUnfoldT. cStepsT. case_match.
-      { cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.help. cStepsT.
-        sYields. specialize (CIH coind_n). cByCoind CIH. iFrame. done.
-      }
-      cStepsT. sYields. sYieldS. cStep; iFrame. by iFrame.
-    }
-    { cStartFunSim.
-      rewrite /HWQA.dequeue. cStepsS. cStepsT.
-      aStepS (N ?) "A". aForceT N with "A"; iFrame.
-      aStep. iExists 0; iAuIntro; iAaccIntro "% $ !>" with ""; iSplit.
-      { iIntros "$ !>"; by iFrame. }
-      iIntros (ret_t) "[% [% [? ?]]] !>"; iExists _; iFrame.
-      iModIntro. iIntros "IST".
-      cStepsT. sYieldS. cStep; iFrame. done.
-    }
+    { iApply simF_new_queue. }
+    { iApply simF_enqueue. }
+    { iApply simF_dequeue. }
   Qed.
 End HWQMA. End HWQMA.
 

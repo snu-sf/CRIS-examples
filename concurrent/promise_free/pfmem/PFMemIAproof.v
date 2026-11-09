@@ -72,7 +72,10 @@ Module PFMemIA. Section PFMemIA.
       Memory.accessible loc m →
       Time.le t ((View.rlx Vcut) loc).
 
-  Definition Ist (STATE : stateGS Σ) : iProp Σ :=
+  Section SIM_FUNS.
+    Context `{STATE : !stateGS Σ}.
+
+  Definition Ist : iProp Σ :=
     (∃ gl ths Vcut,
         let m := Global.memory gl in
         ⌜view_na Vcut m
@@ -85,6 +88,8 @@ Module PFMemIA. Section PFMemIA.
         ∗ tview_auth ths (* authorative resource for thread views *)
         ∗ hist_freeable_auth m (* authorative resource for tokens of free *)
         ∗ PFMemI.v_config ↦tgt (Configuration.mk ths gl)↑)%I.
+
+  End SIM_FUNS.
 
   Definition init_cond : iProp Σ :=
     hist_auth (Memory.init size) ∗

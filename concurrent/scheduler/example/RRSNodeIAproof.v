@@ -24,8 +24,11 @@ Module RRSNodeIA. Section RRSNodeIA.
     (MemA.t sp ★ RRSA.t SchHdr.yield.1 sp sp_user get_stid PYIP).
   Local Definition MA := (RRSNodeA.t sp ★ Ctx).
   Local Definition MI := (RRSNodeI.t ★ Ctx).
-  Local Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (True ∗ IstEq Ctx STATE)%I.
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Local Definition IstFull : iProp Σ :=
+    (True ∗ IstEq Ctx)%I.
 
   Lemma f_spawnable n b Invs
     (RNG: 0 < n < size Invs)
@@ -203,7 +206,7 @@ Module RRSNodeIA. Section RRSNodeIA.
     { iEval (rewrite /state_cell_src /state_cell_tgt /=) in "TIDS TIDT".
       cShowT.
       iApply wsim_sget_tgt_uninit. iFrame "TIDT". iIntros "TIDT".
-      iAssert (IstFull STATE) with "[TIDS TIDT CLOSEEQ]" as "IST".
+      iAssert (IstFull) with "[TIDS TIDT CLOSEEQ]" as "IST".
       { iSplit; first done. iApply ("CLOSEEQ" with "[$TIDS $TIDT]"). }
       s. cNormT. cHideT. rewrite /mjoin /option_join.
       destruct (@Any.downcast nat tt↑) eqn:A; cStepsT; ss.
@@ -214,7 +217,7 @@ Module RRSNodeIA. Section RRSNodeIA.
 
     iEval (rewrite /state_cell_src /state_cell_tgt /=) in "TIDS TIDT".
     cStepsT.
-    iAssert (IstFull STATE) with "[TIDS TIDT CLOSEEQ]" as "IST".
+    iAssert (IstFull) with "[TIDS TIDT CLOSEEQ]" as "IST".
     { iSplit; first done. iApply ("CLOSEEQ" with "[$TIDS $TIDT]"). }
     cStepsT. rewrite /mjoin /option_join.
     destruct (@Any.downcast nat t) eqn:A; cStepsT; ss.
@@ -260,15 +263,17 @@ Module RRSNodeIA. Section RRSNodeIA.
     cStep. iFrame; eauto.
   (*SLOW*)Qed.
 
-  Lemma sim : init_cond ⊢ ISim.t open MA MI IstFull.
+  End SIM_FUNS.
+
+  Lemma sim : init_cond ⊢ ISim.t open MA MI.
   Proof using Hschrrs Hrrs Hnode.
     iIntros "_".
     iApply (ISim_reflR open (RRSNodeA.t sp) RRSNodeI.t
       Ctx (λ _ : stateGS Σ, True%I)).
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STATE0) "SRC TGT". done.
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+      iIntros "SRC TGT". done.
+    - iIntros (STATE). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split; mod_tac. }
       iIntros (fn) "%Hfn".
       set_unfold in Hfn; des; subst.

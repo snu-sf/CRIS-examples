@@ -131,8 +131,11 @@ Module PQueueIA. Section PQueueIA.
   (* Local Definition sp_stack : specmap := SchA.sp ∅ (↑(stackN N)). *)
   Local Definition PQueueA := PQueueA.t ★ (StackA.t ★ SchI.t ★ MemA.t sp).
   Local Definition PQueueI := PQueueI.t ★ (StackA.t ★ SchI.t ★ MemA.t sp).
-  Local Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (True ∗ IstEq (StackA.t ★ SchI.t ★ MemA.t sp) STATE)%I.
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Local Definition IstFull : iProp Σ :=
+    (True ∗ IstEq (StackA.t ★ SchI.t ★ MemA.t sp))%I.
 
   Lemma new_simF :
     ⊢ ISim.sim_fun open PQueueA PQueueI IstFull (fid PQueueHdr.new).
@@ -192,7 +195,8 @@ Module PQueueIA. Section PQueueIA.
       { apply nclose_subseteq. }
       { solve_base_sl_red; iFrame. }
       cStep; iFrame.
-      sYields. sYieldS. cForceS (_, tt). cStep; iFrame "∗#".
+      sYields. sYieldS. cForceS (_, tt).
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret. iFrame "∗#".
       rewrite length_replicate. iModIntro. iSplit; ss. iExists _; repeat iSplit; auto.
       iApply (big_sepL_impl with "↦stack_contents").
       iIntros "!> %% %Hk ?". rewrite list_lookup_total_alt lookup_replicate_2 //=.
@@ -272,7 +276,8 @@ Module PQueueIA. Section PQueueIA.
       { s. rewrite list_lookup_total_insert // -Hlen'; lia. }
     }
     iIntros "!> IST". cStepsT. iDestruct "GRT" as "->". cStepsT.
-    sYields. sYieldS. cStep; iFrame. auto.
+    sYields. sYieldS. cStepsS.
+    iApply wsim_unfold. iIntros "WINV". iApply wsim_ret. iFrame. auto.
   Qed.
 
   Lemma remove_min_simF :
@@ -296,7 +301,8 @@ Module PQueueIA. Section PQueueIA.
     generalize range at 2 8 9 10. subst range. iIntros (var).
     iInduction (var) as [|var'].
     { aUnfoldS. rewrite Nat.sub_0_r decide_True //.
-      aUnfoldT. sYields. sYieldS. cNormS. sYieldS. by cStep; iFrame.
+      aUnfoldT. sYields. sYieldS. cNormS. sYieldS. cStepsS. cStepsT.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret. by iFrame.
     }
 
     iPoseProof ("Hrange") as "%". aUnfoldT. aUnfoldS.
@@ -364,17 +370,20 @@ Module PQueueIA. Section PQueueIA.
     cStepsT.
     set (case := match v with | Vundef => _ | _ => _ end).
     replace case with (𝒴;;; Ret (inr v) : itree crisE (nat * Z + val)); last (subst case; des_ifs).
-    sYields. sYieldS. cStepsS. sYieldS. cStep; iFrame. auto.
+    sYields. sYieldS. cStepsS. sYieldS. cStepsS. cStepsT.
+    iApply wsim_unfold. iIntros "WINV". iApply wsim_ret. iFrame. auto.
   (*SLOW*)Qed.
 
-  Lemma sim : ⊢ ISim.t open PQueueA PQueueI IstFull.
+  End SIM_FUNS.
+
+  Lemma sim : ⊢ ISim.t open PQueueA PQueueI.
   Proof.
     iApply (ISim_reflR open PQueueA.t PQueueI.t
       (StackA.t ★ SchI.t ★ MemA.t sp) (λ _, True%I)).
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STATE) "SRC TGT". done.
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+      iIntros "SRC TGT". done.
+    - iIntros (STATE). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split; mod_tac. }
       iIntros (fn) "%Hfn".
       set_unfold in Hfn; des; subst.

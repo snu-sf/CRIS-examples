@@ -57,8 +57,11 @@ Module IOIM. Section IOIM.
   Local Notation IOHelpM := ((IOM.t mn ★ ProxyM.t mn) ★ HelpingOn.t mn jobCode).
   Local Notation IOHelpI := ((IOI ★ ProxyI) ★ HelpingDummy.t mn).
   Local Notation Ctx := ((PQ ★ Mem) ★ SchI).
-  Local Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (IstHelp (IstEq IOHelpM STATE) ⊤ ∗ IstEq Ctx STATE)%I.
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Local Definition IstFull : iProp Σ :=
+    (IstHelp (IstEq IOHelpM) ⊤ ∗ IstEq Ctx)%I.
 
   Lemma init_simF : ⊢ ISim.sim_fun open
     (IOHelpM ★ Ctx)
@@ -87,7 +90,9 @@ Module IOIM. Section IOIM.
       iSplitL; [iFrame "∗#"; eauto|].
       iIntros "%% [? [? []]]".
     }
-    iIntros (tid) "IST J". cStep; iFrame "∗#"; eauto.
+    iIntros (tid) "IST J". cStepsS. cStepsT.
+    iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+    iFrame "∗#"; eauto.
   Qed.
 
   Lemma request_simF : ⊢ ISim.sim_fun open
@@ -123,7 +128,7 @@ Module IOIM. Section IOIM.
     iIntros "[#[queue [proxy data]] IST]".
 
     aUnfoldT. sYields.
-    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+    iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
     iInv "data" with "[IST]" as "[IST [[st|[st #Done]] ?]]" "close"; first (iFrame; eauto).
     { (* pending help *)
       mLoadT "st". iMod ("close" with "[//] [$] IST") as ">>IST".
@@ -137,7 +142,8 @@ Module IOIM. Section IOIM.
     iEval (rewrite -IstHelp_nested_equiv) in "IST".
     sYields. iApply wsim_mem_cmp_int; [simpl_map; s; f_equal|solve_msk|].
     cStepsT. sYields. sYieldS. iApply (wsim_HelpDone_try_run with "Done").
-    cStepsS. cStep; iFrame. eauto.
+    cStepsS. cStepsT.
+    iApply wsim_unfold. iIntros "WINV". iApply wsim_ret. iFrame. eauto.
   Qed.
 
   Lemma proxy_simF : ⊢ ISim.sim_fun open
@@ -185,13 +191,13 @@ Module IOIM. Section IOIM.
     { iPureIntro; rewrite length_insert //. }
     iModIntro; iIntros "IST".
     cStepsT. sYields. rewrite !left_id_L.
-    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+    iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
     iInv "data" with "[IST]" as "[IST [st [st2 stnum]]]" "close"; first (iFrame; eauto).
     mLoadT "st2".
     iMod ("close" with "[//] [$] IST") as ">>IST".
     iEval (rewrite -IstHelp_nested_equiv) in "IST".
     sYields.
-    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+    iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
     iInv "data" with "[IST]" as "[IST [? [? stnum]]]" "close"; first (iFrame; eauto).
     mLoadT "stnum".
     iMod ("close" with "[//] [$] IST") as ">>IST".
@@ -224,7 +230,7 @@ Module IOIM. Section IOIM.
       iIntros "#Done".
       cStepsS.
       aAddY. sYield.
-      iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+      iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
       iInv "data" with "[IST]" as "[IST [[st0|[st0 #Done2]] [st1 st2]]]" "close2"; first (iFrame; eauto).
       - cStepsT. mStoreT "st0".
         iMod ("close2" with "[//] [- IST] IST") as ">>IST".
@@ -262,21 +268,32 @@ Module IOIM. Section IOIM.
     iPureIntro; lia.
   Qed.
 
+  Lemma run_simF : ⊢ ISim.sim_fun open
+    (IOHelpM ★ Ctx) (IOHelpI ★ Ctx)
+    IstFull (funid (Helping.run mn)).
+  Proof. cStartFunSim; cStepsT; ss. Qed.
+
+  Lemma help_simF : ⊢ ISim.sim_fun open
+    (IOHelpM ★ Ctx) (IOHelpI ★ Ctx)
+    IstFull (funid (Helping.help mn)).
+  Proof. cStartFunSim; cStepsT; ss. Qed.
+
+  End SIM_FUNS.
+
   (* Combine the function-level simulations into a module-level ISim.t. *)
   Lemma sim : hinv_ownE ⊤ ⊢ ISim.t open
     (IOHelpM ★ Ctx)
-    (IOHelpI ★ Ctx)
-    IstFull.
+    (IOHelpI ★ Ctx).
   Proof.
     iIntros "HE".
     iApply (ISim_reflR open IOHelpM IOHelpI Ctx
-      (λ STATE, IstHelp (IstEq IOHelpM STATE) ⊤) with "[HE] []").
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+      (λ STATE, IstHelp (@IstEq Σ STATE IOHelpM) ⊤) with "[HE] []").
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STATE) "SRC TGT".
+      iIntros "SRC TGT".
       rewrite /IstHelp. iFrame "HE".
       iApply (state_eq_init_same with "SRC TGT").
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split.
         - mod_tac.
         - mod_tac.
@@ -288,8 +305,8 @@ Module IOIM. Section IOIM.
       + iApply init_simF.
       + iApply request_simF.
       + iApply proxy_simF.
-      + cStartFunSim; cStepsT; ss.
-      + cStartFunSim; cStepsT; ss.
+      + iApply run_simF.
+      + iApply help_simF.
   Qed.
 End IOIM. End IOIM.
 
@@ -305,12 +322,14 @@ Module IOIA. Section IOIA.
   Local Notation IOMCore :=
     ((IOM.t mn ★ ProxyM.t mn) ★ HelpingOff.t mn jobCode).
   Local Notation Ctx := ((PQ ★ Mem) ★ SchI).
-  Local Definition IstMA (STATE : stateGS Σ) : iProp Σ :=
-    (state_init_tgt ({[mn]} : gset string) ∅ STATE ∗
-     IstEq Ctx STATE)%I.
-
   Local Notation IOA_mod := (IOACore ★ Ctx).
   Local Notation IOM_mod := (IOMCore ★ Ctx).
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Local Definition IstMA : iProp Σ :=
+    (state_init_tgt ({[mn]} : gset string) ∅ STATE ∗
+     IstEq Ctx)%I.
 
   Lemma init_simFA : ⊢ ISim.sim_fun open
     IOA_mod IOM_mod
@@ -330,7 +349,9 @@ Module IOIA. Section IOIA.
     destruct (Any.downcast ret); [cStepsT; cStepsS | cStepsT; cStepsS; destruct _q1].
     cForcesT; iFrame "ASM".
     cStepsT; iFrame; auto.
-    cStep; iFrame "GRT"; iFrame; auto.
+    cStepsS. cStepsT.
+    iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+    iFrame "GRT"; iFrame; auto.
   Qed.
 
   Lemma request_simFA : ⊢ ISim.sim_fun open
@@ -360,7 +381,8 @@ Module IOIA. Section IOIA.
       aUnfoldS. aUnfoldT. sYields.
       case_decide as Hcase; last lia.
       rewrite /jobCode. cStepsT.
-      cStepsT. sYields. sYieldS. cStepsS. sYieldS. cStep; iFrame; auto.
+      cStepsT. sYields. sYieldS. cStepsS. sYieldS. cStepsS. cStepsT.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret. iFrame; auto.
     }
     (* step: k < num *)
     aUnfoldS; aUnfoldT. sYields.
@@ -392,21 +414,22 @@ Module IOIA. Section IOIA.
     sYields. specialize (CIH qptr). cByCoind CIH. iFrame.
   Qed.
 
+  End SIM_FUNS.
+
   (* Combine the IOA → IOM (helping-off) function-level simulations into
      a module-level ISim.t. *)
   Lemma sim : ⊢ ISim.t open
-    IOA_mod IOM_mod
-    IstMA.
+    IOA_mod IOM_mod.
   Proof.
     iApply (ISim_reflR open IOACore IOMCore Ctx
       (λ STATE, state_init_tgt ({[mn]} : gset string) ∅ STATE)).
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro.
         unfold Mod.add, IOA.t, ProxyA.t, IOM.t, ProxyM.t, HelpingOff.t;
           cbn.
         apply submseteq_nil_l.
       }
-      iIntros (STATE) "SRC TGT".
+      iIntros "SRC TGT".
       assert (Hscopes :
         list_to_set (Mod.scopes IOMCore) = ({[mn]} : gset string)).
       { apply set_eq. intros scope.
@@ -417,7 +440,7 @@ Module IOIA. Section IOIA.
         reflexivity. }
       iEval (rewrite Hscopes Hinit) in "TGT".
       iExact "TGT".
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split.
         - mod_tac.
         - mod_tac.
@@ -481,7 +504,7 @@ Module IOIA_ctxr. Section IOIA_ctxr.
         (CFilter.filter (Helping.exports mn) PQueueA.t)
         (CFilter.filter (Helping.exports mn) (MemA.t ∅))
         (CFilter.filter (Helping.exports mn) SchI.t)).
-      iApply (main_adequacy _ _ (IOIA.IstMA mn)).
+      iApply main_adequacy.
       iApply (IOIA.sim mn sp).
     }
   Qed.

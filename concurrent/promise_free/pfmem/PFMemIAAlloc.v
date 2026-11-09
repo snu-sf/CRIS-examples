@@ -131,6 +131,9 @@ Section alloc.
     }
   (*SLOW*)Qed.
 
+  Section SIM_FUNS.
+    Context `{STATE : !stateGS Σ}.
+
   Lemma simF_alloc :
     ⊢ ISim.sim_fun open MA MI Ist (fid PFMemHdr.alloc).
   Proof using.
@@ -152,7 +155,7 @@ Section alloc.
     iPoseProof (tview_auth_update with "TA TV") as "> [TA TV]"; ss.
     iMod (hist_freeable_auth_alloc with "FA") as "[F FA]"; eauto. { inv WF; ss. }
     cStepsT.
-    iAssert (Ist STATE) with "[HA TA FA CONFIG]" as "IST".
+    iAssert Ist with "[HA TA FA CONFIG]" as "IST".
     { iExists gl2,
         (Configuration.threads config'),
         (View.join Vcut (View.alloc_view_singleton loc sz)). iSplitR.
@@ -241,4 +244,6 @@ Section alloc.
     subst config'; iFrame. done.
   Unshelve. all: eauto.
   (*SLOW*)Qed.
+  End SIM_FUNS.
+
 End alloc.

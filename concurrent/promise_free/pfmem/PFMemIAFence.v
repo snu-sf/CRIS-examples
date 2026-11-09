@@ -17,6 +17,9 @@ Section fence.
   Definition MA := (PFMemA.t sp).
   Definition MI := (PFMemI.t syn size).
 
+  Section SIM_FUNS.
+    Context `{STATE : !stateGS Σ}.
+
   Lemma simF_fence :
     ⊢ ISim.sim_fun open MA MI Ist (fid PFMemHdr.fence).
   Proof.
@@ -53,7 +56,7 @@ Section fence.
     iMod ((tview_auth_update ths (IdentMap.add tid (existT _ st2, lc2) ths)) with "TA TV") as "[TA TV]"; eauto.
 
     cStepsT.
-    iAssert (Ist STATE)%I with "[HA FA TA CONFIG]" as "IST".
+    iAssert Ist%I with "[HA FA TA CONFIG]" as "IST".
     { iFrame. iPureIntro; esplits; eauto.
       { hexploit (@PFConfiguration.step_future ThreadEvent.get_machine_event); eauto.
         { econs; eauto. econs; eauto.
@@ -85,4 +88,6 @@ Section fence.
     }
     cStep. iSplit; eauto.
   (*SLOW*)Qed.
+  End SIM_FUNS.
+
 End fence.

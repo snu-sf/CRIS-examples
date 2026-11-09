@@ -17,6 +17,9 @@ Section write.
   Definition MA := (PFMemA.t sp).
   Definition MI := (PFMemI.t syn size).
 
+  Section SIM_FUNS.
+    Context `{STATE : !stateGS Σ}.
+
   Lemma simF_write :
     ⊢ ISim.sim_fun open MA MI Ist (fid PFMemHdr.write).
   Proof.
@@ -100,7 +103,7 @@ Section write.
       iMod (hist_freeable_auth_write with "FA") as "FA"; eauto. { inv WF; ss. }
       remember (IdentMap.add _ _ _) as ths2.
 
-      iAssert (Ist STATE) with "[HA TA FA CONFIG]" as "IST".
+      iAssert Ist with "[HA TA FA CONFIG]" as "IST".
       { iExists gl2, ths2, (View.join (View.singleton loc to) Vcut). iFrame "HA". iSplitR.
         { iPureIntro; esplits; eauto.
           { intros loc' ???? GET.
@@ -364,7 +367,7 @@ Section write.
       instantiate (1:=lc2). instantiate (1:=st2).
       iMod (hist_freeable_auth_write with "FA") as "FA"; eauto. { inv WF; ss. }
       remember (IdentMap.add _ _ _) as ths2.
-      iAssert (Ist STATE) with "[HA TA FA CONFIG]" as "IST".
+      iAssert Ist with "[HA TA FA CONFIG]" as "IST".
       { iExists gl2, ths2, _. iFrame "HA". iSplitR.
         { iPureIntro; esplits; eauto.
           { intros loc' ???? GET.
@@ -515,4 +518,6 @@ Section write.
       cStepsS. cStep. iFrame. done.
     }
   (*SLOW*)Qed.
+  End SIM_FUNS.
+
 End write.

@@ -21,6 +21,9 @@ Section HWQPM.
   Context (mnh mnp : string).
   Context (sp_mem : specmap).
 
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
   Definition Ist : iProp Σ :=
     (∃ (X : gset val),
       free_id (λ x, x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type ∗
@@ -33,13 +36,13 @@ Section HWQPM.
   Notation MemA := (MemA.t sp_mem).
   Notation ProphA := (ProphecyA.t mnp ∅).
 
-  Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (IstHelp (Ist ∗ IstEq (HWQM ★ HelpOn) STATE) ⊤ ∗
-     IstEq (MemA ★ ProphA) STATE)%I.
+  Definition IstFull : iProp Σ :=
+    (IstHelp (Ist ∗ IstEq (HWQM ★ HelpOn)) ⊤ ∗
+     IstEq (MemA ★ ProphA))%I.
 
   Lemma big_lemma (γe γs : gname) (ls : list val) (slots : gmap nat slot_data)
       (p : list nat) (N : namespace)
-      (Irun : iProp Σ) `{STATE : !stateGS Σ}
+      (Irun : iProp Σ)
       msks n sz blk γh γc γi γb fl_s fl_t g ps pt :
     fl_s !! funid (Helping.help mnh) =
       Some (Some (SB.sandbox_body
@@ -53,7 +56,7 @@ Section HWQPM.
     own γs (● (of_slot_data <$> slots) : slotUR) -∗
     ([∗ map] i ↦ d ∈ slots, per_slot_own γe γs i d) -∗
     own γe (● (Excl' ls)) -∗
-      wsim fl_s fl_t (IstFull STATE) (↑N, ↑N) g unit unit
+      wsim fl_s fl_t (IstFull) (↑N, ↑N) g unit unit
         (λ rs rt, winv (↑N, ↑N) ∗
           Irun ∗
           own γs (● (of_slot_data <$> map_imap (helped p) slots) : slotUR) ∗
@@ -140,7 +143,7 @@ Section HWQPM.
     iIntros (req_id) "Tkn".
     sYields.
     (* Open the invariant to perform the increment. *)
-    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+    iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Inv" with "[IST]" as "[IST HInv]" "Close"; first by iFrame.
     iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
     iDestruct "HInv" as "[H_sz Hinv]".
@@ -149,7 +152,7 @@ Section HWQPM.
     sYields.
     rewrite /MemHdr.faa. cStepsT.
     clear pvs pref rest slots deqs back cont.
-    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+    iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Inv" with "[IST]" as "[IST HInv]" "Close"; first by iFrame.
     iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
     iDestruct "HInv" as "[H_sz [H_back [H_ar [Hb● [Hi● [He● [Hs● HInv]]]]]]]".
@@ -270,7 +273,7 @@ Section HWQPM.
       cStepsS. aUnfoldS. cForceS false. sYields.
       rewrite (proj2 (Z.ltb_lt _ _) Hback_sz). cStepsT. sYields.
       (* We open the invariant again for the store. *)
-      iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+      iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
       iInv "Inv" with "[IST]" as "[IST HInv]" "Close"; first by iFrame.
       iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
       iDestruct "HInv" as "[H_sz [H_back [H_ar [Hb● [Hi● [He● [Hs● HInv]]]]]]]".
@@ -373,7 +376,8 @@ Section HWQPM.
             intros <-%Some_inj; eauto.
           + rewrite update_slot_lookup_ne //; eapply Hlem. }
       iEval (rewrite -IstHelp_nested_equiv) in "IST".
-      sYields. sYieldS. cStep; iFrame. ss.
+      sYields. sYieldS. cStepsS. cNormT.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret; iFrame. ss.
     }
     (* There is no [Contra1]/[Contra2], first assume the prophecy is trivial. *)
     destruct bs as [|b blocks].
@@ -436,7 +440,7 @@ Section HWQPM.
       aUnfoldS; cForceS false. sYields.
       rewrite (proj2 (Z.ltb_lt _ _) Hback_sz). cStepsT. sYields.
       (* We open the invariant again for the store. *)
-      iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+      iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
       iInv "Inv" with "[IST]" as "[IST HInv]" "Close"; first by iFrame.
       iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
       iDestruct "HInv" as "[H_sz [H_back [H_ar [Hb● [Hi● [He● [Hs● HInv]]]]]]]".
@@ -540,7 +544,8 @@ Section HWQPM.
           + rewrite update_slot_lookup_ne //; eapply Hlem.
       }
       iEval (rewrite -IstHelp_nested_equiv) in "IST".
-      sYields. sYieldS. cStep; iFrame. done.
+      sYields. sYieldS. cStepsS. cNormT.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret; iFrame. done.
     }
     (* There is no [Contra1]/[Contra2], and the prophecy is non-trivial. *)
     destruct Hcont as (Hblocks & Hrest & Hpvs).
@@ -580,8 +585,8 @@ Section HWQPM.
       iMod ("Close" with "[//]") as "[_ > Close]".
       prependRetT tt. iApply wsim_bind. iSplitL "Hs● Hbig He● IST".
       { iApply (big_lemma _ _ _ _ _ _
-          (IstHelp ((Ist ∗ IstEq (HWQM ★ HelpOn) STATE) ∗
-            IstEq (MemA ★ ProphA) STATE) (⊤ ∖ ↑N))
+          (IstHelp ((Ist ∗ IstEq (HWQM ★ HelpOn)) ∗
+            IstEq (MemA ★ ProphA)) (⊤ ∖ ↑N))
           with "[$] [$] Hs● Hbig He●");
           [by simpl_map|apply HNoDup|..].
         intros k Hk. destruct (decide (k = i)) as [->|Hk_not_i].
@@ -720,7 +725,7 @@ Section HWQPM.
       sYields. rewrite (proj2 (Z.ltb_lt _ _) Hback_sz). cStepsT. sYields.
       
       (* We open the invariant again for the store. *)
-      iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+      iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
       iInv "Inv" with "[IST]" as "[IST HInv]" "Close"; first by iFrame.
       iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
       iDestruct "HInv" as "[H_sz [H_back [H_ar [Hb● [Hi● [He● [Hs● HInv]]]]]]]".
@@ -835,7 +840,8 @@ Section HWQPM.
           + rewrite update_slot_lookup_ne //; eapply Hlem.
       }
       iEval (rewrite -IstHelp_nested_equiv) in "IST".
-      sYields. sYieldS. cStep. iFrame. done.
+      sYields. sYieldS. cStepsS. cNormT.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret. iFrame. done.
     + (* We are not the first non-done element, we will give away our AU. *)
       iMod (alloc_pend_slot γs slots i (Vptr (qblk, qofs)) req_id Hi_free with "Hs●")
         as "[Hs● [Htok_i [#val_wit_i [Hpend_tok_i [Hname_tok_i Hwriting_tok_i]]]]]".
@@ -894,7 +900,7 @@ Section HWQPM.
       clear deqs b_pendings. subst i. rename back into i.
       sYields. rewrite (proj2 (Z.ltb_lt _ _) Hback_sz). sYields.
       (* We open the invariant again for the store. *)
-      iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+      iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
       iInv "Inv" with "[IST]" as "[IST HInv]" "Close"; first by iFrame.
       iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
       iDestruct "HInv" as "[H_sz [H_back [H_ar [Hb● [Hi● [He● [Hs● HInv]]]]]]]".
@@ -1009,7 +1015,8 @@ Section HWQPM.
               + rewrite update_slot_lookup_ne //; eapply Hlem. 
           }
           iEval (rewrite -IstHelp_nested_equiv) in "IST".
-          cStepsS. aUnfoldS; cForceS false; cStepsS. sYields. sYieldS. cStep; iFrame. done.
+          cStepsS. aUnfoldS; cForceS false; cStepsS. sYields. sYieldS. cStepsS. cNormT.
+          iApply wsim_unfold. iIntros "WINV". iApply wsim_ret; iFrame. done.
         * (* No contradiction yet, make it ours if the prophecy is non-trivial. *)
           iAssert (match bs with
                  | [] => i2_lower_bound γi (back `min` sz)
@@ -1122,7 +1129,8 @@ Section HWQPM.
               + rewrite update_slot_lookup_ne //; eapply Hlem.  
           }
           iEval (rewrite -IstHelp_nested_equiv) in "IST".
-          cStepsS. aUnfoldS; cForceS false; cStepsS. sYields; sYieldS; cStep.
+          cStepsS. aUnfoldS; cForceS false; cStepsS. sYields; sYieldS; cStepsS. cNormT.
+          iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
           iFrame; done.
       - (* We have moved to the helped state. *)
         pose (l := Vptr (qblk, qofs)).
@@ -1213,11 +1221,16 @@ Section HWQPM.
             + rewrite update_slot_lookup_ne //; eapply Hlem. 
         }
         iEval (rewrite -IstHelp_nested_equiv) in "IST".
-        cStepsS. aUnfoldS; cForceS false; cStepsS. sYields; sYieldS; cStep; iFrame; done.
+        cStepsS. aUnfoldS; cForceS false; cStepsS. sYields; sYieldS; cStepsS. cNormT.
+        iApply wsim_unfold. iIntros "WINV". iApply wsim_ret; iFrame; done.
       - (* We are in the done state: contradiction. *)
         iDestruct (big_sepM_lookup _ _ i with "Hbig")
           as "[_ [_ [_ H]]]"; first done; simpl.
         iDestruct "H" as "[_ Htok_i']".
         by iDestruct (slot_token_exclusive with "Htok_i Htok_i'") as "H".
   Qed.
+
+  End SIM_FUNS.
+
+
 End HWQPM.

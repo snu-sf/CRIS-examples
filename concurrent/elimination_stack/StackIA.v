@@ -23,25 +23,18 @@ Module StackIM. Section StackIM.
   Local Notation StackHelpM := (StackM.t mn ★ HelpingOn).
   Local Notation StackM := (StackHelpM ★ MemA ★ SchI).
   Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
-  Local Notation Ist :=
-    (λ STATE,
-      (IstHelp (IstEq StackHelpM STATE) ⊤ ∗
-       IstEq (MemA ★ SchI) STATE)%I).
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
 
-  (* Construct ISim.t for summing up each simulation proofs *)
-  Lemma sim : hinv_ownE ⊤ ⊢ ISim.t open StackM StackI Ist.
+  Local Definition Ist : iProp Σ :=
+    (IstHelp (IstEq StackHelpM) ⊤ ∗
+       IstEq (MemA ★ SchI))%I.
+
+  Local Lemma sim_funs :
+    ⊢ ISim.sim_funs open StackM StackI Ist StackHelpM
+        (CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy).
   Proof.
-    iIntros "HE".
-    iApply (ISim_reflR open StackHelpM
-      (CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy)
-      (MemA ★ SchI) (λ STATE, IstHelp (IstEq StackHelpM STATE) ⊤)
-      with "[HE] []").
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
-      { iPureIntro. mod_tac. }
-      iIntros (STATE) "SRC TGT".
-      rewrite /IstHelp. iFrame "HE".
-      iApply (state_eq_init_same with "SRC TGT").
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+    rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split.
         - mod_tac.
         - mod_tac.
@@ -56,12 +49,92 @@ Module StackIM. Section StackIM.
       + cStartFunSim; cStepsT; ss.
       + cStartFunSim; cStepsT; ss.
   Qed.
+
+  End SIM_FUNS.
+
+  (* Construct ISim.t for summing up each simulation proofs *)
+  Lemma sim : hinv_ownE ⊤ ⊢ ISim.t open StackM StackI.
+  Proof.
+    iIntros "HE".
+    iApply (ISim_reflR open StackHelpM
+      (CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy)
+      (MemA ★ SchI) (λ STATE, IstHelp (@IstEq Σ STATE StackHelpM) ⊤)
+      with "[HE] []").
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
+      { iPureIntro. mod_tac. }
+      iIntros "SRC TGT".
+      rewrite /IstHelp. iFrame "HE".
+      iApply (state_eq_init_same with "SRC TGT").
+    - iIntros (STATE). iApply sim_funs.
+  Qed.
 End StackIM. End StackIM.
 
 From CRIS.helping Require Export HelpingFacts.
 
 Module StackIA. Section StackIA.
   Context `{!crisG Γ Σ α β τ _S _I, !memGS, !schGS, !stackGS}.
+
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+  Context (mn : string) (sp : specmap).
+
+  Local Notation Ctx :=
+    (CFilter.filter (Helping.exports mn) (MemA.t sp) ★
+      CFilter.filter (Helping.exports mn) SchI.t).
+  Local Definition Ist : iProp Σ :=
+    (state_init_tgt ({[mn]} : gset string) ∅ STATE ∗ IstEq Ctx)%I.
+
+  Local Lemma sim_funs_off :
+    ⊢ ISim.sim_funs open (StackA.t ★ Ctx)
+        ((StackM.t mn ★ HelpingOff.t mn StackM.jobCode) ★ Ctx)
+        Ist StackA.t (StackM.t mn ★ HelpingOff.t mn StackM.jobCode).
+  Proof.
+    rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+      { iPureIntro. split.
+        - mod_tac.
+        - mod_tac.
+      }
+      iIntros (fn) "%Hfn".
+      unfold StackA.t in Hfn. cbn in Hfn.
+      set_unfold in Hfn; des; subst.
+    + cStartFunSim. rewrite /StackM.new_stack /StackA.new_stack. cStepsS; cStepsT.
+      aStepS (N n) "[%v ->]".
+      aForceT N with ""; eauto. sYields. destruct _q as [? []]; cStepsT.
+      sYieldS. cForceS (_, tt). cStepsS.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+      iFrame; auto.
+    + cStartFunSim. rewrite /StackM.push /StackA.push. cStepsS; cStepsT.
+      aStepS (N [v γs]) "[%s [-> [%n #Hstack]]]".
+      aForceT N with ""; try instantiate (1:=(_, _)); first simpl; eauto.
+      cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.run. cStepsT.
+      aUnfoldS. aUnfoldT. sYields. sYieldS. cStepsS.
+      rewrite /StackM.jobCode. cForcesT; iFrame.
+      cStepsT. cForceS (inr _). cForcesS; iFrame.
+      sYields. sYieldS. cStepsS.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+      eauto with iFrame.
+    + cStartFunSim. rewrite /StackM.pop /StackA.pop. cStepsS; cStepsT.
+      aStepS (N γs) "[%s [-> [%n #Hstack]]]".
+      aForceT N with ""; first eauto with iFrame.
+      aAddY. sYields. case_match.
+      { cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.help. cStepsT.
+        sYields. sYieldS.
+        aStep. iExists 0. iAuIntro. iAaccIntro "% $ !>" with "". iSplit; first eauto.
+        iIntros "%ret_t $ !>"; iExists ret_t; iModIntro.
+        iIntros "IST". cStepsT. sYieldS. cStepsS.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+      eauto with iFrame.
+      }
+      cStepsT. sYieldS. aStep.
+      iExists 0. iAuIntro. iAaccIntro "% $ !>" with "". iSplit; first eauto.
+      iIntros "%ret_t $ !>"; iExists ret_t; iModIntro.
+      iIntros "IST". cStepsT. sYieldS.
+      cStepsS.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+      eauto with iFrame.
+  Qed.
+
+  End SIM_FUNS.
 
   Lemma ctxr (sp : specmap) :
     help_init_cond ⊢
@@ -98,12 +171,7 @@ Module StackIA. Section StackIA.
           CFilter.filter (Helping.exports mn) (MemA.t sp) ★
           CFilter.filter (Helping.exports mn) SchI.t))%I
       as "REF".
-    { iApply (main_adequacy _ _
-      (λ STATE,
-        (state_init_tgt ({[mn]} : gset string) ∅ STATE ∗
-         IstEq
-           (CFilter.filter (Helping.exports mn) (MemA.t sp) ★
-            CFilter.filter (Helping.exports mn) SchI.t) STATE)%I)).
+    { iApply main_adequacy.
     iStopProof.
     iIntros "_".
     iApply (ISim_reflR open StackA.t
@@ -111,12 +179,12 @@ Module StackIA. Section StackIA.
       (CFilter.filter (Helping.exports mn) (MemA.t sp) ★
       CFilter.filter (Helping.exports mn) SchI.t)
       (λ STATE, state_init_tgt ({[mn]} : gset string) ∅ STATE)).
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro.
         unfold StackA.t, StackM.t, HelpingOff.t; cbn.
         apply submseteq_nil_l.
       }
-      iIntros (STATE) "SRC TGT".
+      iIntros "SRC TGT".
       assert (Hscopes :
         list_to_set
           (Mod.scopes (StackM.t mn ★ HelpingOff.t mn StackM.jobCode)) =
@@ -131,41 +199,7 @@ Module StackIA. Section StackIA.
         reflexivity. }
       iEval (rewrite Hscopes Hinit) in "TGT".
       iExact "TGT".
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
-      { iPureIntro. split.
-        - mod_tac.
-        - mod_tac.
-      }
-      iIntros (fn) "%Hfn".
-      unfold StackA.t in Hfn. cbn in Hfn.
-      set_unfold in Hfn; des; subst.
-    + cStartFunSim. rewrite /StackM.new_stack /StackA.new_stack. cStepsS; cStepsT.
-      aStepS (N n) "[%v ->]".
-      aForceT N with ""; eauto. sYields. destruct _q as [? []]; cStepsT.
-      sYieldS. cForceS (_, tt); cStep; iFrame; auto.
-    + cStartFunSim. rewrite /StackM.push /StackA.push. cStepsS; cStepsT.
-      aStepS (N [v γs]) "[%s [-> [%n #Hstack]]]".
-      aForceT N with ""; try instantiate (1:=(_, _)); first simpl; eauto.
-      cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.run. cStepsT.
-      aUnfoldS. aUnfoldT. sYields. sYieldS. cStepsS.
-      rewrite /StackM.jobCode. cForcesT; iFrame.
-      cStepsT. cForceS (inr _). cForcesS; iFrame.
-      sYields. sYieldS. cStep; eauto with iFrame.
-    + cStartFunSim. rewrite /StackM.pop /StackA.pop. cStepsS; cStepsT.
-      aStepS (N γs) "[%s [-> [%n #Hstack]]]".
-      aForceT N with ""; first eauto with iFrame.
-      aAddY. sYields. case_match.
-      { cStepsT. cInlineT. cStepsT. rewrite /HelpingOff.help. cStepsT.
-        sYields. sYieldS.
-        aStep. iExists 0. iAuIntro. iAaccIntro "% $ !>" with "". iSplit; first eauto.
-        iIntros "%ret_t $ !>"; iExists ret_t; iModIntro.
-        iIntros "IST". cStepsT. sYieldS. cStep; eauto with iFrame.
-      }
-      cStepsT. sYieldS. aStep.
-      iExists 0. iAuIntro. iAaccIntro "% $ !>" with "". iSplit; first eauto.
-      iIntros "%ret_t $ !>"; iExists ret_t; iModIntro.
-      iIntros "IST". cStepsT. sYieldS.
-      cStep; eauto with iFrame.
+    - iIntros (STATE). iApply sim_funs_off.
     }
     jApply "REF".
     jFrame.

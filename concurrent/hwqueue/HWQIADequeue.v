@@ -21,6 +21,9 @@ Section HWQPM.
   Context (mnh mnp : string).
   Context (sp_mem : specmap).
 
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
   Definition Ist : iProp Σ :=
     (∃ (X : gset val),
       free_id (λ x, x.1 = "hwq" ∧ match (x.2↓↓) with | Some x => x ∉ X | None => True end)%type ∗
@@ -33,9 +36,9 @@ Section HWQPM.
   Notation MemA := (MemA.t sp_mem).
   Notation ProphA := (ProphecyA.t mnp ∅).
 
-  Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (IstHelp (Ist ∗ IstEq (HWQM ★ HelpOn) STATE) ⊤ ∗
-     IstEq (MemA ★ ProphA) STATE)%I.
+  Definition IstFull : iProp Σ :=
+    (IstHelp (Ist ∗ IstEq (HWQM ★ HelpOn)) ⊤ ∗
+     IstEq (MemA ★ ProphA))%I.
 
   Lemma simF_dequeue :
     ⊢ ISim.sim_fun open
@@ -51,7 +54,7 @@ Section HWQPM.
     set (tgt_out := λ _ : (), _) at 2.
     aUnfoldT. rewrite {1}/tgt_out. sYields.
 
-    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+    iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Inv" with "[IST]" as "[IST HInv]" "Close"; first by iFrame.
     iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
     iDestruct "HInv" as "[H_sz [H_back [H_ar [Hb● [Hi● [He● [Hs● HInv]]]]]]]".
@@ -62,7 +65,7 @@ Section HWQPM.
 
     sYields. rewrite left_id.
 
-    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+    iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Inv" with "[IST]" as "[IST HInv]" "Close"; first by iFrame.
     iDestruct "HInv" as (back pvs pref rest cont slots deqs) "HInv".
     iDestruct "HInv" as "[H_sz [H_back [H_ar [Hb● [Hi● [He● [Hs● HInv]]]]]]]".
@@ -101,7 +104,7 @@ Section HWQPM.
     aUnfoldT. rewrite {2}/tgt_in. cStepsT.
     sYields.
     (* Now the induction case: we need to open the invariant for the load. *)
-    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+    iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Inv" with "[IST]" as "[IST HInv]" "Close"; first by iFrame.
     iDestruct "HInv" as (back' pvs pref rest cont' slots deqs) "HInv".
     iDestruct "HInv" as "[H_sz [H_back [H_ar [Hb● [Hi● [He● [Hs● HInv]]]]]]]".
@@ -167,7 +170,7 @@ Section HWQPM.
     clear pvs pref rest cont' Hslots_i si wi Hi_not_NULL slots deqs.
     sYields.
     (* Finally, the interesting where the cell was non-NULL on the load. *)
-    iEval (rewrite /IstFull IstHelp_nested_equiv) in "IST".
+    iEval (unfold IstFull; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Inv" with "[IST]" as "[IST HInv]" "Close"; first by iFrame.
     iDestruct "HInv" as (back' pvs pref rest cont' slots deqs) "HInv".
     iDestruct "HInv" as "[H_sz [H_back [H_ar [Hb● [Hi● [He● [Hs● HInv]]]]]]]".
@@ -352,7 +355,9 @@ Section HWQPM.
         { ss; case_bool_decide; first refl; naive_solver. }
         iSplitL "Hi2"; first iExact "Hi2". iSplitR.
         { ss; iIntros "[$ $] !> [Ha Hb]"; iSplitL "Ha"; by iFrame. }
-        iIntros "_". cStepsT. sYields. sYieldS. cStep; iFrame; done.
+        iIntros "_". cStepsT. sYields. sYieldS. cStepsS.
+        iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+        iFrame; done.
       }
       (* If the enqueue at index [i] was not committed: contradiction. *)
       exfalso.
@@ -414,4 +419,8 @@ Section HWQPM.
         rewrite /array_get in Hcont_i. subst i i1. rewrite Hslots_i1 in Hcont_i.
         rewrite decide_False in Hcont_i; last done. by inversion Hcont_i.
   Qed.
+
+  End SIM_FUNS.
+
+
 End HWQPM.

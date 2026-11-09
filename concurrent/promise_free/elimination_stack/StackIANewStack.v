@@ -24,9 +24,12 @@ Section StackIM.
   Local Definition StackHelpM :=
     StackM.t mn (SystemA.sp sp_user (↑stackN)) ★
       HelpingOn.t mn StackM.jobCode.
-  Local Definition Ist (STATE : stateGS Σ) : iProp Σ :=
-    (IstHelp (IstEq StackHelpM STATE) ⊤ ∗
-      IstEq (SysF ★ SchF) STATE)%I.
+  Section SIM_FUNS.
+    Context `{STATE : !stateGS Σ}.
+
+  Local Definition Ist : iProp Σ :=
+    (IstHelp (IstEq StackHelpM) ⊤ ∗
+      IstEq (SysF ★ SchF))%I.
 
   Lemma new_stack_simF :
     ⊢ ISim.sim_fun open MA MI Ist (fid StackHdr.new_stack).
@@ -187,4 +190,6 @@ Section StackIM.
       iSplit; first (iPureIntro; split; done). iFrame "Hinv SNh SNo SNg". }
     cStepsS. cStepsT. cStep. iFrame. done.
   Qed.
+  End SIM_FUNS.
+
 End StackIM.

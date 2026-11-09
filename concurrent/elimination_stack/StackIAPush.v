@@ -22,10 +22,12 @@ Section StackIM.
   Local Notation StackHelpM := (StackM.t mn ★ HelpingOn).
   Local Notation StackM := (StackHelpM ★ MemA ★ SchI).
   Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
-  Local Notation Ist :=
-    (λ STATE,
-      (IstHelp (IstEq StackHelpM STATE) ⊤ ∗
-       IstEq (MemA ★ SchI) STATE)%I).
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Local Definition Ist : iProp Σ :=
+    (IstHelp (IstEq StackHelpM) ⊤ ∗
+       IstEq (MemA ★ SchI))%I.
 
   Lemma push_simF :
     ⊢ ISim.sim_fun open StackM StackI Ist (fid StackHdr.push).
@@ -43,7 +45,7 @@ Section StackIM.
     aUnfoldT. rewrite {1}/StackI._push. cStepsT. cHideT. sYields.
 
     (* load *)
-    iEval (rewrite IstHelp_nested_equiv) in "IST".
+    iEval (unfold Ist; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hinv" with "[IST]"
       as "[IST [%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist Hoffer]]]]]]]" "close"; first by iFrame.
     mLoad.
@@ -58,7 +60,7 @@ Section StackIM.
     mStore. sYields. mStore. sYields.
 
     (* try push *)
-    iEval (rewrite IstHelp_nested_equiv) in "IST".
+    iEval (unfold Ist; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hinv" with "[IST]"
       as "[IST [%stack_rep1 [%offer_rep1 [%l1 [Hs [H↦ [Hlist Hoffer]]]]]]]" "close";
       first by iFrame.
@@ -102,7 +104,9 @@ Section StackIM.
       iIntros "_". cStepsT.
 
       (* epilogue *)
-      sYields. sYieldS. cStep; iFrame. done.
+      sYields. sYieldS. cStepsS.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+      iFrame. done.
     }
 
     (* failure *)
@@ -124,7 +128,7 @@ Section StackIM.
     mStore. sYields. mStore. sYields.
 
     clear dependent l l1 stack_rep stack_rep1 offer_rep offer_rep1.
-    iEval (rewrite IstHelp_nested_equiv) in "IST".
+    iEval (unfold Ist; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hinv" with "[IST]"
       as "[IST [%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist [Hoffer _]]]]]]]]" "close";
       first by iFrame.
@@ -140,7 +144,7 @@ Section StackIM.
     sYields.
 
     clear dependent l stack_rep offer_rep.
-    iEval (rewrite IstHelp_nested_equiv) in "IST".
+    iEval (unfold Ist; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hinv" with "[IST]"
       as "[IST [%stack_rep [%offer_rep [%l [Hs [H↦ [Hlist [Hoffer _]]]]]]]]" "close";
       first by iFrame.
@@ -149,7 +153,7 @@ Section StackIM.
     iMod ("close" with "[//] [$] [$]") as "> > IST".
     iEval (rewrite -IstHelp_nested_equiv) in "IST".
     sYields.
-    iEval (rewrite IstHelp_nested_equiv) in "IST".
+    iEval (unfold Ist; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hoinv" with "[IST]" as "[IST [%offerst [offerst↦ offer]]]" "close"; first by iFrame.
     rewrite Z.add_0_l.
     case_decide; subst.
@@ -180,10 +184,16 @@ Section StackIM.
       iIntros "_". cStepsT.
 
       sYieldS. iApply (wsim_HelpDone_try_run with "offer").
-      cStepsS. sYieldS. cStep; iFrame. done.
+      cStepsS. sYieldS. cStepsS.
+      iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+      iFrame. done.
     }
 
     case_decide; try by (iCombine "OfferTkn" "offer" gives %WF). done.
   Unshelve. all: try exact 1%Qp.
   (*SLOW*)Qed.
+
+  End SIM_FUNS.
+
+
 End StackIM.

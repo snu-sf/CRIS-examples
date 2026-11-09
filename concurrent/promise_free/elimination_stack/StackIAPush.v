@@ -25,9 +25,12 @@ Section StackIM.
   Local Definition StackHelpM :=
     StackM.t mn (SystemA.sp sp_user (↑stackN)) ★
       HelpingOn.t mn StackM.jobCode.
-  Local Definition Ist (STATE : stateGS Σ) : iProp Σ :=
-    (IstHelp (IstEq StackHelpM STATE) ⊤ ∗
-      IstEq (SysF ★ SchF) STATE)%I.
+  Section SIM_FUNS.
+    Context `{STATE : !stateGS Σ}.
+
+  Local Definition Ist : iProp Σ :=
+    (IstHelp (IstEq StackHelpM) ⊤ ∗
+      IstEq (SysF ★ SchF))%I.
 
   Local Lemma push_postcond_irrel value γs tid stid V V' :
     postcond StackM.push_spec (value, γs, tid, stid, V) =
@@ -68,7 +71,7 @@ Section StackIM.
       "[%STACK [#Hinv [#SNh [#SNo #SNg]]]]".
     destruct STACK as [-> STACK_BASE].
     sYield. cStepsT.
-    iEval (rewrite /Ist IstHelp_nested_equiv) in "IST".
+    iEval (unfold Ist; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hinv" with "[IST]" as "[IST INV]" "ACC";
       first by iFrame.
     iEval (rewrite stack_inv'_eq; solve_base_sl_red) in "INV".
@@ -172,7 +175,7 @@ Section StackIM.
     iPoseProof (view_at_view_mon_pred
       (view_at (AtomicSeen (stack_loc >> 2) γguard ζguard)) _ _ HcurV5
       with "SNg") as "#SNg5".
-    iEval (rewrite /Ist IstHelp_nested_equiv) in "IST".
+    iEval (unfold Ist; rewrite IstHelp_nested_equiv) in "IST".
     iInv "Hinv" with "[IST]" as "[IST INV]" "ACC";
       first by iFrame.
     iEval (rewrite stack_inv'_eq; solve_base_sl_red) in "INV".
@@ -355,7 +358,7 @@ Section StackIM.
       iPoseProof (atomic_pts_to_swriter_to_cas with "STATE SWos")
         as "STATE".
       sYields. cStepsT.
-      iEval (rewrite /Ist IstHelp_nested_equiv) in "IST".
+      iEval (unfold Ist; rewrite IstHelp_nested_equiv) in "IST".
       iInv "Hinv" with "[IST]" as "[IST INV]" "ACC";
         first by iFrame.
       iEval (rewrite stack_inv'_eq; solve_base_sl_red) in "INV".
@@ -597,7 +600,7 @@ Section StackIM.
           (view_at (AtomicSeen offer_loc γoffer_guard
             (Cell.singleton (Message.message Val.zero Vog naog) LTog)))
           _ _ Hcur1011 with "SNoffer10") as "#SNoffer11".
-        iEval (rewrite /Ist IstHelp_nested_equiv) in "IST".
+        iEval (unfold Ist; rewrite IstHelp_nested_equiv) in "IST".
         iInv "Hinv" with "[IST]" as "[IST INVe]" "ACCe";
           first by iFrame.
         iEval (rewrite stack_inv'_eq; solve_base_sl_red) in "INVe".
@@ -763,7 +766,7 @@ Section StackIM.
           shelve. }
         Unshelve.
         all: sYield; cStepsT; sYield; cStepsT;
-          iEval (rewrite /Ist IstHelp_nested_equiv) in "IST";
+          iEval (unfold Ist; rewrite IstHelp_nested_equiv) in "IST";
           iInv "Hoinv" with "[IST]" as "[IST OINV]" "OACC".
         all: try (by iFrame).
         all: iEval (solve_base_sl_red) in "OINV";
@@ -1088,4 +1091,6 @@ Section StackIM.
         iExists V6. iSplit; first done. iFrame "TV". }
       cStepsS. cStepsT. cStep. iFrame "IST". done.
   Qed.
+  End SIM_FUNS.
+
 End StackIM.

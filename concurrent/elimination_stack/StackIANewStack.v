@@ -20,7 +20,10 @@ Section StackIM.
   Local Notation StackM := ((StackM.t mn ★ HelpingOn) ★ MemA ★ SchI).
   Local Notation StackI := ((CFilter.filter (Helping.exports mn) StackI.t ★ HelpingDummy) ★ MemA ★ SchI).
 
-  Lemma new_stack_simF (Ist : stateGS Σ → iProp Σ) :
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Lemma new_stack_simF (Ist : iProp Σ) :
     ⊢ ISim.sim_fun open StackM StackI Ist (fid StackHdr.new_stack).
   Proof using.
     cStartFunSim. rewrite /= /StackI.new_stack /StackM.new_stack. cStepS.
@@ -39,6 +42,9 @@ Section StackIM.
     { solve_ndisj. }
     { rewrite sl_red; iFrame; eauto. }
 
-    cForceS ((Vptr (blk, 0%Z))↑, tt). cStep; iFrame. iModIntro. iSplit; iFrame "#"; eauto.
+    cForceS ((Vptr (blk, 0%Z))↑, tt). cStepsS.
+    iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+    iFrame. iModIntro. iSplit; iFrame "#"; eauto.
   (*SLOW*)Qed.
+  End SIM_FUNS.
 End StackIM.

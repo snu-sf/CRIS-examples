@@ -119,23 +119,17 @@ Module HWQIP. Section HWQIP.
   Context `{!crisG Γ Σ α β τ Hinv Hsub, !concGS}.
   Context (mn : string).
 
-  Local Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (IstEq (HWQP.t mn) STATE ∗ IstEq (ProphecyI.t mn) STATE)%I.
-  Lemma ctxr :
-    ⊢ ctx_refines
-        (HWQI.t ★ ProphecyI.t mn)
-        (HWQP.t mn ★ ProphecyI.t mn).
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Local Definition IstFull : iProp Σ :=
+    (IstEq (HWQP.t mn) ∗ IstEq (ProphecyI.t mn))%I.
+  Local Lemma sim_funs :
+    ⊢ ISim.sim_funs open
+        (HWQP.t mn ★ ProphecyI.t mn) (HWQI.t ★ ProphecyI.t mn)
+        IstFull (HWQP.t mn) HWQI.t.
   Proof using.
-    iApply (main_adequacy _ _ IstFull).
-    iStopProof.
-    iIntros "_".
-    iApply (ISim_reflR open (HWQP.t mn) HWQI.t (ProphecyI.t mn)
-      (IstEq (HWQP.t mn))).
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
-      { iPureIntro. unfold HWQP.t, HWQI.t; cbn. set_solver. }
-      iIntros (STATE) "SRC TGT".
-      iApply (state_eq_init_same with "SRC TGT").
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+    rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split.
         - mod_tac.
         - set (trans := λ x : option (emask * (option fspec_rel * fbody)),
@@ -338,4 +332,23 @@ Module HWQIP. Section HWQIP.
       }
       repeat case_match; clarify; sYieldS; cStepsS; ss.
   (*SLOW*)Qed.
+
+  End SIM_FUNS.
+
+  Lemma ctxr :
+    ⊢ ctx_refines
+        (HWQI.t ★ ProphecyI.t mn)
+        (HWQP.t mn ★ ProphecyI.t mn).
+  Proof using.
+    iApply main_adequacy.
+    iStopProof.
+    iIntros "_".
+    iApply (ISim_reflR open (HWQP.t mn) HWQI.t (ProphecyI.t mn)
+      (fun STATE => @IstEq Σ STATE (HWQP.t mn))).
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
+      { iPureIntro. unfold HWQP.t, HWQI.t; cbn. set_solver. }
+      iIntros "SRC TGT".
+      iApply (state_eq_init_same with "SRC TGT").
+    - iIntros (STATE). iApply sim_funs.
+  Qed.
 End HWQIP. End HWQIP.

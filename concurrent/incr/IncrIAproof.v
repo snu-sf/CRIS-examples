@@ -10,8 +10,11 @@ Module IncrIA. Section IncrIA.
 
   Local Notation MA := (IncrA.t ★ MemA.t sp_m).
   Local Notation MI := (IncrI.t ★ MemA.t sp_m).
-  Local Definition IstFull (STATE : stateGS Σ) : iProp Σ :=
-    (True ∗ IstEq (MemA.t sp_m) STATE)%I.
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Local Definition IstFull : iProp Σ :=
+    (True ∗ IstEq (MemA.t sp_m))%I.
 
   Lemma incr_simF :
     ⊢ ISim.sim_fun open MA MI IstFull (fid IncrHdr.incr).
@@ -29,10 +32,16 @@ Module IncrIA. Section IncrIA.
     { iIntros "_"; iExists 1%Qp, 1%Qp, Vundef, Vundef; ss. }
     iIntros "↦ _". cStepsT. case_bool_decide.
     { case_bool_decide; subst; ss. cForceS (inr _); cForcesS; iFrame "↦".
-      sYields. rewrite decide_True //. cStepsT. sYieldS. cStep; iFrame; iModIntro; iSplit; ss.
+      sYields. rewrite decide_True //. cStepsT. sYieldS.
+      cStepsS. iApply wsim_unfold. iIntros "WINV". iApply wsim_ret.
+      iFrame. iModIntro. iSplit; ss.
     }
     case_bool_decide; ss. cForceS (inl tt). cForcesS; iFrame. cStepsS.
     aAddY. sYields. case_decide; ss. cStepsT. sYieldS. aAddY.
     cByCoind CIH. iFrame.
   Qed.
+
+  End SIM_FUNS.
+
+
 End IncrIA. End IncrIA.

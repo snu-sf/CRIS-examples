@@ -14,72 +14,78 @@ Module CellioIA. Section CellioIA.
   Local Definition MemA := MemA.t sp.
   Local Definition CellioIMod := (CellioI.t ★ MemA).
   Local Definition CellioAMod := (CellioA.t ★ MemA).
-  Local Notation IstFull :=
-    (λ STATE, (True ∗ IstEq MemA STATE)%I).
+  Section SIM_FUNS.
 
-  Lemma simF_new :
-    ⊢ ISim.sim_fun open CellioAMod CellioIMod IstFull (fid CellioHdr.new).
-  Proof using.
-    cStartFunSim. rewrite /CellioI.new /new.
+    Context `{STATE : !stateGS Σ}.
 
-    cStepsT. cStepsS. destruct Any.downcast; [|cStepsS; ss].
-    cStepsT. cStepsS. cForceS Vnullptr. cStepsS.
-    cForceS. iSplit; et. cStepsS. cStep. iFrame. et.
-  Qed.
+    Local Notation IstFull :=
+      (True ∗ IstEq MemA)%I.
 
-  Lemma simF_push :
-    ⊢ ISim.sim_fun open CellioAMod CellioIMod IstFull (fid CellioHdr.push).
-  Proof using.
-    cStartFunSim. rewrite /CellioI.push /push.
+    Lemma simF_new :
+      ⊢ ISim.sim_fun open CellioAMod CellioIMod IstFull (fid CellioHdr.new).
+    Proof using.
+      cStartFunSim. rewrite /CellioI.new /new.
 
-    cStepsS. cStepsT. destruct Any.downcast; cStepsS; des_ifs. cStepsS. cStepsT. 
+      cStepsT. cStepsS. destruct Any.downcast; [|cStepsS; ss].
+      cStepsT. cStepsS. cForceS Vnullptr. cStepsS.
+      cForceS. iSplit; et. cStepsS. cStep. iFrame. et.
+    Qed.
 
-    cCall "IST" as (?) "IST".
-    cStepsS. cStepsT.
-    destruct Any.downcast; cStepsS; des_ifs. cStepsT. rename z into v_new.
+    Lemma simF_push :
+      ⊢ ISim.sim_fun open CellioAMod CellioIMod IstFull (fid CellioHdr.push).
+    Proof using.
+      cStartFunSim. rewrite /CellioI.push /push.
 
-    mAllocT as (?) "[P0 [P1 _]]". rewrite /scale_int; ss. cStepsT.
-    mStoreT "P0".
-    mStoreT "P1".
+      cStepsS. cStepsT. destruct Any.downcast; cStepsS; des_ifs. cStepsS. cStepsT.
 
-    cForceS. cStepsS. cForceS. iSplitL "P0 P1 ASM".
-    { iExists (blk,0%Z), v. iSplit; et. iFrame. et. }
+      cCall "IST" as (?) "IST".
+      cStepsS. cStepsT.
+      destruct Any.downcast; cStepsS; des_ifs. cStepsT. rename z into v_new.
 
-    cStepsS. cStep. iFrame. et.
-  (*SLOW*)Qed.
-  
-  Lemma simF_pop :
-    ⊢ ISim.sim_fun open CellioAMod CellioIMod IstFull (fid CellioHdr.pop).
-  Proof using.
-    cStartFunSim. rewrite /pop /CellioI.pop.
+      mAllocT as (?) "[P0 [P1 _]]". rewrite /scale_int; ss. cStepsT.
+      mStoreT "P0".
+      mStoreT "P1".
 
-    cStepsS. cStepsT. destruct Any.downcast; cStepsS; des_ifs. cStepsT. des_if.
-    { subst. cStepsT. destruct _q; cycle 1.
-      { iDestruct "ASM" as (??) "[% _]". ss. }
-      cForceS Vnullptr. cStepsS. cForceS. iSplit; et. cStepsS. cStep.
-      iFrame. et.
-    }
+      cForceS. cStepsS. cForceS. iSplitL "P0 P1 ASM".
+      { iExists (blk,0%Z), v. iSplit; et. iFrame. et. }
 
-    destruct _q. { iDestruct "ASM" as "%"; ss. }
-    iDestruct "ASM" as ([b o]?) "[-> [[P0 [P1 _]] PT]]". rewrite right_id.
-    cStepsT. rewrite /scale_int; ss. cStepsT.
+      cStepsS. cStep. iFrame. et.
+    (*SLOW*)Qed.
 
-    mLoadT "P0". mLoadT "P1". mFreeT "P0". mFreeT "P1".
+    Lemma simF_pop :
+      ⊢ ISim.sim_fun open CellioAMod CellioIMod IstFull (fid CellioHdr.pop).
+    Proof using.
+      cStartFunSim. rewrite /pop /CellioI.pop.
 
-    cForceS. cStepsS. cForceS. iFrame.
-    cStepsS. cStep. iFrame. et.
-  (*SLOW*)Qed.
-  
+      cStepsS. cStepsT. destruct Any.downcast; cStepsS; des_ifs. cStepsT. des_if.
+      { subst. cStepsT. destruct _q; cycle 1.
+        { iDestruct "ASM" as (??) "[% _]". ss. }
+        cForceS Vnullptr. cStepsS. cForceS. iSplit; et. cStepsS. cStep.
+        iFrame. et.
+      }
+
+      destruct _q. { iDestruct "ASM" as "%"; ss. }
+      iDestruct "ASM" as ([b o]?) "[-> [[P0 [P1 _]] PT]]". rewrite right_id.
+      cStepsT. rewrite /scale_int; ss. cStepsT.
+
+      mLoadT "P0". mLoadT "P1". mFreeT "P0". mFreeT "P1".
+
+      cForceS. cStepsS. cForceS. iFrame.
+      cStepsS. cStep. iFrame. et.
+    (*SLOW*)Qed.
+
+  End SIM_FUNS.
+
   Lemma sim :
-    CellioA.init_cond ⊢ ISim.t open CellioAMod CellioIMod IstFull.
+    CellioA.init_cond ⊢ ISim.t open CellioAMod CellioIMod.
   Proof using.
     iIntros "INIT".
     iApply (ISim_reflR open CellioA.t CellioI.t MemA
       (λ _ : stateGS Σ, True%I) with "[INIT] []").
-    - rewrite /ISim.init_ist. iIntros (WF). iSplit.
+    - iIntros (STATE). rewrite /ISim.init_ist. iIntros (WF). iSplit.
       { iPureIntro. mod_tac. }
-      iIntros (STATE) "SRC TGT". rewrite /init_cond /=. done.
-    - rewrite /ISim.sim_funs. iIntros (WF). iSplit.
+      iIntros "SRC TGT". rewrite /init_cond /=. done.
+    - iIntros (STATE). rewrite /ISim.sim_funs. iIntros (WF). iSplit.
       { iPureIntro. split; mod_tac. }
       iIntros (fn) "%Hfn".
       repeat rewrite Mod.dom_fnsems_add in Hfn.

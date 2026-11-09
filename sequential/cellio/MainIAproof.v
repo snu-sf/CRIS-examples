@@ -14,61 +14,67 @@ Module MainIA. Section MainIA.
 
   Local Definition CellioA := (CellioA.t).
   Local Definition MainA := (MainA.t sp).
-  Local Definition IstFull (_ : stateGS Σ) : iProp Σ := True%I.
+  Section SIM_FUNS.
 
-  Lemma simF_start :
-    ⊢ ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull entry.
-  Proof using sp_start.
-    cStartFunSim. unfold MainI.start, MainA.start.
-    cStepsS. rewrite sp_start. cStepsS. cForceS _q. cStepsS. cForceS arg. cStepsS.
-    cForceS. iFrame. cStepsS. cStepsT. cCall "IST" as (?) "IST".
-    cStepsS. cForcesS. iSplit; et. cStepsT. cStep. iSplit; et.
-  Qed.
-  
-  Lemma simF_main :
-    ⊢ ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull
-        (funid MainAS.main).
-  Proof using sp_input sp_foo.
-    cStartFunSim. unfold MainI.main, MainA.main.
+    Context `{STATE : !stateGS Σ}.
 
-    (* Take cell(0) *)
-    cStepsS. iDestruct "ASM" as "[-> CELL]".
+    Local Definition IstFull : iProp Σ := True%I.
 
-    cStepsT. cInlineT.
-    (* Give cell(0) *)
-    cStepsT. cForcesT. iSplitL "CELL"; et.
+    Lemma simF_start :
+      ⊢ ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull entry.
+    Proof using sp_start.
+      cStartFunSim. unfold MainI.start, MainA.start.
+      cStepsS. rewrite sp_start. cStepsS. cForceS _q. cStepsS. cForceS arg. cStepsS.
+      cForceS. iFrame. cStepsS. cStepsT. cCall "IST" as (?) "IST".
+      cStepsS. cForcesS. iSplit; et. cStepsT. cStep. iSplit; et.
+    Qed.
 
-    (* Call Input() simultaneously *)
-    cStepsT. rewrite sp_input.
-    cCall "IST" as (ret) "IST".
-    destruct Any.downcast as [v|]; [|cStepsS; ss].
+    Lemma simF_main :
+      ⊢ ISim.sim_fun open MainA (MainI.t ★ CellioA) IstFull
+          (funid MainAS.main).
+    Proof using sp_input sp_foo.
+      cStartFunSim. unfold MainI.main, MainA.main.
 
-    (* Take cell(i) *)
-    cStepsT. iRename "GRT" into "CELL".
+      (* Take cell(0) *)
+      cStepsS. iDestruct "ASM" as "[-> CELL]".
 
-    (* Call Foo.foo() simultaneously *)
-    cStepsT. cStepsS. rewrite sp_foo.
-    cCall "IST" as (r1) "IST".
-    destruct Any.downcast; [|cStepsS; ss].
-    cStepsT. cInlineT.
-    (* Give cell(i) *)
-    cStepsT. cForcesT. iSplitL "CELL"; eauto.
+      cStepsT. cInlineT.
+      (* Give cell(0) *)
+      cStepsT. cForcesT. iSplitL "CELL"; et.
 
-    (* Take cell(i) *)
-    cStepsT. iRename "GRT" into "CELL".
+      (* Call Input() simultaneously *)
+      cStepsT. rewrite sp_input.
+      cCall "IST" as (ret) "IST".
+      destruct Any.downcast as [v|]; [|cStepsS; ss].
 
-    (* Call Print(i) simultaneously *)
-    cStepsT. cStepsS. cStep.
+      (* Take cell(i) *)
+      cStepsT. iRename "GRT" into "CELL".
 
-    cForcesS. iSplit; et.
-    cStep. iFrame. ss.
+      (* Call Foo.foo() simultaneously *)
+      cStepsT. cStepsS. rewrite sp_foo.
+      cCall "IST" as (r1) "IST".
+      destruct Any.downcast; [|cStepsS; ss].
+      cStepsT. cInlineT.
+      (* Give cell(i) *)
+      cStepsT. cForcesT. iSplitL "CELL"; eauto.
 
-    Unshelve. all:(exact ()).
-  (*SLOW*)Qed.
+      (* Take cell(i) *)
+      cStepsT. iRename "GRT" into "CELL".
 
-  Lemma sim : ⊢ ISim.t open MainA (MainI.t ★ CellioA) IstFull.
+      (* Call Print(i) simultaneously *)
+      cStepsT. cStepsS. cStep.
+
+      cForcesS. iSplit; et.
+      cStep. iFrame. ss.
+
+      Unshelve. all:(exact ()).
+    (*SLOW*)Qed.
+
+  End SIM_FUNS.
+
+  Lemma sim : ⊢ ISim.t open MainA (MainI.t ★ CellioA).
   Proof using sp_start sp_input sp_foo.
-    cStartModSim.
+    cStartModSim (fun _ : stateGS Σ => IstFull).
     - done.
     - iApply simF_start; eauto.
     - iApply simF_main; eauto.

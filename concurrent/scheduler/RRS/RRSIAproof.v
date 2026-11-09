@@ -53,8 +53,10 @@ Module RRSIA. Section RRSIA.
     rrinv rrinvO ∗ tid_global tid stid ∗
     YIELD ssch ∗ Shot ssch ∗ PublicAuth ths None.
 
-  Definition Ist (STATE : stateGS Σ) : iProp Σ :=
-    let _ := STATE in
+  Section SIM_FUNS.
+  Context `{STATE : !stateGS Σ}.
+
+  Definition Ist : iProp Σ :=
       (∃ (ths: RRSI.thpool) (tid stid ssch: nat) (rrinvO: gmap nat InvO) (Inv: InvO),
           RRSI.v_ths ↦src ths↑ ∗ RRSI.v_tid ↦src tid↑ ∗ RRSI.v_sch ↦src ssch↑ ∗
           RRSI.v_ths ↦tgt ths↑ ∗ RRSI.v_tid ↦tgt tid↑ ∗ RRSI.v_sch ↦tgt ssch↑ ∗
@@ -299,7 +301,7 @@ Module RRSIA. Section RRSIA.
       rewrite !/RRS.spin. unseal "RRS". iApply wsim_reset.
       assert (EX : exists n : nat, True) by (exists 0; exact I).
       destruct EX as [coind_n _].
-      iAssert (⌜coind_n = coind_n⌝ ∗ Ist STATE)%I with "[IST]" as "LOOP".
+      iAssert (⌜coind_n = coind_n⌝ ∗ Ist)%I with "[IST]" as "LOOP".
       { iFrame. done. }
       cCoind CIH g __ with coind_n. iIntros "[_ IST]".
       unfoldIterCS. unfoldIterCT.
@@ -379,7 +381,7 @@ Module RRSIA. Section RRSIA.
       rewrite !/RRS.spin. unseal "RRS". iApply wsim_reset.
       assert (EX : exists n : nat, True) by (exists 0; exact I).
       destruct EX as [coind_n _].
-      iAssert (⌜coind_n = coind_n⌝ ∗ Ist STATE)%I with "[IST]" as "LOOP".
+      iAssert (⌜coind_n = coind_n⌝ ∗ Ist)%I with "[IST]" as "LOOP".
       { iFrame. done. }
       cCoind CIH g __ with coind_n. iIntros "[_ IST]".
       unfoldIterCS. unfoldIterCT.
@@ -795,9 +797,11 @@ Module RRSIA. Section RRSIA.
     Unshelve. all: ss.
   (*SLOW*)Qed.
 
-  Lemma sim : RRSA.init_cond ⊢ ISim.t open RRSAMod RRSIMod Ist.
+  End SIM_FUNS.
+
+  Lemma sim : RRSA.init_cond ⊢ ISim.t open RRSAMod RRSIMod.
   Proof using (* FunInSchSp *) FunInRrsSp SchInSp RRSInSp YieldSpec ConcInSp.
-    cStartModSim.
+    cStartModSim (fun STATE : stateGS Σ => Ist (STATE := STATE)).
     - rewrite /RRSA.init_cond /init_inv /init_tid /init_pub. unseal RRS.
       iDestruct "INIT" as "(RRI & tid & pub)".
       iEval (rewrite /state_init_src /=) in "SRC".
