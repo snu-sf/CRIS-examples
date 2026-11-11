@@ -45,10 +45,10 @@ Section HWQPM.
       (Irun : iProp Σ)
       msks n sz blk γh γc γi γb fl_s fl_t g ps pt :
     fl_s !! funid (Helping.help mnh) =
-      Some (Some (SB.sandbox_body
+      Some (SB.sandbox_body
         (msk_scp (HelpingOn.scopes mnh) msk_true,
         (SModTr.trans_fnsem ∅
-          (None, HelpingOn.help mnh HWQM.jobCode))))) →
+          (None, HelpingOn.help mnh HWQM.jobCode)))) →
     NoDup p →
     (∀ i, i ∈ p → was_committed <$> slots !! i = Some false) →
     (□ hinv N γh (syn_inv_hwq sz γb γi γe γc γs blk : GTerm.t n)) -∗
@@ -138,7 +138,7 @@ Section HWQPM.
     cStartFunSim. rewrite /HWQM.enqueue /HWQI.enqueue. cStepS.
     aStepS (N [γq v]) "[%qblk [%qofs [%q [%n [%sz [[-> ->] [#Inv HQ]]]]]]]". cStepsT.
     iDestruct "Inv" as (γb γi γc γs γh blk ->) "#Inv".
-    cStepsS. iApply wsim_helping_run; [simpl_map; s; f_equal|].
+    cStepsS. iApply wsim_helping_run; [prove_inline_cond|].
 
     iIntros (req_id) "Tkn".
     sYields.
@@ -588,7 +588,7 @@ Section HWQPM.
           (IstHelp ((Ist ∗ IstEq (HWQM ★ HelpOn)) ∗
             IstEq (MemA ★ ProphA)) (⊤ ∖ ↑N))
           with "[$] [$] Hs● Hbig He●");
-          [by simpl_map|apply HNoDup|..].
+          [prove_inline_cond|apply HNoDup|..].
         intros k Hk. destruct (decide (k = i)) as [->|Hk_not_i].
         + exfalso. apply Hi, Hk.
         + rewrite lookup_insert_ne; last done. apply Hb_valid2, Hk.

@@ -10,7 +10,7 @@ Section mem.
   Local Definition rel : Type := ∀ R_s R_t : Type,
     post R_s R_t → bool → bool → itree crisE R_s → itree crisE R_t → iProp Σ.
 
-  Context (fl_s fl_t : gmap fname (option (Any.t → itree crisE Any.t))).
+  Context (fl_s fl_t : gmap fname (Any.t → itree crisE Any.t)).
   Context (Ist : iProp Σ).
   Context (R_s R_t : Type).
   Context (RR : post R_s R_t).
@@ -19,8 +19,8 @@ Section mem.
 
   Lemma wsim_mem_alloc (sz : Z) (msk : emask) k_s k_t E1 E2 g :
     fl_t !! (fid MemHdr.alloc) =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some MemA.alloc, fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some MemA.alloc, fbody_trivial))) →
     img_msk msk →
     (0 <= 8 * sz < modulus_64)%Z →
     (∀ blk,
@@ -44,8 +44,8 @@ Section mem.
 
   Lemma wsim_mem_free b ofs v' (msk : emask) k_s k_t E1 E2 g :
     fl_t !! fid MemHdr.free =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some MemA.free, fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some MemA.free, fbody_trivial))) →
     img_msk msk →
     (b, ofs) ↦ v' -∗
     (wsim fl_s fl_t Ist (E1, E2) g R_s R_t RR ps true
@@ -63,8 +63,8 @@ Section mem.
 
   Lemma wsim_mem_store b ofs v v' (msk : emask) k_s k_t E1 E2 g :
     fl_t !! fid MemHdr.store =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some MemA.store, fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some MemA.store, fbody_trivial))) →
     img_msk msk →
     (b, ofs) ↦ v' -∗
     ((b, ofs) ↦ v -∗
@@ -83,8 +83,8 @@ Section mem.
 
   Lemma wsim_mem_load b ofs q v (msk : emask) k_s k_t E1 E2 g :
      fl_t !! fid MemHdr.load =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some MemA.load, fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some MemA.load, fbody_trivial))) →
     img_msk msk →
     (b, ofs) ↦{q} v -∗
     ((b, ofs) ↦{q} v -∗
@@ -103,8 +103,8 @@ Section mem.
 
   Lemma wsim_mem_cas b ofs v v_old v_new succ E (msk : emask) k_s k_t E1 E2 g  :
     fl_t !! fid MemHdr.cas =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some MemA.cas, fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some MemA.cas, fbody_trivial))) →
     img_msk msk →
     MemA.compare_val v v_old = Vint succ →
     (b, ofs) ↦ v -∗
@@ -129,8 +129,8 @@ Section mem.
 
   Lemma wsim_mem_cmp v1 v2 succ E (msk : emask) k_s k_t E1 E2 g :
     fl_t !! (fid MemHdr.cmp) =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some (MemA.cmp), fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some (MemA.cmp), fbody_trivial))) →
     img_msk msk →
     MemA.compare_val v1 v2 = Vint succ →
     E -∗
@@ -155,8 +155,8 @@ Section mem.
 
   Lemma wsim_mem_cmp_int n1 n2 (msk : emask) k_s k_t E1 E2 g :
     fl_t !! (fid MemHdr.cmp) =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some (MemA.cmp), fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some (MemA.cmp), fbody_trivial))) →
     img_msk msk →
     (wsim fl_s fl_t Ist (E1, E2) g R_s R_t RR ps true
         k_s (k_t (Vint (if decide (n1 = n2) then 1 else 0)%Z)↑)) -∗
@@ -194,8 +194,8 @@ Section proofmode.
       fl_s fl_t Ist R_s R_t (RR : pmem_post R_s R_t) ps pt sp
       (msk : emask) k_s k_t E1 E2 g :
      fl_t !! fid MemHdr.load =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some MemA.load, fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some MemA.load, fbody_trivial))) →
     img_msk msk →
     envs_lookup_delete true i Δ = Some (false, ((b, ofs) ↦{q} v)%I, Δ2) →
     match envs_simple_replace i false (Esnoc Enil i (((b, ofs) ↦{q} v)%I)) Δ with
@@ -229,8 +229,8 @@ Section proofmode.
       fl_s fl_t Ist R_s R_t (RR : pmem_post R_s R_t) ps pt sp
       (msk : emask) k_s k_t E1 E2 g :
     fl_t !! fid MemHdr.store =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some MemA.store, fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some MemA.store, fbody_trivial))) →
     img_msk msk →
     envs_lookup_delete true i Δ = Some (false, ((b, ofs) ↦ v')%I, Δ2) →
     match envs_simple_replace i false (Esnoc Enil i (((b, ofs) ↦ v)%I)) Δ with
@@ -264,8 +264,8 @@ Section proofmode.
       fl_s fl_t Ist R_s R_t (RR : pmem_post R_s R_t) ps pt sp
       (msk : emask) k_s k_t E1 E2 g :
     fl_t !! fid MemHdr.free =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some MemA.free, fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some MemA.free, fbody_trivial))) →
     img_msk msk →
     envs_lookup_delete true i Δ = Some (false, ((b, ofs) ↦ v')%I, Δ2) →
     envs_entails Δ2 (
@@ -288,8 +288,8 @@ Section proofmode.
       fl_s fl_t Ist R_s R_t (RR : pmem_post R_s R_t) ps pt sp
       (msk : emask) k_s k_t E1 E2 g :
     fl_t !! fid MemHdr.cas =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some MemA.cas, fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some MemA.cas, fbody_trivial))) →
     img_msk msk →
     envs_lookup_delete true i Δ = Some (false, ((b, ofs) ↦ v)%I, Δ2) →
     MemA.compare_val v v_old = Vint succ →
@@ -318,8 +318,8 @@ Section proofmode.
       fl_s fl_t Ist R_s R_t (RR : pmem_post R_s R_t) ps pt sp
       (msk : emask) k_s k_t E1 E2 g :
     fl_t !! (fid MemHdr.cmp) =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some (MemA.cmp), fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some (MemA.cmp), fbody_trivial))) →
     img_msk msk →
     MemA.compare_val v1 v2 = Vint succ →
     envs_entails Δ (
@@ -344,8 +344,8 @@ Section proofmode.
       fl_s fl_t Ist R_s R_t (RR : pmem_post R_s R_t) ps pt sp
       (msk : emask) k_s k_t E1 E2 g :
     fl_t !! (fid MemHdr.cmp) =
-      Some (Some (SB.sandbox_body
-        (msk, SModTr.trans_fnsem sp (fsp_some (MemA.cmp), fbody_trivial)))) →
+      Some (SB.sandbox_body
+        (msk, SModTr.trans_fnsem sp (fsp_some (MemA.cmp), fbody_trivial))) →
     img_msk msk →
     envs_entails Δ (
       wsim fl_s fl_t Ist (E1, E2) g R_s R_t RR ps true
@@ -363,38 +363,42 @@ Section proofmode.
 End proofmode.
 
 Tactic Notation "mLoadT" uconstr(H) :=
-  iApply (wsim_mem_load with H); [try by simpl_map|ss|]; last (iIntros H; cStepsT).
+  iApply (wsim_mem_load with H); [try solve [prove_inline_cond]|ss|];
+    last (iIntros H; cStepsT).
 Tactic Notation "mStoreT" uconstr(H) :=
-  iApply (wsim_mem_store with H); [try by simpl_map|ss|]; last (iIntros H; cStepsT).
+  iApply (wsim_mem_store with H); [try solve [prove_inline_cond]|ss|];
+    last (iIntros H; cStepsT).
 Tactic Notation "mAllocT" "as" "(" simple_intropattern(x) ")" uconstr(H) :=
-  iApply wsim_mem_alloc; [try by simpl_map|ss|ss|iIntros (x) H; cStepsT].
+  iApply wsim_mem_alloc;
+    [try solve [prove_inline_cond]|ss|ss|iIntros (x) H; cStepsT].
 Tactic Notation "mFreeT" uconstr(H) :=
-  iApply (wsim_mem_free with H); [try by simpl_map|ss|cStepsT].
+  iApply (wsim_mem_free with H);
+    [try solve [prove_inline_cond]|ss|cStepsT].
 
 Tactic Notation "mLoad" :=
   eapply tac_wsim_mem_load;
-    [try by simpl_map
+    [try solve [prove_inline_cond]
     |ss
     |iAssumptionCore || fail "mLoad: no matching ↦"
     |pm_reduce; cStepsT].
 
 Tactic Notation "mStore" :=
   eapply tac_wsim_mem_store;
-    [try by simpl_map
+    [try solve [prove_inline_cond]
     |ss
     |iAssumptionCore || fail "mStore: no matching ↦"
     |pm_reduce; cStepsT].
 
 Tactic Notation "mFree" :=
   eapply tac_wsim_mem_free;
-    [try by simpl_map
+    [try solve [prove_inline_cond]
     |ss
     |iAssumptionCore || fail "mFree: no matching ↦"
     |pm_reduce; cStepsT].
 
 Tactic Notation "mCas" :=
   eapply tac_wsim_mem_cas;
-    [try solve [simpl_map | prove_inline_cond | prove_sb_cond | ss]
+    [try solve [prove_inline_cond | prove_sb_cond | ss]
     |ss
     |iAssumptionCore || fail "mCas: no matching ↦"
     |try solve [eauto | rewrite /MemA.compare_val; des_ifs; eauto]
@@ -402,7 +406,7 @@ Tactic Notation "mCas" :=
 
 Tactic Notation "mCas" constr(succ) :=
   eapply (tac_wsim_mem_cas _ _ _ _ _ _ _ succ);
-    [try solve [simpl_map | prove_inline_cond | prove_sb_cond | ss]
+    [try solve [prove_inline_cond | prove_sb_cond | ss]
     |ss
     |iAssumptionCore || fail "mCas: no matching ↦"
     |try solve [eauto | rewrite /MemA.compare_val; des_ifs; eauto]
@@ -410,21 +414,21 @@ Tactic Notation "mCas" constr(succ) :=
 
 Tactic Notation "mCmp" :=
   eapply tac_wsim_mem_cmp;
-    [try solve [simpl_map | prove_inline_cond | prove_sb_cond | ss]
+    [try solve [prove_inline_cond | prove_sb_cond | ss]
     |ss
     |try solve [eauto | rewrite /MemA.compare_val; des_ifs; eauto]
     |pm_reduce].
 
 Tactic Notation "mCmp" constr(succ) :=
   eapply (tac_wsim_mem_cmp _ _ _ succ);
-    [try solve [simpl_map | prove_inline_cond | prove_sb_cond | ss]
+    [try solve [prove_inline_cond | prove_sb_cond | ss]
     |ss
     |try solve [eauto | rewrite /MemA.compare_val; des_ifs; eauto]
     |pm_reduce].
 
 Tactic Notation "mCmpInt" :=
   eapply tac_wsim_mem_cmp_int;
-    [try by simpl_map
+    [try solve [prove_inline_cond]
     |ss
     |cStepsT].
 
@@ -432,8 +436,7 @@ Tactic Notation "mStep" :=
   lazymatch goal with
   | |- environments.envs_entails _
       (wsim _ _ _ _ _ _ _ _ _ _
-        (_, _)
-        (_, _)) =>
+        _ _) =>
     first [mLoad | mStore | mFree | mCas | mCmpInt | mCmp]
   end.
 

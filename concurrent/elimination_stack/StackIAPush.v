@@ -36,7 +36,7 @@ Section StackIM.
     aStepS (N [v γs]) "[%s [-> [%n #[%stackb [%stackofs [%γh [-> Hinv]]]]]]]".
 
     cStepsS; cStepsT.
-    iApply wsim_helping_run; [simpl_map; s; f_equal|iIntros (req_id) "Tkn"].
+    iApply wsim_helping_run; [prove_inline_cond|iIntros (req_id) "Tkn"].
     cStepsS.
 
     (* Coinduction starts here *)

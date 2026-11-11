@@ -57,7 +57,7 @@ Section StackIM.
     iFrame "TV IST".
     iIntros "IST TV".
     iApply wsim_system_yield_src. cStepsS.
-    iApply wsim_helping_run; [simpl_map; s; f_equal|].
+    iApply wsim_helping_run; [prove_inline_cond|].
     iIntros (reqid) "HELP".
     rewrite SRed.bind SBRed.bind bind_bind. cNormT.
     iApply wsim_reset.

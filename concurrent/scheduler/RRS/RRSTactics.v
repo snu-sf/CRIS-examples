@@ -9,7 +9,7 @@ Require Import CRIS.lib.ltac2_lib.
 Section wsim.
   Context `{!crisG Γ Σ α β τ _S _I, !stateGS Σ, _RRS: !rrsGS}.
 
-  Context (fl_s fl_t : gmap fname (option (Any.t → itree crisE Any.t))).
+  Context (fl_s fl_t : gmap fname (Any.t → itree crisE Any.t)).
   Context (Ist : iProp Σ).
   Context (R_s R_t : Type).
   Context (RR : retr_type Σ R_s R_t).

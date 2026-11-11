@@ -193,7 +193,7 @@ Module CtrlIA. Section CtrlIA.
 
       apply Nat.ltb_lt in Heq. rewrite length_app in LEN.
       assert (UBND:= Nat.mod_upper_bound (tl + List.length v) max_size).
-      revert WFS WFT.
+      revert WFS WFT EXTS EXTT.
       rewrite (@cellgroup_split ((tl+ List.length v) mod max_size)); try nia.
       i; move_aux.
 
@@ -254,7 +254,7 @@ Module CtrlIA. Section CtrlIA.
       (* SRC: take cSteps *)
       cStepsS.
       assert (UBND:= Nat.mod_upper_bound tl max_size).
-      revert WFS WFT.
+      revert WFS WFT EXTS EXTT.
       rewrite (@cellgroup_split (tl mod max_size)); try nia.
       i; move_aux.
 

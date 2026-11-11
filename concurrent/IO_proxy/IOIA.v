@@ -22,7 +22,7 @@ Lemma helping_iter_prepend_yield_src `{!crisG Γ Σ α β τ Hinv Hsub}
     `{STATE : !stateGS Σ}
     (N : option namespace)
     {I R : Type} (body : I → itree crisE (I + R)) (arg : I)
-    (fl_s fl_t : gmap fname (option (Any.t → itree crisE Any.t)))
+    (fl_s fl_t : gmap fname (Any.t → itree crisE Any.t))
     (Ist : iProp Σ)
     (ps pt : bool)
     (Es : coPset) g
@@ -103,7 +103,7 @@ Module IOIM. Section IOIM.
     cStartFunSim. rewrite /IOM.request /IOI.request. cStepsS.
     aStepS (N [[[q [cb cofs]] num] prt]) "[-> [%sz [[%qb [%qofs [-> [%γq [#queue #proxy]]]]] %Hsz]]]".
     cStepsS; cStepsT.
-    iApply wsim_helping_run; [simpl_map; s; f_equal|].
+    iApply wsim_helping_run; [prove_inline_cond|].
     iIntros (reqid) "help". sYields.
     mAllocT as (hb) "/= [hb1 [hb2 [hb3 _]]]". sYields.
     mStoreT "hb1". sYields. mStoreT "hb2". sYields. mStoreT "hb3". sYields.
@@ -133,14 +133,14 @@ Module IOIM. Section IOIM.
     { (* pending help *)
       mLoadT "st". iMod ("close" with "[//] [$] IST") as ">>IST".
       iEval (rewrite -IstHelp_nested_equiv) in "IST".
-      sYields. iApply wsim_mem_cmp_int; [simpl_map; s; f_equal|solve_msk|].
+      sYields. iApply wsim_mem_cmp_int; [prove_inline_cond|solve_msk|].
       cStepsT. sYields.
       cByCoind CIH; eauto with iFrame.
     }
     mLoadT "st". iMod ("close" with "[//] [-IST] IST") as ">>IST".
     { iFrame "∗#"; eauto. }
     iEval (rewrite -IstHelp_nested_equiv) in "IST".
-    sYields. iApply wsim_mem_cmp_int; [simpl_map; s; f_equal|solve_msk|].
+    sYields. iApply wsim_mem_cmp_int; [prove_inline_cond|solve_msk|].
     cStepsT. sYields. sYieldS. iApply (wsim_HelpDone_try_run with "Done").
     cStepsS. cStepsT.
     iApply wsim_unfold. iIntros "WINV". iApply wsim_ret. iFrame. eauto.

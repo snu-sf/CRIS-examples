@@ -113,7 +113,7 @@ Module StackIA. Section StackIA.
       (P : X → iProp Σ)
       (body : X → itree crisE (Any.t * X2))
       (Q : X → X2 → Any.t → iProp Σ)
-      (fls flt : gmap fname (option fbody))
+      (fls flt : gmap fname fbody)
       (Ist : iProp Σ) (E1 E2 : coPset)
       g R_t RR ps pt (msk_s : emask) (sp_s : specmap) itt :
     (∀ x,
@@ -151,7 +151,7 @@ Module StackIA. Section StackIA.
     cNormS. cNormT.
     iApply wsim_bind_strong.
     iApply isim_wsim. iIntros "WINV".
-    iApply (isim_mono _ _ _ _ _ _ _
+    iApply (isim_mono _ _ _ _ _ _
       (fun x y : () => (winv (∅, ∅) ∗ ist_with_eq _ x y)%I)
       _ _ _).
     - iIntros (ret_s ret_t) "[WINV [-> IST]]". iFrame "WINV".

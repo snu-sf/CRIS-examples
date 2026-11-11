@@ -94,11 +94,11 @@ Module MainIA. Section MainIA.
     sYieldIR "IST" "TID".
 
     (* tgt inline - mem alloc - counter allocation *)
-    iApply wsim_mem_alloc; ss. iIntros (blk) "[↦ _]". cStepsT.
+    mAllocT as (blk) "[↦ _]".
     sYieldIR "IST" "TID".
 
     (* tgt inline - mem store - counter initialization *)
-    iApply (wsim_mem_store with "[↦]"); ss. iIntros"↦". cStepsT.
+    mStoreT "↦".
     sYieldIR "IST" "TID".
 
     (* create lock-guarded proposition *)
