@@ -1,2 +1,2 @@
 ./CRIS/configure
-opam install coq-promising-lib
+opam install coq-itree
